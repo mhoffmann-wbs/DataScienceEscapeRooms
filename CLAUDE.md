@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Early build. The design below was agreed with the project owner up front. The scaffold (step 1) exists; the remaining build order is: lobby movement → P2P presence and chat → team formation → room engine and code runners → the two rooms → proximity A/V → timer, scoreboard, saving and instructor mode. Sections describing parts not built yet are the target design, so keep this file in sync as they land.
+Early build. The step-by-step plan, with what is done, is in [docs/PLAN.md](docs/PLAN.md). Mark steps done there as they land, and add new ideas to its "Ideas not yet scheduled" section. Sections below that describe parts not built yet are the target design, so keep this file in sync as they land.
 
 ## What this is
 
@@ -19,7 +19,7 @@ Target play time is **about 30 minutes per room** for a beginner team. In practi
 ## Stack
 
 - Vite + TypeScript + React (UI overlays) around a **Phaser 4** canvas (`import Phaser from 'phaser'`; most Phaser 3 examples still apply) (world rendering)
-- Maps authored in the **Tiled** editor (JSON export), with CC0 pixel-art tilesets (e.g. Kenney)
+- Maps authored in the **Tiled** editor (JSON export). The art is a placeholder for now: `scripts/generate-placeholder-art.mjs` writes `content/tilesets/placeholder.png` and `content/sprites/avatars.png`, to be replaced by a CC0 tileset (e.g. Kenney) in plan step 9
 - **Trystero** for P2P networking (WebRTC data and media) over public, account-free signaling relays
 - **Pyodide** (Python) and **sql.js** (SQLite), both WASM, both run in Web Workers
 - CodeMirror 6 for code editing, i18next for DE/EN, Vitest for tests
@@ -37,6 +37,7 @@ npm run typecheck
 npm test             # Vitest, all tests
 npx vitest run path/to/file.test.ts   # single test file
 npx vitest run -t "test name"         # single test by name
+node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and avatar sheet
 # planned, added with the room engine:
 # npm run hash-answer -- "<answer>"   # produce the hash to put in a room manifest
 # npm run validate-rooms              # schema-check every room manifest
@@ -60,6 +61,15 @@ npx vitest run -t "test name"         # single test by name
 ### World and scenes
 - Phaser scenes: `Boot` → `Lobby` → `Room` (one generic scene, parameterized by room id). React overlays sit on top of the canvas and talk to Phaser only through the typed event bus in `src/game/events.ts`. They never reach into scene internals. To add a message, add it to the `GameEvents` map.
 - Doors, interactive objects (terminals, safes, notes) and spawn points are **Tiled object-layer objects** with custom properties (e.g. `puzzleId`, `doorTo`). The engine reads these properties. It never uses hard-coded coordinates.
+- Map conventions, read by `src/game/tiled.ts`:
+  - Tile layers are named `floor` and `walls`. A tile blocks movement when its tileset tile has the boolean property `collides`.
+  - The object layer is named `objects`. Objects are identified by their class (`type`/`class` in the JSON): `spawn` (a point) and `door` (a rectangle with a `doorTo` room id).
+  - The lobby map is `content/lobby/map.json`. Its tests check that the spawn tile is walkable and that each door is reachable.
+- Maps and images are bundled through Vite imports (`import url from '…png'`, `import map from '…json'`) rather than `public/`. This keeps them hashed and base-path-safe.
+- Keyboard input: the scenes register keys with `enableCapture = false` and ignore movement while an HTML field has focus (`isTypingInUi`). Keep it this way, or chat and form inputs break.
+- Each avatar sprite sheet row is one avatar; its columns are 4 directions × 2 walk frames. `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
+- The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `LobbyScene`), so the overlays never hide parts of the map.
+- `Avatar` (`src/game/entities/`) is the sprite plus name label. The local player adds an arcade body sized to the feet; remote players will reuse the class without physics.
 - Team flow: when a player steps on a lobby door, a dialog lets them create or join a team waiting at that door. Entering then switches the player to that team's room instance.
 
 ### Rooms are data, not code
@@ -82,7 +92,7 @@ npx vitest run -t "test name"         # single test by name
 - Hint usage is part of the result: the scoreboard shows escape time *and* hints used, and the instructor view shows hints per puzzle per team. This shows instructors which puzzles are too hard.
 
 ### Persistence, scoreboard, instructor
-- Progress and identity (nickname, avatar, class code) live in `localStorage`, so a page refresh restores the current run.
+- Progress and identity (nickname, avatar, class code) live in `localStorage`, so a page refresh restores the current run. Every storage key starts with `dser.`; the profile is zod-validated on load (`src/player/profile.ts`), and corrupt data counts as missing.
 - The lobby scoreboard is gossiped P2P and **not cheat-proof**. The UI should not present it as authoritative.
 - Instructor mode is unlocked with an instructor PIN set per class code. It can see teams and their progress, reset a team's room, and broadcast announcements. In a P2P setup this is trust-based, not real security, so state that wherever it matters.
 

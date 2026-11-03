@@ -3,8 +3,28 @@
     "title": "Data Science Escape Rooms",
     "loading": "Wird geladen…"
   },
+  "join": {
+    "title": "Lobby betreten",
+    "nickname": "Spitzname",
+    "avatar": "Avatar",
+    "avatarOption": "Avatar {{n}}",
+    "classCode": "Klassencode",
+    "classCodeHelp": "Frag deine Lehrkraft. Nur Spielende mit demselben Code sehen sich.",
+    "submit": "Lobby betreten",
+    "errors": {
+      "nickname": "Gib einen Spitznamen mit 1–20 Zeichen ein.",
+      "classCode": "Verwende 3–16 Buchstaben, Ziffern oder Bindestriche."
+    }
+  },
   "lobby": {
-    "welcome": "Willkommen in der Lobby"
+    "controls": "Bewege dich mit WASD oder den Pfeiltasten. Geh zu einer Tür, um einen Raum zu betreten.",
+    "doorPrompt": "Drücke E zum Betreten",
+    "roomsComingSoon": "Teams und Räume öffnen bald.",
+    "changeProfile": "Profil ändern"
+  },
+  "rooms": {
+    "python-lab": "Verlassenes Forschungslabor",
+    "sql-hotel": "Hotel-Mysterium"
   },
   "settings": {
     "language": "Sprache"

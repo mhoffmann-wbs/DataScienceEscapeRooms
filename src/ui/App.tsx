@@ -1,31 +1,35 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createGame } from '../game/createGame';
-import { bus } from '../game/events';
+import { loadProfile, saveProfile, type Profile } from '../player/profile';
+import { GameView } from './GameView';
+import { JoinScreen } from './JoinScreen';
 import { LanguageSwitch } from './LanguageSwitch';
 
 export function App() {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scene, setScene] = useState<string | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(loadProfile);
+  const [joined, setJoined] = useState(false);
 
-  useEffect(() => {
-    const off = bus.on('scene:ready', ({ scene }) => setScene(scene));
-    const game = createGame(containerRef.current!);
-    return () => {
-      off();
-      game.destroy(true);
-    };
-  }, []);
+  const join = (p: Profile) => {
+    saveProfile(p);
+    setProfile(p);
+    setJoined(true);
+  };
 
   return (
     <div className="app">
-      <div ref={containerRef} className="game" />
+      {joined && profile ? <GameView profile={profile} /> : <JoinScreen initial={profile} onJoin={join} />}
       <header className="overlay top-bar">
         <h1>{t('app.title')}</h1>
-        <LanguageSwitch />
+        <div className="top-bar-actions">
+          {joined && (
+            <button type="button" onClick={() => setJoined(false)}>
+              {t('lobby.changeProfile')}
+            </button>
+          )}
+          <LanguageSwitch />
+        </div>
       </header>
-      <div className="overlay status">{scene === 'Lobby' ? t('lobby.welcome') : t('app.loading')}</div>
     </div>
   );
 }

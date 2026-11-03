@@ -3,6 +3,10 @@
 
 export interface GameEvents {
   'scene:ready': { scene: string };
+  /** The local player stepped onto (roomId) or off (null) a door. */
+  'door:changed': { roomId: string | null };
+  /** The local player pressed the interact key while standing on a door. */
+  'door:interact': { roomId: string };
 }
 
 type Handler<K extends keyof GameEvents> = (payload: GameEvents[K]) => void;
