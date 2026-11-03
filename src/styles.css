@@ -1,0 +1,59 @@
+:root {
+  --bg: #1d2230;
+  --panel: rgba(20, 24, 36, 0.85);
+  --text: #e8ecf4;
+  --accent: #6ee7b7;
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.app {
+  position: relative;
+  height: 100%;
+}
+
+.game {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay {
+  position: absolute;
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.top-bar {
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar h1 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.status {
+  bottom: 12px;
+  left: 12px;
+}
+
+.language-switch {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}

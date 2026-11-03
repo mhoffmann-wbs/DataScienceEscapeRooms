@@ -1,0 +1,12 @@
+{
+  "app": {
+    "title": "Data Science Escape Rooms",
+    "loading": "Wird geladen…"
+  },
+  "lobby": {
+    "welcome": "Willkommen in der Lobby"
+  },
+  "settings": {
+    "language": "Sprache"
+  }
+}
