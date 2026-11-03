@@ -37,7 +37,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Doors defined as Tiled objects. Standing on one shows a prompt; entering rooms comes in step 4.
 - Movement keys are ignored while the player is typing in a text field.
 
-### 3. P2P presence and lobby chat
+### 3. P2P presence and lobby chat ✅
 - `Transport` interface plus a Trystero adapter, namespaced by class code.
 - Other players appear in the lobby, with smooth movement and their name labels.
 - Lobby chat panel, plus a "nearby" chat channel that only reaches people close by.

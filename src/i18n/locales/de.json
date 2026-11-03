@@ -17,7 +17,7 @@
     }
   },
   "lobby": {
-    "controls": "Bewege dich mit WASD oder den Pfeiltasten. Geh zu einer Tür, um einen Raum zu betreten.",
+    "controls": "Bewegen: WASD oder Pfeiltasten · Türen: E · Chat: Enter, Esc zum Verlassen",
     "doorPrompt": "Drücke E zum Betreten",
     "roomsComingSoon": "Teams und Räume öffnen bald.",
     "changeProfile": "Profil ändern"
@@ -28,5 +28,21 @@
   },
   "settings": {
     "language": "Sprache"
+  },
+  "chat": {
+    "title": "Chat",
+    "everyone": "Alle",
+    "nearby": "In der Nähe",
+    "placeholderAll": "Nachricht an alle (Enter)",
+    "placeholderNearby": "Nachricht an Leute in deiner Nähe (Enter)",
+    "nearbyTag": "in der Nähe",
+    "joined": "{{name}} ist beigetreten",
+    "left": "{{name}} hat die Lobby verlassen",
+    "nobodyNearby": "Niemand ist nah genug, um dich zu hören. Geh zu jemandem hin."
+  },
+  "people": {
+    "title": "Online ({{count}})",
+    "you": "(du)",
+    "alone": "Noch niemand sonst hier. Teile deinen Klassencode!"
   }
 }

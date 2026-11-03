@@ -2,8 +2,10 @@ import Phaser from 'phaser';
 import lobbyJson from '../../../content/lobby/map.json';
 import type { Direction } from '../avatars';
 import { Avatar } from '../entities/Avatar';
+import { RemoteAvatars } from '../entities/RemoteAvatars';
 import { bus } from '../events';
-import { getProfile } from '../registry';
+import { getProfile, getSession } from '../registry';
+import type { Presence } from '../../net/presence';
 import { containsPoint, parseMapObjects, tiledMapSchema, type Door } from '../tiled';
 
 const SPEED = 160;
@@ -28,6 +30,8 @@ export class LobbyScene extends Phaser.Scene {
   private doors: Door[] = [];
   private currentDoor: string | null = null;
   private facing: Direction = 'down';
+  private presence!: Presence;
+  private remotes!: RemoteAvatars;
 
   constructor() {
     super('Lobby');
@@ -35,6 +39,7 @@ export class LobbyScene extends Phaser.Scene {
 
   create(): void {
     const profile = getProfile(this);
+    this.presence = getSession(this).presence;
     const parsed = tiledMapSchema.parse(lobbyJson);
     const { spawn, doors } = parseMapObjects(parsed);
     this.doors = doors;
@@ -72,17 +77,20 @@ export class LobbyScene extends Phaser.Scene {
       false,
     ) as MoveKeys;
     // Events rather than polling, so a quick tap between two frames isn't missed.
-    const interact = () => {
+    // (Enter is reserved for opening the chat.)
+    this.input.keyboard!.on('keydown-E', () => {
       if (this.currentDoor && !isTypingInUi()) bus.emit('door:interact', { roomId: this.currentDoor });
-    };
-    this.input.keyboard!.on('keydown-E', interact);
-    this.input.keyboard!.on('keydown-ENTER', interact);
+    });
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => bus.emit('door:changed', { roomId: null }));
+    this.remotes = new RemoteAvatars(this, this.presence);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.remotes.destroy();
+      bus.emit('door:changed', { roomId: null });
+    });
     bus.emit('scene:ready', { scene: 'Lobby' });
   }
 
-  update(): void {
+  update(time: number, delta: number): void {
     const typing = isTypingInUi();
     const k = this.keys;
     const dx = typing ? 0 : Number(k.right.isDown || k.d.isDown) - Number(k.left.isDown || k.a.isDown);
@@ -95,6 +103,8 @@ export class LobbyScene extends Phaser.Scene {
     if (moving) this.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
     this.player.setMotion(this.facing, moving);
     this.player.syncLabel();
+    this.presence.updateSelf({ x: this.player.sprite.x, y: this.player.sprite.y, dir: this.facing, moving }, time);
+    this.remotes.update(delta);
 
     this.updateDoor();
   }

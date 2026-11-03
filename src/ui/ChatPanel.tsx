@@ -1,0 +1,85 @@
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { Chat, ChatEntry } from '../net/chat';
+import { CHAT_MAX_LENGTH, type ChatScope } from '../net/protocol';
+import { useEmitterValue } from './useStore';
+
+export function ChatPanel({ chat }: { chat: Chat }) {
+  const { t } = useTranslation();
+  const entries = useEmitterValue(chat.events, 'entries', () => chat.list());
+  const [scope, setScope] = useState<ChatScope>('all');
+  const [text, setText] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+
+  // Enter (while not typing elsewhere) opens the chat, like in most games.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = document.activeElement;
+      if (e.key !== 'Enter' || el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLButtonElement) return;
+      e.preventDefault();
+      inputRef.current?.focus();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
+  }, [entries]);
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (text.trim() && chat.send(text, scope)) setText('');
+    // Back to walking after sending (or on an empty Enter).
+    inputRef.current?.blur();
+  };
+
+  return (
+    <section className="overlay chat-panel" aria-label={t('chat.title')}>
+      <div className="chat-tabs" role="tablist">
+        {(['all', 'nearby'] as const).map((s) => (
+          <button key={s} type="button" role="tab" aria-selected={scope === s} className={scope === s ? 'active' : ''} onClick={() => {
+              setScope(s);
+              inputRef.current?.focus();
+            }}>
+            {t(s === 'all' ? 'chat.everyone' : 'chat.nearby')}
+          </button>
+        ))}
+      </div>
+      <ol className="chat-list" ref={listRef} aria-live="polite">
+        {entries.map((entry) => (
+          <ChatLine key={entry.id} entry={entry} />
+        ))}
+      </ol>
+      <form onSubmit={submit}>
+        <input
+          ref={inputRef}
+          value={text}
+          maxLength={CHAT_MAX_LENGTH}
+          placeholder={t(scope === 'all' ? 'chat.placeholderAll' : 'chat.placeholderNearby')}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Escape' && inputRef.current?.blur()}
+        />
+      </form>
+    </section>
+  );
+}
+
+function ChatLine({ entry }: { entry: ChatEntry }) {
+  const { t } = useTranslation();
+  switch (entry.kind) {
+    case 'message':
+      return (
+        <li className={entry.self ? 'self' : undefined}>
+          {entry.scope === 'nearby' && <span className="chat-tag">{t('chat.nearbyTag')}</span>}
+          <strong>{entry.nickname}</strong> {entry.text}
+        </li>
+      );
+    case 'joined':
+    case 'left':
+      return <li className="system">{t(entry.kind === 'joined' ? 'chat.joined' : 'chat.left', { name: entry.nickname })}</li>;
+    case 'nobodyNearby':
+      return <li className="system">{t('chat.nobodyNearby')}</li>;
+  }
+}

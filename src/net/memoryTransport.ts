@@ -1,0 +1,97 @@
+import { Emitter } from '../lib/emitter';
+import type { Channel, Json, NetRoom, Transport } from './transport';
+
+interface Member {
+  id: string;
+  deliver(channel: string, data: unknown, from: string): void;
+  peerJoined(id: string): void;
+  peerLeft(id: string): void;
+}
+
+/** In-process "network" shared by memory transports; used by tests and solo play. */
+export class MemoryHub {
+  private scopes = new Map<string, Map<string, Member>>();
+
+  /** @internal */
+  add(scope: string, member: Member): void {
+    let members = this.scopes.get(scope);
+    if (!members) {
+      members = new Map();
+      this.scopes.set(scope, members);
+    }
+    const others = [...members.values()];
+    // Register first so peers greeting the newcomer can already reach it.
+    members.set(member.id, member);
+    for (const other of others) {
+      member.peerJoined(other.id);
+      other.peerJoined(member.id);
+    }
+  }
+
+  /** @internal */
+  remove(scope: string, id: string): void {
+    const members = this.scopes.get(scope);
+    if (!members?.delete(id)) return;
+    for (const other of members.values()) other.peerLeft(id);
+  }
+
+  /** @internal */
+  send(scope: string, channel: string, data: unknown, from: string, to?: readonly string[]): void {
+    const members = this.scopes.get(scope);
+    if (!members) return;
+    for (const m of members.values()) {
+      if (m.id === from || (to && !to.includes(m.id))) continue;
+      // structuredClone mimics serialization over the wire.
+      m.deliver(channel, structuredClone(data), from);
+    }
+  }
+}
+
+export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode = 'LOCAL'): Transport {
+  return {
+    join(scope) {
+      const key = `${classCode}/${scope}`;
+      const events = new Emitter<{ join: string; leave: string; message: { channel: string; data: unknown; from: string } }>();
+      const peers = new Set<string>();
+      hub.add(key, {
+        id: selfId,
+        deliver: (channel, data, from) => events.emit('message', { channel, data, from }),
+        peerJoined: (id) => {
+          peers.add(id);
+          events.emit('join', id);
+        },
+        peerLeft: (id) => {
+          peers.delete(id);
+          events.emit('leave', id);
+        },
+      });
+
+      const room: NetRoom = {
+        selfId,
+        channel<T extends Json>(name: string): Channel<T> {
+          return {
+            send(data, to) {
+              if (to && to.length === 0) return;
+              hub.send(key, name, data, selfId, to);
+            },
+            subscribe: (handler) =>
+              events.on('message', ({ channel, data, from }) => {
+                if (channel === name) handler(data, from);
+              }),
+          };
+        },
+        peers: () => [...peers],
+        onPeerJoin(handler) {
+          peers.forEach((id) => handler(id));
+          return events.on('join', handler);
+        },
+        onPeerLeave: (handler) => events.on('leave', handler),
+        leave() {
+          hub.remove(key, selfId);
+          events.clear();
+        },
+      };
+      return room;
+    },
+  };
+}

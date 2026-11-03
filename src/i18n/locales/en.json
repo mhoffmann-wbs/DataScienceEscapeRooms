@@ -17,7 +17,7 @@
     }
   },
   "lobby": {
-    "controls": "Move with WASD or the arrow keys. Walk to a door to enter a room.",
+    "controls": "Move: WASD or arrow keys · Doors: E · Chat: Enter, Esc to leave",
     "doorPrompt": "Press E to enter",
     "roomsComingSoon": "Teams and rooms open soon.",
     "changeProfile": "Change profile"
@@ -28,5 +28,21 @@
   },
   "settings": {
     "language": "Language"
+  },
+  "chat": {
+    "title": "Chat",
+    "everyone": "Everyone",
+    "nearby": "Nearby",
+    "placeholderAll": "Message everyone (Enter)",
+    "placeholderNearby": "Message people near you (Enter)",
+    "nearbyTag": "nearby",
+    "joined": "{{name}} joined",
+    "left": "{{name}} left",
+    "nobodyNearby": "Nobody is close enough to hear you. Walk up to someone."
+  },
+  "people": {
+    "title": "Online ({{count}})",
+    "you": "(you)",
+    "alone": "Nobody else here yet. Share your class code!"
   }
 }

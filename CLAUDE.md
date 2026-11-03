@@ -53,6 +53,12 @@ node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and
   - The team timer start is the minimum start timestamp any peer reports.
   - Positions are ephemeral, sent last-write-wins at a throttled rate, and interpolated on receivers.
 - Expected scale is about 10–30 players per class code and teams of 2–5. A full mesh is acceptable at that size. Do not add an SFU or relay unless scale requirements change.
+- Code map, all in `src/net/`:
+  - `transport.ts`: the `Transport`/`NetRoom`/`Channel` contract. Received data is typed `unknown` on purpose: peers are untrusted, so parse everything with the zod schemas in `protocol.ts`. `onPeerJoin` replays already-connected peers to late subscribers, and both adapters must keep that.
+  - `trysteroTransport.ts` uses the default Nostr strategy. `memoryTransport.ts` is an in-process hub used by tests and planned for solo mode.
+  - `Session` (one per scope) bundles a `NetRoom`, `Presence` (who is here and where) and `Chat` (everyone, or only peers within `NEARBY_RADIUS`). `Session.leave()` is idempotent; `GameView` also calls it on `pagehide`, so peers see a leave at once instead of after WebRTC's ~10 s timeout.
+- Presence protocol: a peer appears only after its `hello` (name, avatar, position) arrives. Hellos go out on peer join and on the first known position, and **a peer's first hello is always answered with ours**, so greetings lost to timing heal themselves. Positions are sent at most every 100 ms and only on change; receivers smooth them (`RemoteAvatars`).
+- Test multi-peer logic in Vitest with several `Session`s on one `MemoryHub` (see `src/net/session.test.ts`). To try real P2P by hand, open two browser windows that don't share `localStorage` (e.g. one private window), using the same class code. One of Trystero's default relays is dead, so a few `ERR_NAME_NOT_RESOLVED` console errors are expected.
 
 ### Proximity voice/video
 - Media streams connect only to peers within a radius of the local avatar, and disconnect with hysteresis when peers move away so streams don't flap at the edge. Inside a room instance the whole team is always connected.
@@ -66,7 +72,8 @@ node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and
   - The object layer is named `objects`. Objects are identified by their class (`type`/`class` in the JSON): `spawn` (a point) and `door` (a rectangle with a `doorTo` room id).
   - The lobby map is `content/lobby/map.json`. Its tests check that the spawn tile is walkable and that each door is reachable.
 - Maps and images are bundled through Vite imports (`import url from '…png'`, `import map from '…json'`) rather than `public/`. This keeps them hashed and base-path-safe.
-- Keyboard input: the scenes register keys with `enableCapture = false` and ignore movement while an HTML field has focus (`isTypingInUi`). Keep it this way, or chat and form inputs break.
+- Keyboard input: the scenes register keys with `enableCapture = false` and ignore movement while an HTML field has focus (`isTypingInUi`). Keep it this way, or chat and form inputs break. Keys: E uses doors and objects; Enter opens chat, Enter again sends and returns to walking, Esc leaves the chat.
+- The game and React share one `Session`. The scene reads it from the Phaser registry (`src/game/registry.ts`); components subscribe with `useEmitterValue` (`src/ui/useStore.ts`). Presence's `roster` event fires only on join/leave, so React doesn't re-render at position-update rate.
 - Each avatar sprite sheet row is one avatar; its columns are 4 directions × 2 walk frames. `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
 - The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `LobbyScene`), so the overlays never hide parts of the map.
 - `Avatar` (`src/game/entities/`) is the sprite plus name label. The local player adds an arcade body sized to the feet; remote players will reuse the class without physics.

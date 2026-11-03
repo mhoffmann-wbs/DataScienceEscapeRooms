@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
+import type { Session } from '../net/session';
 import type { Profile } from '../player/profile';
-import { setProfile } from './registry';
+import { setGameContext } from './registry';
 import { BootScene } from './scenes/BootScene';
 import { LobbyScene } from './scenes/LobbyScene';
 
-export function createGame(parent: HTMLElement, profile: Profile): Phaser.Game {
+export function createGame(parent: HTMLElement, profile: Profile, session: Session): Phaser.Game {
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent,
@@ -14,6 +15,6 @@ export function createGame(parent: HTMLElement, profile: Profile): Phaser.Game {
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: [BootScene, LobbyScene],
   });
-  setProfile(game, profile);
+  setGameContext(game, profile, session);
   return game;
 }
