@@ -17,7 +17,7 @@ Architecture details live in [CLAUDE.md](../CLAUDE.md). This file tracks *what* 
 | Teams | Walk to a door, create or join a team; each team gets its own room instance |
 | Puzzle state | Shared per team, so a puzzle solved by anyone is solved for everyone; each player has their own code sandbox |
 | Code execution | Pyodide (Python) and sql.js (SQLite), in Web Workers, loaded lazily |
-| Validation | Typed answers checked against salted hashes, hidden Python tests, SQL result comparison |
+| Validation | Typed answers, Python check expressions and SQL results, all compared against salted hashes |
 | Authoring | Each room is a folder with a Tiled map, a JSON manifest and datasets; adding one needs no engine changes |
 | Language | German and English throughout |
 | Play time | About 30 minutes per room: 5–6 puzzles plus a final lock |
@@ -46,16 +46,16 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 ### 4. Teams and room instances ✅
 - Door dialog to create a team or join a team waiting at that door; a team has 1–5 players and a leader who starts the run.
 - Each team gets its own room instance, with its own chat channel and shared state.
-- Shared state merges without a leader: `solved` and `hintUsed` events form grow-only sets, and the timer starts at the earliest start time any peer reports.
+- Shared state merges without a leader: solved puzzles and revealed hints keep the earliest timestamp per key, and the timer starts at the earliest start time any peer reports.
 - Leaving a room returns the player to the lobby; rejoining after a page refresh resumes the run.
 
 ### 5. Room engine and code runners ✅
 - Room manifest format with a zod schema and the `validate-rooms` script; rooms are discovered automatically.
-- Interactive objects in Tiled (terminals, safes, notes) open puzzle dialogs.
+- Interactive objects in Tiled (terminals, safes, keypads) open puzzle dialogs.
 - Puzzle dialog with a CodeMirror editor and an output panel.
 - Pyodide and sql.js Web Workers; a stuck run is stopped by restarting the worker.
-- Answer checks (`answer`, `python-test`, `sql-result`) and the `hash-answer` script.
-- Hints: 2–3 tiered hints per puzzle, revealed for the whole team and counted.
+- Answer checks (`answer`, `python`, `sql`) and the `hash-answer` script.
+- Hints: 1–3 tiered hints per puzzle, revealed for the whole team and counted.
 - **Author shortcut:** a developer-only link such as `#/room/sql-hotel?puzzle=3` jumps straight to one puzzle.
 
 ### 6. The two starter rooms
@@ -65,31 +65,35 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Debrief screen** after escaping: what each puzzle practised, model solutions, time and hints used.
 - Playtest each room against the time budget using the author shortcut.
 
-### 7. Proximity voice and video
+### 7. Proximity, voice/video and collaboration
 - Audio and video connect to players within a radius in the lobby, and to the whole team inside a room.
 - Hysteresis so connections don't flap at the edge of the radius; mute and camera toggles; device selection.
 - When the network blocks it, the game says so clearly and text chat keeps working.
 - **Nearby ring:** a faint circle around the local avatar showing who can hear you (for nearby chat and A/V).
 - **Speech bubbles:** nearby chat messages appear briefly above the speaker's head.
 - **Private areas:** zones such as a couch corner or a group of tables, drawn in Tiled as `area` objects. Inside one, "nearby" means everyone in the same area and nobody outside it, whatever the distance. This applies to both nearby chat and A/V. Outside any area, the normal radius applies.
+- **Shared code view:** teammates can watch each other's editors live inside a puzzle, so a team can work through a query or script together, as in pair programming.
 
 ### 8. Progress, scoreboard, instructor mode, solo mode
-- Progress saved in the browser so a refresh restores the run.
+- Progress saved in the browser so a refresh restores the run (done in step 4).
+- **Rejoin an ongoing run:** a player who left a room for the lobby can go back into their team's run while it is still going, from the room's door. Today, leaving drops the saved run.
 - Lobby scoreboard per room: escape time and hints used. Labelled as not cheat-proof.
 - **Instructor mode** (PIN per class code): see teams and their progress, hints used per puzzle, reset a team's room, send announcements.
+- **Wrong-attempt counts:** count failed checks per puzzle, shown to instructors next to hints used, to spot puzzles that are too hard. Counts merge as per-player counters (each player's highest count wins), not as earliest timestamps.
 - **Solo practice mode:** play a room alone without networking, for revising at home.
 
 ### 9. Polish
 - Replace the placeholder art with a CC0 tileset (e.g. Kenney) and proper character sprites.
 - Accessibility pass: keyboard-only play, readable contrast, chat usable with a screen reader.
 - Optional TURN server setting for networks that block peer-to-peer.
+- **pandas support** for future intermediate rooms: serve the pandas and numpy wheels from our own site, as is already done for Pyodide, and load them only in rooms that declare them.
 
 ## Known limits
 
 - **Strict networks:** without a TURN relay, voice and video may fail on some school or company networks. Text chat is unaffected.
 - **No authority:** with no central server, the scoreboard can be faked and the instructor PIN only stops honest users.
-- **Download size:** Pyodide is about 10 MB, so it is loaded only when a Python puzzle opens.
+- **Download size:** Pyodide is about 12 MB, so it is loaded only when a Python puzzle opens.
 
 ## Ideas not yet scheduled
 
-- allow players to rejoin lobbies in case they left them before while the run is still ongoing
+Add new ideas here before they move into a step.
