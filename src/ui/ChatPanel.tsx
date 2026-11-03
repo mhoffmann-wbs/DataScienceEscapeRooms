@@ -17,6 +17,8 @@ export function ChatPanel({ chat }: { chat: Chat }) {
     const onKey = (e: KeyboardEvent) => {
       const el = document.activeElement;
       if (e.key !== 'Enter' || el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLButtonElement) return;
+      if (el instanceof HTMLElement && el.isContentEditable) return; // e.g. the code editor
+      if (document.querySelector('[aria-modal="true"]')) return;
       e.preventDefault();
       inputRef.current?.focus();
     };

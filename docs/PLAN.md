@@ -49,7 +49,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Shared state merges without a leader: `solved` and `hintUsed` events form grow-only sets, and the timer starts at the earliest start time any peer reports.
 - Leaving a room returns the player to the lobby; rejoining after a page refresh resumes the run.
 
-### 5. Room engine and code runners
+### 5. Room engine and code runners ✅
 - Room manifest format with a zod schema and the `validate-rooms` script; rooms are discovered automatically.
 - Interactive objects in Tiled (terminals, safes, notes) open puzzle dialogs.
 - Puzzle dialog with a CodeMirror editor and an output panel.
@@ -92,4 +92,4 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 
 ## Ideas not yet scheduled
 
-Add new ideas here before they move into a step.
+- allow players to rejoin lobbies in case they left them before while the run is still ongoing

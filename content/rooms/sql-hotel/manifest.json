@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "salt": "33478907abc67bbe",
+  "title": {
+    "en": "Hotel Mystery",
+    "de": "Hotel-Mysterium"
+  },
+  "intro": {
+    "en": "Someone entered room 404 last night, and the manager wants to know who. The hotel's database has everything you need.",
+    "de": "Jemand hat letzte Nacht Zimmer 404 betreten, und die Managerin will wissen, wer. Die Datenbank des Hotels hat alles, was ihr braucht."
+  },
+  "puzzles": [
+    {
+      "id": "guests",
+      "title": {
+        "en": "The guest list",
+        "de": "Die Gästeliste"
+      },
+      "text": {
+        "en": "The reception terminal is connected to the hotel database.\n\nList the names of all guests staying on the 4th floor (rooms 400–499), in alphabetical order.",
+        "de": "Das Rezeptionsterminal ist mit der Hoteldatenbank verbunden.\n\nListe die Namen aller Gäste im 4. Stock (Zimmer 400–499) alphabetisch sortiert auf."
+      },
+      "workspace": "sql",
+      "data": "hotel.sql",
+      "starter": "SELECT *\nFROM guests;\n",
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "76e5fa1c12ce8a5f39cded3e169ece2a553f667aac1475e58d68980d3aeb0e3d"
+      },
+      "hints": [
+        {
+          "en": "Filter rows with `WHERE`. `BETWEEN 400 AND 499` is handy.",
+          "de": "Filtere Zeilen mit `WHERE`. `BETWEEN 400 AND 499` ist praktisch."
+        },
+        {
+          "en": "Sort with `ORDER BY name`, and select only the `name` column.",
+          "de": "Sortiere mit `ORDER BY name` und wähle nur die Spalte `name`."
+        }
+      ]
+    },
+    {
+      "id": "room404",
+      "title": {
+        "en": "The manager's safe",
+        "de": "Der Safe der Managerin"
+      },
+      "text": {
+        "en": "The safe opens for the name of the intruder: the guest whose key card opened room 404 although they are not booked into it.",
+        "de": "Der Safe öffnet sich mit dem Namen des Eindringlings: dem Gast, dessen Schlüsselkarte Zimmer 404 geöffnet hat, obwohl er dort nicht gebucht ist."
+      },
+      "workspace": "sql",
+      "data": "hotel.sql",
+      "starter": "SELECT *\nFROM keycard_log\nWHERE room = 404;\n",
+      "check": {
+        "type": "answer",
+        "mode": "caseless",
+        "hash": "52650a7aab8b530947606dc5295c2595397b59e7b0f45b7d0e7daed34de8643b"
+      },
+      "hints": [
+        {
+          "en": "The `keycard_log` table shows who opened which room. Compare it with the room each guest booked.",
+          "de": "Die Tabelle `keycard_log` zeigt, wer welches Zimmer geöffnet hat. Vergleiche das mit dem gebuchten Zimmer jedes Gastes."
+        },
+        {
+          "en": "`JOIN guests ON guests.id = keycard_log.guest_id`, then keep rows where the log's room is 404 but the guest's room is not.",
+          "de": "`JOIN guests ON guests.id = keycard_log.guest_id`, dann behalte Zeilen, in denen das Zimmer im Log 404 ist, das Zimmer des Gastes aber nicht."
+        }
+      ],
+      "requires": [
+        "guests"
+      ],
+      "final": true
+    }
+  ]
+}

@@ -17,13 +17,9 @@
     }
   },
   "lobby": {
-    "controls": "Move: WASD or arrow keys · Doors: E · Chat: Enter, Esc to leave",
+    "controls": "Move: WASD or arrow keys · Use doors and objects: E · Chat: Enter, Esc to leave",
     "doorPrompt": "Press E to form or join a team",
     "changeProfile": "Change profile"
-  },
-  "rooms": {
-    "python-lab": "Abandoned Research Lab",
-    "sql-hotel": "Hotel Mystery"
   },
   "settings": {
     "language": "Language"
@@ -66,6 +62,42 @@
     "leaveConfirm": "Leave",
     "stay": "Stay",
     "timer": "Time since the run started",
-    "team": "Team ({{count}})"
+    "team": "Team ({{count}})",
+    "progress": "{{solved}}/{{total}} solved",
+    "introStart": "Let's go",
+    "escapedTitle": "You escaped!",
+    "escapedBody_one": "Your team escaped in {{time}} using {{count}} hint.",
+    "escapedBody_other": "Your team escaped in {{time}} using {{count}} hints.",
+    "backToLobby": "Back to the lobby",
+    "keepLooking": "Look around",
+    "alone": "Nobody else from your team is here right now."
+  },
+  "interact": {
+    "puzzlePrompt": "Press E to examine",
+    "solvedTag": "Solved"
+  },
+  "puzzle": {
+    "run": "Run ▶",
+    "runShortcut": "Ctrl/⌘ + Enter runs your code",
+    "check": "Check solution",
+    "editor": "Code editor",
+    "answerLabel": "Your answer",
+    "unlock": "Try it",
+    "wrong": "That's not it. Try again.",
+    "solved": "Solved ✓",
+    "locked": "This is still locked. Solve first: {{list}}",
+    "hint": "Show a hint ({{n}} of {{total}})",
+    "hintNote": "Hints are shared with your team and count on the scoreboard.",
+    "hints": "Hints",
+    "loadingPython": "Loading Python… the first time takes a few seconds.",
+    "loadingSql": "Loading the database…",
+    "timeout": "Your code ran for more than {{s}} seconds and was stopped. Is there an endless loop?",
+    "noRows": "The query returned no rows.",
+    "noResult": "The query ran but returned no table.",
+    "rowsTruncated": "Showing the first {{n}} of {{total}} rows.",
+    "tables": "Tables",
+    "output": "Output appears here.",
+    "empty": "(no output)",
+    "close": "Close"
   }
 }

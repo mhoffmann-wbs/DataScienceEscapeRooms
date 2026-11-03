@@ -10,9 +10,11 @@ interface Props {
   self: Profile;
   /** Panel heading for a given head count (including us). */
   heading: (count: number) => string;
+  /** Shown when nobody else is here. */
+  aloneText: string;
 }
 
-export function PeoplePanel({ presence, self, heading }: Props) {
+export function PeoplePanel({ presence, self, heading, aloneText }: Props) {
   const { t } = useTranslation();
   const peers = useEmitterValue(presence.events, 'roster', () => presence.list());
   const [open, setOpen] = useState(true);
@@ -34,7 +36,7 @@ export function PeoplePanel({ presence, self, heading }: Props) {
               {p.nickname}
             </li>
           ))}
-          {peers.length === 0 && <li className="muted">{t('people.alone')}</li>}
+          {peers.length === 0 && <li className="muted">{aloneText}</li>}
         </ul>
       )}
     </section>

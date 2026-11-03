@@ -38,10 +38,12 @@ npm test             # Vitest, all tests
 npx vitest run path/to/file.test.ts   # single test file
 npx vitest run -t "test name"         # single test by name
 node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and avatar sheet
-# planned, added with the room engine:
-# npm run hash-answer -- "<answer>"   # produce the hash to put in a room manifest
-# npm run validate-rooms              # schema-check every room manifest
+npm run validate-rooms                # room tests: manifests, map placement, data files, reference solutions
+npm run hash-answer -- <roomId>       # re-derive answer hashes from solutions.local.json (add --write to update the manifest)
+VITE_AUTHOR=1 npm run build           # production build with the author shortcut enabled
 ```
+
+Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>` or `#/room/<roomId>?puzzle=<id or 1-based index>` to jump into an offline copy of a room with a puzzle open and locks ignored. Use it to playtest puzzles without forming a team.
 
 ## Architecture
 
@@ -49,8 +51,8 @@ node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and
 - All networking goes through a `Transport` interface (`src/net/`). ESLint enforces this: importing `trystero` outside `src/net/` is a lint error. The only implementation for now is Trystero. A self-hosted WebSocket server may be added later as a second adapter, so **game, UI and room code must never import Trystero directly.**
 - Channel names are namespaced as `appId / classCode / scope`. Scope is either `lobby` or `room:<roomId>:<teamId>`. The class code (entered on join) keeps cohorts apart. Each team's room instance is its own P2P room, with separate chat, A/V and puzzle state.
 - There is no authoritative server. Design shared state so it **converges without a leader**:
-  - Puzzle progress is a grow-only set of `solved` events, which are idempotent and merge by union. When a peer joins, peers exchange their full state.
-  - The team timer start is the minimum start timestamp any peer reports.
+  - Puzzle progress and hint reveals are "earliest timestamp per key" maps, which merge without conflicts (see `run.ts` below). When a peer joins, peers exchange their full state.
+  - The team timer start is the earliest start timestamp any peer reports.
   - Positions are ephemeral, sent last-write-wins at a throttled rate, and interpolated on receivers.
 - Expected scale is about 10–30 players per class code and teams of 2–5. A full mesh is acceptable at that size. Do not add an SFU or relay unless scale requirements change.
 - Code map, all in `src/net/`:
@@ -69,36 +71,42 @@ node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and
 ### World and scenes
 - Phaser scenes: `Boot` (loads every map and the sprites) → `World`, one generic scene that shows whichever map the registry's `mapKey` names (`lobby` or a roomId). React overlays sit on top of the canvas and talk to Phaser only through the typed event bus in `src/game/events.ts`. They never reach into scene internals. To add a message, add it to the `GameEvents` map.
 - The app moves between places: join screen → lobby → room (`src/ui/App.tsx`). `World` (`src/ui/World.tsx`) owns one place: it creates that place's session and a fresh Phaser game, and tears both down on switch. The current run (`dser.run`, `src/player/run.ts`) is saved on every state change, and rejoining with the same class code resumes it.
-- Doors, interactive objects (terminals, safes, notes) and spawn points are **Tiled object-layer objects** with custom properties (e.g. `puzzleId`, `doorTo`). The engine reads these properties. It never uses hard-coded coordinates.
+- Doors, puzzle objects (terminals, safes, keypads) and spawn points are **Tiled object-layer objects** with custom properties (`doorTo`, `puzzleId`). The engine reads these properties. It never uses hard-coded coordinates. The scene treats doors and puzzles alike as interactables: it emits `interact:changed`/`interact:use` on the bus, and React decides what happens. React sends `puzzles:solved` back so the scene can draw ✓ markers; it re-sends on `scene:ready`.
 - Map conventions, read by `src/game/tiled.ts`:
   - Tile layers are named `floor` and `walls`. A tile blocks movement when its tileset tile has the boolean property `collides`.
-  - The object layer is named `objects`. Objects are identified by their class (`type`/`class` in the JSON): `spawn` (a point, which gets a small random offset, or a rectangle players arrive somewhere inside) and `door` (a rectangle with a `doorTo` roomId, or `lobby` for a room's exit).
+  - The object layer is named `objects`. Objects are identified by their class (`type`/`class` in the JSON): `spawn` (a point, which gets a small random offset, or a rectangle players arrive somewhere inside), `door` (a rectangle with a `doorTo` roomId, or `lobby` for a room's exit) and `puzzle` (a rectangle with a `puzzleId`, covering the object's tile and the tile in front of it, where the player stands).
   - The lobby map is `content/lobby/map.json`, and room maps are `content/rooms/<roomId>/map.json`, discovered by `src/game/maps.ts`. Tests run over every map: the spawn is walkable and not on a door, doors are reachable, the lobby has a door to every room, and every room has an exit.
 - Maps and images are bundled through Vite imports (`import url from '…png'`, `import map from '…json'`) rather than `public/`. This keeps them hashed and base-path-safe.
 - Keyboard input: the scenes register keys with `enableCapture = false` and ignore movement while an HTML field has focus (`isTypingInUi`). Keep it this way, or chat and form inputs break. Keys: E uses doors and objects; Enter opens chat, Enter again sends and returns to walking, Esc leaves the chat.
 - The game and React share one `Session`. The scene reads it from the Phaser registry (`src/game/registry.ts`); components subscribe with `useEmitterValue` (`src/ui/useStore.ts`). Presence's `roster` event fires only on join/leave, so React doesn't re-render at position-update rate.
 - Each avatar sprite sheet row is one avatar; its columns are 4 directions × 2 walk frames. `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
-- The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `LobbyScene`), so the overlays never hide parts of the map.
+- The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `WorldScene`), so the overlays never hide parts of the map.
 - `Avatar` (`src/game/entities/`) is the sprite plus name label. The local player adds an arcade body sized to the feet; remote players will reuse the class without physics.
 - Team flow: when a player steps on a lobby door, a dialog lets them create or join a team waiting at that door. Entering then switches the player to that team's room instance.
+- Enter does not open the chat while a modal (`aria-modal`) is open or a code editor has focus.
 
 ### Rooms are data, not code
-- Each room is a folder `content/rooms/<roomId>/` containing:
-  - `map.json`: the Tiled export
-  - `manifest.json`: metadata, DE/EN story text, puzzles, hints, answer hashes, dataset refs
-  - `data/`: CSVs or a `.sqlite` file
-- Rooms are discovered with `import.meta.glob`. Adding a room means adding a folder, with no engine changes. Manifests are validated with a zod schema, both at runtime and in tests.
-- Puzzle validation types:
-  - `answer`: a typed answer, compared against a salted hash. Plaintext answers never go in the bundle.
-  - `python-test`: hidden assertions run against the student's function in Pyodide.
-  - `sql-result`: the student's query result compared to an expected result hash, either order-insensitive or ordered.
+- Each room is a folder `content/rooms/<roomId>/`; the folder name is the roomId. It contains:
+  - `map.json`: the Tiled export, with one `puzzle` object per manifest puzzle.
+  - `manifest.json`: title and intro text, plus the puzzles. Each puzzle has DE/EN title, text and hints, a `workspace` (`none`/`python`/`sql`), starter code, an optional data file, `requires`, `final`, and a `check`. The format is defined in `src/rooms/manifest.ts`, which is the source of truth.
+  - `data/`: `.py` files, run before the student's code, and `.sql` files, which build the database. They load lazily, so a room's data is only downloaded when needed.
+  - `solutions.local.json` (gitignored): reference solutions, `{ puzzleId: answer | Python code | SQL query }`.
+- Rooms are discovered with `import.meta.glob` (`src/rooms/index.ts`). Adding a room means adding a folder, with no engine changes. Room titles and all in-room text come from manifests, never from the locale files.
+- Check types (`check.type`); every one compares a salted PBKDF2 hash, so plaintext answers never go in the bundle:
+  - `answer`: typed text, normalized per `mode` (`caseless`/`exact`/`number`).
+  - `python`: after the student's code runs, `expr` is evaluated in its namespace and compared as canonical JSON.
+  - `sql`: the last statement's rows, with column names ignored and floats rounded; sorted unless `ordered`.
+- Authoring loop: write the reference solution into `solutions.local.json`, run `npm run hash-answer -- <roomId> --write` (it runs the solution through the same runner code as the game), then `npm run validate-rooms`. The solution tests are skipped when the file is absent, e.g. in CI.
+- Hashes only deter casual peeking: a public GitHub Pages repo ships its manifests, and short codes can be brute-forced. Treat answers as a game mechanic, not a secret.
 
 ### Code execution
-- Pyodide loads **lazily, only when a Python puzzle opens**, because it is about 10 MB. Both runtimes run in Web Workers. A runaway loop is stopped by terminating and respawning the worker; this approach does not rely on SharedArrayBuffer, because GitHub Pages can't send COOP/COEP headers.
-- Each player has their own sandbox. Only the *outcome* (solved/not solved) is shared with the team.
+- Pyodide loads **lazily, only when a Python puzzle opens**, because it is about 12 MB. Its runtime files are served from our own site, not a CDN: the `pyodide-files` plugin in `vite.config.ts` serves them from `node_modules` in dev and copies them to `dist/pyodide/` in builds. sql.js's wasm is bundled as a Vite asset. Only the Python core is available; packages such as pandas would need their wheels served the same way.
+- Both runtimes run in Web Workers (`src/runners/*.worker.ts`), driven by `runners` in `src/runners/index.ts`. A run longer than `RUN_TIMEOUT_MS` (10 s) terminates the worker, and the next run starts a fresh one. This doesn't need SharedArrayBuffer, which matters because GitHub Pages can't send COOP/COEP headers.
+- `pythonCore.ts`, `sqlCore.ts`, `rooms/answers.ts`, `rooms/manifest.ts` and `rooms/solutions.ts` also run under plain Node (the tests and `scripts/hash-answer.ts`). Keep them free of browser APIs and Vite-only imports, and use explicit `.ts` extensions for relative imports between them. Every Python run gets a fresh namespace, and every SQL run a fresh database built from the setup script, so one attempt can't break the next.
+- Each player has their own sandbox. Only the *outcome* (solved/not solved) is shared with the team. Editor drafts are kept per puzzle in `localStorage` (`dser.draft.<roomId>.<puzzleId>`).
 
 ### Hints
-- Each puzzle has 2–3 tiered hints in its manifest, from a gentle nudge up to near-solution. A hint is revealed for the whole team, and the reveal counts as a shared `hintUsed` event that merges by union, the same way `solved` events do.
+- Each puzzle has 1–3 tiered hints in its manifest, from a gentle nudge up to near-solution, revealed in order. A reveal applies to the whole team and is recorded in the run state's `hints` map (`<puzzleId>#<tier>`), which merges the same way `solved` does.
 - Hint usage is part of the result: the scoreboard shows escape time *and* hints used, and the instructor view shows hints per puzzle per team. This shows instructors which puzzles are too hard.
 
 ### Persistence, scoreboard, instructor

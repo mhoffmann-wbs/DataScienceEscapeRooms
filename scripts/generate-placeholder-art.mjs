@@ -148,6 +148,43 @@ drawTile(9, ({ rect }) => {
   rect(7, 17, 8, 6, [200, 230, 255]);
 });
 
+// 10 terminal on a desk
+drawTile(10, ({ rect }) => {
+  rect(2, 14, T - 4, 10, [120, 84, 52]);
+  rect(4, 24, 3, 7, [90, 62, 38]);
+  rect(T - 7, 24, 3, 7, [90, 62, 38]);
+  rect(7, 2, 18, 13, [40, 44, 56]);
+  rect(9, 4, 14, 9, [40, 200, 120]);
+  rect(10, 6, 6, 1, [200, 255, 220]);
+  rect(10, 9, 9, 1, [200, 255, 220]);
+  rect(14, 15, 4, 2, [40, 44, 56]);
+});
+// 11 safe
+drawTile(11, ({ rect, ellipse }) => {
+  rect(4, 4, T - 8, T - 6, [90, 96, 110]);
+  rect(6, 6, T - 12, T - 10, [120, 128, 146]);
+  ellipse(16, 15, 5, 5, [60, 64, 76]);
+  ellipse(16, 15, 2, 2, [220, 190, 80]);
+  rect(21, 20, 3, 4, [60, 64, 76]);
+});
+// 12 bookshelf
+drawTile(12, ({ rect }) => {
+  rect(2, 0, T - 4, T, [110, 74, 44]);
+  const books = [[200, 70, 70], [70, 120, 200], [220, 180, 70], [90, 160, 100], [160, 90, 180]];
+  for (let shelf = 0; shelf < 3; shelf++) {
+    const y = 2 + shelf * 10;
+    rect(4, y + 8, T - 8, 2, [80, 52, 30]);
+    for (let i = 0; i < 6; i++) rect(5 + i * 4, y + 1 + (i % 2), 3, 7 - (i % 2), books[(i + shelf) % books.length]);
+  }
+});
+// 13 keypad on wall front
+drawTile(13, ({ rect }) => {
+  rect(0, 0, T, T, [112, 120, 146]);
+  rect(9, 6, 14, 20, [40, 44, 56]);
+  rect(11, 8, 10, 4, [120, 220, 160]);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) rect(11 + c * 4, 14 + r * 4, 2, 2, [200, 204, 212]);
+});
+
 // --- Avatars: rows = avatars, columns = direction x 2 walk frames -------------
 // Directions in order: down, left, right, up (see src/game/avatars.ts).
 const AVATARS = [

@@ -54,10 +54,16 @@ export interface Door extends Rect {
   doorTo: string;
 }
 
+export interface PuzzleSpot extends Rect {
+  puzzleId: string;
+}
+
 export interface MapObjects {
   /** A point (width/height 0) or an area players arrive somewhere inside. */
   spawn: Rect;
   doors: Door[];
+  /** Where the player stands to open a puzzle (class `puzzle`, property `puzzleId`). */
+  puzzles: PuzzleSpot[];
 }
 
 function objectClass(o: TiledObject): string | undefined {
@@ -83,7 +89,15 @@ export function parseMapObjects(map: TiledMap): MapObjects {
       return { doorTo, x: o.x, y: o.y, width: o.width, height: o.height };
     });
 
-  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors };
+  const puzzles = objects
+    .filter((o) => objectClass(o) === 'puzzle')
+    .map((o) => {
+      const puzzleId = stringProp(o, 'puzzleId');
+      if (!puzzleId) throw new Error(`Puzzle object "${o.name}" (id ${o.id}) has no puzzleId property`);
+      return { puzzleId, x: o.x, y: o.y, width: o.width, height: o.height };
+    });
+
+  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles };
 }
 
 /** Max offset (px) around a point spawn, so arriving players don't stack exactly on top of each other. */

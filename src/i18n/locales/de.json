@@ -17,13 +17,9 @@
     }
   },
   "lobby": {
-    "controls": "Bewegen: WASD oder Pfeiltasten · Türen: E · Chat: Enter, Esc zum Verlassen",
+    "controls": "Bewegen: WASD oder Pfeiltasten · Türen und Objekte benutzen: E · Chat: Enter, Esc zum Verlassen",
     "doorPrompt": "Drücke E, um ein Team zu bilden oder beizutreten",
     "changeProfile": "Profil ändern"
-  },
-  "rooms": {
-    "python-lab": "Verlassenes Forschungslabor",
-    "sql-hotel": "Hotel-Mysterium"
   },
   "settings": {
     "language": "Sprache"
@@ -66,6 +62,42 @@
     "leaveConfirm": "Verlassen",
     "stay": "Bleiben",
     "timer": "Zeit seit Spielbeginn",
-    "team": "Team ({{count}})"
+    "team": "Team ({{count}})",
+    "progress": "{{solved}}/{{total}} gelöst",
+    "introStart": "Los geht's",
+    "escapedTitle": "Ihr seid entkommen!",
+    "escapedBody_one": "Euer Team ist in {{time}} entkommen und hat {{count}} Tipp benutzt.",
+    "escapedBody_other": "Euer Team ist in {{time}} entkommen und hat {{count}} Tipps benutzt.",
+    "backToLobby": "Zurück in die Lobby",
+    "keepLooking": "Umsehen",
+    "alone": "Gerade ist sonst niemand aus deinem Team hier."
+  },
+  "interact": {
+    "puzzlePrompt": "Drücke E zum Untersuchen",
+    "solvedTag": "Gelöst"
+  },
+  "puzzle": {
+    "run": "Ausführen ▶",
+    "runShortcut": "Strg/⌘ + Enter führt deinen Code aus",
+    "check": "Lösung prüfen",
+    "editor": "Code-Editor",
+    "answerLabel": "Deine Antwort",
+    "unlock": "Ausprobieren",
+    "wrong": "Das ist es nicht. Versuch es nochmal.",
+    "solved": "Gelöst ✓",
+    "locked": "Das ist noch verschlossen. Löst zuerst: {{list}}",
+    "hint": "Tipp anzeigen ({{n}} von {{total}})",
+    "hintNote": "Tipps sieht dein ganzes Team, und sie zählen in der Bestenliste.",
+    "hints": "Tipps",
+    "loadingPython": "Python wird geladen… beim ersten Mal dauert das ein paar Sekunden.",
+    "loadingSql": "Datenbank wird geladen…",
+    "timeout": "Dein Code lief länger als {{s}} Sekunden und wurde gestoppt. Gibt es eine Endlosschleife?",
+    "noRows": "Die Abfrage hat keine Zeilen geliefert.",
+    "noResult": "Die Abfrage lief, hat aber keine Tabelle geliefert.",
+    "rowsTruncated": "Die ersten {{n}} von {{total}} Zeilen.",
+    "tables": "Tabellen",
+    "output": "Hier erscheint die Ausgabe.",
+    "empty": "(keine Ausgabe)",
+    "close": "Schließen"
   }
 }

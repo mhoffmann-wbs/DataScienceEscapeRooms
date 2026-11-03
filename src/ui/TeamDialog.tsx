@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { roomTitle } from '../rooms';
 import type { Presence } from '../net/presence';
 import { MAX_TEAM_SIZE, type Teams } from '../net/teams';
 import type { Profile } from '../player/profile';
@@ -16,14 +17,14 @@ interface Props {
 
 /** Opened at a lobby door: join a team waiting there, or create one. */
 export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const all = useEmitterValue(teams.events, 'teams', () => teams.list());
   // Re-render when names arrive.
   useEmitterValue(presence.events, 'roster', () => presence.list());
   const waiting = all.filter((team) => team.roomId === roomId);
 
   return (
-    <Modal title={t(`rooms.${roomId}`, { defaultValue: roomId })} onClose={onClose}>
+    <Modal title={roomTitle(roomId, i18n.language)} onClose={onClose}>
       <p className="muted">{t('team.intro', { max: MAX_TEAM_SIZE })}</p>
       {waiting.length === 0 ? (
         <p>{t('team.none')}</p>

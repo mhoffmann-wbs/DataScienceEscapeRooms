@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "salt": "dd1e1f67d50e7f49",
+  "title": {
+    "en": "Abandoned Research Lab",
+    "de": "Verlassenes Forschungslabor"
+  },
+  "intro": {
+    "en": "The lab door slams shut behind you. The scientist who worked here left in a hurry, and their scripts are half broken. Fix them to find the way out.",
+    "de": "Die Labortür fällt hinter euch ins Schloss. Die Forscherin, die hier gearbeitet hat, ist überstürzt gegangen, und ihre Skripte sind halb kaputt. Repariert sie, um den Ausgang zu finden."
+  },
+  "puzzles": [
+    {
+      "id": "warmup",
+      "title": {
+        "en": "The data logger",
+        "de": "Der Datenlogger"
+      },
+      "text": {
+        "en": "The terminal shows a half-finished script. The sensor readings are already loaded into a list called `readings`.\n\nStore the sum of all readings in a variable called `total`.",
+        "de": "Das Terminal zeigt ein halb fertiges Skript. Die Sensorwerte sind bereits in einer Liste namens `readings` geladen.\n\nSpeichere die Summe aller Werte in einer Variablen namens `total`."
+      },
+      "workspace": "python",
+      "data": "readings.py",
+      "starter": "# readings is already defined, e.g. print(readings)\ntotal = 0\n",
+      "check": {
+        "type": "python",
+        "expr": "total",
+        "hash": "494f69f454f4e951fb8ea5ceeb2209949e6448156a717bb33e314b841d812b54"
+      },
+      "hints": [
+        {
+          "en": "Try `print(readings)` first to see what you are working with.",
+          "de": "Probiere zuerst `print(readings)`, um zu sehen, womit du arbeitest."
+        },
+        {
+          "en": "A `for` loop can add each reading to `total`. Python also has a built-in function for this.",
+          "de": "Eine `for`-Schleife kann jeden Wert zu `total` addieren. Python hat dafür auch eine eingebaute Funktion."
+        },
+        {
+          "en": "`total = sum(readings)`",
+          "de": "`total = sum(readings)`"
+        }
+      ]
+    },
+    {
+      "id": "door-code",
+      "title": {
+        "en": "The exit keypad",
+        "de": "Das Tastenfeld am Ausgang"
+      },
+      "text": {
+        "en": "A note is taped next to the keypad: \"Code = total of the readings × number of readings.\"\n\nYou can use the editor as a calculator.",
+        "de": "Neben dem Tastenfeld klebt ein Zettel: \"Code = Summe der Werte × Anzahl der Werte.\"\n\nDu kannst den Editor als Taschenrechner benutzen."
+      },
+      "workspace": "python",
+      "data": "readings.py",
+      "starter": "print(len(readings))\n",
+      "check": {
+        "type": "answer",
+        "mode": "number",
+        "hash": "1a07c0787ed324a8233f2983d1012b1dd590937c9c6fca43613c0f96a66b0944"
+      },
+      "hints": [
+        {
+          "en": "`len(readings)` tells you how many readings there are.",
+          "de": "`len(readings)` sagt dir, wie viele Werte es gibt."
+        },
+        {
+          "en": "`print(sum(readings) * len(readings))`",
+          "de": "`print(sum(readings) * len(readings))`"
+        }
+      ],
+      "requires": [
+        "warmup"
+      ],
+      "final": true
+    }
+  ]
+}

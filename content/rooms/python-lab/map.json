@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 4,
- "nextobjectid": 3,
+ "nextobjectid": 5,
  "layers": [
   {
    "id": 1,
@@ -350,7 +350,7 @@
     0,
     4,
     4,
-    4,
+    14,
     4,
     10,
     4,
@@ -461,67 +461,7 @@
     0,
     0,
     9,
-    9,
-    9,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    9,
-    9,
-    9,
-    0,
-    0,
-    3,
-    3,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    3,
-    3,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    3,
-    3,
-    0,
-    0,
-    9,
-    9,
+    11,
     9,
     0,
     0,
@@ -556,6 +496,66 @@
     0,
     0,
     0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    13,
+    3,
+    3,
+    0,
+    0,
+    9,
+    9,
+    9,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    9,
+    9,
+    9,
+    0,
+    13,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    13,
     3,
     3,
     8,
@@ -637,6 +637,42 @@
        "value": "lobby"
       }
      ]
+    },
+    {
+     "id": 3,
+     "name": "warmup",
+     "type": "puzzle",
+     "x": 128,
+     "y": 224,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "warmup"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "door-code",
+     "type": "puzzle",
+     "x": 416,
+     "y": 32,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "door-code"
+      }
+     ]
     }
    ]
   }
@@ -697,6 +733,46 @@
     },
     {
      "id": 9,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 13,
      "properties": [
       {
        "name": "collides",
