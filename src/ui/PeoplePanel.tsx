@@ -5,15 +5,22 @@ import type { Profile } from '../player/profile';
 import { AvatarPreview } from './AvatarPreview';
 import { useEmitterValue } from './useStore';
 
-export function PeoplePanel({ presence, self }: { presence: Presence; self: Profile }) {
+interface Props {
+  presence: Presence;
+  self: Profile;
+  /** Panel heading for a given head count (including us). */
+  heading: (count: number) => string;
+}
+
+export function PeoplePanel({ presence, self, heading }: Props) {
   const { t } = useTranslation();
   const peers = useEmitterValue(presence.events, 'roster', () => presence.list());
   const [open, setOpen] = useState(true);
 
   return (
-    <section className="overlay people-panel" aria-label={t('people.title', { count: peers.length + 1 })}>
+    <section className="overlay people-panel" aria-label={heading(peers.length + 1)}>
       <button type="button" className="people-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
-        {t('people.title', { count: peers.length + 1 })} · {self.classCode}
+        {heading(peers.length + 1)}
       </button>
       {open && (
         <ul>

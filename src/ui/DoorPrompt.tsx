@@ -1,31 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { bus } from '../game/events';
+import { LOBBY } from '../game/maps';
 
-export function DoorPrompt() {
+interface Props {
+  onInteract: (doorTo: string) => void;
+  onLeaveDoor: () => void;
+}
+
+/** Shows the controls, or what the door under the player leads to. */
+export function DoorPrompt({ onInteract, onLeaveDoor }: Props) {
   const { t } = useTranslation();
-  const [roomId, setRoomId] = useState<string | null>(null);
-  const [notice, setNotice] = useState(false);
+  const [doorTo, setDoorTo] = useState<string | null>(null);
 
   useEffect(() => {
-    const offChanged = bus.on('door:changed', ({ roomId }) => {
-      setRoomId(roomId);
-      setNotice(false);
-    });
-    // Team formation arrives in plan step 4; until then entering just shows a notice.
-    const offInteract = bus.on('door:interact', () => setNotice(true));
-    return () => {
-      offChanged();
-      offInteract();
-    };
-  }, []);
+    const offs = [
+      bus.on('door:changed', ({ doorTo }) => {
+        setDoorTo(doorTo);
+        if (!doorTo) onLeaveDoor();
+      }),
+      bus.on('door:interact', ({ doorTo }) => onInteract(doorTo)),
+    ];
+    return () => offs.forEach((off) => off());
+  }, [onInteract, onLeaveDoor]);
 
-  if (!roomId) return <div className="overlay status">{t('lobby.controls')}</div>;
-  const room = t(`rooms.${roomId}`, { defaultValue: roomId });
+  if (!doorTo) return <div className="overlay status">{t('lobby.controls')}</div>;
+  const isExit = doorTo === LOBBY;
   return (
     <div className="overlay status door-prompt" role="status">
-      <strong>{room}</strong>
-      <span>{notice ? t('lobby.roomsComingSoon') : t('lobby.doorPrompt')}</span>
+      <strong>{isExit ? t('room.exit') : t(`rooms.${doorTo}`, { defaultValue: doorTo })}</strong>
+      <span>{isExit ? t('room.exitPrompt') : t('lobby.doorPrompt')}</span>
     </div>
   );
 }

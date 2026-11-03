@@ -43,7 +43,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Lobby chat panel, plus a "nearby" chat channel that only reaches people close by.
 - A list of who is online, and handling for players who join and leave.
 
-### 4. Teams and room instances
+### 4. Teams and room instances ✅
 - Door dialog to create a team or join a team waiting at that door; a team has 1–5 players and a leader who starts the run.
 - Each team gets its own room instance, with its own chat channel and shared state.
 - Shared state merges without a leader: `solved` and `hintUsed` events form grow-only sets, and the timer starts at the earliest start time any peer reports.
@@ -69,6 +69,9 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Audio and video connect to players within a radius in the lobby, and to the whole team inside a room.
 - Hysteresis so connections don't flap at the edge of the radius; mute and camera toggles; device selection.
 - When the network blocks it, the game says so clearly and text chat keeps working.
+- **Nearby ring:** a faint circle around the local avatar showing who can hear you (for nearby chat and A/V).
+- **Speech bubbles:** nearby chat messages appear briefly above the speaker's head.
+- **Private areas:** zones such as a couch corner or a group of tables, drawn in Tiled as `area` objects. Inside one, "nearby" means everyone in the same area and nobody outside it, whatever the distance. This applies to both nearby chat and A/V. Outside any area, the normal radius applies.
 
 ### 8. Progress, scoreboard, instructor mode, solo mode
 - Progress saved in the browser so a refresh restores the run.

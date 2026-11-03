@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import lobbyJson from '../../content/lobby/map.json';
-import { collidingGids, containsPoint, parseMapObjects, tiledMapSchema } from './tiled';
+import { LOBBY, MAPS, ROOM_IDS } from './maps';
+import { collidingGids, containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema } from './tiled';
 
-const lobby = tiledMapSchema.parse(lobbyJson);
+describe('maps', () => {
+  it('the lobby has a door to every room, and every room has an exit to the lobby', () => {
+    const doorsOf = (key: string) => parseMapObjects(tiledMapSchema.parse(MAPS[key])).doors.map((d) => d.doorTo);
+    expect(doorsOf(LOBBY).sort()).toEqual([...ROOM_IDS].sort());
+    for (const roomId of ROOM_IDS) expect(doorsOf(roomId)).toContain(LOBBY);
+  });
+});
 
-describe('lobby map', () => {
+describe.each(Object.keys(MAPS))('map %s', (key) => {
+  const lobby = tiledMapSchema.parse(MAPS[key]);
   const { spawn, doors } = parseMapObjects(lobby);
 
-  it('has a door to each starter room', () => {
-    expect(doors.map((d) => d.roomId).sort()).toEqual(['python-lab', 'sql-hotel']);
-  });
-
-  it('spawns the player on a walkable tile', () => {
+  it('spawns the player on a walkable tile, away from doors', () => {
+    expect(doors.some((d) => containsPoint(d, spawn.x, spawn.y))).toBe(false);
     const blocked = collidingGids(lobby);
     const tx = Math.floor(spawn.x / lobby.tilewidth);
     const ty = Math.floor(spawn.y / lobby.tileheight);
@@ -43,6 +47,11 @@ describe('parseMapObjects', () => {
       ] }],
     });
     expect(() => parseMapObjects(map)).toThrow(/doorTo/);
+  });
+
+  it('picks spawn points inside spawn areas, and near point spawns', () => {
+    expect(pickSpawnPoint({ x: 100, y: 100, width: 64, height: 32 }, () => 0.5)).toEqual({ x: 132, y: 116 });
+    expect(pickSpawnPoint({ x: 100, y: 100, width: 0, height: 0 }, () => 0)).toEqual({ x: 88, y: 88 });
   });
 
   it('containsPoint is half-open', () => {

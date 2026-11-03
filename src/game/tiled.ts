@@ -50,11 +50,13 @@ export interface Rect {
 }
 
 export interface Door extends Rect {
-  roomId: string;
+  /** A roomId, or 'lobby' for exits. */
+  doorTo: string;
 }
 
 export interface MapObjects {
-  spawn: { x: number; y: number };
+  /** A point (width/height 0) or an area players arrive somewhere inside. */
+  spawn: Rect;
   doors: Door[];
 }
 
@@ -76,12 +78,23 @@ export function parseMapObjects(map: TiledMap): MapObjects {
   const doors = objects
     .filter((o) => objectClass(o) === 'door')
     .map((o) => {
-      const roomId = stringProp(o, 'doorTo');
-      if (!roomId) throw new Error(`Door "${o.name}" (id ${o.id}) has no doorTo property`);
-      return { roomId, x: o.x, y: o.y, width: o.width, height: o.height };
+      const doorTo = stringProp(o, 'doorTo');
+      if (!doorTo) throw new Error(`Door "${o.name}" (id ${o.id}) has no doorTo property`);
+      return { doorTo, x: o.x, y: o.y, width: o.width, height: o.height };
     });
 
-  return { spawn: { x: spawnObj.x, y: spawnObj.y }, doors };
+  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors };
+}
+
+/** Max offset (px) around a point spawn, so arriving players don't stack exactly on top of each other. */
+const POINT_SPAWN_JITTER = 12;
+
+export function pickSpawnPoint(spawn: Rect, random: () => number = Math.random): { x: number; y: number } {
+  const jitter = spawn.width === 0 && spawn.height === 0 ? POINT_SPAWN_JITTER : 0;
+  return {
+    x: spawn.x - jitter + random() * (spawn.width + 2 * jitter),
+    y: spawn.y - jitter + random() * (spawn.height + 2 * jitter),
+  };
 }
 
 /** Global tile ids whose tileset tile has `collides: true`. */

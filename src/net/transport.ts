@@ -6,7 +6,10 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 export interface Channel<T extends Json> {
   /** Sends to all peers, or only to `to`. An empty `to` sends nothing. */
   send(data: T, to?: readonly string[]): void;
-  /** Incoming data is `unknown`: peers are untrusted, so validate before use. */
+  /**
+   * Incoming data is `unknown`: peers are untrusted, so validate before use.
+   * Messages that arrive before the first subscriber are delivered to it.
+   */
   subscribe(handler: (data: unknown, from: string) => void): () => void;
 }
 

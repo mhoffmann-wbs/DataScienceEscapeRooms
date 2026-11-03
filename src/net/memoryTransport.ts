@@ -53,9 +53,16 @@ export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode 
       const key = `${classCode}/${scope}`;
       const events = new Emitter<{ join: string; leave: string; message: { channel: string; data: unknown; from: string } }>();
       const peers = new Set<string>();
+      // Messages for channels nobody listens to yet wait for the first subscriber
+      // (delivery here is synchronous, so a newcomer is greeted before it subscribes).
+      const listening = new Map<string, number>();
+      const pending = new Map<string, { data: unknown; from: string }[]>();
       hub.add(key, {
         id: selfId,
-        deliver: (channel, data, from) => events.emit('message', { channel, data, from }),
+        deliver: (channel, data, from) => {
+          if (listening.get(channel)) events.emit('message', { channel, data, from });
+          else pending.set(channel, [...(pending.get(channel) ?? []), { data, from }]);
+        },
         peerJoined: (id) => {
           peers.add(id);
           events.emit('join', id);
@@ -74,10 +81,19 @@ export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode 
               if (to && to.length === 0) return;
               hub.send(key, name, data, selfId, to);
             },
-            subscribe: (handler) =>
-              events.on('message', ({ channel, data, from }) => {
+            subscribe(handler) {
+              const off = events.on('message', ({ channel, data, from }) => {
                 if (channel === name) handler(data, from);
-              }),
+              });
+              listening.set(name, (listening.get(name) ?? 0) + 1);
+              const queued = pending.get(name) ?? [];
+              pending.delete(name);
+              queued.forEach(({ data, from }) => handler(data, from));
+              return () => {
+                off();
+                listening.set(name, (listening.get(name) ?? 1) - 1);
+              };
+            },
           };
         },
         peers: () => [...peers],

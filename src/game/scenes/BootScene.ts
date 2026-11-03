@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import lobbyMap from '../../../content/lobby/map.json';
 import tilesetUrl from '../../../content/tilesets/placeholder.png';
+import { MAPS } from '../maps';
 import { AVATAR_COUNT, AVATAR_FRAME_SIZE, AVATAR_SHEET_URL, DIRECTIONS, frameIndex, walkAnimKey } from '../avatars';
 
 export class BootScene extends Phaser.Scene {
@@ -11,7 +11,7 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     this.load.image('tiles-placeholder', tilesetUrl);
     this.load.spritesheet('avatars', AVATAR_SHEET_URL, { frameWidth: AVATAR_FRAME_SIZE, frameHeight: AVATAR_FRAME_SIZE });
-    this.load.tilemapTiledJSON('lobby', lobbyMap);
+    for (const [key, map] of Object.entries(MAPS)) this.load.tilemapTiledJSON(key, map as object);
   }
 
   create(): void {
@@ -25,6 +25,6 @@ export class BootScene extends Phaser.Scene {
         });
       }
     }
-    this.scene.start('Lobby');
+    this.scene.start('World');
   }
 }

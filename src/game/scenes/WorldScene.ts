@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import lobbyJson from '../../../content/lobby/map.json';
 import type { Direction } from '../avatars';
 import { Avatar } from '../entities/Avatar';
 import { RemoteAvatars } from '../entities/RemoteAvatars';
 import { bus } from '../events';
-import { getProfile, getSession } from '../registry';
+import { MAPS } from '../maps';
+import { getMapKey, getPresence, getProfile } from '../registry';
 import type { Presence } from '../../net/presence';
-import { containsPoint, parseMapObjects, tiledMapSchema, type Door } from '../tiled';
+import { containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema, type Door } from '../tiled';
 
 const SPEED = 160;
 const ZOOM = 1.5;
@@ -23,7 +23,8 @@ function isTypingInUi(): boolean {
   return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || (el instanceof HTMLElement && el.isContentEditable);
 }
 
-export class LobbyScene extends Phaser.Scene {
+/** The walkable world: the lobby or a room, depending on the map key in the registry. */
+export class WorldScene extends Phaser.Scene {
   private player!: Avatar;
   private body!: Phaser.Physics.Arcade.Body;
   private keys!: MoveKeys;
@@ -34,26 +35,28 @@ export class LobbyScene extends Phaser.Scene {
   private remotes!: RemoteAvatars;
 
   constructor() {
-    super('Lobby');
+    super('World');
   }
 
   create(): void {
     const profile = getProfile(this);
-    this.presence = getSession(this).presence;
-    const parsed = tiledMapSchema.parse(lobbyJson);
+    this.presence = getPresence(this);
+    const mapKey = getMapKey(this);
+    const parsed = tiledMapSchema.parse(MAPS[mapKey]);
     const { spawn, doors } = parseMapObjects(parsed);
     this.doors = doors;
     this.currentDoor = null;
 
-    const map = this.make.tilemap({ key: 'lobby' });
+    const map = this.make.tilemap({ key: mapKey });
     const tileset = map.addTilesetImage('placeholder', 'tiles-placeholder');
-    if (!tileset) throw new Error('Lobby tileset missing');
+    if (!tileset) throw new Error(`Tileset missing for map ${mapKey}`);
     map.createLayer('floor', tileset);
     const walls = map.createLayer('walls', tileset);
-    if (!walls) throw new Error('Lobby map has no walls layer');
+    if (!walls) throw new Error(`Map ${mapKey} has no walls layer`);
     walls.setCollisionByProperty({ collides: true });
 
-    this.player = new Avatar(this, spawn.x, spawn.y, profile.avatar, profile.nickname);
+    const start = pickSpawnPoint(spawn);
+    this.player = new Avatar(this, start.x, start.y, profile.avatar, profile.nickname);
     this.physics.add.existing(this.player.sprite);
     this.body = this.player.sprite.body as Phaser.Physics.Arcade.Body;
     // Collide with the feet, not the whole sprite, so avatars can walk up close to walls.
@@ -79,15 +82,15 @@ export class LobbyScene extends Phaser.Scene {
     // Events rather than polling, so a quick tap between two frames isn't missed.
     // (Enter is reserved for opening the chat.)
     this.input.keyboard!.on('keydown-E', () => {
-      if (this.currentDoor && !isTypingInUi()) bus.emit('door:interact', { roomId: this.currentDoor });
+      if (this.currentDoor && !isTypingInUi()) bus.emit('door:interact', { doorTo: this.currentDoor });
     });
 
     this.remotes = new RemoteAvatars(this, this.presence);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.remotes.destroy();
-      bus.emit('door:changed', { roomId: null });
+      bus.emit('door:changed', { doorTo: null });
     });
-    bus.emit('scene:ready', { scene: 'Lobby' });
+    bus.emit('scene:ready', { scene: mapKey });
   }
 
   update(time: number, delta: number): void {
@@ -112,10 +115,10 @@ export class LobbyScene extends Phaser.Scene {
   private updateDoor(): void {
     // Use the feet position, which is what visually stands on the door.
     const feetY = this.body.bottom;
-    const door = this.doors.find((d) => containsPoint(d, this.body.center.x, feetY))?.roomId ?? null;
+    const door = this.doors.find((d) => containsPoint(d, this.body.center.x, feetY))?.doorTo ?? null;
     if (door !== this.currentDoor) {
       this.currentDoor = door;
-      bus.emit('door:changed', { roomId: door });
+      bus.emit('door:changed', { doorTo: door });
     }
   }
 }

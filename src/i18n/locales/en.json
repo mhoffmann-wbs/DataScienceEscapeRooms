@@ -18,8 +18,7 @@
   },
   "lobby": {
     "controls": "Move: WASD or arrow keys · Doors: E · Chat: Enter, Esc to leave",
-    "doorPrompt": "Press E to enter",
-    "roomsComingSoon": "Teams and rooms open soon.",
+    "doorPrompt": "Press E to form or join a team",
     "changeProfile": "Change profile"
   },
   "rooms": {
@@ -44,5 +43,29 @@
     "title": "Online ({{count}})",
     "you": "(you)",
     "alone": "Nobody else here yet. Share your class code!"
+  },
+  "team": {
+    "intro": "Form a team of up to {{max}} players. Every team plays its own copy of the room.",
+    "none": "No teams are waiting at this door yet.",
+    "create": "Create a new team",
+    "join": "Join",
+    "full": "Full",
+    "teamOf": "{{name}}'s team",
+    "size": "{{count}}/{{max}}",
+    "waiting": "Waiting for {{name}} to start…",
+    "start": "Start the run",
+    "leave": "Leave team",
+    "close": "Close",
+    "youAreIn": "You're in this team"
+  },
+  "room": {
+    "exit": "Back to the lobby",
+    "exitPrompt": "Press E to leave the room",
+    "leaveTitle": "Leave the room?",
+    "leaveBody": "You'll go back to the lobby. Your team can keep playing without you.",
+    "leaveConfirm": "Leave",
+    "stay": "Stay",
+    "timer": "Time since the run started",
+    "team": "Team ({{count}})"
   }
 }

@@ -18,8 +18,7 @@
   },
   "lobby": {
     "controls": "Bewegen: WASD oder Pfeiltasten · Türen: E · Chat: Enter, Esc zum Verlassen",
-    "doorPrompt": "Drücke E zum Betreten",
-    "roomsComingSoon": "Teams und Räume öffnen bald.",
+    "doorPrompt": "Drücke E, um ein Team zu bilden oder beizutreten",
     "changeProfile": "Profil ändern"
   },
   "rooms": {
@@ -44,5 +43,29 @@
     "title": "Online ({{count}})",
     "you": "(du)",
     "alone": "Noch niemand sonst hier. Teile deinen Klassencode!"
+  },
+  "team": {
+    "intro": "Bildet Teams mit bis zu {{max}} Personen. Jedes Team spielt seine eigene Kopie des Raums.",
+    "none": "An dieser Tür wartet noch kein Team.",
+    "create": "Neues Team gründen",
+    "join": "Beitreten",
+    "full": "Voll",
+    "teamOf": "Team von {{name}}",
+    "size": "{{count}}/{{max}}",
+    "waiting": "Warte darauf, dass {{name}} startet…",
+    "start": "Spiel starten",
+    "leave": "Team verlassen",
+    "close": "Schließen",
+    "youAreIn": "Du bist in diesem Team"
+  },
+  "room": {
+    "exit": "Zurück in die Lobby",
+    "exitPrompt": "Drücke E, um den Raum zu verlassen",
+    "leaveTitle": "Raum verlassen?",
+    "leaveBody": "Du gehst zurück in die Lobby. Dein Team kann ohne dich weiterspielen.",
+    "leaveConfirm": "Verlassen",
+    "stay": "Bleiben",
+    "timer": "Zeit seit Spielbeginn",
+    "team": "Team ({{count}})"
   }
 }
