@@ -2,79 +2,332 @@
   "version": 1,
   "salt": "dd1e1f67d50e7f49",
   "title": {
-    "en": "Abandoned Research Lab",
-    "de": "Verlassenes Forschungslabor"
+    "en": "Quarantine",
+    "de": "Quarantäne"
   },
   "intro": {
-    "en": "The lab door slams shut behind you. The scientist who worked here left in a hurry, and their scripts are half broken. Fix them to find the way out.",
-    "de": "Die Labortür fällt hinter euch ins Schloss. Die Forscherin, die hier gearbeitet hat, ist überstürzt gegangen, und ihre Skripte sind halb kaputt. Repariert sie, um den Ausgang zu finden."
+    "en": "Dr. Ida Kranich studies mushrooms that glow in the dark. Last night a faulty sensor triggered the lab's quarantine, and the doors sealed themselves. Ida escaped through the vents, and now you are locked in.\n\nThe exit only opens with a 4-digit override code. Ida never kept a whole code in one place, so the digits are hidden in her equipment. Split up, look around and tell each other what you find.",
+    "de": "Dr. Ida Kranich erforscht Pilze, die im Dunkeln leuchten. Letzte Nacht hat ein defekter Sensor die Quarantäne des Labors ausgelöst, und die Türen haben sich verriegelt. Ida ist durch die Lüftung entkommen, und jetzt seid ihr eingeschlossen.\n\nDer Ausgang öffnet sich nur mit einem 4-stelligen Override-Code. Ida hat nie einen ganzen Code an einem Ort aufbewahrt, also sind die Ziffern in ihren Geräten versteckt. Teilt euch auf, seht euch um und erzählt einander, was ihr findet."
   },
   "puzzles": [
     {
-      "id": "warmup",
+      "id": "terminal",
       "title": {
-        "en": "The data logger",
-        "de": "Der Datenlogger"
+        "en": "Ida's terminal",
+        "de": "Idas Terminal"
       },
       "text": {
-        "en": "The terminal shows a half-finished script. The sensor readings are already loaded into a list called `readings`.\n\nStore the sum of all readings in a variable called `total`.",
-        "de": "Das Terminal zeigt ein halb fertiges Skript. Die Sensorwerte sind bereits in einer Liste namens `readings` geladen.\n\nSpeichere die Summe aller Werte in einer Variablen namens `total`."
+        "en": "Ida's computer is asking for a password. Next to the keyboard sits her login helper script, which crashed the night of the lockdown.\n\nFill in the missing values from things you find in the lab, fix the script and store the password in `password`.",
+        "de": "Idas Computer verlangt ein Passwort. Neben der Tastatur liegt ihr Login-Hilfsskript, das in der Nacht des Lockdowns abgestürzt ist.\n\nFüllt die fehlenden Werte mit Dingen aus, die ihr im Labor findet, repariert das Skript und speichert das Passwort in `password`."
       },
       "workspace": "python",
-      "data": "readings.py",
-      "starter": "# readings is already defined, e.g. print(readings)\ntotal = 0\n",
+      "starter": {
+        "en": "# Ida's login helper. It crashed the night of the lockdown.\n# Password rule (my memory is terrible):\n#   my cat's name in CAPITALS + the year of my doctorate + the number of letters in my last name\ncat = \"???\"         # the name is on the photo on my desk\ndoctorate = \"???\"   # it's on my diploma\nlast_name = \"Kranich\"\n\npassword = cat + doctorate + len(last_name)\nprint(\"Logging in with:\", password)\n",
+        "de": "# Idas Login-Helfer. Ist in der Nacht des Lockdowns abgestürzt.\n# Passwort-Regel (mein Gedächtnis ist furchtbar):\n#   Name meiner Katze in GROSSBUCHSTABEN + Jahr meiner Promotion + Anzahl der Buchstaben meines Nachnamens\ncat = \"???\"         # der Name steht auf dem Foto auf meinem Schreibtisch\ndoctorate = \"???\"   # steht auf meiner Urkunde\nlast_name = \"Kranich\"\n\npassword = cat + doctorate + len(last_name)\nprint(\"Login mit:\", password)\n"
+      },
       "check": {
         "type": "python",
-        "expr": "total",
-        "hash": "494f69f454f4e951fb8ea5ceeb2209949e6448156a717bb33e314b841d812b54"
+        "expr": "password",
+        "hash": "ba961a22c40d0a7f81bb4cc4b1a771c2581053b98420f8b066fc4f06632d4795"
+      },
+      "reveal": {
+        "en": "The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:\n\n\"Note to self: never write the override order on the whiteboard again! It goes ☀ 🍄 ❄ 🌀.\"",
+        "de": "Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:\n\n\"Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ☀ 🍄 ❄ 🌀.\""
       },
       "hints": [
         {
-          "en": "Try `print(readings)` first to see what you are working with.",
-          "de": "Probiere zuerst `print(readings)`, um zu sehen, womit du arbeitest."
+          "en": "The cat's name is on the photo on Ida's desk, the year on her diploma on the wall. Careful: there is more than one year in this room.",
+          "de": "Der Name der Katze steht auf dem Foto auf Idas Schreibtisch, das Jahr auf der Urkunde an der Wand. Vorsicht: In diesem Raum gibt es mehr als eine Jahreszahl."
         },
         {
-          "en": "A `for` loop can add each reading to `total`. Python also has a built-in function for this.",
-          "de": "Eine `for`-Schleife kann jeden Wert zu `total` addieren. Python hat dafür auch eine eingebaute Funktion."
+          "en": "Python can't join text and numbers with `+`. `str(...)` turns a number into text, and `.upper()` turns text into capitals.",
+          "de": "Python kann Text und Zahlen nicht mit `+` verbinden. `str(...)` macht aus einer Zahl Text, und `.upper()` macht Text zu Großbuchstaben."
         },
         {
-          "en": "`total = sum(readings)`",
-          "de": "`total = sum(readings)`"
+          "en": "`password = cat.upper() + str(doctorate) + str(len(last_name))`, with `cat = \"Pixel\"` and `doctorate = 2019`.",
+          "de": "`password = cat.upper() + str(doctorate) + str(len(last_name))`, mit `cat = \"Pixel\"` und `doctorate = 2019`."
         }
       ]
     },
     {
-      "id": "door-code",
+      "id": "incubator",
+      "title": {
+        "en": "The incubator",
+        "de": "Der Inkubator"
+      },
+      "text": {
+        "en": "The incubator kept logging temperatures all night, one reading per hour, starting at hour 0. The log is loaded as the list `temps`.\n\nThe incubator manual is somewhere in the lab. Use it to work out three things:\n\n`missing`: how many readings are missing (the sensor dropped out)\n\n`alarms`: how many readings were outside the safe range\n\n`first_alarm`: the hour of the first alarm",
+        "de": "Der Inkubator hat die ganze Nacht Temperaturen aufgezeichnet, ein Wert pro Stunde, beginnend bei Stunde 0. Das Protokoll ist als Liste `temps` geladen.\n\nDie Bedienungsanleitung des Inkubators liegt irgendwo im Labor. Ermittelt damit drei Dinge:\n\n`missing`: wie viele Werte fehlen (der Sensor ist ausgefallen)\n\n`alarms`: wie viele Werte außerhalb des sicheren Bereichs lagen\n\n`first_alarm`: die Stunde des ersten Alarms"
+      },
+      "workspace": "python",
+      "data": "incubator.py",
+      "starter": {
+        "en": "# temps is already loaded. Try print(temps) first.\nmissing = 0\nalarms = 0\nfirst_alarm = None\n",
+        "de": "# temps ist schon geladen. Probiert zuerst print(temps).\nmissing = 0\nalarms = 0\nfirst_alarm = None\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[missing, alarms, first_alarm]",
+        "hash": "8aa1b3603b0533e30d99a225da205fb2767ac0d7673c360c1b0fb31c98ff2582"
+      },
+      "reveal": {
+        "en": "The incubator beeps and its display lights up: **☀ 6**",
+        "de": "Der Inkubator piept und sein Display leuchtet auf: **☀ 6**"
+      },
+      "hints": [
+        {
+          "en": "The manual on the wall in the lower lab gives the safe range and explains what `None` means. `for hour, t in enumerate(temps):` gives you both the hour and the temperature.",
+          "de": "Die Anleitung an der Wand im unteren Labor nennt den sicheren Bereich und erklärt, was `None` bedeutet. `for hour, t in enumerate(temps):` liefert euch Stunde und Temperatur zugleich."
+        },
+        {
+          "en": "Check for a missing reading first (`if t is None:`), and compare only real numbers. A reading is an alarm when `t < 20.0 or t > 26.0`: exactly 20.0 and 26.0 are still safe.",
+          "de": "Prüft zuerst auf einen fehlenden Wert (`if t is None:`) und vergleicht nur echte Zahlen. Ein Wert ist ein Alarm, wenn `t < 20.0 or t > 26.0`: genau 20.0 und 26.0 sind noch sicher."
+        },
+        {
+          "en": "Inside the loop: `if t is None: missing += 1`, `elif t < 20.0 or t > 26.0: alarms += 1`, and set `first_alarm = hour` only while `first_alarm is None`.",
+          "de": "In der Schleife: `if t is None: missing += 1`, `elif t < 20.0 or t > 26.0: alarms += 1`, und `first_alarm = hour` nur setzen, solange `first_alarm is None` gilt."
+        }
+      ]
+    },
+    {
+      "id": "notebook",
+      "title": {
+        "en": "The encrypted notebook",
+        "de": "Das verschlüsselte Notizbuch"
+      },
+      "text": {
+        "en": "Ida's laptop is open on the bench, showing her research notes. They are gibberish: she encrypted them so the interns couldn't read them.\n\nA sticky note on the screen says: \"Each line is reversed, and every letter is moved KEY places forward in the alphabet.\"\n\nWrite `decode(line)` so that it returns the readable line, then read the notes in `notes[\"en\"]`. The helper `unshift(letter, n)` moves one letter n places back.",
+        "de": "Idas Laptop steht aufgeklappt auf der Laborbank und zeigt ihre Forschungsnotizen. Sie sind Kauderwelsch: Ida hat sie verschlüsselt, damit die Praktikanten sie nicht lesen können.\n\nAuf einem Klebezettel am Bildschirm steht: \"Jede Zeile ist umgedreht, und jeder Buchstabe ist um KEY Stellen im Alphabet nach vorne verschoben.\"\n\nSchreibt `decode(line)` so, dass es die lesbare Zeile zurückgibt, und lest dann die Notizen in `notes[\"de\"]`. Die Hilfsfunktion `unshift(letter, n)` schiebt einen Buchstaben um n Stellen zurück."
+      },
+      "workspace": "python",
+      "data": "notebook.py",
+      "starter": {
+        "en": "# Try: print(unshift(\"d\", 3))\nKEY = 0  # the key is somewhere in the lab\n\n\ndef decode(line):\n    result = \"\"\n    # your code here\n    return result\n\n\nfor line in notes[\"en\"]:\n    print(decode(line))\n",
+        "de": "# Probiert: print(unshift(\"d\", 3))\nKEY = 0  # der Schlüssel ist irgendwo im Labor\n\n\ndef decode(line):\n    result = \"\"\n    # euer Code hier\n    return result\n\n\nfor line in notes[\"de\"]:\n    print(decode(line))\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[decode(line) for line in notes[\"en\"] + notes[\"de\"]]",
+        "hash": "1bd8b76ebecee5d4d6dbabf367fc09fa699c9203a97261a8352b597b669bd3e0"
+      },
+      "reveal": {
+        "en": "The decrypted notes:\n\n\"Day 212: the caps only glow when it is cold.\n\nI moved all glowing samples into the freezer.\n\nFreezer lock: add up the spore counts of the samples listed on its door.\n\nThe mushroom digit for the override is three.\"",
+        "de": "Die entschlüsselten Notizen:\n\n\"Tag 212: Die Hüte leuchten nur, wenn es kalt ist.\n\nIch habe alle leuchtenden Proben in den Gefrierschrank gelegt.\n\nGefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.\n\nDie Pilz-Ziffer für den Override ist drei.\""
+      },
+      "hints": [
+        {
+          "en": "KEY is a number you can find on a piece of lab equipment. Look through the microscope.",
+          "de": "KEY ist eine Zahl, die ihr an einem Laborgerät findet. Schaut euch das Mikroskop an."
+        },
+        {
+          "en": "`line[::-1]` reverses a string. Then go through the reversed line letter by letter (`for letter in ...:`) and add `unshift(letter, KEY)` to `result`.",
+          "de": "`line[::-1]` dreht einen String um. Geht dann Buchstabe für Buchstabe durch die umgedrehte Zeile (`for letter in ...:`) und hängt `unshift(letter, KEY)` an `result` an."
+        },
+        {
+          "en": "`KEY = 7`, and inside `decode`: `for letter in line[::-1]:` followed by `result += unshift(letter, KEY)`.",
+          "de": "`KEY = 7`, und in `decode`: `for letter in line[::-1]:` gefolgt von `result += unshift(letter, KEY)`."
+        }
+      ]
+    },
+    {
+      "id": "freezer",
+      "title": {
+        "en": "The sample freezer",
+        "de": "Der Probengefrierschrank"
+      },
+      "text": {
+        "en": "The freezer is locked with a number padlock. A label on its door reads:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nThe last number is smudged. Underneath, in Ida's handwriting: \"the only M-1… sample that glows\".\n\nIda's specimen catalogue is loaded as the dictionary `catalog`.",
+        "de": "Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Auf einem Etikett an der Tür steht:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nDie letzte Nummer ist verschmiert. Darunter steht in Idas Handschrift: \"die einzige M-1…-Probe, die leuchtet\".\n\nIdas Probenkatalog ist als Dictionary `catalog` geladen."
+      },
+      "workspace": "python",
+      "data": "catalog.py",
+      "starter": {
+        "en": "# catalog maps a sample id to its details. Try:\nprint(catalog[\"M-01\"])\n",
+        "de": "# catalog ordnet jeder Proben-ID ihre Details zu. Probiert:\nprint(catalog[\"M-01\"])\n"
+      },
+      "check": {
+        "type": "answer",
+        "mode": "number",
+        "hash": "0643e807123de0f22da9db18793b86e396e7b84ef2c43a929d7f8eb118c4486a"
+      },
+      "requires": [
+        "notebook"
+      ],
+      "reveal": {
+        "en": "The padlock clicks open and cold mist pours out. Between the frosted sample tubes stands one vial with a label: **❄ 4**",
+        "de": "Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **❄ 4**"
+      },
+      "hints": [
+        {
+          "en": "Ida's decrypted notes say how the padlock code works. The label tells you which samples to use.",
+          "de": "Idas entschlüsselte Notizen verraten, wie der Code funktioniert. Das Etikett sagt euch, welche Proben ihr braucht."
+        },
+        {
+          "en": "`catalog[\"M-04\"][\"spores\"]` looks up one value. To find the smudged sample, loop with `for sample_id, info in catalog.items():` and check `sample_id.startswith(\"M-1\")` and `info[\"glows\"]`.",
+          "de": "`catalog[\"M-04\"][\"spores\"]` schlägt einen Wert nach. Um die verschmierte Probe zu finden, geht mit `for sample_id, info in catalog.items():` durch den Katalog und prüft `sample_id.startswith(\"M-1\")` und `info[\"glows\"]`."
+        },
+        {
+          "en": "The smudged sample is M-13. The code is the sum of the spore counts of M-04, M-09 and M-13.",
+          "de": "Die verschmierte Probe ist M-13. Der Code ist die Summe der Sporenzahlen von M-04, M-09 und M-13."
+        }
+      ]
+    },
+    {
+      "id": "ventilation",
+      "title": {
+        "en": "The ventilation control",
+        "de": "Die Lüftungssteuerung"
+      },
+      "text": {
+        "en": "The vents stopped when the quarantine began. Ida's restart script gives every vent a fan speed based on its CO₂ level, but she wrote it at 3 a.m. and it never ran.\n\nThe thresholds are missing, and the script has 4 bugs. Fix it so that `speeds` holds the fan speed of every vent and `total` their sum.",
+        "de": "Die Lüftung ist mit Beginn der Quarantäne stehen geblieben. Idas Neustart-Skript gibt jedem Lüfter eine Drehzahlstufe nach seinem CO₂-Wert, aber sie hat es um 3 Uhr nachts geschrieben, und es ist nie gelaufen.\n\nDie Schwellenwerte fehlen, und das Skript hat 4 Fehler. Repariert es, sodass `speeds` die Stufe jedes Lüfters enthält und `total` ihre Summe."
+      },
+      "workspace": "python",
+      "data": "ventilation.py",
+      "starter": {
+        "en": "# Ventilation restart. co2 is already loaded, e.g. {\"north\": \"1250\", ...}\nHIGH = 0     # TODO: copy the thresholds from the air-quality poster\nMEDIUM = 0\n\nspeeds = {}\nfor vent in co2\n    level = co2[vent]\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n    speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total = speed\n\nprint(\"Fan speeds:\", speeds)\nprint(\"Total:\", total)\n",
+        "de": "# Neustart der Lüftung. co2 ist schon geladen, z. B. {\"north\": \"1250\", ...}\nHIGH = 0     # TODO: Schwellenwerte vom Luftqualitäts-Poster übernehmen\nMEDIUM = 0\n\nspeeds = {}\nfor vent in co2\n    level = co2[vent]\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n    speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total = speed\n\nprint(\"Lüfterstufen:\", speeds)\nprint(\"Summe:\", total)\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[speeds, total]",
+        "hash": "781e65122ba6d613117b2fdb6e7d47327b46c4a70548091be7a073bee7a95abb"
+      },
+      "reveal": {
+        "en": "The vents rumble back to life. A display on the control panel shows: **🌀 8**",
+        "de": "Die Lüftung springt rumpelnd wieder an. Ein Display an der Steuerung zeigt: **🌀 8**"
+      },
+      "hints": [
+        {
+          "en": "Run the script and fix one error at a time: the error message names the line. The thresholds are on the air-quality poster.",
+          "de": "Lasst das Skript laufen und behebt einen Fehler nach dem anderen: Die Fehlermeldung nennt die Zeile. Die Schwellenwerte stehen auf dem Luftqualitäts-Poster."
+        },
+        {
+          "en": "The four bugs: a missing `:`, a line that isn't indented, text compared with a number (`int(...)` helps), and a total that gets overwritten instead of added to.",
+          "de": "Die vier Fehler: ein fehlender `:`, eine nicht eingerückte Zeile, Text wird mit einer Zahl verglichen (`int(...)` hilft), und eine Summe wird überschrieben statt erhöht."
+        },
+        {
+          "en": "`HIGH = 1000`, `MEDIUM = 600`, `for vent in co2:`, `level = int(co2[vent])`, indent `speed = 1` under `else:`, and `total += speed`.",
+          "de": "`HIGH = 1000`, `MEDIUM = 600`, `for vent in co2:`, `level = int(co2[vent])`, `speed = 1` unter `else:` einrücken, und `total += speed`."
+        }
+      ]
+    },
+    {
+      "id": "exit",
       "title": {
         "en": "The exit keypad",
         "de": "Das Tastenfeld am Ausgang"
       },
       "text": {
-        "en": "A note is taped next to the keypad: \"Code = total of the readings × number of readings.\"\n\nYou can use the editor as a calculator.",
-        "de": "Neben dem Tastenfeld klebt ein Zettel: \"Code = Summe der Werte × Anzahl der Werte.\"\n\nDu kannst den Editor als Taschenrechner benutzen."
+        "en": "A heavy keypad next to the sealed door. The display reads:\n\n`QUARANTINE OVERRIDE: _ _ _ _`\n\nIda never kept the whole code in one place.",
+        "de": "Ein schweres Tastenfeld neben der versiegelten Tür. Auf dem Display steht:\n\n`QUARANTINE OVERRIDE: _ _ _ _`\n\nIda hat den Code nie an einem einzigen Ort aufbewahrt."
       },
-      "workspace": "python",
-      "data": "readings.py",
-      "starter": "print(len(readings))\n",
       "check": {
         "type": "answer",
-        "mode": "number",
-        "hash": "1a07c0787ed324a8233f2983d1012b1dd590937c9c6fca43613c0f96a66b0944"
+        "mode": "exact",
+        "hash": "fdbda4cc71c8dc41199fab204dfff640b3736f16c0070a4ac077cff0df6f6c95"
       },
+      "requires": [
+        "terminal",
+        "incubator",
+        "notebook",
+        "freezer",
+        "ventilation"
+      ],
+      "final": true,
       "hints": [
         {
-          "en": "`len(readings)` tells you how many readings there are.",
-          "de": "`len(readings)` sagt dir, wie viele Werte es gibt."
+          "en": "Every station you solved gives you a digit next to a symbol. Open a solved station again to read its digit.",
+          "de": "Jede gelöste Station liefert eine Ziffer neben einem Symbol. Öffnet eine gelöste Station noch einmal, um ihre Ziffer zu lesen."
         },
         {
-          "en": "`print(sum(readings) * len(readings))`",
-          "de": "`print(sum(readings) * len(readings))`"
+          "en": "The whiteboard shows which symbol belongs to which station. Ida's draft message on her terminal gives the order.",
+          "de": "Das Whiteboard zeigt, welches Symbol zu welcher Station gehört. Idas Entwurf auf ihrem Terminal verrät die Reihenfolge."
+        },
+        {
+          "en": "The order is ☀ 🍄 ❄ 🌀: incubator, notebook, freezer, ventilation.",
+          "de": "Die Reihenfolge ist ☀ 🍄 ❄ 🌀: Inkubator, Notizbuch, Gefrierschrank, Lüftung."
         }
-      ],
-      "requires": [
-        "warmup"
-      ],
-      "final": true
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "photo",
+      "title": {
+        "en": "A framed photo",
+        "de": "Ein gerahmtes Foto"
+      },
+      "text": {
+        "en": "A grumpy grey cat sits on a pile of lab notebooks.\n\nOn the back, in pen: \"Pixel, summer 2017\"",
+        "de": "Eine grimmige graue Katze sitzt auf einem Stapel Laborbücher.\n\nAuf der Rückseite, mit Kuli: \"Pixel, Sommer 2017\""
+      }
+    },
+    {
+      "id": "diploma",
+      "title": {
+        "en": "A diploma",
+        "de": "Eine Urkunde"
+      },
+      "text": {
+        "en": "UNIVERSITY OF FREIBURG\n\nDoctor of Philosophy in Mycology\n\nawarded to Ida Kranich\n\n14 June 2019",
+        "de": "ALBERT-LUDWIGS-UNIVERSITÄT FREIBURG\n\nDoktor der Naturwissenschaften (Mykologie)\n\nverliehen an Ida Kranich\n\n14. Juni 2019"
+      }
+    },
+    {
+      "id": "manual",
+      "title": {
+        "en": "Incubator manual",
+        "de": "Inkubator-Anleitung"
+      },
+      "text": {
+        "en": "INCUBATOR IN-200 · QUICK GUIDE\n\nSafe range: 20.0 °C to 26.0 °C. Both limits still count as safe.\n\nEvery reading outside the safe range raises one alarm.\n\nIf the sensor drops out, the log stores None instead of a number.",
+        "de": "INKUBATOR IN-200 · KURZANLEITUNG\n\nSicherer Bereich: 20,0 °C bis 26,0 °C. Beide Grenzen gelten noch als sicher.\n\nJeder Wert außerhalb des sicheren Bereichs löst einen Alarm aus.\n\nFällt der Sensor aus, speichert das Protokoll None statt einer Zahl."
+      }
+    },
+    {
+      "id": "microscope",
+      "title": {
+        "en": "The microscope",
+        "de": "Das Mikroskop"
+      },
+      "text": {
+        "en": "A slide with a faintly glowing mushroom cap is still under the lens.\n\nThe dial on the side is set to 7. Someone scratched a word into the metal next to it: KEY",
+        "de": "Unter der Linse liegt noch ein Objektträger mit einem schwach leuchtenden Pilzhut.\n\nDas Rädchen an der Seite steht auf 7. Daneben hat jemand ein Wort ins Metall geritzt: KEY"
+      }
+    },
+    {
+      "id": "poster",
+      "title": {
+        "en": "Air-quality poster",
+        "de": "Luftqualitäts-Poster"
+      },
+      "text": {
+        "en": "AIR QUALITY IN THE LAB (CO₂ in ppm)\n\nabove 1000: bad → fan speed 3\n\nabove 600: stuffy → fan speed 2\n\notherwise: fresh → fan speed 1",
+        "de": "LUFTQUALITÄT IM LABOR (CO₂ in ppm)\n\nüber 1000: schlecht → Lüfterstufe 3\n\nüber 600: stickig → Lüfterstufe 2\n\nsonst: frisch → Lüfterstufe 1"
+      }
+    },
+    {
+      "id": "whiteboard",
+      "title": {
+        "en": "The whiteboard",
+        "de": "Das Whiteboard"
+      },
+      "text": {
+        "en": "Most of the board has been wiped clean. In one corner you can still read:\n\n\"OVERRIDE = one digit from each station\"\n\nAround it, four symbols with arrows: ☀ → incubator, 🍄 → notebook, ❄ → freezer, 🌀 → vents. The line that gave their order has been wiped away.",
+        "de": "Das Board wurde fast vollständig weggewischt. In einer Ecke kann man noch lesen:\n\n\"OVERRIDE = eine Ziffer von jeder Station\"\n\nDrumherum vier Symbole mit Pfeilen: ☀ → Inkubator, 🍄 → Notizbuch, ❄ → Gefrierschrank, 🌀 → Lüftung. Die Zeile mit ihrer Reihenfolge ist weggewischt."
+      }
+    },
+    {
+      "id": "jars",
+      "title": {
+        "en": "A shelf of jars",
+        "de": "Ein Regal mit Gläsern"
+      },
+      "text": {
+        "en": "Dozens of jars with mushrooms glowing a soft green. One label says: \"Do NOT eat. Seriously, Tobias.\"",
+        "de": "Dutzende Gläser mit sanft grün leuchtenden Pilzen. Auf einem Etikett steht: \"NICHT essen. Im Ernst, Tobias.\""
+      }
     }
   ]
 }

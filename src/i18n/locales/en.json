@@ -74,7 +74,8 @@
   },
   "interact": {
     "puzzlePrompt": "Press E to examine",
-    "solvedTag": "Solved"
+    "solvedTag": "Solved",
+    "cluePrompt": "Press E to look closer"
   },
   "puzzle": {
     "run": "Run ▶",
@@ -98,6 +99,7 @@
     "tables": "Tables",
     "output": "Output appears here.",
     "empty": "(no output)",
-    "close": "Close"
+    "close": "Close",
+    "reveal": "What you found"
   }
 }

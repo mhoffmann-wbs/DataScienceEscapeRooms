@@ -11,10 +11,12 @@ Early build. The step-by-step plan, with what is done, is in [docs/PLAN.md](docs
 A browser-based, gather.town-style virtual escape room for data science students. Players walk around a 2D top-down lobby, see each other, chat, and talk via proximity voice/video. Doors lead to themed escape rooms where teams solve data science puzzles together. The repo ships as a static site on GitHub Pages, with **no backend and no third-party accounts**.
 
 First milestone: lobby skeleton (movement, presence, chat, proximity A/V, team formation) plus two beginner rooms:
-- **Python room: "Abandoned research lab".** Fix a scientist's broken scripts (variables, lists, loops, string decoding, dict lookups).
+- **Python room: "Quarantine" (abandoned research lab).** A mycologist's lab sealed itself; fix her broken scripts (variables, lists, loops, string decoding, dict lookups, debugging) to collect the 4 digits of the override code.
 - **SQL room: "Hotel mystery".** Query bookings, guests and key-card logs to find out who entered room 404 (SELECT/WHERE, ORDER BY, GROUP BY, simple JOIN).
 
-Target play time is **about 30 minutes per room** for a beginner team. In practice this means 5–6 puzzles of roughly 4–6 minutes each, ordered from easy to hard, ending in a final lock that combines earlier results. Size new puzzles and datasets to this budget.
+Target play time is **about 30 minutes per room** for a beginner team. In practice this means 5–6 puzzles of roughly 4–6 minutes each, ordered from easy to hard, ending in a final lock that combines earlier results. Size new puzzles and datasets to this budget. A puzzle that takes one line of code is too small: each station should need several lines, a clue from elsewhere in the room, or both.
+
+Puzzles should combine the room with the code: **clues** (photos, posters, manuals) hold values that the scripts need, and solved stations hand out **reveals** (code digits, decoded messages) that other stations or the final lock need. This makes teams split up and talk. Keep several stations open from the start so a team of 3–5 can work in parallel.
 
 ## Stack
 
@@ -71,10 +73,10 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 ### World and scenes
 - Phaser scenes: `Boot` (loads every map and the sprites) → `World`, one generic scene that shows whichever map the registry's `mapKey` names (`lobby` or a roomId). React overlays sit on top of the canvas and talk to Phaser only through the typed event bus in `src/game/events.ts`. They never reach into scene internals. To add a message, add it to the `GameEvents` map.
 - The app moves between places: join screen → lobby → room (`src/ui/App.tsx`). `World` (`src/ui/World.tsx`) owns one place: it creates that place's session and a fresh Phaser game, and tears both down on switch. The current run (`dser.run`, `src/player/run.ts`) is saved on every state change, and rejoining with the same class code resumes it.
-- Doors, puzzle objects (terminals, safes, keypads) and spawn points are **Tiled object-layer objects** with custom properties (`doorTo`, `puzzleId`). The engine reads these properties. It never uses hard-coded coordinates. The scene treats doors and puzzles alike as interactables: it emits `interact:changed`/`interact:use` on the bus, and React decides what happens. React sends `puzzles:solved` back so the scene can draw ✓ markers; it re-sends on `scene:ready`.
+- Doors, puzzle objects (terminals, safes, keypads), clues and spawn points are **Tiled object-layer objects** with custom properties (`doorTo`, `puzzleId`, `clueId`). The engine reads these properties. It never uses hard-coded coordinates. The scene treats doors, puzzles and clues alike as interactables: it emits `interact:changed`/`interact:use` on the bus, and React decides what happens. React sends `puzzles:solved` back so the scene can draw ✓ markers; it re-sends on `scene:ready`.
 - Map conventions, read by `src/game/tiled.ts`:
   - Tile layers are named `floor` and `walls`. A tile blocks movement when its tileset tile has the boolean property `collides`.
-  - The object layer is named `objects`. Objects are identified by their class (`type`/`class` in the JSON): `spawn` (a point, which gets a small random offset, or a rectangle players arrive somewhere inside), `door` (a rectangle with a `doorTo` roomId, or `lobby` for a room's exit) and `puzzle` (a rectangle with a `puzzleId`, covering the object's tile and the tile in front of it, where the player stands).
+  - The object layer is named `objects`. Objects are identified by their class (`type`/`class` in the JSON): `spawn` (a point, which gets a small random offset, or a rectangle players arrive somewhere inside), `door` (a rectangle with a `doorTo` roomId, or `lobby` for a room's exit) `puzzle` (a rectangle with a `puzzleId`, covering the object's tile and the tile in front of it, where the player stands) and `clue` (shaped the same, with a `clueId`).
   - The lobby map is `content/lobby/map.json`, and room maps are `content/rooms/<roomId>/map.json`, discovered by `src/game/maps.ts`. Tests run over every map: the spawn is walkable and not on a door, doors are reachable, the lobby has a door to every room, and every room has an exit.
 - Maps and images are bundled through Vite imports (`import url from '…png'`, `import map from '…json'`) rather than `public/`. This keeps them hashed and base-path-safe.
 - Keyboard input: the scenes register keys with `enableCapture = false` and ignore movement while an HTML field has focus (`isTypingInUi`). Keep it this way, or chat and form inputs break. Keys: E uses doors and objects; Enter opens chat, Enter again sends and returns to walking, Esc leaves the chat.
@@ -87,10 +89,11 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 
 ### Rooms are data, not code
 - Each room is a folder `content/rooms/<roomId>/`; the folder name is the roomId. It contains:
-  - `map.json`: the Tiled export, with one `puzzle` object per manifest puzzle.
-  - `manifest.json`: title and intro text, plus the puzzles. Each puzzle has DE/EN title, text and hints, a `workspace` (`none`/`python`/`sql`), starter code, an optional data file, `requires`, `final`, and a `check`. The format is defined in `src/rooms/manifest.ts`, which is the source of truth.
+  - `map.json`: the Tiled export, with one `puzzle` object per manifest puzzle and one `clue` object per manifest clue.
+  - `manifest.json`: title and intro text, the puzzles and the clues. Each puzzle has DE/EN title, text and hints, a `workspace` (`none`/`python`/`sql`), starter code (a string, or DE/EN when its comments need translating), an optional data file, an optional `reveal` (shown to the team once solved), `requires`, `final`, and a `check`. Each clue has DE/EN title and text and is read-only. Text supports blank-line paragraphs, `` `code` `` and `**bold**`. The format is defined in `src/rooms/manifest.ts`, which is the source of truth.
   - `data/`: `.py` files, run before the student's code, and `.sql` files, which build the database. They load lazily, so a room's data is only downloaded when needed.
   - `solutions.local.json` (gitignored): reference solutions, `{ puzzleId: answer | Python code | SQL query }`.
+- Data files are shared by both languages, so checks stay language-independent. When students must read text from the data (like encrypted notes), provide both languages in it (e.g. `notes["en"]`, `notes["de"]`) and make the check cover both.
 - Rooms are discovered with `import.meta.glob` (`src/rooms/index.ts`). Adding a room means adding a folder, with no engine changes. Room titles and all in-room text come from manifests, never from the locale files.
 - Check types (`check.type`); every one compares a salted PBKDF2 hash, so plaintext answers never go in the bundle:
   - `answer`: typed text, normalized per `mode` (`caseless`/`exact`/`number`).

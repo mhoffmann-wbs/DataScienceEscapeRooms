@@ -1,0 +1,20 @@
+# Ida's specimen catalogue: sample id -> details. Loaded before your code runs.
+catalog = {
+    "M-01": {"name": "Mycena chlorophos", "glows": True, "spores": 1520, "shelf": "B2"},
+    "M-02": {"name": "Agaricus bisporus", "glows": False, "spores": 980, "shelf": "A1"},
+    "M-03": {"name": "Panellus stipticus", "glows": True, "spores": 2210, "shelf": "B1"},
+    "M-04": {"name": "Omphalotus olearius", "glows": True, "spores": 1840, "shelf": "freezer"},
+    "M-05": {"name": "Pleurotus ostreatus", "glows": False, "spores": 3050, "shelf": "A3"},
+    "M-06": {"name": "Armillaria mellea", "glows": True, "spores": 1275, "shelf": "B3"},
+    "M-07": {"name": "Lentinula edodes", "glows": False, "spores": 2600, "shelf": "A2"},
+    "M-08": {"name": "Neonothopanus gardneri", "glows": True, "spores": 990, "shelf": "B2"},
+    "M-09": {"name": "Mycena lux-coeli", "glows": True, "spores": 2375, "shelf": "freezer"},
+    "M-10": {"name": "Cantharellus cibarius", "glows": False, "spores": 1430, "shelf": "A1"},
+    "M-11": {"name": "Boletus edulis", "glows": False, "spores": 3320, "shelf": "A3"},
+    "M-12": {"name": "Coprinus comatus", "glows": False, "spores": 2045, "shelf": "A2"},
+    "M-13": {"name": "Mycena luxaeterna", "glows": True, "spores": 3110, "shelf": "freezer"},
+    "M-14": {"name": "Morchella esculenta", "glows": False, "spores": 1760, "shelf": "A1"},
+    "M-15": {"name": "Hericium erinaceus", "glows": False, "spores": 2890, "shelf": "A3"},
+    "M-16": {"name": "Lactarius deliciosus", "glows": False, "spores": 1655, "shelf": "B1"},
+    "M-17": {"name": "Trametes versicolor", "glows": False, "spores": 1105, "shelf": "A2"},
+}

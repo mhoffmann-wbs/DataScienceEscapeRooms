@@ -49,6 +49,21 @@ describe('parseMapObjects', () => {
     expect(() => parseMapObjects(map)).toThrow(/doorTo/);
   });
 
+  it('reads clue objects and rejects one without clueId', () => {
+    const mapWith = (clue: object) =>
+      tiledMapSchema.parse({
+        width: 1, height: 1, tilewidth: 32, tileheight: 32, tilesets: [],
+        layers: [{ type: 'objectgroup', name: 'objects', objects: [
+          { id: 1, name: 'spawn', type: 'spawn', x: 0, y: 0, width: 0, height: 0 },
+          { id: 2, name: 'photo', class: 'clue', x: 0, y: 0, width: 32, height: 64, ...clue },
+        ] }],
+      });
+    expect(parseMapObjects(mapWith({ properties: [{ name: 'clueId', type: 'string', value: 'photo' }] })).clues).toEqual([
+      { clueId: 'photo', x: 0, y: 0, width: 32, height: 64 },
+    ]);
+    expect(() => parseMapObjects(mapWith({}))).toThrow(/clueId/);
+  });
+
   it('picks spawn points inside spawn areas, and near point spawns', () => {
     expect(pickSpawnPoint({ x: 100, y: 100, width: 64, height: 32 }, () => 0.5)).toEqual({ x: 132, y: 116 });
     expect(pickSpawnPoint({ x: 100, y: 100, width: 0, height: 0 }, () => 0)).toEqual({ x: 88, y: 88 });

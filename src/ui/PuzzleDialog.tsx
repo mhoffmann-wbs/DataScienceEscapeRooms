@@ -16,11 +16,12 @@ type Output = { kind: 'text'; text: string; error?: string } | { kind: 'table'; 
 const MAX_ROWS = 200;
 const draftKey = (roomId: string, puzzleId: string) => `dser.draft.${roomId}.${puzzleId}`;
 
-function loadDraft(roomId: string, puzzle: Puzzle): string {
+function loadDraft(roomId: string, puzzle: Puzzle, lang: string): string {
+  const starter = typeof puzzle.starter === 'string' ? puzzle.starter : loc(puzzle.starter, lang);
   try {
-    return localStorage.getItem(draftKey(roomId, puzzle.id)) ?? puzzle.starter;
+    return localStorage.getItem(draftKey(roomId, puzzle.id)) ?? starter;
   } catch {
-    return puzzle.starter;
+    return starter;
   }
 }
 
@@ -42,7 +43,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onClose }: Props) {
   const locked = !author && !isUnlocked(puzzle, state.solved);
   const workspace = puzzle.workspace === 'none' ? null : puzzle.workspace;
 
-  const [code, setCode] = useState(() => loadDraft(roomId, puzzle));
+  const [code, setCode] = useState(() => loadDraft(roomId, puzzle, lang));
   const [setup, setSetup] = useState<string | null>(puzzle.data ? null : '');
   const [schema, setSchema] = useState<{ name: string; columns: string[] }[]>([]);
   const [runtimeReady, setRuntimeReady] = useState(workspace === null);
@@ -143,6 +144,11 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onClose }: Props) {
       <div className={workspace ? 'puzzle-layout' : undefined}>
         <div className="puzzle-text">
           {solved && <p className="solved-banner">{t('puzzle.solved')}</p>}
+          {solved && puzzle.reveal && (
+            <section className="reveal" aria-label={t('puzzle.reveal')}>
+              <RichText text={loc(puzzle.reveal, lang)} />
+            </section>
+          )}
           <RichText text={loc(puzzle.text, lang)} />
 
           {revealed.some(Boolean) && (

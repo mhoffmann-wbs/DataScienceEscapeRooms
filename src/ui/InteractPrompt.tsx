@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { bus, type Interactable } from '../game/events';
 import { LOBBY } from '../game/maps';
-import { getPuzzle, loc, roomTitle } from '../rooms';
+import { getClue, getPuzzle, loc, roomTitle } from '../rooms';
 
 interface Props {
   /** Room whose puzzles are on this map (undefined in the lobby). */
@@ -36,6 +36,10 @@ export function InteractPrompt({ roomId, solved, onUse, onLeave }: Props) {
     const isExit = target.doorTo === LOBBY;
     label = isExit ? t('room.exit') : roomTitle(target.doorTo, i18n.language);
     hint = isExit ? t('room.exitPrompt') : t('lobby.doorPrompt');
+  } else if (target.kind === 'clue') {
+    const clue = roomId ? getClue(roomId, target.clueId) : undefined;
+    label = clue ? loc(clue.title, i18n.language) : target.clueId;
+    hint = t('interact.cluePrompt');
   } else {
     const puzzle = roomId ? getPuzzle(roomId, target.puzzleId) : undefined;
     label = puzzle ? loc(puzzle.title, i18n.language) : target.puzzleId;

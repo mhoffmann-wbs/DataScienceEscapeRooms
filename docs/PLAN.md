@@ -59,7 +59,8 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Author shortcut:** a developer-only link such as `#/room/sql-hotel?puzzle=3` jumps straight to one puzzle.
 
 ### 6. The two starter rooms
-- **Abandoned research lab (Python):** fix a scientist's broken scripts: variables, lists, loops, string decoding, dict lookups.
+- **Quarantine / abandoned research lab (Python):** ✅ content built, playtest pending. Fix a mycologist's broken scripts to collect the 4 override digits: login terminal (variables, `str()`), incubator log (loops, `None`), encrypted notebook (string decoding), sample freezer (dict lookups), ventilation script (debugging), exit keypad.
+- **Clues and reveals:** ✅ read-only `clue` objects in maps and manifests, and a puzzle `reveal` shown to the team once solved, so room exploration and coding feed into each other.
 - **Hotel mystery (SQL):** find who entered room 404 using bookings, guests and key-card logs: SELECT/WHERE, ORDER BY, GROUP BY, a simple JOIN.
 - Each room: about 30 minutes, 5–6 puzzles ordered easy to hard, a final lock combining earlier results, story text in DE and EN, hints, datasets.
 - **Debrief screen** after escaping: what each puzzle practised, model solutions, time and hints used.
@@ -97,3 +98,8 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 ## Ideas not yet scheduled
 
 Add new ideas here before they move into a step.
+
+- **Visual state changes:** a solved object swaps its tile (the freezer opens, the vent fan spins), set via a Tiled property such as `solvedTile`. Best done with the art pass in step 9.
+- **Split clues:** some clues show different halves to different players, so the team has to talk. Fits proximity voice.
+- **Overlays hide the map:** on smaller windows the chat panel covers the map's lower-left corner, and the camera can't scroll there because the map fits the screen. Either let the camera scroll past the left edge (like `UI_INSET_*`), or make the chat collapsible. Until then, keep important objects out of the lower-left of room maps.
+- **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.

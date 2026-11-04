@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { RunState } from '../net/run';
-import { finalPuzzleId, loc, ROOMS } from '../rooms';
+import { finalPuzzleId, getClue, loc, ROOMS } from '../rooms';
 import { Modal } from './Modal';
 import { RichText } from './RichText';
 import { formatDuration } from './RoomHud';
@@ -14,6 +14,25 @@ export function IntroDialog({ roomId, onClose }: { roomId: string; onClose: () =
       <div className="modal-actions">
         <button type="button" className="primary" onClick={onClose}>
           {t('room.introStart')}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
+/** A clue object up close: read-only text from the manifest. */
+export function ClueDialog({ roomId, clueId, onClose }: { roomId: string; clueId: string; onClose: () => void }) {
+  const { t, i18n } = useTranslation();
+  const clue = getClue(roomId, clueId);
+  if (!clue) return null;
+  return (
+    <Modal title={loc(clue.title, i18n.language)} onClose={onClose}>
+      <div className="clue-text">
+        <RichText text={loc(clue.text, i18n.language)} />
+      </div>
+      <div className="modal-actions">
+        <button type="button" onClick={onClose}>
+          {t('puzzle.close')}
         </button>
       </div>
     </Modal>

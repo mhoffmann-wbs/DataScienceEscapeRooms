@@ -11,7 +11,7 @@ import type { Profile } from '../player/profile';
 import { saveRun, type SavedRun } from '../player/run';
 import { finalPuzzleId, getPuzzle } from '../rooms';
 import { ChatPanel } from './ChatPanel';
-import { EscapeDialog, IntroDialog } from './RoomDialogs';
+import { ClueDialog, EscapeDialog, IntroDialog } from './RoomDialogs';
 import { InteractPrompt } from './InteractPrompt';
 import { LeaveRoomDialog } from './LeaveRoomDialog';
 import { PeoplePanel } from './PeoplePanel';
@@ -101,7 +101,7 @@ function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySessio
   );
 }
 
-type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'leave' } | { kind: 'intro' } | { kind: 'escaped' } | null;
+type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string } | { kind: 'leave' } | { kind: 'intro' } | { kind: 'escaped' } | null;
 
 interface RoomOverlaysProps {
   session: RoomSession;
@@ -139,10 +139,11 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
 
   const use = useCallback((target: Interactable) => {
     if (target.kind === 'door') setDialog({ kind: 'leave' });
+    else if (target.kind === 'clue') setDialog({ kind: 'clue', clueId: target.clueId });
     else setDialog({ kind: 'puzzle', puzzleId: target.puzzleId });
   }, []);
   // Walking away closes a dialog opened from an object, but not the intro or escape screens.
-  const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'leave' ? null : d)), []);
+  const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'clue' || d?.kind === 'leave' ? null : d)), []);
   const close = useCallback(() => setDialog(null), []);
   const puzzle = dialog?.kind === 'puzzle' ? getPuzzle(roomId, dialog.puzzleId) : undefined;
 
@@ -151,6 +152,7 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
       <RoomHud roomId={roomId} run={run} />
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
       {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onClose={close} />}
+      {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onClose={close} />}
       {dialog?.kind === 'leave' && <LeaveRoomDialog onLeave={onLeaveRoom} onStay={close} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'escaped' && <EscapeDialog roomId={roomId} state={state} onLobby={onLeaveRoom} onClose={close} />}

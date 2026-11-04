@@ -74,7 +74,8 @@
   },
   "interact": {
     "puzzlePrompt": "Drücke E zum Untersuchen",
-    "solvedTag": "Gelöst"
+    "solvedTag": "Gelöst",
+    "cluePrompt": "Drücke E, um genauer hinzusehen"
   },
   "puzzle": {
     "run": "Ausführen ▶",
@@ -98,6 +99,7 @@
     "tables": "Tabellen",
     "output": "Hier erscheint die Ausgabe.",
     "empty": "(keine Ausgabe)",
-    "close": "Schließen"
+    "close": "Schließen",
+    "reveal": "Was ihr gefunden habt"
   }
 }

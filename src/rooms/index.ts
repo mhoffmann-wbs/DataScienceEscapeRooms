@@ -1,5 +1,5 @@
 import type { Language } from '../i18n';
-import { manifestSchema, type Localized, type Manifest, type Puzzle } from './manifest';
+import { manifestSchema, type Clue, type Localized, type Manifest, type Puzzle } from './manifest';
 
 // Rooms are discovered from content/rooms/<roomId>/manifest.json; the folder name is the roomId.
 const manifests = import.meta.glob<unknown>('../../content/rooms/*/manifest.json', { eager: true, import: 'default' });
@@ -27,6 +27,10 @@ export function roomTitle(roomId: string, lang: string): string {
 
 export function getPuzzle(roomId: string, puzzleId: string): Puzzle | undefined {
   return ROOMS[roomId]?.puzzles.find((p) => p.id === puzzleId);
+}
+
+export function getClue(roomId: string, clueId: string): Clue | undefined {
+  return ROOMS[roomId]?.clues.find((c) => c.id === clueId);
 }
 
 export async function loadDataFile(roomId: string, file: string): Promise<string> {

@@ -1,6 +1,7 @@
 // Generates placeholder pixel art until a real CC0 tileset replaces it (plan step 9).
 // Usage: node scripts/generate-placeholder-art.mjs
-// Tile and avatar layouts here must match src/game/tiles.ts and src/game/avatars.ts.
+// The avatar layout here must match src/game/avatars.ts. Tile indices are referenced by the
+// maps (gid = index + 1), so append new tiles instead of reordering.
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 
@@ -62,8 +63,8 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 2 rows of 32px tiles -------------------------------
-const tiles = canvas(8 * T, 2 * T);
+// --- Tileset: 8 columns x 4 rows of 32px tiles -------------------------------
+const tiles = canvas(8 * T, 4 * T);
 const at = (index) => [(index % 8) * T, Math.floor(index / 8) * T];
 
 function drawTile(index, draw) {
@@ -183,6 +184,131 @@ drawTile(13, ({ rect }) => {
   rect(9, 6, 14, 20, [40, 44, 56]);
   rect(11, 8, 10, 4, [120, 220, 160]);
   for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) rect(11 + c * 4, 14 + r * 4, 2, 2, [200, 204, 212]);
+});
+
+// --- Research lab (python-lab) -----------------------------------------------
+const WALL = [112, 120, 146];
+const BENCH = [214, 220, 226];
+const benchBase = (rect) => {
+  rect(1, 12, T - 2, 12, BENCH);
+  rect(1, 12, T - 2, 2, [240, 244, 248]);
+  rect(3, 24, 3, 7, [140, 146, 156]);
+  rect(T - 6, 24, 3, 7, [140, 146, 156]);
+};
+
+// 14 lab floor: pale teal tiles
+drawTile(14, ({ rect }) => {
+  rect(0, 0, T, T, [196, 222, 218]);
+  rect(0, 0, T, 1, [168, 198, 194]);
+  rect(0, 0, 1, T, [168, 198, 194]);
+});
+// 15 incubator: cabinet with a warm window
+drawTile(15, ({ rect }) => {
+  rect(3, 1, T - 6, T - 2, [206, 210, 216]);
+  rect(6, 5, T - 12, 14, [70, 40, 30]);
+  rect(8, 7, T - 16, 10, [250, 150, 60]);
+  rect(8, 22, 6, 4, [40, 44, 56]);
+  rect(9, 23, 4, 2, [255, 90, 70]);
+  rect(18, 22, 6, 2, [140, 146, 156]);
+});
+// 16 freezer: frosty white chest with a padlock
+drawTile(16, ({ rect }) => {
+  rect(2, 1, T - 4, T - 2, [232, 240, 248]);
+  rect(2, 1, T - 4, 3, [190, 214, 236]);
+  rect(4, 15, T - 8, 1, [170, 190, 210]);
+  rect(13, 17, 6, 6, [210, 170, 60]);
+  rect(14, 14, 4, 4, [120, 120, 130]);
+  rect(15, 15, 2, 3, [232, 240, 248]);
+  rect(6, 6, 8, 5, [255, 255, 255]);
+});
+// 17 microscope on a bench
+drawTile(17, ({ rect }) => {
+  benchBase(rect);
+  rect(12, 10, 10, 3, [50, 54, 66]);
+  rect(18, 1, 4, 10, [50, 54, 66]);
+  rect(13, 3, 6, 3, [50, 54, 66]);
+  rect(13, 6, 3, 4, [80, 84, 96]);
+  rect(12, 8, 6, 1, [120, 255, 160]);
+});
+// 18 laptop on a bench
+drawTile(18, ({ rect }) => {
+  benchBase(rect);
+  rect(7, 2, 18, 11, [40, 44, 56]);
+  rect(9, 4, 14, 7, [30, 30, 40]);
+  for (let y = 5; y < 10; y += 2) rect(10, y, 4 + ((y * 3) % 8), 1, [120, 255, 160]);
+  rect(5, 12, 22, 2, [90, 94, 106]);
+});
+// 19 desk with a photo frame
+drawTile(19, ({ rect }) => {
+  rect(2, 14, T - 4, 10, [120, 84, 52]);
+  rect(4, 24, 3, 7, [90, 62, 38]);
+  rect(T - 7, 24, 3, 7, [90, 62, 38]);
+  rect(9, 3, 14, 12, [150, 108, 70]);
+  rect(11, 5, 10, 8, [190, 220, 240]);
+  rect(13, 8, 6, 5, [130, 130, 140]);
+  rect(13, 6, 2, 2, [130, 130, 140]);
+  rect(17, 6, 2, 2, [130, 130, 140]);
+});
+// 20 plain lab bench with glassware
+drawTile(20, ({ rect }) => {
+  benchBase(rect);
+  rect(6, 5, 4, 8, [180, 230, 240]);
+  rect(19, 7, 7, 6, [180, 230, 240]);
+  rect(20, 10, 5, 3, [120, 220, 150]);
+});
+// 21 shelf of glowing jars
+drawTile(21, ({ rect }) => {
+  rect(2, 0, T - 4, T, [110, 74, 44]);
+  for (let shelf = 0; shelf < 3; shelf++) {
+    const y = 2 + shelf * 10;
+    rect(4, y + 8, T - 8, 2, [80, 52, 30]);
+    for (let i = 0; i < 3; i++) {
+      rect(5 + i * 8, y + 1, 6, 7, [200, 230, 236]);
+      rect(6 + i * 8, y + 4, 4, 3, [130, 255, 150]);
+    }
+  }
+});
+// 22 whiteboard on wall front
+drawTile(22, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(2, 5, T - 4, 19, [160, 166, 176]);
+  rect(3, 6, T - 6, 17, [246, 248, 250]);
+  rect(5, 9, 6, 1, [70, 110, 200]);
+  rect(19, 15, 6, 1, [200, 70, 70]);
+  rect(6, 18, 3, 3, [230, 180, 60]);
+  rect(5, 24, 22, 2, [140, 146, 156]);
+});
+// 23 vent grille on wall front
+drawTile(23, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(4, 6, T - 8, 20, [60, 64, 76]);
+  for (let y = 8; y < 25; y += 4) rect(6, y, T - 12, 2, [150, 156, 170]);
+});
+// 24 diploma on wall front
+drawTile(24, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(7, 6, 18, 16, [170, 130, 60]);
+  rect(9, 8, 14, 12, [250, 244, 224]);
+  rect(11, 10, 10, 1, [80, 80, 90]);
+  rect(12, 13, 8, 1, [140, 140, 150]);
+  rect(15, 16, 3, 3, [200, 60, 60]);
+});
+// 25 air-quality poster on wall front
+drawTile(25, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(8, 3, 16, 24, [250, 250, 250]);
+  rect(11, 18, 3, 6, [80, 190, 110]);
+  rect(15, 13, 3, 11, [240, 200, 70]);
+  rect(19, 8, 3, 16, [220, 80, 70]);
+  rect(10, 5, 12, 1, [80, 80, 90]);
+});
+// 26 clipboard manual on wall front
+drawTile(26, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(9, 5, 14, 20, [150, 108, 70]);
+  rect(10, 8, 12, 16, [250, 250, 245]);
+  rect(13, 4, 6, 3, [160, 166, 176]);
+  for (let y = 10; y < 22; y += 3) rect(12, y, 8, 1, [120, 120, 130]);
 });
 
 // --- Avatars: rows = avatars, columns = direction x 2 walk frames -------------

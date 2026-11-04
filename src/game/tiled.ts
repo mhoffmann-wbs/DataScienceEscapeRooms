@@ -58,12 +58,18 @@ export interface PuzzleSpot extends Rect {
   puzzleId: string;
 }
 
+export interface ClueSpot extends Rect {
+  clueId: string;
+}
+
 export interface MapObjects {
   /** A point (width/height 0) or an area players arrive somewhere inside. */
   spawn: Rect;
   doors: Door[];
   /** Where the player stands to open a puzzle (class `puzzle`, property `puzzleId`). */
   puzzles: PuzzleSpot[];
+  /** Things to look at (class `clue`, property `clueId`), shaped like puzzle spots. */
+  clues: ClueSpot[];
 }
 
 function objectClass(o: TiledObject): string | undefined {
@@ -97,7 +103,15 @@ export function parseMapObjects(map: TiledMap): MapObjects {
       return { puzzleId, x: o.x, y: o.y, width: o.width, height: o.height };
     });
 
-  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles };
+  const clues = objects
+    .filter((o) => objectClass(o) === 'clue')
+    .map((o) => {
+      const clueId = stringProp(o, 'clueId');
+      if (!clueId) throw new Error(`Clue object "${o.name}" (id ${o.id}) has no clueId property`);
+      return { clueId, x: o.x, y: o.y, width: o.width, height: o.height };
+    });
+
+  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles, clues };
 }
 
 /** Max offset (px) around a point spawn, so arriving players don't stack exactly on top of each other. */

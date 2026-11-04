@@ -18,10 +18,14 @@ describe('rooms', () => {
 
 describe.each(ROOM_IDS)('room %s', (roomId) => {
   const manifest = ROOMS[roomId]!;
-  const placed = parseMapObjects(tiledMapSchema.parse(MAPS[roomId])).puzzles.map((p) => p.puzzleId);
+  const objects = parseMapObjects(tiledMapSchema.parse(MAPS[roomId]));
 
   it('places every puzzle on the map exactly once, and nothing else', () => {
-    expect([...placed].sort()).toEqual(manifest.puzzles.map((p) => p.id).sort());
+    expect(objects.puzzles.map((p) => p.puzzleId).sort()).toEqual(manifest.puzzles.map((p) => p.id).sort());
+  });
+
+  it('places every clue on the map exactly once, and nothing else', () => {
+    expect(objects.clues.map((c) => c.clueId).sort()).toEqual(manifest.clues.map((c) => c.id).sort());
   });
 
   it('has every referenced data file', async () => {
