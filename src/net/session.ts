@@ -1,5 +1,6 @@
 import type { Profile } from '../player/profile';
 import { Chat } from './chat';
+import { Media, type MediaMode } from './media';
 import { Presence } from './presence';
 import { Proximity, type Area } from './proximity';
 import { RunSync, type RunState } from './run';
@@ -9,20 +10,22 @@ import type { NetRoom, Transport } from './transport';
 /** Outside private areas, nearby chat and A/V reach peers within this many pixels: 5 tiles. */
 export const NEARBY_RADIUS = 5 * 32;
 
-/** Everything networked about being in one space: presence and chat. */
+/** Everything networked about being in one space: presence, chat and voice/video. */
 export class Session {
   readonly presence: Presence;
   readonly chat: Chat;
   readonly proximity: Proximity;
+  readonly media: Media;
   protected readonly room: NetRoom;
   private left = false;
 
-  /** `areas` are the map's private areas (Tiled `area` objects). */
-  constructor(transport: Transport, scope: string, profile: Profile, areas: readonly Area[] = []) {
+  /** `areas` are the map's private areas (Tiled `area` objects); `mediaMode` whom A/V reaches. */
+  constructor(transport: Transport, scope: string, profile: Profile, areas: readonly Area[] = [], mediaMode: MediaMode = 'proximity') {
     this.room = transport.join(scope);
     this.proximity = new Proximity(NEARBY_RADIUS, areas);
     this.presence = new Presence(this.room, profile);
     this.chat = new Chat(this.room, this.presence, profile, this.proximity);
+    this.media = new Media(this.room, this.presence, this.proximity, mediaMode);
   }
 
   /** Idempotent: called both on unmount and on page hide. */
@@ -30,6 +33,7 @@ export class Session {
     if (this.left) return;
     this.left = true;
     this.dispose();
+    this.media.destroy();
     this.chat.destroy();
     this.presence.destroy();
     this.room.leave();
@@ -69,7 +73,8 @@ export class RoomSession extends Session {
     readonly info: RunInfo,
     areas: readonly Area[] = [],
   ) {
-    super(transport, roomScope(info.roomId, info.teamId), profile, areas);
+    // Inside a room the whole team is always connected.
+    super(transport, roomScope(info.roomId, info.teamId), profile, areas, 'team');
     this.run = new RunSync(this.room, info.state);
   }
 

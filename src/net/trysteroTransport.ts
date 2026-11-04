@@ -10,9 +10,10 @@ export function createTrysteroTransport(classCode: string): Transport {
     join(scope) {
       const room = joinRoom({ appId: APP_ID }, `${classCode}/${scope}`);
       // Trystero has one handler slot per event; multiplex it.
-      const peerEvents = new Emitter<{ join: string; leave: string }>();
+      const peerEvents = new Emitter<{ join: string; leave: string; stream: { stream: MediaStream; peerId: string } }>();
       room.onPeerJoin = (id) => peerEvents.emit('join', id);
       room.onPeerLeave = (id) => peerEvents.emit('leave', id);
+      room.onPeerStream = (stream, peerId) => peerEvents.emit('stream', { stream, peerId });
       const channels = new Map<string, Channel<Json>>();
 
       const net: NetRoom = {
@@ -42,6 +43,18 @@ export function createTrysteroTransport(classCode: string): Transport {
           return peerEvents.on('join', handler);
         },
         onPeerLeave: (handler) => peerEvents.on('leave', handler),
+        sendStream(stream, to) {
+          if (to.length === 0) return;
+          room.addStream(stream, { target: [...to] }).forEach((p) =>
+            p.catch(() => {
+              // peer left during negotiation
+            }),
+          );
+        },
+        stopStream(stream, to) {
+          if (to.length > 0) room.removeStream(stream, { target: [...to] });
+        },
+        onPeerStream: (handler) => peerEvents.on('stream', ({ stream, peerId }) => handler(stream, peerId)),
         leave() {
           peerEvents.clear();
           void room.leave();

@@ -67,12 +67,12 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Playtest each room against the time budget using the author shortcut.
 
 ### 7. Proximity, voice/video and collaboration
-- Audio and video connect to players within a radius in the lobby, and to the whole team inside a room.
-- Hysteresis so connections don't flap at the edge of the radius; mute and camera toggles; device selection.
-- When the network blocks it, the game says so clearly and text chat keeps working.
+- ✅ Audio and video connect to players within a radius in the lobby, and to the whole team inside a room.
+- ✅ Hysteresis so connections don't flap at the edge of the radius; mute and camera toggles; device selection.
+- ✅ When the network blocks it, the game says so clearly and text chat keeps working (as far as the data channel still connects).
 - **Nearby ring:** ✅ a faint circle around the local avatar showing who can hear you (for nearby chat and A/V).
 - **Speech bubbles:** nearby chat messages appear briefly above the speaker's head.
-- **Private areas:** ✅ (chat; A/V follows with the voice/video work) zones such as a couch corner or a group of tables, drawn in Tiled as `area` objects. Inside one, "nearby" means everyone in the same area and nobody outside it, whatever the distance. This applies to both nearby chat and A/V. Outside any area, the normal radius applies.
+- **Private areas:** ✅ zones such as a couch corner or a group of tables, drawn in Tiled as `area` objects. Inside one, "nearby" means everyone in the same area and nobody outside it, whatever the distance. This applies to both nearby chat and A/V. Outside any area, the normal radius applies.
 - **Team notebook:** a shared notes panel in the room, below the team list, where players collect what they find (clue values, digits, suspects, card ids). Anyone can add a note by typing, edit it, drag it to reorder, and cross it off when it's no longer needed; crossed-off notes stay visible but greyed out until deleted. A "pin to notes" button on clue cards and reveals copies their key text in one click. Notes are part of the team's run state and must merge without a leader: each note is keyed by a random id with last-write-wins fields (text, crossed off, deleted) and a sortable position key for the order. They are saved like the run, so a refresh keeps them.
 - **Shared code view:** teammates can watch each other's editors live inside a puzzle, so a team can work through a query or script together, as in pair programming.
 
@@ -103,5 +103,6 @@ Add new ideas here before they move into a step.
 - **Visual state changes:** a solved object swaps its tile (the freezer opens, the vent fan spins), set via a Tiled property such as `solvedTile`. Best done with the art pass in step 9.
 - **Split clues:** some clues show different halves to different players, so the team has to talk. Fits proximity voice.
 - **Overlays hide the map:** on smaller windows the chat panel covers the map's lower-left corner, and the camera can't scroll there because the map fits the screen. Either let the camera scroll past the left edge (like `UI_INSET_*`), or make the chat collapsible. Until then, keep important objects out of the lower-left of room maps.
+- **Speaking indicator:** highlight the tile (and the avatar on the map) of whoever is talking, using an AudioContext analyser on each remote stream.
 - **Italic text in manifests:** RichText only knows `**bold**` and `` `code` ``; a single `*star*` shows literally. Either support it or add a manifest test that rejects it.
 - **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.

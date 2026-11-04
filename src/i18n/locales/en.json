@@ -109,5 +109,34 @@
     "notSolved": "not solved",
     "solution": "Model solution",
     "hints": "{{count}}/{{total}} hints used"
+  },
+  "av": {
+    "title": "Voice and video",
+    "join": "🎙 Join voice",
+    "joinHintLobby": "Talk to people near you",
+    "joinHintRoom": "Talk to your team",
+    "starting": "Connecting…",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "camOn": "Camera on",
+    "camOff": "Camera off",
+    "devices": "Devices",
+    "leave": "Leave voice",
+    "microphone": "Microphone",
+    "camera": "Camera",
+    "defaultDevice": "Default",
+    "you": "You",
+    "muted": "muted",
+    "aloneLobby": "Walk up to someone to talk.",
+    "aloneRoom": "Nobody else from your team has joined voice yet.",
+    "failed": "Can't reach {{name}}'s voice or video. Your network may block it; chat still works.",
+    "errors": {
+      "denied": "Microphone access is blocked. Allow it in your browser's address bar, then try again.",
+      "noMic": "No microphone found. You can listen, but others can't hear you.",
+      "noCam": "The camera isn't available. Voice still works.",
+      "busy": "Your microphone or camera is in use by another app.",
+      "unsupported": "Voice and video need a secure (https) page and a current browser.",
+      "failed": "Voice and video couldn't start."
+    }
   }
 }

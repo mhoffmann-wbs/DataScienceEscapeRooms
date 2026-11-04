@@ -109,5 +109,34 @@
     "notSolved": "nicht gelöst",
     "solution": "Musterlösung",
     "hints": "{{count}}/{{total}} Hinweise genutzt"
+  },
+  "av": {
+    "title": "Sprache und Video",
+    "join": "🎙 Sprache beitreten",
+    "joinHintLobby": "Sprich mit Leuten in deiner Nähe",
+    "joinHintRoom": "Sprich mit deinem Team",
+    "starting": "Verbinde…",
+    "mute": "Stumm",
+    "unmute": "Ton an",
+    "camOn": "Kamera an",
+    "camOff": "Kamera aus",
+    "devices": "Geräte",
+    "leave": "Sprache verlassen",
+    "microphone": "Mikrofon",
+    "camera": "Kamera",
+    "defaultDevice": "Standard",
+    "you": "Du",
+    "muted": "stumm",
+    "aloneLobby": "Geh zu jemandem hin, um zu sprechen.",
+    "aloneRoom": "Noch niemand aus deinem Team ist der Sprache beigetreten.",
+    "failed": "{{name}} ist per Sprache oder Video nicht erreichbar. Dein Netzwerk blockiert das vielleicht; der Chat funktioniert weiter.",
+    "errors": {
+      "denied": "Der Mikrofonzugriff ist blockiert. Erlaube ihn in der Adressleiste deines Browsers und versuche es noch einmal.",
+      "noMic": "Kein Mikrofon gefunden. Du kannst zuhören, aber andere hören dich nicht.",
+      "noCam": "Die Kamera ist nicht verfügbar. Sprache funktioniert trotzdem.",
+      "busy": "Dein Mikrofon oder deine Kamera wird von einer anderen App benutzt.",
+      "unsupported": "Sprache und Video brauchen eine sichere (https-)Seite und einen aktuellen Browser.",
+      "failed": "Sprache und Video konnten nicht starten."
+    }
   }
 }

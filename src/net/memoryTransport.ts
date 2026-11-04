@@ -6,6 +6,7 @@ interface Member {
   deliver(channel: string, data: unknown, from: string): void;
   peerJoined(id: string): void;
   peerLeft(id: string): void;
+  receiveStream(stream: MediaStream, from: string): void;
 }
 
 /** In-process "network" shared by memory transports; used by tests and solo play. */
@@ -35,6 +36,11 @@ export class MemoryHub {
     for (const other of members.values()) other.peerLeft(id);
   }
 
+  /** @internal Streams are handed over as-is (tests use stand-in objects). */
+  sendStream(scope: string, stream: MediaStream, from: string, to: readonly string[]): void {
+    for (const id of to) if (id !== from) this.scopes.get(scope)?.get(id)?.receiveStream(stream, from);
+  }
+
   /** @internal */
   send(scope: string, channel: string, data: unknown, from: string, to?: readonly string[]): void {
     const members = this.scopes.get(scope);
@@ -51,7 +57,12 @@ export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode 
   return {
     join(scope) {
       const key = `${classCode}/${scope}`;
-      const events = new Emitter<{ join: string; leave: string; message: { channel: string; data: unknown; from: string } }>();
+      const events = new Emitter<{
+        join: string;
+        leave: string;
+        message: { channel: string; data: unknown; from: string };
+        stream: { stream: MediaStream; from: string };
+      }>();
       const peers = new Set<string>();
       // Messages for channels nobody listens to yet wait for the first subscriber
       // (delivery here is synchronous, so a newcomer is greeted before it subscribes).
@@ -71,6 +82,7 @@ export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode 
           peers.delete(id);
           events.emit('leave', id);
         },
+        receiveStream: (stream, from) => events.emit('stream', { stream, from }),
       });
 
       const room: NetRoom = {
@@ -102,6 +114,10 @@ export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode 
           return events.on('join', handler);
         },
         onPeerLeave: (handler) => events.on('leave', handler),
+        sendStream: (stream, to) => hub.sendStream(key, stream, selfId, to),
+        // Like WebRTC, receivers aren't told when a stream stops.
+        stopStream: () => {},
+        onPeerStream: (handler) => events.on('stream', ({ stream, from }) => handler(stream, from)),
         leave() {
           hub.remove(key, selfId);
           events.clear();
