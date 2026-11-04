@@ -18,14 +18,21 @@ class WorkerRunner {
   private ready: Promise<void> | null = null;
   private nextId = 1;
   private readonly pending = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
+  /** Packages requested so far; a fresh worker (after a timeout) loads them all again. */
+  private readonly packages = new Set<string>();
 
   constructor(private readonly create: () => Worker) {}
 
-  /** Starts loading the runtime in the background. */
-  warmUp(): Promise<void> {
-    if (!this.ready) {
-      this.ready = this.send({ type: 'init' }, INIT_TIMEOUT_MS).then(() => undefined);
-      this.ready.catch(() => (this.ready = null));
+  /** Starts loading the runtime (and any newly requested packages) in the background. */
+  warmUp(packages: readonly string[] = []): Promise<void> {
+    const added = packages.filter((p) => !this.packages.has(p));
+    added.forEach((p) => this.packages.add(p));
+    if (!this.ready || added.length) {
+      const ready = this.send({ type: 'init', packages: [...this.packages] }, INIT_TIMEOUT_MS).then(() => undefined);
+      this.ready = ready;
+      ready.catch(() => {
+        if (this.ready === ready) this.ready = null;
+      });
     }
     return this.ready;
   }
@@ -83,7 +90,8 @@ const python = new WorkerRunner(() => new Worker(new URL('./python.worker.ts', i
 const sql = new WorkerRunner(() => new Worker(new URL('./sql.worker.ts', import.meta.url), { type: 'module' }));
 
 export const runners = {
-  warmUp: (kind: 'python' | 'sql') => (kind === 'python' ? python : sql).warmUp(),
+  /** `packages`: Pyodide packages the room needs (python only). */
+  warmUp: (kind: 'python' | 'sql', packages: readonly string[] = []) => (kind === 'python' ? python.warmUp(packages) : sql.warmUp()),
   python: (code: string, setup: string, checkExpr?: string) => python.request<PythonOutcome>({ type: 'python', code, setup, checkExpr }),
   sql: (setup: string, query: string) => sql.request<SqlOutcome>({ type: 'sql', setup, query }),
   sqlSchema: (setup: string) => sql.request<{ name: string; columns: string[] }[]>({ type: 'sql-schema', setup }),

@@ -63,6 +63,8 @@ export const manifestSchema = z
     title: localized,
     /** Shown when the run starts. */
     intro: localized,
+    /** Pyodide packages this room's Python puzzles need (e.g. `statsmodels`), loaded when a puzzle opens. */
+    packages: z.array(z.string().regex(/^[a-z0-9_-]+$/)).default([]),
     puzzles: z.array(puzzleSchema).min(1),
     clues: z.array(clueSchema).default([]),
   })

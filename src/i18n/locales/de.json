@@ -108,7 +108,8 @@
     "output": "Hier erscheint die Ausgabe.",
     "empty": "(keine Ausgabe)",
     "close": "Schließen",
-    "reveal": "Was ihr gefunden habt"
+    "reveal": "Was ihr gefunden habt",
+    "loadingPackages": "Python mit {{list}} wird geladen… beim ersten Mal werden etwa 30 MB heruntergeladen, das dauert einen Moment."
   },
   "debrief": {
     "open": "Auswertung",
@@ -167,5 +168,9 @@
     "copy": "In meinen Editor kopieren",
     "readOnly": "Du siehst den Code von {{name}} live. Kopiere ihn, um ihn auszuführen oder zu ändern.",
     "viewerLabel": "Code von {{name}} (nur lesen)"
+  },
+  "chart": {
+    "lag": "Lag",
+    "data": "Daten anzeigen"
   }
 }

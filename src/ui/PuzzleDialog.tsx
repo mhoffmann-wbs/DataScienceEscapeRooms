@@ -5,7 +5,8 @@ import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
 import { getPuzzle, isUnlocked, loadDataFile, loc, ROOMS } from '../rooms';
 import type { Puzzle } from '../rooms/manifest';
 import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
-import type { SqlTable } from '../runners/protocol';
+import type { Plot, SqlTable } from '../runners/protocol';
+import { Chart } from './Chart';
 import type { CodeShare } from '../net/codeShare';
 import type { Presence } from '../net/presence';
 import { CodeEditor, CodeViewer } from './CodeEditor';
@@ -14,7 +15,7 @@ import { PinButton, plainNote } from './NotesPanel';
 import { RichText } from './RichText';
 import { useEmitterValue } from './useStore';
 
-type Output = { kind: 'text'; text: string; error?: string } | { kind: 'table'; table: SqlTable | null; error?: string } | { kind: 'error'; error: string };
+type Output = { kind: 'text'; text: string; error?: string; plots: Plot[] } | { kind: 'table'; table: SqlTable | null; error?: string } | { kind: 'error'; error: string };
 
 const MAX_ROWS = 200;
 const draftKey = (roomId: string, puzzleId: string) => `dser.draft.${roomId}.${puzzleId}`;
@@ -45,7 +46,7 @@ interface Props {
 export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, presence, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const { salt } = ROOMS[roomId]!;
+  const { salt, packages } = ROOMS[roomId]!;
   const state = useEmitterValue(run.events, 'state', () => run.state);
   const solved = puzzle.id in state.solved;
   const locked = !author && !isUnlocked(puzzle, state.solved);
@@ -80,7 +81,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
     if (!workspace) return;
     let cancelled = false;
     runners
-      .warmUp(workspace)
+      .warmUp(workspace, ROOMS[roomId]!.packages)
       .then(() => !cancelled && setRuntimeReady(true))
       .catch((e: unknown) => !cancelled && setOutput({ kind: 'error', error: String(e) }));
     if (puzzle.data)
@@ -133,7 +134,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
       if (workspace === 'python') {
         const expr = check && puzzle.check.type === 'python' ? puzzle.check.expr : undefined;
         const res = await runners.python(code, setup, expr);
-        setOutput({ kind: 'text', text: res.stdout, error: res.ok ? undefined : res.error });
+        setOutput({ kind: 'text', text: res.stdout, error: res.ok ? undefined : res.error, plots: res.plots });
         if (check && res.ok && res.check !== null) await accept(res.check);
       } else {
         const res = await runners.sql(setup, code);
@@ -267,7 +268,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
                     {t('puzzle.check')}
                   </button>
                 )}
-                <small className="muted">{runtimeReady ? t('puzzle.runShortcut') : t(workspace === 'python' ? 'puzzle.loadingPython' : 'puzzle.loadingSql')}</small>
+                <small className="muted">{runtimeReady ? t('puzzle.runShortcut') : workspace === 'sql' ? t('puzzle.loadingSql') : packages.length ? t('puzzle.loadingPackages', { list: packages.join(', ') }) : t('puzzle.loadingPython')}</small>
               </div>
             </div>
             <OutputView output={output} />
@@ -284,10 +285,17 @@ function OutputView({ output }: { output: Output | null }) {
   if (output.kind === 'error') return <pre className="output error">{output.error}</pre>;
   if (output.kind === 'text')
     return (
-      <pre className="output">
-        {output.text || (!output.error && <span className="muted">{t('puzzle.empty')}</span>)}
-        {output.error && <span className="error">{(output.text ? '\n' : '') + output.error}</span>}
-      </pre>
+      <>
+        {(output.text || output.error || output.plots.length === 0) && (
+          <pre className="output">
+            {output.text || (!output.error && <span className="muted">{t('puzzle.empty')}</span>)}
+            {output.error && <span className="error">{(output.text ? '\n' : '') + output.error}</span>}
+          </pre>
+        )}
+        {output.plots.map((plot, i) => (
+          <Chart key={i} plot={plot} />
+        ))}
+      </>
     );
   const { table } = output;
   if (!table) return <div className="output muted">{t('puzzle.noResult')}</div>;

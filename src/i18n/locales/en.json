@@ -108,7 +108,8 @@
     "output": "Output appears here.",
     "empty": "(no output)",
     "close": "Close",
-    "reveal": "What you found"
+    "reveal": "What you found",
+    "loadingPackages": "Loading Python with {{list}}… the first time downloads about 30 MB and takes a little while."
   },
   "debrief": {
     "open": "Debrief",
@@ -167,5 +168,9 @@
     "copy": "Copy into my editor",
     "readOnly": "You're watching {{name}}'s code live. Copy it to run or change it.",
     "viewerLabel": "{{name}}'s code (read-only)"
+  },
+  "chart": {
+    "lag": "Lag",
+    "data": "Show data"
   }
 }

@@ -1,9 +1,9 @@
-import { loadPyodide } from 'pyodide';
 import initSqlJs from 'sql.js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { MAPS, ROOM_IDS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { loadDataFile, ROOMS } from './index';
+import { nodePyodide } from '../runners/nodePython';
 import { canonicalSolution, solutionHash, type Engines } from './solutions';
 import { LANGUAGES, renderWalkthrough, walkthroughPath, type SolvedPuzzle } from './walkthrough';
 
@@ -51,8 +51,8 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
   describe('reference solutions', () => {
     let engines: Engines;
     beforeAll(async () => {
-      engines = { SQL: await initSqlJs(), py: await loadPyodide(), readData: (f) => loadDataFile(roomId, f) };
-    }, 60_000);
+      engines = { SQL: await initSqlJs(), py: await nodePyodide(manifest.packages), readData: (f) => loadDataFile(roomId, f) };
+    }, 180_000);
 
     it.each(manifest.puzzles.map((p) => [p.id, p] as const))('%s matches its stored hash', async (_, puzzle) => {
       const solution = solutionsFor(roomId)![puzzle.id];

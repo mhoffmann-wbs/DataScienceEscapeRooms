@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "hash-answer": "node scripts/hash-answer.ts",
     "walkthrough": "node scripts/walkthrough.ts",
+    "fetch-packages": "node scripts/fetch-pyodide-packages.mjs",
     "validate-rooms": "vitest run src/rooms"
   },
   "dependencies": {

@@ -2,6 +2,7 @@ import { loadPyodide } from 'pyodide';
 import initSqlJs from 'sql.js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
+import { nodePyodide } from './nodePython';
 import { runPython } from './pythonCore';
 import { runSql } from './sqlCore';
 
@@ -55,7 +56,7 @@ describe('python runner', () => {
 
   it('captures output and evaluates the check expression as canonical JSON', async () => {
     const out = await runPython(py, 'total = sum(readings)\nprint("total is", total)', 'readings = [3, 8, 15, 4]', '{"t": total, "a": [1, 2]}');
-    expect(out).toEqual({ ok: true, stdout: 'total is 30', check: '{"a": [1, 2], "t": 30}' });
+    expect(out).toEqual({ ok: true, stdout: 'total is 30', check: '{"a": [1, 2], "t": 30}', plots: [] });
   });
 
   it('uses a fresh namespace per run', async () => {
@@ -69,4 +70,48 @@ describe('python runner', () => {
     expect(out.ok || out.error).not.toContain('_pyodide');
     expect(await runPython(py, 'input()')).toMatchObject({ ok: false, error: expect.stringContaining('input() is not available') });
   });
+});
+
+describe('python plots', () => {
+  let py: Awaited<ReturnType<typeof loadPyodide>>;
+  beforeAll(async () => {
+    py = await loadPyodide();
+  }, 60_000);
+
+  it('collects line charts, aligning unequal lists and dropping NaN', async () => {
+    const out = await runPython(py, 'show_plot([1, 2, float("nan")], [5], labels=["a", "b"], title="T")\nprint("done")');
+    expect(out).toMatchObject({ ok: true, stdout: 'done' });
+    expect(out.plots).toEqual([{ title: 'T', kind: 'line', x: [0, 1, 2], series: [{ name: 'a', values: [1, 2, null] }, { name: 'b', values: [5, null, null] }], band: null }]);
+  });
+
+  it('keeps charts drawn before an error, and explains when statsmodels is missing', async () => {
+    const out = await runPython(py, 'show_plot([1, 2])\nplot_acf([1, 2, 3])');
+    expect(out).toMatchObject({ ok: false, error: expect.stringContaining('need statsmodels') });
+    expect(out.plots).toHaveLength(1);
+  });
+});
+
+describe('python packages', () => {
+  let py: Awaited<ReturnType<typeof loadPyodide>>;
+  beforeAll(async () => {
+    py = await nodePyodide(['statsmodels']);
+  }, 180_000);
+
+  it('aligns dated series by their index and draws correlograms with a significance band', async () => {
+    const code = [
+      'import numpy as np, pandas as pd',
+      "s = pd.Series(np.sin(np.arange(48) * np.pi / 6), index=pd.date_range('2020-01-01', periods=48, freq='MS'))",
+      "show_plot(s[:36], s[36:], labels=['train', 'test'])",
+      'plot_acf(s, lags=12)',
+    ].join('\n');
+    const out = await runPython(py, code);
+    expect(out.ok).toBe(true);
+    const [line, acf] = out.plots;
+    expect(line!.x).toHaveLength(48);
+    expect(line!.x[0]).toBe('2020-01-01');
+    expect(line!.series[0]!.values[36]).toBeNull();
+    expect(acf).toMatchObject({ kind: 'bar', title: 'ACF', band: expect.closeTo(1.96 / Math.sqrt(48), 3) });
+    // A 12-month sine correlates fully with itself at lag 12.
+    expect(acf!.series[0]!.values[11]).toBeGreaterThan(0.5);
+  }, 60_000);
 });

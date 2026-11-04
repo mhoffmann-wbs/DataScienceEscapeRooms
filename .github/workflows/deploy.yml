@@ -24,6 +24,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Pyodide package wheels for the time series rooms, cached per Pyodide version.
+      - uses: actions/cache@v4
+        with:
+          path: vendor/pyodide
+          key: pyodide-packages-${{ hashFiles('package-lock.json', 'content/rooms/*/manifest.json') }}
+      - run: npm run fetch-packages
       - run: npm run lint
       - run: npm test
       - run: npm run build
