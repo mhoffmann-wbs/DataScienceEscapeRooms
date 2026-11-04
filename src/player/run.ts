@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { notesSchema } from '../net/notebook';
 import { runStateSchema } from '../net/run';
 import type { RunInfo } from '../net/session';
 
 // The run this device is part of, so a page refresh drops the player back into their room.
 const STORAGE_KEY = 'dser.run';
 
-const savedRunSchema = z.object({ classCode: z.string(), roomId: z.string(), teamId: z.string(), state: runStateSchema });
+const savedRunSchema = z.object({ classCode: z.string(), roomId: z.string(), teamId: z.string(), state: runStateSchema, notes: notesSchema.optional() });
 export type SavedRun = RunInfo & { classCode: string };
 
 export function loadRun(): SavedRun | null {

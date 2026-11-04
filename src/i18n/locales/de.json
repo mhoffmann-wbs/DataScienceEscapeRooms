@@ -138,5 +138,17 @@
       "unsupported": "Sprache und Video brauchen eine sichere (https-)Seite und einen aktuellen Browser.",
       "failed": "Sprache und Video konnten nicht starten."
     }
+  },
+  "notes": {
+    "title": "Team-Notizen ({{count}})",
+    "empty": "Sammelt hier, was ihr findet: Codes, Namen, Zahlen. Euer ganzes Team sieht diese Notizen.",
+    "add": "Notiz hinzufügen (Enter)",
+    "crossOff": "Abhaken",
+    "edit": "Zum Bearbeiten klicken",
+    "delete": "Notiz löschen",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "pin": "📌 In Notizen übernehmen",
+    "pinned": "📌 Übernommen ✓"
   }
 }

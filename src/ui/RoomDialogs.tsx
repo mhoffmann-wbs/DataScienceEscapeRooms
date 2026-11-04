@@ -4,6 +4,7 @@ import type { RunState } from '../net/run';
 import { finalPuzzleId, getClue, loadSolutions, loc, ROOMS } from '../rooms';
 import { debriefRows } from '../rooms/debrief';
 import { Modal } from './Modal';
+import { PinButton, plainNote } from './NotesPanel';
 import { RichText } from './RichText';
 import { formatDuration } from './RoomHud';
 
@@ -23,7 +24,7 @@ export function IntroDialog({ roomId, onClose }: { roomId: string; onClose: () =
 }
 
 /** A clue object up close: read-only text from the manifest. */
-export function ClueDialog({ roomId, clueId, onClose }: { roomId: string; clueId: string; onClose: () => void }) {
+export function ClueDialog({ roomId, clueId, onPin, onClose }: { roomId: string; clueId: string; onPin: (text: string) => boolean; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const clue = getClue(roomId, clueId);
   if (!clue) return null;
@@ -33,6 +34,7 @@ export function ClueDialog({ roomId, clueId, onClose }: { roomId: string; clueId
         <RichText text={loc(clue.text, i18n.language)} />
       </div>
       <div className="modal-actions">
+        <PinButton text={plainNote(loc(clue.title, i18n.language), loc(clue.text, i18n.language))} onPin={onPin} />
         <button type="button" onClick={onClose}>
           {t('puzzle.close')}
         </button>

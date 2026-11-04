@@ -17,6 +17,7 @@ import { ChatPanel } from './ChatPanel';
 import { ClueDialog, DebriefDialog, IntroDialog } from './RoomDialogs';
 import { InteractPrompt } from './InteractPrompt';
 import { LeaveRoomDialog } from './LeaveRoomDialog';
+import { NotesPanel } from './NotesPanel';
 import { PeoplePanel } from './PeoplePanel';
 import { PuzzleDialog } from './PuzzleDialog';
 import { RoomHud } from './RoomHud';
@@ -56,7 +57,8 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
     const s = place.kind === 'lobby' ? new LobbySession(transport, profile, areas) : new RoomSession(transport, profile, place.run, areas);
     const offs: (() => void)[] = [];
     if (s instanceof RoomSession && place.kind === 'room' && !place.author) {
-      offs.push(s.run.events.on('state', (state) => saveRun({ ...place.run, state })));
+      const save = () => saveRun({ ...place.run, state: s.run.state, notes: s.notebook.state });
+      offs.push(s.run.events.on('state', save), s.notebook.events.on('notes', save));
     }
     const game = createGame(containerRef.current!, { profile, presence: s.presence, mapKey });
     // The session only exists once the effect runs (it opens network connections).
@@ -153,20 +155,24 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
   const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'clue' || d?.kind === 'leave' ? null : d)), []);
   const close = useCallback(() => setDialog(null), []);
   const openDebrief = useCallback(() => setDialog({ kind: 'escaped' }), []);
+  const pin = useCallback((text: string) => session.notebook.add(text), [session]);
   const puzzle = dialog?.kind === 'puzzle' ? getPuzzle(roomId, dialog.puzzleId) : undefined;
 
   return (
     <>
       <RoomHud roomId={roomId} run={run} onDebrief={openDebrief} />
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
-      {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onClose={close} />}
-      {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onClose={close} />}
+      {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onPin={pin} onClose={close} />}
+      {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onPin={pin} onClose={close} />}
       {dialog?.kind === 'leave' && <LeaveRoomDialog onLeave={onLeaveRoom} onStay={close} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={onLeaveRoom} onClose={close} />}
       <ChatPanel chat={session.chat} />
       <ChatBubbles chat={session.chat} />
-      <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('room.team', { count: n })} aloneText={t('room.alone')} />
+      <div className="side-column">
+        <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('room.team', { count: n })} aloneText={t('room.alone')} />
+        <NotesPanel notebook={session.notebook} />
+      </div>
       {!author && <AvDock media={session.media} presence={session.presence} scope="team" />}
     </>
   );

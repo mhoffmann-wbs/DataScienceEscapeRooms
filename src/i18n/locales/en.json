@@ -138,5 +138,17 @@
       "unsupported": "Voice and video need a secure (https) page and a current browser.",
       "failed": "Voice and video couldn't start."
     }
+  },
+  "notes": {
+    "title": "Team notes ({{count}})",
+    "empty": "Collect what you find here: codes, names, numbers. Your whole team sees these notes.",
+    "add": "Add a note (Enter)",
+    "crossOff": "Cross off",
+    "edit": "Click to edit",
+    "delete": "Delete note",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "pin": "📌 Pin to notes",
+    "pinned": "📌 Pinned ✓"
   }
 }

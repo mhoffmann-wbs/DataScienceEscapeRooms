@@ -8,6 +8,7 @@ import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
 import type { SqlTable } from '../runners/protocol';
 import { CodeEditor } from './CodeEditor';
 import { Modal } from './Modal';
+import { PinButton, plainNote } from './NotesPanel';
 import { RichText } from './RichText';
 import { useEmitterValue } from './useStore';
 
@@ -31,10 +32,12 @@ interface Props {
   run: RunSync;
   /** Author mode ignores locks. */
   author: boolean;
+  /** Adds a note to the team notebook (for pinning the reveal). */
+  onPin: (text: string) => boolean;
   onClose: () => void;
 }
 
-export function PuzzleDialog({ roomId, puzzle, run, author, onClose }: Props) {
+export function PuzzleDialog({ roomId, puzzle, run, author, onPin, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const { salt } = ROOMS[roomId]!;
@@ -147,6 +150,9 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onClose }: Props) {
           {solved && puzzle.reveal && (
             <section className="reveal" aria-label={t('puzzle.reveal')}>
               <RichText text={loc(puzzle.reveal, lang)} />
+              <p>
+                <PinButton text={plainNote(loc(puzzle.title, lang), loc(puzzle.reveal, lang))} onPin={onPin} />
+              </p>
             </section>
           )}
           <RichText text={loc(puzzle.text, lang)} />

@@ -1,6 +1,7 @@
 import type { Profile } from '../player/profile';
 import { Chat } from './chat';
 import { Media, type MediaMode } from './media';
+import { Notebook, type Notes } from './notebook';
 import { Presence } from './presence';
 import { Proximity, type Area } from './proximity';
 import { RunSync, type RunState } from './run';
@@ -61,11 +62,14 @@ export interface RunInfo {
   roomId: string;
   teamId: string;
   state: RunState;
+  /** The team's shared notes; missing in runs saved before notes existed. */
+  notes?: Notes;
 }
 
 export class RoomSession extends Session {
   readonly kind = 'room';
   readonly run: RunSync;
+  readonly notebook: Notebook;
 
   constructor(
     transport: Transport,
@@ -76,9 +80,11 @@ export class RoomSession extends Session {
     // Inside a room the whole team is always connected.
     super(transport, roomScope(info.roomId, info.teamId), profile, areas, 'team');
     this.run = new RunSync(this.room, info.state);
+    this.notebook = new Notebook(this.room, info.notes ?? {}, this.room.selfId);
   }
 
   protected override dispose(): void {
+    this.notebook.destroy();
     this.run.destroy();
   }
 }
