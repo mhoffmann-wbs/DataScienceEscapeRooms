@@ -1050,3 +1050,68 @@ code {
 .small-print {
   font-size: 12px;
 }
+
+/* Instructor announcements and notices, top center below the HUD */
+.announcements {
+  top: 112px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 24px));
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--accent);
+  z-index: 5;
+}
+
+.announcement {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.announcement button {
+  margin-left: auto;
+  padding: 0 6px;
+  background: transparent;
+  border: 0;
+}
+
+.instructor-unlock label {
+  display: grid;
+  gap: 4px;
+}
+
+.link-button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-weight: 600;
+  color: inherit;
+}
+
+.instructor-detail table {
+  width: 100%;
+  font-size: 13px;
+}
+
+.instructor-announce {
+  margin-top: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.instructor-announce h3 {
+  margin: 0;
+}
+
+.instructor-announce textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.instructor-announce-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

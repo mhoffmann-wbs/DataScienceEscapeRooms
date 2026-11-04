@@ -45,6 +45,7 @@ node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and
 npm run validate-rooms                # room tests: manifests, map placement, data files, reference solutions
 npm run hash-answer -- <roomId>       # re-derive answer hashes from solutions.json (add --write to update the manifest)
 npm run walkthrough [-- <roomId>]     # regenerate the instructor walkthroughs in docs/walkthroughs/
+npm run instructor-keys               # create the instructor key pair: writes content/instructor.json (commit it); asks for a passphrase
 npm run fetch-packages                # download the Pyodide package wheels rooms declare into vendor/pyodide/ (needed for the time series rooms, their tests and builds)
 VITE_AUTHOR=1 npm run build           # production build with the author shortcut enabled
 ```
@@ -139,7 +140,8 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 ### Persistence, scoreboard, instructor
 - Progress and identity (nickname, avatar) live in `localStorage`, so a page refresh restores the current run. Every storage key starts with `dser.`; the profile is zod-validated on load (`src/player/profile.ts`), and corrupt data counts as missing.
 - The lobby scoreboard (`Scores`, `src/net/scores.ts`; `ScoreboardDialog`) turns finished runs from the live summaries into results, keeps them in `localStorage` (`dser.scores`, newest 300, 60 days) and hands them to every newcomer, so it fills up across visits. Results merge per team and epoch (earliest escape wins); implausible times are dropped. It is **not cheat-proof**, and the dialog says so.
-- Instructor mode is unlocked with an instructor PIN. It can see teams and their progress, reset a team's room, and broadcast announcements. In a P2P setup this is trust-based, not real security, so state that wherever it matters.
+- **Instructor mode** (`src/net/instructor.ts`, `instructorCrypto.ts`; `InstructorPanel`, `Announcements`): announcements (to everyone or one group) and run resets are **signed** with an ECDSA P-256 key. `content/instructor.json` holds the public key and the private key encrypted with the instructor's passphrase (PBKDF2 + AES-GCM); without that file the Instructor button is hidden and instructor messages are ignored. Every client verifies signatures, freshness (±10 min) and nonces (no replays), so students can't fake them; a weak passphrase could still be brute-forced offline, since the file is public. The unlocked key lives only in memory. The panel reads the live run summaries (filterable by group): progress, time, hints and wrong attempts per puzzle. That data comes from players' browsers and isn't verified; the panel says so. A reset carries a new epoch; team members in the room apply it, and the banner tells them.
+- `instructorCrypto.ts` runs under plain Node (the key script) and is imported with explicit `.ts`; keep it free of parameter properties and non-`.ts` imports, since Node only strips types.
 
 ### i18n
 - All UI strings and all story/puzzle text exist in both `de` and `en`. In-room text lives in the room manifest; UI strings live in `src/i18n/locales/{en,de}.json`, and a test fails if the two files' keys differ. Do not hard-code user-facing strings in components.

@@ -1,6 +1,7 @@
 import type { Profile } from '../player/profile';
 import { Chat } from './chat';
 import { CodeShare } from './codeShare';
+import { InstructorChannel, type InstructorConfig } from './instructor';
 import { Media, type MediaMode } from './media';
 import { Notebook, type Notes } from './notebook';
 import { Presence } from './presence';
@@ -53,15 +54,19 @@ export class LobbySession extends Session {
   readonly teams: Teams;
   readonly runs: Runs;
   readonly scores: Scores;
+  readonly instructor: InstructorChannel;
 
-  constructor(transport: Transport, profile: Profile, areas: readonly Area[] = []) {
+  /** `instructor`: the public instructor config; null means instructor messages are ignored. */
+  constructor(transport: Transport, profile: Profile, areas: readonly Area[] = [], instructor: InstructorConfig | null = null) {
     super(transport, 'lobby', profile, areas);
     this.teams = new Teams(this.room);
     this.runs = new Runs(this.room);
     this.scores = new Scores(this.room, this.runs);
+    this.instructor = new InstructorChannel(this.room, instructor);
   }
 
   protected override dispose(): void {
+    this.instructor.destroy();
     this.scores.destroy();
     this.runs.destroy();
     this.teams.destroy();

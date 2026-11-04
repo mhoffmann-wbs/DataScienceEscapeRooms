@@ -192,8 +192,8 @@ export function TeamDialog({ roomId, teams, runs, presence, profile, onRejoin, o
 
 const GROUP_KEY = 'dser.group';
 
-/** The last group tag used, as a convenience for the next team. */
-function loadGroup(): string {
+/** The last group tag used, as a convenience for the next team (and for group announcements). */
+export function loadGroup(): string {
   try {
     return localStorage.getItem(GROUP_KEY) ?? '';
   } catch {

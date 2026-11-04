@@ -80,7 +80,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Progress saved in the browser so a refresh restores the run (done in step 4).
 - **Rejoin an ongoing run:** ✅ a player who left a room for the lobby can go back into their team's run from the room's door (the saved run is kept until the team escapes or the player discards it).
 - ✅ Lobby scoreboard per room: escape time and hints used, filterable by group and period. Labelled as not cheat-proof.
-- **Instructor mode** (instructor PIN): see teams and their progress, hints used per puzzle, reset a team's room, send announcements.
+- **Instructor mode** ✅ (signed messages; passphrase-protected key): see teams and their progress, hints used per puzzle, reset a team's room, send announcements.
 - **Wrong-attempt counts:** ✅ count failed checks per puzzle, shown to instructors next to hints used, to spot puzzles that are too hard. Counts merge as per-player counters (each player's highest count wins), not as earliest timestamps.
 - **Solo practice mode:** play a room alone without networking, for revising at home.
 
@@ -125,7 +125,7 @@ Model families: AR in station 2, ARMA/ARIMA candidates and SARIMA in stations 5�
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
 
 - **Strict networks:** without a TURN relay, voice and video may fail on some school or company networks. Text chat is unaffected.
-- **No authority:** with no central server, the scoreboard can be faked and the instructor PIN only stops honest users.
+- **No authority:** with no central server, the scoreboard and the progress the instructor sees can be faked. Instructor messages themselves are signed and can't be.
 - **Download size:** Pyodide is about 12 MB, so it is loaded only when a Python puzzle opens. The time series rooms add about 29 MB of packages, loaded only in rooms that declare them and cached by the browser afterwards.
 
 ## Ideas not yet scheduled

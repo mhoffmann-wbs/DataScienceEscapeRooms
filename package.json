@@ -14,6 +14,7 @@
     "hash-answer": "node scripts/hash-answer.ts",
     "walkthrough": "node scripts/walkthrough.ts",
     "fetch-packages": "node scripts/fetch-pyodide-packages.mjs",
+    "instructor-keys": "node scripts/instructor-keys.ts",
     "validate-rooms": "vitest run src/rooms"
   },
   "dependencies": {

@@ -201,5 +201,30 @@
     "when": "Escaped",
     "empty": "No escapes yet for this selection.",
     "notCheatProof": "Results are shared between players' browsers, without a server, so they can't be verified. Take the ranking as a bit of fun, not as grades."
+  },
+  "instructor": {
+    "title": "Instructor",
+    "passphrase": "Instructor passphrase",
+    "unlock": "Unlock",
+    "unlocking": "Checking…",
+    "wrongPassphrase": "That passphrase doesn't unlock the instructor key.",
+    "noRuns": "No team is playing right now.",
+    "room": "Room",
+    "progress": "Solved",
+    "wrong": "Wrong attempts",
+    "reset": "Reset",
+    "resetConfirm": "Start {{team}}'s run in {{room}} over? Their progress and timer are cleared for the whole team.",
+    "puzzle": "Puzzle",
+    "solvedAfter": "Solved after",
+    "announce": "Announcement",
+    "announcePlaceholder": "e.g. 10 minutes left!",
+    "to": "To",
+    "everyone": "Everyone",
+    "send": "Send",
+    "sent": "Sent.",
+    "trust": "Your announcements and resets are signed, so students can't fake them. The progress shown here comes from the players' browsers and isn't verified.",
+    "fromInstructor": "Instructor:",
+    "dismiss": "Dismiss",
+    "resetNotice": "Your instructor reset this room: the run starts over."
   }
 }

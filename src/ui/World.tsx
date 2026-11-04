@@ -175,6 +175,13 @@ function RoomOverlays({ session, lobby, profile, author, onLeaveRoom }: RoomOver
   }, [lobby, session, state, roster, profile.nickname]);
   useEffect(() => () => lobby?.runs.withdraw(), [lobby]);
 
+  // An instructor reset starts this team's run over (signed; see InstructorChannel). The
+  // banner (Announcements) tells the players.
+  useEffect(() => {
+    if (!lobby) return;
+    return lobby.instructor.events.on('reset', ({ teamId, epoch }) => teamId === session.info.teamId && session.run.reset(epoch));
+  }, [lobby, session]);
+
   // Keep the map's ✓ markers in sync, including after the scene (re)starts.
   useEffect(() => {
     const send = () => bus.emit('puzzles:solved', { ids: Object.keys(run.state.solved) });

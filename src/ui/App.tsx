@@ -3,13 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { emptyRun } from '../net/run';
+import { INSTRUCTOR_CONFIG } from '../net/instructorConfig';
 import { LobbySession } from '../net/session';
 import { createTrysteroTransport } from '../net/trysteroTransport';
 import type { StartedTeam } from '../net/teams';
 import { loadProfile, saveProfile, type Profile } from '../player/profile';
 import { clearRun, loadRun, saveRun, type SavedRun } from '../player/run';
 import { ROOMS } from '../rooms';
+import { Announcements } from './Announcements';
+import { InstructorPanel, InstructorUnlock } from './InstructorPanel';
 import { JoinScreen } from './JoinScreen';
+import { loadGroup } from './TeamDialog';
 import { LanguageSwitch } from './LanguageSwitch';
 import { World, type Place } from './World';
 
@@ -42,7 +46,7 @@ export function App() {
   const [lobby, setLobby] = useState<LobbySession | null>(null);
   useEffect(() => {
     if (!online || !profile) return;
-    const s = new LobbySession(transport, profile, LOBBY_AREAS);
+    const s = new LobbySession(transport, profile, LOBBY_AREAS, INSTRUCTOR_CONFIG);
     // The session only exists once the effect runs (it opens network connections).
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLobby(s);
@@ -56,6 +60,11 @@ export function App() {
       setLobby(null);
     };
   }, [online, profile, transport]);
+
+  // Instructor mode: the signing key, only in memory (a reload locks it again).
+  const [instructorKey, setInstructorKey] = useState<CryptoKey | null>(null);
+  const [instructorOpen, setInstructorOpen] = useState(false);
+  const group = place?.kind === 'room' ? (place.run.group ?? null) : loadGroup() || null;
 
   const join = (p: Profile) => {
     saveProfile(p);
@@ -91,9 +100,20 @@ export function App() {
       ) : (
         <JoinScreen initial={profile} onJoin={join} />
       )}
+      {lobby && <Announcements instructor={lobby.instructor} group={group} teamId={place?.kind === 'room' ? place.run.teamId : null} />}
+      {lobby && instructorOpen && INSTRUCTOR_CONFIG && !instructorKey && (
+        <InstructorUnlock config={INSTRUCTOR_CONFIG} onUnlock={setInstructorKey} onClose={() => setInstructorOpen(false)} />
+      )}
+      {lobby && instructorOpen && instructorKey && <InstructorPanel lobby={lobby} signingKey={instructorKey} onClose={() => setInstructorOpen(false)} />}
       <header className="overlay top-bar">
         <h1>{t('app.title')}</h1>
         <div className="top-bar-actions">
+          {lobby && INSTRUCTOR_CONFIG && (
+            <button type="button" onClick={() => setInstructorOpen(true)}>
+              {instructorKey ? '🎓 ' : ''}
+              {t('instructor.title')}
+            </button>
+          )}
           {place && (
             <button type="button" onClick={() => setPlace(null)}>
               {t('lobby.changeProfile')}
