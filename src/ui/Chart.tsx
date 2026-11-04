@@ -16,9 +16,20 @@ const fmt = (v: number) => {
   if (a >= 1e6) return `${(v / 1e6).toFixed(1)}M`;
   if (a >= 1e4) return `${(v / 1e3).toFixed(0)}k`;
   if (a >= 100) return v.toFixed(0);
-  if (a >= 1) return v.toFixed(2);
-  return v.toFixed(3);
+  if (a >= 1) return v.toFixed(1);
+  if (a === 0) return '0';
+  return v.toFixed(2);
 };
+
+/** About four round tick values (steps of 1, 2 or 5 × 10^k) inside [lo, hi]. */
+function niceTicks(lo: number, hi: number): number[] {
+  const raw = (hi - lo) / 4;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? 10 * mag;
+  const ticks: number[] = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) ticks.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+  return ticks;
+}
 
 export function Chart({ plot }: { plot: Plot }) {
   const { t } = useTranslation();
@@ -40,7 +51,7 @@ export function Chart({ plot }: { plot: Plot }) {
   const slot = innerW / n;
   const xAt = (i: number) => PAD.left + (bar ? slot * (i + 0.5) : n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
   const yAt = (v: number) => PAD.top + ((hi - v) / (hi - lo)) * innerH;
-  const ticks = [lo + (hi - lo) * 0.05, (lo + hi) / 2, hi - (hi - lo) * 0.05];
+  const ticks = niceTicks(lo, hi);
   const xLabels = n <= 3 ? [...Array(n).keys()] : [0, Math.floor((n - 1) / 2), n - 1];
 
   const onMove = (e: MouseEvent<SVGSVGElement>) => {

@@ -63,8 +63,8 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 5 rows of 32px tiles -------------------------------
-const tiles = canvas(8 * T, 5 * T);
+// --- Tileset: 8 columns x 6 rows of 32px tiles -------------------------------
+const tiles = canvas(8 * T, 6 * T);
 const at = (index) => [(index % 8) * T, Math.floor(index / 8) * T];
 
 function drawTile(index, draw) {
@@ -424,6 +424,59 @@ drawTile(38, ({ rect }) => {
   }
   rect(0, 0, T, 1, [44, 96, 78]);
   rect(0, 0, 1, T, [44, 96, 78]);
+});
+
+// --- Arctic station (ts-nordlys) ---------------------------------------------
+// 39 fuel tank: a red cylinder with a level window
+drawTile(39, ({ rect, ellipse }) => {
+  rect(6, 4, 20, 26, [170, 46, 46]);
+  ellipse(16, 4, 10, 3, [200, 70, 70]);
+  rect(6, 10, 20, 2, [130, 30, 30]);
+  rect(6, 22, 20, 2, [130, 30, 30]);
+  rect(13, 12, 6, 10, [40, 40, 50]);
+  rect(14, 16, 4, 6, [250, 200, 80]);
+  rect(8, 29, 4, 2, [80, 80, 90]);
+  rect(20, 29, 4, 2, [80, 80, 90]);
+});
+// 40 gauge panel on wall front
+drawTile(40, ({ rect, ellipse }) => {
+  rect(0, 0, T, T, WALL);
+  rect(5, 4, 22, 22, [60, 64, 76]);
+  ellipse(16, 15, 8, 8, [236, 240, 244]);
+  rect(9, 15, 7, 2, [220, 70, 70]);
+  rect(16, 9, 2, 6, [80, 190, 110]);
+  ellipse(16, 15, 2, 2, [40, 40, 50]);
+  rect(8, 23, 16, 2, [120, 220, 160]);
+});
+// 41 window with northern lights, on wall front
+drawTile(41, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(4, 4, 24, 20, [180, 186, 200]);
+  rect(6, 6, 20, 16, [14, 22, 48]);
+  for (let x = 6; x < 26; x++) {
+    const y = 12 + Math.round(3 * Math.sin(x / 3));
+    rect(x, y - 2, 1, 4, [80, 230, 160]);
+    rect(x, y - 4, 1, 2, [150, 110, 230]);
+  }
+  rect(9, 8, 1, 1, [255, 255, 255]);
+  rect(22, 7, 1, 1, [255, 255, 255]);
+});
+// 42 metal grating floor
+drawTile(42, ({ rect }) => {
+  rect(0, 0, T, T, [120, 128, 140]);
+  for (let i = 0; i < T; i += 4) {
+    rect(i, 0, 1, T, [104, 112, 124]);
+    rect(0, i, T, 1, [104, 112, 124]);
+  }
+  rect(0, 0, T, 1, [90, 96, 108]);
+  rect(0, 0, 1, T, [90, 96, 108]);
+});
+// 43 door: Station Nordlys (ice blue)
+drawTile(43, ({ rect }) => {
+  rect(0, 0, T, T, [120, 170, 200]);
+  rect(4, 2, T - 8, T - 2, [30, 26, 34]);
+  rect(6, 4, T - 12, T - 4, [60, 90, 110]);
+  rect(6, T - 4, T - 12, 4, [190, 240, 255]);
 });
 
 // --- Avatars: rows = avatars, columns = direction x 2 walk frames -------------

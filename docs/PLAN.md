@@ -106,7 +106,9 @@ Two intermediate rooms that share the classic preprocessing steps (missing-value
 - **Plots in the output panel:** a `show_plot(...)` helper (line charts, ACF/PACF bars) whose data the worker returns alongside stdout; React draws it as SVG. Time series puzzles are hard to solve without seeing the series.
 - **Tolerance checks:** forecasts aren't exact, so data files may define a grader function that the `python` check calls (e.g. within ±3 %), returning a fixed result that gets hashed.
 
-**TS1 "Station Nordlys" (Arctic research station; heating fuel, monthly 2010–2025).** A storm put the station into safe mode; to restore heating, the team rebuilds the station's forecasting pipeline and submits next winter's fuel order. Data are generated from an airline model on the log scale (seed chosen so ACF/PACF are textbook-clear; prototype numbers below).
+**Infrastructure** ✅ (packages, charts, tolerance checks).
+
+**TS1 "Station Nordlys"** ✅ content built (`ts-nordlys`), playtest pending. (Arctic research station; heating fuel, monthly 2010–2025.) A storm put the station into safe mode; to restore heating, the team rebuilds the station's forecasting pipeline and submits next winter's fuel order. Data are generated from an airline model on the log scale (seed chosen so ACF/PACF are textbook-clear; prototype numbers below).
 1. **Frost-damaged logbook** (interpolation): four months are missing; fill them with `interpolate(method='time')`. Clue: the logbook page explains the frozen sensor.
 2. **Drifting freezer sensor** (detrending + AR): a sample freezer's temperature log has a linear sensor drift. Detrend, fit AR(2), round the coefficients to the keypad code (φ ≈ 0.59 / −0.29 → "6-3"). Differencing instead gives a wrong code. Clue: technician's note "the sensor drifts in a straight line".
 3. **The chief's method** (baselines): naive vs seasonal naive MAE on the 2024–25 holdout (≈ 1519 vs 602 litres). Clue: the chief's note "I just order what we used the same month last year".
@@ -116,7 +118,7 @@ Two intermediate rooms that share the classic preprocessing steps (missing-value
 
 Model families: AR in station 2, ARMA/ARIMA candidates and SARIMA in stations 5–6.
 
-**TS2 (Prophet):** Prophet can't run in the browser (it needs the Stan C++ toolchain, which Pyodide doesn't ship). Approach to decide before building TS2: (a) a small Prophet-style model in numpy/statsmodels with Prophet's API names (`fit`, `make_future_dataframe`, `predict`; piecewise-linear trend with changepoints, Fourier seasonality, holidays), clearly labelled as not the real library; (b) students run real Prophet in Colab and type results in; or (c) precomputed Prophet outputs to interpret.
+**TS2 (Prophet):** Prophet can't run in the browser (it needs the Stan C++ toolchain, which Pyodide doesn't ship). Decided: a small Prophet-style model with Prophet's API names, clearly labelled as not the real library. Its scope, what it covers and what not, is in [docs/prophet-lite.md](prophet-lite.md); keep that page in sync when building it.
 
 ## Known limits
 

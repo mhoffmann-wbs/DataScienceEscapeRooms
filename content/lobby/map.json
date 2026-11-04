@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 4,
- "nextobjectid": 6,
+ "nextobjectid": 7,
  "layers": [
   {
    "id": 1,
@@ -71,8 +71,8 @@
     1,
     1,
     1,
-    1,
-    1,
+    44,
+    44,
     1,
     1,
     1,
@@ -788,8 +788,8 @@
     4,
     4,
     4,
-    10,
-    10,
+    0,
+    0,
     4,
     4,
     4,
@@ -1525,6 +1525,24 @@
      "height": 256,
      "rotation": 0,
      "visible": true
+    },
+    {
+     "id": 6,
+     "name": "door-ts-nordlys",
+     "type": "door",
+     "x": 480,
+     "y": 32,
+     "width": 64,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "doorTo",
+       "type": "string",
+       "value": "ts-nordlys"
+      }
+     ]
     }
    ]
   }
@@ -1535,9 +1553,9 @@
    "name": "placeholder",
    "image": "../tilesets/placeholder.png",
    "imagewidth": 256,
-   "imageheight": 160,
+   "imageheight": 192,
    "columns": 8,
-   "tilecount": 40,
+   "tilecount": 48,
    "tilewidth": 32,
    "tileheight": 32,
    "margin": 0,

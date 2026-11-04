@@ -14,6 +14,8 @@ First milestone: lobby skeleton (movement, presence, chat, proximity A/V, team f
 - **Python room: "Quarantine" (abandoned research lab).** A mycologist's lab sealed itself; fix her broken scripts (variables, lists, loops, string decoding, dict lookups, debugging) to collect the 4 digits of the override code.
 - **SQL room: "The Blue Index" (hotel mystery).** A diamond vanished from room 404 on a storm night; query bookings, key cards, the door log and receipts to name the thief (SELECT/WHERE, ORDER BY, GROUP BY, simple JOIN).
 
+Later rooms: **Time series 1, "Station Nordlys"** (`ts-nordlys`: interpolation, detrending vs differencing, log transform, baselines, AR and SARIMA with statsmodels) and, planned, **Time series 2** with a Prophet-style model (scope in [docs/prophet-lite.md](docs/prophet-lite.md)). Plan step 10 has the design, including which processing step fits which model family.
+
 Target play time is **about 30 minutes per room** for a beginner team. In practice this means 5–6 puzzles of roughly 4–6 minutes each, ordered from easy to hard, ending in a final lock that combines earlier results. Size new puzzles and datasets to this budget. A puzzle that takes one line of code is too small: each station should need several lines, a clue from elsewhere in the room, or both.
 
 Puzzles should combine the room with the code: **clues** (photos, posters, manuals) hold values that the scripts need, and solved stations hand out **reveals** (code digits, decoded messages) that other stations or the final lock need. This makes teams split up and talk. Keep several stations open from the start so a team of 3–5 can work in parallel.
@@ -43,6 +45,7 @@ node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and
 npm run validate-rooms                # room tests: manifests, map placement, data files, reference solutions
 npm run hash-answer -- <roomId>       # re-derive answer hashes from solutions.json (add --write to update the manifest)
 npm run walkthrough [-- <roomId>]     # regenerate the instructor walkthroughs in docs/walkthroughs/
+npm run fetch-packages                # download the Pyodide package wheels rooms declare into vendor/pyodide/ (needed for the time series rooms, their tests and builds)
 VITE_AUTHOR=1 npm run build           # production build with the author shortcut enabled
 ```
 
@@ -112,12 +115,15 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
   - `answer`: typed text, normalized per `mode` (`caseless`/`exact`/`number`).
   - `python`: after the student's code runs, `expr` is evaluated in its namespace and compared as canonical JSON.
   - `sql`: the last statement's rows, with column names ignored and floats rounded; sorted unless `ordered`.
+  - Results that aren't exact (forecasts) use a `python` check whose `expr` calls a grader function defined in the puzzle's data file, e.g. `_supply_check(pin, jan_2026, mae_sarima)` in `ts-nordlys`: it prints what is wrong (in both languages) and returns a fixed string such as `"approved"`, which is what gets hashed.
 - Authoring loop: write the reference solution into `solutions.json`, run `npm run hash-answer -- <roomId> --write` (it runs the solution through the same runner code as the game), then `npm run walkthrough -- <roomId>` and `npm run validate-rooms`. Every puzzle needs a reference solution.
 - **Instructor walkthroughs** (`docs/walkthroughs/<roomId>.<en|de>.md`) are generated from the manifest and solutions by `src/rooms/walkthrough.ts`: overview, final code, and per station the task, starter code, model solution, checked result, reveal, hints and clues. A room test fails when a committed walkthrough is out of date, so regenerate after every content change.
 - Hashes only keep answers out of the running game's code: the solutions and walkthroughs are public in the repo anyway. Treat answers as a game mechanic, not a secret.
 
 ### Code execution
-- Pyodide loads **lazily, only when a Python puzzle opens**, because it is about 12 MB. Its runtime files are served from our own site, not a CDN: the `pyodide-files` plugin in `vite.config.ts` serves them from `node_modules` in dev and copies them to `dist/pyodide/` in builds. sql.js's wasm is bundled as a Vite asset. Only the Python core is available; packages such as pandas would need their wheels served the same way.
+- Pyodide loads **lazily, only when a Python puzzle opens**, because it is about 12 MB. Its runtime files are served from our own site, not a CDN: the `pyodide-files` plugin in `vite.config.ts` serves them from `node_modules` in dev and copies them to `dist/pyodide/` in builds. sql.js's wasm is bundled as a Vite asset.
+- **Packages:** a room's manifest can list Pyodide packages (`"packages": ["statsmodels"]`). `npm run fetch-packages` downloads them and their dependencies (sha256-checked against `pyodide-lock.json`) into the gitignored `vendor/pyodide/`, which the same plugin serves and copies; CI fetches and caches them. The worker loads a room's packages during warm-up and pre-imports heavy modules (`PRELOAD` in `pythonCore.ts`; `import statsmodels` alone takes seconds), so neither counts against the run timeout. Node tests and scripts get the same setup from `nodePyodide(packages)` (`src/runners/nodePython.ts`). statsmodels with numpy, pandas and scipy is about 30 MB.
+- **Charts:** every Python run has `show_plot(*series, labels=, title=)` (lines; pandas indexes become the x axis and are aligned across series), `plot_acf` and `plot_pacf` (bars with the 95 % band; need statsmodels). They collect chart data in the run's namespace; `runPython` returns it as `plots`, and `Chart` (`src/ui/Chart.tsx`) draws it as SVG with a hover readout and a data table.
 - Both runtimes run in Web Workers (`src/runners/*.worker.ts`), driven by `runners` in `src/runners/index.ts`. A run longer than `RUN_TIMEOUT_MS` (10 s) terminates the worker, and the next run starts a fresh one. This doesn't need SharedArrayBuffer, which matters because GitHub Pages can't send COOP/COEP headers.
 - `pythonCore.ts`, `sqlCore.ts`, `rooms/answers.ts`, `rooms/manifest.ts` and `rooms/solutions.ts` also run under plain Node (the tests and `scripts/hash-answer.ts`). Keep them free of browser APIs and Vite-only imports, and use explicit `.ts` extensions for relative imports between them. Every Python run gets a fresh namespace, and every SQL run a fresh database built from the setup script, so one attempt can't break the next.
 - Each player has their own sandbox. Only the *outcome* (solved/not solved) is shared with the team, plus the live read-only code view. Editor drafts are kept per puzzle in `localStorage` (`dser.draft.<roomId>.<puzzleId>`).
