@@ -12,7 +12,7 @@ A browser-based, gather.town-style virtual escape room for data science students
 
 First milestone: lobby skeleton (movement, presence, chat, proximity A/V, team formation) plus two beginner rooms:
 - **Python room: "Quarantine" (abandoned research lab).** A mycologist's lab sealed itself; fix her broken scripts (variables, lists, loops, string decoding, dict lookups, debugging) to collect the 4 digits of the override code.
-- **SQL room: "Hotel mystery".** Query bookings, guests and key-card logs to find out who entered room 404 (SELECT/WHERE, ORDER BY, GROUP BY, simple JOIN).
+- **SQL room: "The Blue Index" (hotel mystery).** A diamond vanished from room 404 on a storm night; query bookings, key cards, the door log and receipts to name the thief (SELECT/WHERE, ORDER BY, GROUP BY, simple JOIN).
 
 Target play time is **about 30 minutes per room** for a beginner team. In practice this means 5–6 puzzles of roughly 4–6 minutes each, ordered from easy to hard, ending in a final lock that combines earlier results. Size new puzzles and datasets to this budget. A puzzle that takes one line of code is too small: each station should need several lines, a clue from elsewhere in the room, or both.
 

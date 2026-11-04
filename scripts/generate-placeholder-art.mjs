@@ -63,8 +63,8 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 4 rows of 32px tiles -------------------------------
-const tiles = canvas(8 * T, 4 * T);
+// --- Tileset: 8 columns x 5 rows of 32px tiles -------------------------------
+const tiles = canvas(8 * T, 5 * T);
 const at = (index) => [(index % 8) * T, Math.floor(index / 8) * T];
 
 function drawTile(index, draw) {
@@ -309,6 +309,107 @@ drawTile(26, ({ rect }) => {
   rect(10, 8, 12, 16, [250, 250, 245]);
   rect(13, 4, 6, 3, [160, 166, 176]);
   for (let y = 10; y < 22; y += 3) rect(12, y, 8, 1, [120, 120, 130]);
+});
+
+// --- Hotel (sql-hotel) -------------------------------------------------------
+const WOOD = [120, 84, 52];
+const desk = (rect, top = WOOD) => {
+  rect(1, 13, T - 2, 11, top);
+  rect(1, 13, T - 2, 2, top.map((v) => Math.min(255, v + 30)));
+  rect(3, 24, 3, 7, [90, 62, 38]);
+  rect(T - 6, 24, 3, 7, [90, 62, 38]);
+};
+
+// 27 reception desk with a bell and the logbook
+drawTile(27, ({ rect, ellipse }) => {
+  rect(0, 10, T, 20, [150, 40, 50]);
+  rect(0, 10, T, 4, [200, 170, 90]);
+  rect(4, 4, 12, 8, [40, 60, 120]);
+  rect(5, 5, 10, 6, [250, 246, 230]);
+  ellipse(24, 8, 4, 3, [220, 190, 80]);
+  rect(23, 4, 2, 2, [220, 190, 80]);
+});
+// 28 telephone on a desk
+drawTile(28, ({ rect }) => {
+  desk(rect);
+  rect(9, 6, 14, 8, [30, 30, 36]);
+  rect(7, 3, 18, 4, [30, 30, 36]);
+  rect(12, 8, 8, 4, [220, 60, 60]);
+});
+// 29 low table with a newspaper
+drawTile(29, ({ rect }) => {
+  rect(3, 12, T - 6, 10, WOOD);
+  rect(5, 22, 3, 6, [90, 62, 38]);
+  rect(T - 8, 22, 3, 6, [90, 62, 38]);
+  rect(8, 8, 16, 10, [236, 232, 220]);
+  rect(10, 10, 12, 2, [60, 60, 70]);
+  for (let y = 13; y < 17; y += 2) rect(10, y, 12, 1, [150, 150, 160]);
+});
+// 30 painting on wall front
+drawTile(30, ({ rect, ellipse }) => {
+  rect(0, 0, T, T, WALL);
+  rect(6, 4, 20, 22, [190, 150, 60]);
+  rect(8, 6, 16, 18, [70, 90, 80]);
+  ellipse(16, 13, 4, 5, [230, 200, 170]);
+  rect(11, 18, 10, 6, [40, 40, 60]);
+});
+// 31 floor plan on wall front
+drawTile(31, ({ rect }) => {
+  rect(0, 0, T, T, WALL);
+  rect(4, 5, T - 8, 20, [230, 240, 250]);
+  rect(6, 8, T - 12, 1, [60, 90, 160]);
+  rect(6, 20, T - 12, 1, [60, 90, 160]);
+  for (let x = 6; x < T - 6; x += 5) rect(x, 8, 1, 13, [60, 90, 160]);
+  rect(17, 9, 4, 4, [220, 70, 70]);
+});
+// 32 security monitors on a desk
+drawTile(32, ({ rect }) => {
+  desk(rect, [70, 74, 86]);
+  for (const x of [3, 17]) {
+    rect(x, 2, 12, 10, [30, 30, 36]);
+    rect(x + 1, 3, 10, 8, [60, 120, 90]);
+    rect(x + 2, 5, 6, 1, [160, 230, 190]);
+  }
+});
+// 33 key-card encoder on a desk
+drawTile(33, ({ rect }) => {
+  desk(rect);
+  rect(8, 4, 16, 10, [200, 204, 212]);
+  rect(10, 6, 8, 3, [40, 200, 120]);
+  rect(19, 6, 3, 6, [30, 30, 36]);
+  rect(20, 1, 6, 8, [240, 200, 70]);
+});
+// 34 bar counter with a till
+drawTile(34, ({ rect }) => {
+  rect(0, 10, T, 20, [90, 52, 40]);
+  rect(0, 10, T, 3, [150, 100, 70]);
+  rect(8, 2, 16, 10, [50, 54, 66]);
+  rect(10, 3, 12, 4, [120, 220, 160]);
+  for (let i = 0; i < 3; i++) rect(10 + i * 4, 8, 3, 2, [200, 204, 212]);
+});
+// 35 desk with papers
+drawTile(35, ({ rect }) => {
+  desk(rect);
+  rect(6, 7, 10, 8, [250, 250, 245]);
+  rect(12, 5, 10, 8, [240, 236, 220]);
+  for (let y = 7; y < 12; y += 2) rect(14, y, 6, 1, [120, 120, 130]);
+  rect(23, 9, 2, 6, [40, 60, 160]);
+});
+// 36 hotel floor: blue patterned carpet
+drawTile(36, ({ rect }) => {
+  rect(0, 0, T, T, [52, 70, 120]);
+  rect(15, 0, 2, T, [62, 82, 136]);
+  rect(0, 15, T, 2, [62, 82, 136]);
+  rect(14, 14, 4, 4, [200, 170, 90]);
+});
+// 37 armchair
+drawTile(37, ({ rect }) => {
+  rect(5, 6, 22, 20, [150, 40, 50]);
+  rect(5, 6, 22, 7, [120, 30, 40]);
+  rect(3, 12, 5, 14, [120, 30, 40]);
+  rect(24, 12, 5, 14, [120, 30, 40]);
+  rect(6, 26, 3, 4, [70, 40, 30]);
+  rect(23, 26, 3, 4, [70, 40, 30]);
 });
 
 // --- Avatars: rows = avatars, columns = direction x 2 walk frames -------------

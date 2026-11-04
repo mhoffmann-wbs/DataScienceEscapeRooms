@@ -1,4 +1,8 @@
 {
-  "guests": "SELECT name FROM guests WHERE room BETWEEN 400 AND 499 ORDER BY name",
-  "room404": "Edgar Codd"
+  "reception": "SELECT guest_name, room\nFROM bookings\nWHERE room BETWEEN 401 AND 412\n  AND check_in <= '2026-03-14'\n  AND check_out > '2026-03-14'\nORDER BY room;\n",
+  "door-log": "SELECT time, card_id, event\nFROM door_log\nWHERE room = 404\n  AND time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'\nORDER BY time;\n",
+  "card-holders": "SELECT d.time, k.holder, d.event\nFROM door_log AS d\nJOIN keycards AS k ON d.card_id = k.card_id\nWHERE d.room = 404\n  AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'\nORDER BY d.time;\n",
+  "master-card": "SELECT room, COUNT(*) AS openings\nFROM door_log\nWHERE card_id = 'M-02'\n  AND event = 'open'\n  AND time >= '2026-03-14 21:00'\nGROUP BY room\nORDER BY openings DESC;\n",
+  "alibis": "SELECT r.time, k.holder, r.place\nFROM receipts AS r\nJOIN keycards AS k ON r.card_id = k.card_id\nWHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55'\nORDER BY r.time;\n",
+  "accusation": "Nora Quill"
 }
