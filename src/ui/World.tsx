@@ -162,7 +162,7 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
     <>
       <RoomHud roomId={roomId} run={run} onDebrief={openDebrief} />
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
-      {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onPin={pin} onClose={close} />}
+      {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onPin={pin} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
       {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onPin={pin} onClose={close} />}
       {dialog?.kind === 'leave' && <LeaveRoomDialog onLeave={onLeaveRoom} onStay={close} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}

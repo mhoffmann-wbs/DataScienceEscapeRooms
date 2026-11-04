@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hintKey, type RunSync } from '../net/run';
 import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
@@ -6,7 +6,9 @@ import { getPuzzle, isUnlocked, loadDataFile, loc, ROOMS } from '../rooms';
 import type { Puzzle } from '../rooms/manifest';
 import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
 import type { SqlTable } from '../runners/protocol';
-import { CodeEditor } from './CodeEditor';
+import type { CodeShare } from '../net/codeShare';
+import type { Presence } from '../net/presence';
+import { CodeEditor, CodeViewer } from './CodeEditor';
 import { Modal } from './Modal';
 import { PinButton, plainNote } from './NotesPanel';
 import { RichText } from './RichText';
@@ -34,10 +36,13 @@ interface Props {
   author: boolean;
   /** Adds a note to the team notebook (for pinning the reveal). */
   onPin: (text: string) => boolean;
+  /** Live view of teammates' editors on the same puzzle. */
+  codeShare: CodeShare;
+  presence: Presence;
   onClose: () => void;
 }
 
-export function PuzzleDialog({ roomId, puzzle, run, author, onPin, onClose }: Props) {
+export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, presence, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const { salt } = ROOMS[roomId]!;
@@ -54,6 +59,22 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, onClose }: Pr
   const [busy, setBusy] = useState(false);
   const [answer, setAnswer] = useState('');
   const [wrong, setWrong] = useState(false);
+  const [editorKey, setEditorKey] = useState(0);
+  const [watching, setWatching] = useState<string | null>(null);
+
+  // Share our editor with the team while this puzzle is open.
+  const sharedCode = useRef(code);
+  const sharing = !!workspace && !locked;
+  useEffect(() => {
+    if (!sharing) return;
+    codeShare.open(puzzle.id, sharedCode.current);
+    return () => codeShare.close();
+  }, [codeShare, puzzle.id, sharing]);
+  // Re-render when teammates' code changes.
+  useEmitterValue(codeShare.events, 'change', () => codeShare.snapshot());
+  const teammates = codeShare.working(puzzle.id);
+  const watched = teammates.find((m) => m.peerId === watching);
+  const nameOf = (peerId: string) => presence.get(peerId)?.nickname ?? '?';
 
   useEffect(() => {
     if (!workspace) return;
@@ -79,14 +100,23 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, onClose }: Pr
   const changeCode = useCallback(
     (value: string) => {
       setCode(value);
+      sharedCode.current = value;
+      codeShare.update(value);
       try {
         localStorage.setItem(draftKey(roomId, puzzle.id), value);
       } catch {
         // drafts are a convenience
       }
     },
-    [roomId, puzzle.id],
+    [roomId, puzzle.id, codeShare],
   );
+
+  const copyWatched = () => {
+    if (!watched) return;
+    changeCode(watched.code);
+    setEditorKey((k) => k + 1);
+    setWatching(null);
+  };
 
   const accept = async (canonical: string) => {
     if ((await hashAnswer(salt, puzzle.id, canonical)) === puzzle.check.hash) {
@@ -203,17 +233,42 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, onClose }: Pr
 
         {workspace && (
           <div className="puzzle-workspace">
-            <CodeEditor initial={code} language={workspace} schema={schema} onChange={changeCode} onRun={() => void execute(false)} label={t('puzzle.editor')} />
-            <div className="workspace-actions">
-              <button type="button" onClick={() => void execute(false)} disabled={busy || !runtimeReady || setup === null}>
-                {t('puzzle.run')}
-              </button>
-              {(puzzle.check.type === 'python' || puzzle.check.type === 'sql') && !solved && (
-                <button type="button" className="primary" onClick={() => void execute(true)} disabled={busy || !runtimeReady || setup === null}>
-                  {t('puzzle.check')}
+            {teammates.length > 0 && (
+              <div className="code-tabs" role="tablist" aria-label={t('share.tabs')}>
+                <button type="button" role="tab" aria-selected={!watched} className={watched ? undefined : 'active'} onClick={() => setWatching(null)}>
+                  {t('share.mine')}
                 </button>
-              )}
-              <small className="muted">{runtimeReady ? t('puzzle.runShortcut') : t(workspace === 'python' ? 'puzzle.loadingPython' : 'puzzle.loadingSql')}</small>
+                {teammates.map((m) => (
+                  <button key={m.peerId} type="button" role="tab" aria-selected={watched?.peerId === m.peerId} className={watched?.peerId === m.peerId ? 'active' : undefined} onClick={() => setWatching(m.peerId)}>
+                    👀 {nameOf(m.peerId)}
+                  </button>
+                ))}
+              </div>
+            )}
+            {watched && (
+              <>
+                <CodeViewer code={watched.code} language={workspace} label={t('share.viewerLabel', { name: nameOf(watched.peerId) })} />
+                <div className="workspace-actions">
+                  <button type="button" onClick={copyWatched}>
+                    {t('share.copy')}
+                  </button>
+                  <small className="muted">{t('share.readOnly', { name: nameOf(watched.peerId) })}</small>
+                </div>
+              </>
+            )}
+            <div hidden={!!watched} className="own-editor">
+              <CodeEditor key={editorKey} initial={code} language={workspace} schema={schema} onChange={changeCode} onRun={() => void execute(false)} label={t('puzzle.editor')} />
+              <div className="workspace-actions">
+                <button type="button" onClick={() => void execute(false)} disabled={busy || !runtimeReady || setup === null}>
+                  {t('puzzle.run')}
+                </button>
+                {(puzzle.check.type === 'python' || puzzle.check.type === 'sql') && !solved && (
+                  <button type="button" className="primary" onClick={() => void execute(true)} disabled={busy || !runtimeReady || setup === null}>
+                    {t('puzzle.check')}
+                  </button>
+                )}
+                <small className="muted">{runtimeReady ? t('puzzle.runShortcut') : t(workspace === 'python' ? 'puzzle.loadingPython' : 'puzzle.loadingSql')}</small>
+              </div>
             </div>
             <OutputView output={output} />
           </div>

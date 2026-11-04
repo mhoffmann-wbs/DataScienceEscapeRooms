@@ -66,7 +66,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Debrief screen** ✅ after escaping: what each puzzle practised, model solutions, time and hints used per puzzle; reopenable from the room HUD.
 - Playtest each room against the time budget using the author shortcut.
 
-### 7. Proximity, voice/video and collaboration
+### 7. Proximity, voice/video and collaboration ✅
 - ✅ Audio and video connect to players within a radius in the lobby, and to the whole team inside a room.
 - ✅ Hysteresis so connections don't flap at the edge of the radius; mute and camera toggles; device selection.
 - ✅ When the network blocks it, the game says so clearly and text chat keeps working (as far as the data channel still connects).
@@ -74,7 +74,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Speech bubbles:** ✅ nearby chat messages appear briefly above the speaker's head.
 - **Private areas:** ✅ zones such as a couch corner or a group of tables, drawn in Tiled as `area` objects. Inside one, "nearby" means everyone in the same area and nobody outside it, whatever the distance. This applies to both nearby chat and A/V. Outside any area, the normal radius applies.
 - **Team notebook:** ✅ a shared notes panel in the room, below the team list, where players collect what they find (clue values, digits, suspects, card ids). Anyone can add a note by typing, edit it, drag it to reorder, and cross it off when it's no longer needed; crossed-off notes stay visible but greyed out until deleted. A "pin to notes" button on clue cards and reveals copies their key text in one click. Notes are part of the team's run state and must merge without a leader: each note is keyed by a random id with last-write-wins fields (text, crossed off, deleted) and a sortable position key for the order. They are saved like the run, so a refresh keeps them.
-- **Shared code view:** teammates can watch each other's editors live inside a puzzle, so a team can work through a query or script together, as in pair programming.
+- **Shared code view:** ✅ (watch and copy; real-time co-editing would need a text CRDT such as Yjs) teammates can watch each other's editors live inside a puzzle, so a team can work through a query or script together, as in pair programming.
 
 ### 8. Progress, scoreboard, instructor mode, solo mode
 - Progress saved in the browser so a refresh restores the run (done in step 4).

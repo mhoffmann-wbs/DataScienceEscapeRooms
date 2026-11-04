@@ -1,5 +1,6 @@
 import type { Profile } from '../player/profile';
 import { Chat } from './chat';
+import { CodeShare } from './codeShare';
 import { Media, type MediaMode } from './media';
 import { Notebook, type Notes } from './notebook';
 import { Presence } from './presence';
@@ -70,6 +71,7 @@ export class RoomSession extends Session {
   readonly kind = 'room';
   readonly run: RunSync;
   readonly notebook: Notebook;
+  readonly codeShare: CodeShare;
 
   constructor(
     transport: Transport,
@@ -81,9 +83,11 @@ export class RoomSession extends Session {
     super(transport, roomScope(info.roomId, info.teamId), profile, areas, 'team');
     this.run = new RunSync(this.room, info.state);
     this.notebook = new Notebook(this.room, info.notes ?? {}, this.room.selfId);
+    this.codeShare = new CodeShare(this.room);
   }
 
   protected override dispose(): void {
+    this.codeShare.destroy();
     this.notebook.destroy();
     this.run.destroy();
   }

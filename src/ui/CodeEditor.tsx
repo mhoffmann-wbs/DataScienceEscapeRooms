@@ -63,3 +63,32 @@ export function CodeEditor({ initial, language, onChange, onRun, label, schema }
 
   return <div className="code-editor" ref={parent} />;
 }
+
+/** Read-only, highlighted view of code that changes from outside (a teammate's live editor). */
+export function CodeViewer({ code, language, label }: { code: string; language: 'python' | 'sql'; label: string }) {
+  const parent = useRef<HTMLDivElement>(null);
+  const view = useRef<EditorView | null>(null);
+  const latest = useRef(code);
+  useEffect(() => {
+    latest.current = code;
+    const v = view.current;
+    if (v && v.state.doc.toString() !== code) v.dispatch({ changes: { from: 0, to: v.state.doc.length, insert: code } });
+  }, [code]);
+
+  useEffect(() => {
+    const v = new EditorView({
+      parent: parent.current!,
+      state: EditorState.create({
+        doc: latest.current,
+        extensions: [basicSetup, languageSupport(language, undefined), oneDark, EditorState.readOnly.of(true), EditorView.editable.of(false), EditorView.contentAttributes.of({ 'aria-label': label })],
+      }),
+    });
+    view.current = v;
+    return () => {
+      v.destroy();
+      view.current = null;
+    };
+  }, [language, label]);
+
+  return <div className="code-editor code-viewer" ref={parent} />;
+}

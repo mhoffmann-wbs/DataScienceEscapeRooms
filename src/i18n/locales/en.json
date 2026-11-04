@@ -150,5 +150,12 @@
     "moveDown": "Move down",
     "pin": "📌 Pin to notes",
     "pinned": "📌 Pinned ✓"
+  },
+  "share": {
+    "tabs": "Your team's code",
+    "mine": "My code",
+    "copy": "Copy into my editor",
+    "readOnly": "You're watching {{name}}'s code live. Copy it to run or change it.",
+    "viewerLabel": "{{name}}'s code (read-only)"
   }
 }
