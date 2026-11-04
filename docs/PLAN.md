@@ -88,7 +88,35 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Replace the placeholder art with a CC0 tileset (e.g. Kenney) and proper character sprites.
 - Accessibility pass: keyboard-only play, readable contrast, chat usable with a screen reader.
 - Optional TURN server setting for networks that block peer-to-peer.
-- **pandas support** for future intermediate rooms: serve the pandas and numpy wheels from our own site, as is already done for Pyodide, and load them only in rooms that declare them.
+- **pandas support** for future intermediate rooms: serve the pandas and numpy wheels from our own site, as is already done for Pyodide, and load them only in rooms that declare them. (Pulled forward into step 10.)
+
+### 10. Time series rooms
+Two intermediate rooms that share the classic preprocessing steps (missing-value interpolation, differencing, detrending, log transform, baseline models) but pair them with different model families. Every step is used only where it fits the model:
+
+| Step | TS1: AR/ARMA/ARIMA/SARIMA (statsmodels) | TS2: Prophet-style |
+|---|---|---|
+| Missing values | Interpolate first: differencing, ACF/PACF and baselines need a complete series | Not needed: Prophet fits on the observed rows and skips gaps; interpolating would invent data |
+| Trend | Stochastic trend → difference (`d`, `D` inside the model). Deterministic drift → detrend, then a stationary AR/ARMA. Never both | Modelled by the trend component (with changepoints); no differencing or detrending |
+| Log transform | When seasonal swings grow with the level: fit on `log(y)`, back-transform forecasts with `exp` | Same reason; or multiplicative seasonality |
+| Differencing | For diagnosis (ADF, ACF/PACF) by hand; in the model only through `d`/`D`, never on already-differenced data | Not used |
+| Baselines | Naive and seasonal naive on the same holdout, original scale; a model must beat seasonal naive | Same |
+
+**Infrastructure (before TS1):**
+- **Per-room Python packages:** a room manifest lists `packages` (e.g. `["statsmodels"]`); the worker loads them during warm-up. The wheels (about 29 MB: numpy, pandas, scipy, statsmodels and small dependencies) are downloaded by a script, checked against `pyodide-lock.json` hashes, and served from our own site like the Pyodide core. Measured in Pyodide: packages load in about 6.5 s and `import statsmodels` takes about 6 s, so both happen while the dialog opens, not inside the 10 s run limit. A SARIMA fit on 192 monthly points takes under 1 s.
+- **Plots in the output panel:** a `show_plot(...)` helper (line charts, ACF/PACF bars) whose data the worker returns alongside stdout; React draws it as SVG. Time series puzzles are hard to solve without seeing the series.
+- **Tolerance checks:** forecasts aren't exact, so data files may define a grader function that the `python` check calls (e.g. within ±3 %), returning a fixed result that gets hashed.
+
+**TS1 "Station Nordlys" (Arctic research station; heating fuel, monthly 2010–2025).** A storm put the station into safe mode; to restore heating, the team rebuilds the station's forecasting pipeline and submits next winter's fuel order. Data are generated from an airline model on the log scale (seed chosen so ACF/PACF are textbook-clear; prototype numbers below).
+1. **Frost-damaged logbook** (interpolation): four months are missing; fill them with `interpolate(method='time')`. Clue: the logbook page explains the frozen sensor.
+2. **Drifting freezer sensor** (detrending + AR): a sample freezer's temperature log has a linear sensor drift. Detrend, fit AR(2), round the coefficients to the keypad code (φ ≈ 0.59 / −0.29 → "6-3"). Differencing instead gives a wrong code. Clue: technician's note "the sensor drifts in a straight line".
+3. **The chief's method** (baselines): naive vs seasonal naive MAE on the 2024–25 holdout (≈ 1519 vs 602 litres). Clue: the chief's note "I just order what we used the same month last year".
+4. **Stationarity gauge** (log + differencing + ADF; needs 1): show the raw series is non-stationary, then build `log → diff(12) → diff(1)` until the ADF p-value is below 0.05. Clue: the gauge panel.
+5. **Echo chamber** (ACF/PACF + AIC; needs 4): read the cut-offs at lags 1 and 12, shortlist candidates, compare AIC on the log training data with `d=1, D=1` inside the model; the airline model (0,1,1)(0,1,1,12) wins.
+6. **Supply order** (final; SARIMA forecast + back-transform): fit on the full log series, forecast January 2026, `exp` back, enter it with the freezer PIN. Prototype: log airline MAE 269 beats seasonal naive 602, while the same model without the log only reaches 729.
+
+Model families: AR in station 2, ARMA/ARIMA candidates and SARIMA in stations 5–6.
+
+**TS2 (Prophet):** Prophet can't run in the browser (it needs the Stan C++ toolchain, which Pyodide doesn't ship). Approach to decide before building TS2: (a) a small Prophet-style model in numpy/statsmodels with Prophet's API names (`fit`, `make_future_dataframe`, `predict`; piecewise-linear trend with changepoints, Fourier seasonality, holidays), clearly labelled as not the real library; (b) students run real Prophet in Colab and type results in; or (c) precomputed Prophet outputs to interpret.
 
 ## Known limits
 
@@ -96,7 +124,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 
 - **Strict networks:** without a TURN relay, voice and video may fail on some school or company networks. Text chat is unaffected.
 - **No authority:** with no central server, the scoreboard can be faked and the instructor PIN only stops honest users.
-- **Download size:** Pyodide is about 12 MB, so it is loaded only when a Python puzzle opens.
+- **Download size:** Pyodide is about 12 MB, so it is loaded only when a Python puzzle opens. The time series rooms add about 29 MB of packages, loaded only in rooms that declare them and cached by the browser afterwards.
 
 ## Ideas not yet scheduled
 
