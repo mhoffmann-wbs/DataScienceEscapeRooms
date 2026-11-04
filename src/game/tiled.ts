@@ -62,6 +62,11 @@ export interface ClueSpot extends Rect {
   clueId: string;
 }
 
+export interface AreaSpot extends Rect {
+  /** The object's name; unique per map. */
+  id: string;
+}
+
 export interface MapObjects {
   /** A point (width/height 0) or an area players arrive somewhere inside. */
   spawn: Rect;
@@ -70,6 +75,8 @@ export interface MapObjects {
   puzzles: PuzzleSpot[];
   /** Things to look at (class `clue`, property `clueId`), shaped like puzzle spots. */
   clues: ClueSpot[];
+  /** Private areas (class `area`): inside one, "nearby" means everyone in the same area. */
+  areas: AreaSpot[];
 }
 
 function objectClass(o: TiledObject): string | undefined {
@@ -111,7 +118,9 @@ export function parseMapObjects(map: TiledMap): MapObjects {
       return { clueId, x: o.x, y: o.y, width: o.width, height: o.height };
     });
 
-  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles, clues };
+  const areas = objects.filter((o) => objectClass(o) === 'area').map((o) => ({ id: o.name || `area-${o.id}`, x: o.x, y: o.y, width: o.width, height: o.height }));
+
+  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles, clues, areas };
 }
 
 /** Max offset (px) around a point spawn, so arriving players don't stack exactly on top of each other. */

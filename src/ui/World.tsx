@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createGame } from '../game/createGame';
 import { bus, type Interactable } from '../game/events';
-import { LOBBY } from '../game/maps';
+import { LOBBY, MAPS } from '../game/maps';
+import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { createMemoryTransport, MemoryHub } from '../net/memoryTransport';
 import { LobbySession, RoomSession } from '../net/session';
 import type { Team } from '../net/teams';
@@ -48,12 +49,14 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
   const [session, setSession] = useState<LobbySession | RoomSession | null>(null);
 
   useEffect(() => {
-    const s = place.kind === 'lobby' ? new LobbySession(transport, profile) : new RoomSession(transport, profile, place.run);
+    const mapKey = place.kind === 'lobby' ? LOBBY : place.run.roomId;
+    const { areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
+    const s = place.kind === 'lobby' ? new LobbySession(transport, profile, areas) : new RoomSession(transport, profile, place.run, areas);
     const offs: (() => void)[] = [];
     if (s instanceof RoomSession && place.kind === 'room' && !place.author) {
       offs.push(s.run.events.on('state', (state) => saveRun({ ...place.run, state })));
     }
-    const game = createGame(containerRef.current!, { profile, presence: s.presence, mapKey: place.kind === 'lobby' ? LOBBY : place.run.roomId });
+    const game = createGame(containerRef.current!, { profile, presence: s.presence, mapKey });
     // The session only exists once the effect runs (it opens network connections).
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSession(s);

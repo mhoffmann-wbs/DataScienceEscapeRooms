@@ -1,4 +1,5 @@
 import { Emitter } from '../lib/emitter';
+import type { Proximity } from './proximity';
 import { CHANNELS, helloSchema, posSchema, type Hello, type Pos } from './protocol';
 import type { NetRoom } from './transport';
 
@@ -101,12 +102,11 @@ export class Presence {
     return this.roster;
   }
 
-  /** Peers within `radius` pixels of our own position. */
-  within(radius: number): string[] {
+  /** Peers near our own position. Peers in `wasNear` get the wider leave radius (hysteresis). */
+  nearby(proximity: Proximity, wasNear: ReadonlySet<string> = new Set()): string[] {
     const self = this.self;
     if (!self) return [];
-    const r2 = radius * radius;
-    return [...this.peers.values()].filter((p) => (p.x - self.x) ** 2 + (p.y - self.y) ** 2 <= r2).map((p) => p.id);
+    return [...this.peers.values()].filter((p) => proximity.near(self, p, wasNear.has(p.id))).map((p) => p.id);
   }
 
   destroy(): void {

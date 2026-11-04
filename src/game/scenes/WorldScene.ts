@@ -4,9 +4,10 @@ import type { Direction } from '../avatars';
 import { Avatar } from '../entities/Avatar';
 import { RemoteAvatars } from '../entities/RemoteAvatars';
 import { bus, type Interactable } from '../events';
-import { MAPS } from '../maps';
+import { NEARBY_RADIUS } from '../../net/session';
+import { LOBBY, MAPS } from '../maps';
 import { getMapKey, getPresence, getProfile } from '../registry';
-import { containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema, type Rect } from '../tiled';
+import { containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Rect } from '../tiled';
 
 const SPEED = 160;
 const ZOOM = 1.5;
@@ -44,6 +45,11 @@ export class WorldScene extends Phaser.Scene {
   private presence!: Presence;
   private remotes!: RemoteAvatars;
   private solvedMarks = new Map<string, Phaser.GameObjects.Text>();
+  private areas: AreaSpot[] = [];
+  private areaGraphics!: Phaser.GameObjects.Graphics;
+  private currentArea: AreaSpot | undefined;
+  /** Shows who can hear you in the lobby; hidden inside private areas, where the area itself lights up. */
+  private ring: Phaser.GameObjects.Arc | null = null;
 
   constructor() {
     super('World');
@@ -53,7 +59,9 @@ export class WorldScene extends Phaser.Scene {
     const profile = getProfile(this);
     this.presence = getPresence(this);
     const mapKey = getMapKey(this);
-    const { spawn, doors, puzzles, clues } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
+    const { spawn, doors, puzzles, clues, areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
+    this.areas = areas;
+    this.currentArea = undefined;
     this.spots = [
       ...doors.map((d) => ({ rect: d, target: { kind: 'door', doorTo: d.doorTo } as const })),
       ...puzzles.map((p) => ({ rect: p, target: { kind: 'puzzle', puzzleId: p.puzzleId } as const })),
@@ -70,6 +78,9 @@ export class WorldScene extends Phaser.Scene {
     if (!walls) throw new Error(`Map ${mapKey} has no walls layer`);
     walls.setCollisionByProperty({ collides: true });
 
+    this.areaGraphics = this.add.graphics().setDepth(1);
+    this.drawAreas();
+
     const start = pickSpawnPoint(spawn);
     this.player = new Avatar(this, start.x, start.y, profile.avatar, profile.nickname);
     this.physics.add.existing(this.player.sprite);
@@ -79,6 +90,11 @@ export class WorldScene extends Phaser.Scene {
     this.body.setCollideWorldBounds(true);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.physics.add.collider(this.player.sprite, walls);
+    // Inside a room the whole team hears each other, so the ring only makes sense in the lobby.
+    this.ring =
+      mapKey === LOBBY
+        ? this.add.circle(start.x, start.y, NEARBY_RADIUS).setStrokeStyle(2, 0x6ee7b7, 0.35).setFillStyle(0x6ee7b7, 0.05).setDepth(2)
+        : null;
 
     const cam = this.cameras.main;
     const padTop = UI_INSET_TOP / ZOOM;
@@ -124,6 +140,26 @@ export class WorldScene extends Phaser.Scene {
     this.remotes.update(delta);
 
     this.updateTarget();
+    this.updateProximityVisuals();
+  }
+
+  private updateProximityVisuals(): void {
+    const feet = { x: this.body.center.x, y: this.body.bottom };
+    const area = this.areas.find((a) => containsPoint(a, feet.x, feet.y));
+    if (area !== this.currentArea) {
+      this.currentArea = area;
+      this.drawAreas();
+    }
+    this.ring?.setPosition(this.player.sprite.x, this.player.sprite.y).setVisible(!area);
+  }
+
+  private drawAreas(): void {
+    const g = this.areaGraphics.clear();
+    for (const a of this.areas) {
+      const inside = a === this.currentArea;
+      g.fillStyle(0x6ee7b7, inside ? 0.14 : 0.05).fillRect(a.x, a.y, a.width, a.height);
+      g.lineStyle(2, 0x6ee7b7, inside ? 0.7 : 0.3).strokeRect(a.x, a.y, a.width, a.height);
+    }
   }
 
   private updateTarget(): void {

@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 4,
- "nextobjectid": 4,
+ "nextobjectid": 6,
  "layers": [
   {
    "id": 1,
@@ -1503,6 +1503,28 @@
        "value": "sql-hotel"
       }
      ]
+    },
+    {
+     "id": 4,
+     "name": "west-tables",
+     "type": "area",
+     "x": 64,
+     "y": 352,
+     "width": 224,
+     "height": 256,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 5,
+     "name": "east-tables",
+     "type": "area",
+     "x": 736,
+     "y": 352,
+     "width": 224,
+     "height": 256,
+     "rotation": 0,
+     "visible": true
     }
    ]
   }

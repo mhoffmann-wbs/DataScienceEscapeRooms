@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { createMemoryTransport, MemoryHub } from './memoryTransport';
 import { POS_INTERVAL_MS } from './presence';
+import type { Area } from './proximity';
 import { NEARBY_RADIUS, Session } from './session';
 
-function player(hub: MemoryHub, id: string, x = 0, y = 0, classCode = 'DS-01') {
-  const s = new Session(createMemoryTransport(hub, id, classCode), 'lobby', { nickname: id, avatar: 0, classCode });
+function player(hub: MemoryHub, id: string, x = 0, y = 0, classCode = 'DS-01', areas: readonly Area[] = []) {
+  const s = new Session(createMemoryTransport(hub, id, classCode), 'lobby', { nickname: id, avatar: 0, classCode }, areas);
   s.presence.updateSelf({ x, y, dir: 'down', moving: false }, 0);
   return s;
 }
@@ -80,6 +81,18 @@ describe('chat', () => {
     const texts = (s: Session) => s.chat.list().flatMap((e) => (e.kind === 'message' ? [e.text] : []));
     expect(texts(near)).toEqual(['psst']);
     expect(texts(far)).toEqual([]);
+  });
+
+  it('in a private area, nearby messages reach the whole area and nobody outside it', () => {
+    const hub = new MemoryHub();
+    const areas = [{ id: 'couch', x: 0, y: 0, width: 1000, height: 100 }];
+    const ada = player(hub, 'ada', 10, 50, 'DS-01', areas);
+    const across = player(hub, 'across', 990, 50, 'DS-01', areas);
+    const outside = player(hub, 'outside', 10, 110, 'DS-01', areas);
+    ada.chat.send('just us', 'nearby');
+    const texts = (s: Session) => s.chat.list().flatMap((e) => (e.kind === 'message' ? [e.text] : []));
+    expect(texts(across)).toEqual(['just us']);
+    expect(texts(outside)).toEqual([]);
   });
 
   it('tells the sender when nobody is nearby, and rejects empty or oversized text', () => {

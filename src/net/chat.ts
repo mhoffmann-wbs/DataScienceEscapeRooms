@@ -1,5 +1,6 @@
 import { Emitter } from '../lib/emitter';
 import type { Presence } from './presence';
+import type { Proximity } from './proximity';
 import { CHANNELS, chatSchema, type ChatPayload, type ChatScope } from './protocol';
 import type { NetRoom } from './transport';
 
@@ -10,7 +11,7 @@ export type ChatEntry =
 
 const MAX_ENTRIES = 200;
 
-/** Chat for one NetRoom: everyone in it, or only peers within `nearbyRadius` of us. */
+/** Chat for one NetRoom: everyone in it, or only peers near us (see Proximity). */
 export class Chat {
   readonly events = new Emitter<{ entries: readonly ChatEntry[] }>();
   private entries: readonly ChatEntry[] = [];
@@ -22,7 +23,7 @@ export class Chat {
     room: NetRoom,
     private readonly presence: Presence,
     private readonly me: { nickname: string },
-    private readonly nearbyRadius: number,
+    private readonly proximity: Proximity,
     private readonly now: () => number = Date.now,
   ) {
     this.channel = room.channel<ChatPayload>(CHANNELS.chat);
@@ -43,7 +44,7 @@ export class Chat {
   send(text: string, scope: ChatScope): boolean {
     const parsed = chatSchema.safeParse({ text, scope });
     if (!parsed.success) return false;
-    const to = scope === 'nearby' ? this.presence.within(this.nearbyRadius) : undefined;
+    const to = scope === 'nearby' ? this.presence.nearby(this.proximity) : undefined;
     this.channel.send(parsed.data, to);
     this.push({ kind: 'message', from: this.presence.selfId, nickname: this.me.nickname, ...parsed.data, self: true });
     if (to?.length === 0) this.push({ kind: 'nobodyNearby' });
