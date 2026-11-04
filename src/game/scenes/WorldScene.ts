@@ -93,7 +93,7 @@ export class WorldScene extends Phaser.Scene {
     // Inside a room the whole team hears each other, so the ring only makes sense in the lobby.
     this.ring =
       mapKey === LOBBY
-        ? this.add.circle(start.x, start.y, NEARBY_RADIUS).setStrokeStyle(2, 0x6ee7b7, 0.35).setFillStyle(0x6ee7b7, 0.05).setDepth(2)
+        ? this.add.circle(start.x, start.y, NEARBY_RADIUS).setFillStyle(0xffffff, 0.07).setDepth(2)
         : null;
 
     const cam = this.cameras.main;
@@ -156,12 +156,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private drawAreas(): void {
+    // The map marks areas itself (e.g. a rug); here they only brighten while you are inside.
     const g = this.areaGraphics.clear();
-    for (const a of this.areas) {
-      const inside = a === this.currentArea;
-      g.fillStyle(0x6ee7b7, inside ? 0.14 : 0.05).fillRect(a.x, a.y, a.width, a.height);
-      g.lineStyle(2, 0x6ee7b7, inside ? 0.7 : 0.3).strokeRect(a.x, a.y, a.width, a.height);
-    }
+    const a = this.currentArea;
+    if (a) g.fillStyle(0xffffff, 0.07).fillRect(a.x, a.y, a.width, a.height);
   }
 
   private updateTarget(): void {

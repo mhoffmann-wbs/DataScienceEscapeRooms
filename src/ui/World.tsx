@@ -81,7 +81,8 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
 
   return (
     <>
-      <div ref={containerRef} className="game" />
+      {/* Clicking the map ends typing in any field (chat, notes), so walking works again. */}
+      <div ref={containerRef} className="game" onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
       {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} onEnterRoom={onEnterRoom} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         <RoomOverlays session={session} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />

@@ -71,7 +71,7 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 
 ### Proximity
 - One rule decides who is "near" for both nearby chat and A/V: `Proximity` (`src/net/proximity.ts`). Inside a private area (Tiled `area` object) near means the same area, whatever the distance; outside every area it means within `NEARBY_RADIUS` (5 tiles), and peers already near stay near up to `LEAVE_FACTOR` × the radius, so links don't flap at the edge. Sessions get the map's areas from `World`; use `presence.nearby(proximity, wasNear)`.
-- The lobby shows a faint ring of that radius around the local avatar, hidden inside areas, which light up instead. Rooms show no ring because the whole team hears each other there.
+- The lobby shows a faint, outline-free disc of that radius around the local avatar. Private areas are marked in the map itself (a rug on the floor layer); the area you stand in brightens slightly and the disc hides. Rooms show no ring because the whole team hears each other there.
 
 ### Proximity voice/video
 - Media goes through the transport too: `NetRoom.sendStream`/`stopStream`/`onPeerStream`. Receivers are never told that a stream stopped (WebRTC doesn't either); each side decides for itself what to play.
@@ -94,7 +94,8 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 - The game and React share one `Session`. The scene reads it from the Phaser registry (`src/game/registry.ts`); components subscribe with `useEmitterValue` (`src/ui/useStore.ts`). Presence's `roster` event fires only on join/leave, so React doesn't re-render at position-update rate.
 - Each avatar sprite sheet row is one avatar; its columns are 4 directions × 2 walk frames. `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
 - The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `WorldScene`), so the overlays never hide parts of the map.
-- Nearby chat messages also appear as speech bubbles: `ChatBubbles` forwards new ones as `chat:bubble` on the bus, and `Avatar.say` shows them for a few seconds.
+- Chat messages also appear as speech bubbles over the sender, if they are on the same map: `ChatBubbles` forwards new ones as `chat:bubble` on the bus, and `Avatar.say` shows them for a few seconds.
+- The chat panel can be collapsed to a bar with an unread count; Enter reopens it. Clicking the map blurs any focused field, so walking works again; text fields also leave on Esc (chat, notes) and on Enter after sending.
 - `Avatar` (`src/game/entities/`) is the sprite plus name label. The local player adds an arcade body sized to the feet; remote players will reuse the class without physics.
 - Team flow: when a player steps on a lobby door, a dialog lets them create or join a team waiting at that door. Entering then switches the player to that team's room instance.
 - Enter does not open the chat while a modal (`aria-modal`) is open or a code editor has focus.

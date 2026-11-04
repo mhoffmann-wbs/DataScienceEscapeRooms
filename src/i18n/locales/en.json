@@ -33,7 +33,10 @@
     "nearbyTag": "nearby",
     "joined": "{{name}} joined",
     "left": "{{name}} left",
-    "nobodyNearby": "Nobody is close enough to hear you. Walk up to someone."
+    "nobodyNearby": "Nobody is close enough to hear you. Walk up to someone.",
+    "collapse": "Hide chat",
+    "unread_one": "{{count}} new",
+    "unread_other": "{{count}} new"
   },
   "people": {
     "title": "Online ({{count}})",
@@ -149,7 +152,9 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "pin": "📌 Pin to notes",
-    "pinned": "📌 Pinned ✓"
+    "pinned": "📌 Pinned ✓",
+    "save": "Add note",
+    "cancel": "Cancel"
   },
   "share": {
     "tabs": "Your team's code",

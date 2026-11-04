@@ -193,6 +193,31 @@ button.primary {
   gap: 4px;
 }
 
+.chat-collapse {
+  margin-left: auto;
+  padding: 0 8px;
+}
+
+.chat-panel.collapsed {
+  width: auto;
+  padding: 4px;
+}
+
+.chat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-unread {
+  background: var(--accent);
+  color: #0b0e16;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .chat-tabs button.active {
   border-color: var(--accent);
   color: var(--accent);
@@ -750,10 +775,20 @@ code {
   border: 0;
 }
 
-.notes-panel form input {
+.notes-add {
+  display: flex;
+  gap: 4px;
+}
+
+.notes-add input {
   box-sizing: border-box;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   font-size: 13px;
+}
+
+.notes-add button {
+  padding: 0 6px;
 }
 
 .pin-button {

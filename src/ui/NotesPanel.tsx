@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NOTE_MAX_LENGTH, type Notebook, type NoteView } from '../net/notebook';
 import { useEmitterValue } from './useStore';
@@ -12,9 +12,18 @@ export function NotesPanel({ notebook }: { notebook: Notebook }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
 
+  const [adding, setAdding] = useState(false);
+  const addInput = useRef<HTMLInputElement>(null);
+
+  // Enter adds the note (if any) and returns to walking, like the chat.
   const add = (e: FormEvent) => {
     e.preventDefault();
     if (notebook.add(draft)) setDraft('');
+    addInput.current?.blur();
+  };
+  const cancel = () => {
+    setDraft('');
+    addInput.current?.blur();
   };
 
   return (
@@ -68,8 +77,29 @@ export function NotesPanel({ notebook }: { notebook: Notebook }) {
               </li>
             ))}
           </ol>
-          <form onSubmit={add}>
-            <input value={draft} maxLength={NOTE_MAX_LENGTH} placeholder={t('notes.add')} aria-label={t('notes.add')} onChange={(e) => setDraft(e.target.value)} />
+          <form className="notes-add" onSubmit={add}>
+            <input
+              ref={addInput}
+              value={draft}
+              maxLength={NOTE_MAX_LENGTH}
+              placeholder={t('notes.add')}
+              aria-label={t('notes.add')}
+              onChange={(e) => setDraft(e.target.value)}
+              onFocus={() => setAdding(true)}
+              onBlur={() => setAdding(false)}
+              onKeyDown={(e) => e.key === 'Escape' && cancel()}
+            />
+            {(adding || draft) && (
+              <>
+                {/* preventDefault on mousedown keeps the input focused until the click lands. */}
+                <button type="submit" aria-label={t('notes.save')} title={t('notes.save')} onMouseDown={(e) => e.preventDefault()}>
+                  ✓
+                </button>
+                <button type="button" aria-label={t('notes.cancel')} title={t('notes.cancel')} onMouseDown={(e) => e.preventDefault()} onClick={cancel}>
+                  ✕
+                </button>
+              </>
+            )}
           </form>
         </>
       )}

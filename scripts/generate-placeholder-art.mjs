@@ -412,6 +412,20 @@ drawTile(37, ({ rect }) => {
   rect(23, 26, 3, 4, [70, 40, 30]);
 });
 
+// --- Lobby -------------------------------------------------------------------
+// 38 rug for private areas: green with a light diamond pattern
+drawTile(38, ({ rect }) => {
+  rect(0, 0, T, T, [52, 112, 92]);
+  for (let i = 0; i < 8; i++) {
+    rect(15 - i, 8 + i, 2, 1, [86, 150, 124]);
+    rect(15 + i, 8 + i, 2, 1, [86, 150, 124]);
+    rect(15 - i, 23 - i, 2, 1, [86, 150, 124]);
+    rect(15 + i, 23 - i, 2, 1, [86, 150, 124]);
+  }
+  rect(0, 0, T, 1, [44, 96, 78]);
+  rect(0, 0, 1, T, [44, 96, 78]);
+});
+
 // --- Avatars: rows = avatars, columns = direction x 2 walk frames -------------
 // Directions in order: down, left, right, up (see src/game/avatars.ts).
 const AVATARS = [
