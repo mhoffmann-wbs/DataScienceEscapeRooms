@@ -30,6 +30,9 @@ export interface NetRoom {
 }
 
 export interface Transport {
-  /** Joins a scope such as `lobby` or `room:<roomId>:<teamId>` within this transport's class code. */
-  join(scope: string): NetRoom;
+  /**
+   * Joins a scope such as `lobby` or `room:<roomId>:<teamId>`. With a password, only peers
+   * that join with the same password can connect (Trystero encrypts the signaling with it).
+   */
+  join(scope: string, opts?: { password?: string }): NetRoom;
 }

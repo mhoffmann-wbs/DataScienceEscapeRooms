@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { emptyRun } from '../net/run';
-import type { Team } from '../net/teams';
+import type { StartedTeam } from '../net/teams';
 import { loadProfile, saveProfile, type Profile } from '../player/profile';
 import { clearRun, loadRun, saveRun, type SavedRun } from '../player/run';
 import { ROOMS } from '../rooms';
@@ -9,7 +9,7 @@ import { JoinScreen } from './JoinScreen';
 import { LanguageSwitch } from './LanguageSwitch';
 import { World, type Place } from './World';
 
-const AUTHOR_PROFILE: Profile = { nickname: 'Author', avatar: 0, classCode: 'AUTHOR' };
+const AUTHOR_PROFILE: Profile = { nickname: 'Author', avatar: 0 };
 
 /**
  * Author shortcut: `#/room/<roomId>` or `#/room/<roomId>?puzzle=<id or 1-based index>` jumps straight
@@ -22,7 +22,7 @@ function authorPlace(): Place | null {
   if (!m || !room) return null;
   const sel = m[2];
   const puzzleId = sel && /^\d+$/.test(sel) ? room.puzzles[Number(sel) - 1]?.id : sel;
-  return { kind: 'room', run: { classCode: 'AUTHOR', roomId: m[1]!, teamId: 'author', state: emptyRun(Date.now()) }, author: { puzzleId } };
+  return { kind: 'room', run: { roomId: m[1]!, teamId: 'author', state: emptyRun(Date.now()) }, author: { puzzleId } };
 }
 
 export function App() {
@@ -34,14 +34,14 @@ export function App() {
   const join = (p: Profile) => {
     saveProfile(p);
     setProfile(p);
-    // Resume a run that was interrupted by a refresh, if it belongs to this class.
+    // Resume a run that was interrupted by a refresh.
     const run = loadRun();
-    setPlace(run?.classCode === p.classCode ? { kind: 'room', run } : { kind: 'lobby' });
+    setPlace(run ? { kind: 'room', run } : { kind: 'lobby' });
   };
 
-  const enterRoom = (team: Team) => {
+  const enterRoom = ({ team, password }: StartedTeam) => {
     if (!profile) return;
-    const run: SavedRun = { classCode: profile.classCode, roomId: team.roomId, teamId: team.id, state: emptyRun(team.startedAt) };
+    const run: SavedRun = { roomId: team.roomId, teamId: team.id, password, state: emptyRun(team.startedAt) };
     saveRun(run);
     setPlace({ kind: 'room', run });
   };

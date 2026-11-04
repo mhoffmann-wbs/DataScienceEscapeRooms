@@ -816,3 +816,38 @@ code {
 .own-editor[hidden] {
   display: none;
 }
+
+/* Team dialog: public or password-protected teams */
+.team-visibility {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 6px;
+}
+
+.team-visibility label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-new-password {
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 4px !important;
+}
+
+.team-password {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  max-width: 220px;
+}
+
+.team-password input {
+  width: 120px;
+}

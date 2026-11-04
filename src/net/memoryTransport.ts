@@ -53,10 +53,11 @@ export class MemoryHub {
   }
 }
 
-export function createMemoryTransport(hub: MemoryHub, selfId: string, classCode = 'LOCAL'): Transport {
+export function createMemoryTransport(hub: MemoryHub, selfId: string, namespace = 'LOCAL'): Transport {
   return {
-    join(scope) {
-      const key = `${classCode}/${scope}`;
+    join(scope, opts) {
+      // A different password is a different, unreachable room, like Trystero's encrypted signaling.
+      const key = `${namespace}/${scope}${opts?.password ? `#${opts.password}` : ''}`;
       const events = new Emitter<{
         join: string;
         leave: string;

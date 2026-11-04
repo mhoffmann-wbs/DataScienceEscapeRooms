@@ -6,8 +6,8 @@ import type { RunInfo } from '../net/session';
 // The run this device is part of, so a page refresh drops the player back into their room.
 const STORAGE_KEY = 'dser.run';
 
-const savedRunSchema = z.object({ classCode: z.string(), roomId: z.string(), teamId: z.string(), state: runStateSchema, notes: notesSchema.optional() });
-export type SavedRun = RunInfo & { classCode: string };
+const savedRunSchema = z.object({ roomId: z.string(), teamId: z.string(), password: z.string().optional(), state: runStateSchema, notes: notesSchema.optional() });
+export type SavedRun = RunInfo;
 
 export function loadRun(): SavedRun | null {
   try {

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AVATAR_COUNT } from '../game/avatars';
-import { normalizeClassCode, profileSchema, type Profile } from '../player/profile';
+import { profileSchema, type Profile } from '../player/profile';
 import { AvatarPreview } from './AvatarPreview';
 
 interface Props {
@@ -13,12 +13,11 @@ export function JoinScreen({ initial, onJoin }: Props) {
   const { t } = useTranslation();
   const [nickname, setNickname] = useState(initial?.nickname ?? '');
   const [avatar, setAvatar] = useState(initial?.avatar ?? 0);
-  const [classCode, setClassCode] = useState(initial?.classCode ?? '');
   const [errors, setErrors] = useState<Set<string>>(new Set());
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const result = profileSchema.safeParse({ nickname: nickname.trim(), avatar, classCode: normalizeClassCode(classCode) });
+    const result = profileSchema.safeParse({ nickname: nickname.trim(), avatar });
     if (result.success) onJoin(result.data);
     else setErrors(new Set(result.error.issues.map((i) => String(i.path[0]))));
   };
@@ -51,13 +50,6 @@ export function JoinScreen({ initial, onJoin }: Props) {
             ))}
           </div>
         </fieldset>
-
-        <label>
-          <span>{t('join.classCode')}</span>
-          <input value={classCode} maxLength={16} onChange={(e) => setClassCode(e.target.value)} aria-invalid={errors.has('classCode')} />
-          <small>{t('join.classCodeHelp')}</small>
-          {errors.has('classCode') && <small className="error">{t('join.errors.classCode')}</small>}
-        </label>
 
         <button type="submit" className="primary">
           {t('join.submit')}

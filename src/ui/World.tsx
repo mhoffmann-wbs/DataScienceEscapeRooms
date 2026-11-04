@@ -6,7 +6,7 @@ import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { createMemoryTransport, MemoryHub } from '../net/memoryTransport';
 import { LobbySession, RoomSession } from '../net/session';
-import type { Team } from '../net/teams';
+import type { StartedTeam } from '../net/teams';
 import { createTrysteroTransport } from '../net/trysteroTransport';
 import type { Profile } from '../player/profile';
 import { saveRun, type SavedRun } from '../player/run';
@@ -37,7 +37,7 @@ export type Place =
 interface Props {
   profile: Profile;
   place: Place;
-  onEnterRoom: (team: Team) => void;
+  onEnterRoom: (started: StartedTeam) => void;
   onLeaveRoom: () => void;
 }
 
@@ -46,8 +46,8 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const offline = place.kind === 'room' && !!place.author;
   const transport = useMemo(
-    () => (offline ? createMemoryTransport(new MemoryHub(), 'author') : createTrysteroTransport(profile.classCode)),
-    [offline, profile.classCode],
+    () => (offline ? createMemoryTransport(new MemoryHub(), 'author') : createTrysteroTransport()),
+    [offline],
   );
   const [session, setSession] = useState<LobbySession | RoomSession | null>(null);
 
@@ -91,7 +91,7 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
   );
 }
 
-function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySession; profile: Profile; onEnterRoom: (team: Team) => void }) {
+function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySession; profile: Profile; onEnterRoom: (started: StartedTeam) => void }) {
   const { t } = useTranslation();
   const [dialogRoom, setDialogRoom] = useState<string | null>(null);
   useEffect(() => session.teams.events.on('started', onEnterRoom), [session, onEnterRoom]);
@@ -105,7 +105,7 @@ function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySessio
       {dialogRoom && <TeamDialog roomId={dialogRoom} teams={session.teams} presence={session.presence} profile={profile} onClose={leave} />}
       <ChatPanel chat={session.chat} />
       <ChatBubbles chat={session.chat} />
-      <PeoplePanel presence={session.presence} self={profile} heading={(n) => `${t('people.title', { count: n })} · ${profile.classCode}`} aloneText={t('people.alone')} />
+      <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('people.title', { count: n })} aloneText={t('people.alone')} />
       <AvDock media={session.media} presence={session.presence} scope="proximity" />
     </>
   );

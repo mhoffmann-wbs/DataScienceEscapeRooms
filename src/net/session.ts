@@ -22,8 +22,8 @@ export class Session {
   private left = false;
 
   /** `areas` are the map's private areas (Tiled `area` objects); `mediaMode` whom A/V reaches. */
-  constructor(transport: Transport, scope: string, profile: Profile, areas: readonly Area[] = [], mediaMode: MediaMode = 'proximity') {
-    this.room = transport.join(scope);
+  constructor(transport: Transport, scope: string, profile: Profile, areas: readonly Area[] = [], mediaMode: MediaMode = 'proximity', password?: string) {
+    this.room = transport.join(scope, { password });
     this.proximity = new Proximity(NEARBY_RADIUS, areas);
     this.presence = new Presence(this.room, profile);
     this.chat = new Chat(this.room, this.presence, profile, this.proximity);
@@ -65,6 +65,8 @@ export interface RunInfo {
   state: RunState;
   /** The team's shared notes; missing in runs saved before notes existed. */
   notes?: Notes;
+  /** Set for password-protected teams: the room's connection is encrypted with it. */
+  password?: string;
 }
 
 export class RoomSession extends Session {
@@ -80,7 +82,7 @@ export class RoomSession extends Session {
     areas: readonly Area[] = [],
   ) {
     // Inside a room the whole team is always connected.
-    super(transport, roomScope(info.roomId, info.teamId), profile, areas, 'team');
+    super(transport, roomScope(info.roomId, info.teamId), profile, areas, 'team', info.password);
     this.run = new RunSync(this.room, info.state);
     this.notebook = new Notebook(this.room, info.notes ?? {}, this.room.selfId);
     this.codeShare = new CodeShare(this.room);

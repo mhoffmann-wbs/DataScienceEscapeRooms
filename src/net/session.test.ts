@@ -4,8 +4,8 @@ import { POS_INTERVAL_MS } from './presence';
 import type { Area } from './proximity';
 import { NEARBY_RADIUS, Session } from './session';
 
-function player(hub: MemoryHub, id: string, x = 0, y = 0, classCode = 'DS-01', areas: readonly Area[] = []) {
-  const s = new Session(createMemoryTransport(hub, id, classCode), 'lobby', { nickname: id, avatar: 0, classCode }, areas);
+function player(hub: MemoryHub, id: string, x = 0, y = 0, areas: readonly Area[] = []) {
+  const s = new Session(createMemoryTransport(hub, id), 'lobby', { nickname: id, avatar: 0 }, areas);
   s.presence.updateSelf({ x, y, dir: 'down', moving: false }, 0);
   return s;
 }
@@ -21,18 +21,24 @@ describe('presence', () => {
 
   it('greets a peer that joined before our position was known', () => {
     const hub = new MemoryHub();
-    const ada = new Session(createMemoryTransport(hub, 'ada', 'DS-01'), 'lobby', { nickname: 'ada', avatar: 1, classCode: 'DS-01' });
+    const ada = new Session(createMemoryTransport(hub, 'ada'), 'lobby', { nickname: 'ada', avatar: 1 });
     const bob = player(hub, 'bob');
     expect(bob.presence.list()).toEqual([]);
     ada.presence.updateSelf({ x: 5, y: 5, dir: 'up', moving: false }, 0);
     expect(bob.presence.get('ada')).toMatchObject({ nickname: 'ada', avatar: 1, dir: 'up' });
   });
 
-  it('separates class codes', () => {
+  it('keeps password-protected rooms apart from anyone without the password', () => {
     const hub = new MemoryHub();
-    const ada = player(hub, 'ada', 0, 0, 'DS-01');
-    player(hub, 'bob', 0, 0, 'DS-02');
-    expect(ada.presence.list()).toEqual([]);
+    const join = (id: string, password?: string) => new Session(createMemoryTransport(hub, id), 'room:x:t', { nickname: id, avatar: 0 }, [], 'team', password);
+    const ada = join('ada', 'secret');
+    const bob = join('bob', 'secret');
+    const eve = join('eve', 'guess');
+    const pub = join('pub');
+    [ada, bob, eve, pub].forEach((s, i) => s.presence.updateSelf({ x: i, y: 0, dir: 'down', moving: false }, 0));
+    expect(ada.presence.list().map((p) => p.nickname)).toEqual(['bob']);
+    expect(eve.presence.list()).toEqual([]);
+    expect(pub.presence.list()).toEqual([]);
   });
 
   it('throttles position updates but always delivers the final state', () => {
@@ -86,9 +92,9 @@ describe('chat', () => {
   it('in a private area, nearby messages reach the whole area and nobody outside it', () => {
     const hub = new MemoryHub();
     const areas = [{ id: 'couch', x: 0, y: 0, width: 1000, height: 100 }];
-    const ada = player(hub, 'ada', 10, 50, 'DS-01', areas);
-    const across = player(hub, 'across', 990, 50, 'DS-01', areas);
-    const outside = player(hub, 'outside', 10, 110, 'DS-01', areas);
+    const ada = player(hub, 'ada', 10, 50, areas);
+    const across = player(hub, 'across', 990, 50, areas);
+    const outside = player(hub, 'outside', 10, 110, areas);
     ada.chat.send('just us', 'nearby');
     const texts = (s: Session) => s.chat.list().flatMap((e) => (e.kind === 'message' ? [e.text] : []));
     expect(texts(across)).toEqual(['just us']);

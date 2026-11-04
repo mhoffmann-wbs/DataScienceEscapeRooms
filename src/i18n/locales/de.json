@@ -8,12 +8,9 @@
     "nickname": "Spitzname",
     "avatar": "Avatar",
     "avatarOption": "Avatar {{n}}",
-    "classCode": "Klassencode",
-    "classCodeHelp": "Frag deine Lehrkraft. Nur Spielende mit demselben Code sehen sich.",
     "submit": "Lobby betreten",
     "errors": {
-      "nickname": "Gib einen Spitznamen mit 1–20 Zeichen ein.",
-      "classCode": "Verwende 3–16 Buchstaben, Ziffern oder Bindestriche."
+      "nickname": "Gib einen Spitznamen mit 1–20 Zeichen ein."
     }
   },
   "lobby": {
@@ -41,7 +38,7 @@
   "people": {
     "title": "Online ({{count}})",
     "you": "(du)",
-    "alone": "Noch niemand sonst hier. Teile deinen Klassencode!"
+    "alone": "Noch niemand sonst hier."
   },
   "team": {
     "intro": "Bildet Teams mit bis zu {{max}} Personen. Jedes Team spielt seine eigene Kopie des Raums.",
@@ -55,7 +52,15 @@
     "start": "Spiel starten",
     "leave": "Team verlassen",
     "close": "Schließen",
-    "youAreIn": "Du bist in diesem Team"
+    "youAreIn": "Du bist in diesem Team",
+    "newTeam": "Neues Team",
+    "public": "Öffentlich: alle können beitreten",
+    "private": "Privat: nur mit Passwort",
+    "password": "Passwort",
+    "passwordHelp": "Sag deinem Team das Passwort, zum Beispiel laut oder im Nähe-Chat.",
+    "passwordTooShort": "Verwende mindestens {{min}} Zeichen.",
+    "locked": "Passwortgeschützt",
+    "wrongPassword": "Falsches Passwort. Frag die Teamleitung."
   },
   "room": {
     "exit": "Zurück in die Lobby",

@@ -8,12 +8,9 @@
     "nickname": "Nickname",
     "avatar": "Avatar",
     "avatarOption": "Avatar {{n}}",
-    "classCode": "Class code",
-    "classCodeHelp": "Ask your instructor. Only players with the same code see each other.",
     "submit": "Enter lobby",
     "errors": {
-      "nickname": "Enter a nickname of 1–20 characters.",
-      "classCode": "Use 3–16 letters, digits or dashes."
+      "nickname": "Enter a nickname of 1–20 characters."
     }
   },
   "lobby": {
@@ -41,7 +38,7 @@
   "people": {
     "title": "Online ({{count}})",
     "you": "(you)",
-    "alone": "Nobody else here yet. Share your class code!"
+    "alone": "Nobody else here yet."
   },
   "team": {
     "intro": "Form a team of up to {{max}} players. Every team plays its own copy of the room.",
@@ -55,7 +52,15 @@
     "start": "Start the run",
     "leave": "Leave team",
     "close": "Close",
-    "youAreIn": "You're in this team"
+    "youAreIn": "You're in this team",
+    "newTeam": "New team",
+    "public": "Public: anyone can join",
+    "private": "Private: only with a password",
+    "password": "Password",
+    "passwordHelp": "Tell your teammates the password, for example out loud or in nearby chat.",
+    "passwordTooShort": "Use at least {{min}} characters.",
+    "locked": "Password-protected",
+    "wrongPassword": "Wrong password. Ask the team leader."
   },
   "room": {
     "exit": "Back to the lobby",

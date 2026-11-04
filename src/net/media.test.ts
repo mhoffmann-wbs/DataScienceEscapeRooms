@@ -13,7 +13,7 @@ const RADIUS = 100;
 
 function peer(hub: MemoryHub, id: string, x: number, mode: 'proximity' | 'team' = 'proximity', clock = { t: 0 }) {
   const room: NetRoom = createMemoryTransport(hub, id).join(mode === 'team' ? 'room:x:t' : 'lobby');
-  const profile: Profile = { nickname: id, avatar: 0, classCode: 'T' };
+  const profile: Profile = { nickname: id, avatar: 0 };
   const presence = new Presence(room, profile);
   const media = new Media(room, presence, new Proximity(RADIUS), mode, { now: () => clock.t, tickMs: 0 });
   presence.updateSelf({ x, y: 0, dir: 'down', moving: false }, 0);

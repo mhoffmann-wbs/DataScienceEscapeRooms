@@ -5,10 +5,13 @@ import type { Channel, Json, NetRoom, Transport } from './transport';
 // Changing this splits players on old and new builds into separate worlds.
 const APP_ID = 'wbs-data-science-escape-rooms-v1';
 
-export function createTrysteroTransport(classCode: string): Transport {
+// Everyone shares one world; teams that want privacy pass a password when joining their room.
+const NAMESPACE = 'world';
+
+export function createTrysteroTransport(): Transport {
   return {
-    join(scope) {
-      const room = joinRoom({ appId: APP_ID }, `${classCode}/${scope}`);
+    join(scope, opts) {
+      const room = joinRoom({ appId: APP_ID, ...(opts?.password ? { password: opts.password } : {}) }, `${NAMESPACE}/${scope}`);
       // Trystero has one handler slot per event; multiplex it.
       const peerEvents = new Emitter<{ join: string; leave: string; stream: { stream: MediaStream; peerId: string } }>();
       room.onPeerJoin = (id) => peerEvents.emit('join', id);

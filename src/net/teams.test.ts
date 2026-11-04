@@ -1,15 +1,59 @@
 import { describe, expect, it } from 'vitest';
 import { createMemoryTransport, MemoryHub } from './memoryTransport';
-import { MAX_TEAM_SIZE, Teams, type Team } from './teams';
+import { MAX_TEAM_SIZE, Teams, type StartedTeam, type Team } from './teams';
 
 function lobby(hub: MemoryHub, id: string) {
   const teams = new Teams(createMemoryTransport(hub, id).join('lobby'), () => 1000);
   const started: Team[] = [];
-  teams.events.on('started', (t) => started.push(t));
-  return { teams, started, room: () => teams };
+  const startedWith: StartedTeam[] = [];
+  const rejected: string[] = [];
+  teams.events.on('started', (s) => {
+    started.push(s.team);
+    startedWith.push(s);
+  });
+  teams.events.on('rejected', ({ teamId }) => rejected.push(teamId));
+  return { teams, started, startedWith, rejected, room: () => teams };
 }
 
+// Password checks hash asynchronously.
+const settle = () => new Promise((r) => setTimeout(r, 20));
+
 describe('teams', () => {
+  it('lets only players with the password join a locked team, and hands it to members on start', async () => {
+    const hub = new MemoryHub();
+    const ada = lobby(hub, 'ada');
+    const bob = lobby(hub, 'bob');
+    const eve = lobby(hub, 'eve');
+    ada.teams.create('sql-hotel', 'blue-index');
+    const teamId = ada.teams.mine()!.id;
+    expect(bob.teams.list()[0]).toMatchObject({ locked: true });
+    // The password itself is never part of the public record.
+    expect(JSON.stringify(bob.teams.list())).not.toContain('blue-index');
+
+    await eve.teams.join(teamId, 'wrong');
+    await eve.teams.join(teamId);
+    await settle();
+    expect(ada.teams.mine()?.members).toEqual(['ada']);
+    expect(eve.rejected).toEqual([teamId, teamId]);
+
+    await bob.teams.join(teamId, 'blue-index');
+    await settle();
+    expect(ada.teams.mine()?.members).toEqual(['ada', 'bob']);
+    ada.teams.start();
+    expect(ada.startedWith[0]!.password).toBe('blue-index');
+    expect(bob.startedWith[0]!.password).toBe('blue-index');
+  });
+
+  it('public teams need no password and start without one', () => {
+    const hub = new MemoryHub();
+    const ada = lobby(hub, 'ada');
+    const bob = lobby(hub, 'bob');
+    ada.teams.create('python-lab');
+    void bob.teams.join(ada.teams.mine()!.id);
+    ada.teams.start();
+    expect(bob.startedWith[0]).toMatchObject({ password: undefined, team: { locked: false } });
+  });
+
   it('creates, joins, and shows the team to everyone, including late arrivals', () => {
     const hub = new MemoryHub();
     const ada = lobby(hub, 'ada');
