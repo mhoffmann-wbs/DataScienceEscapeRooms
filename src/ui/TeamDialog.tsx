@@ -2,7 +2,10 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { roomTitle } from '../rooms';
 import type { Presence } from '../net/presence';
+import type { Runs } from '../net/runs';
 import { MAX_TEAM_SIZE, MIN_PASSWORD_LENGTH, type Teams } from '../net/teams';
+import { clearRun, loadRun } from '../player/run';
+import { ROOMS } from '../rooms';
 import type { Profile } from '../player/profile';
 import { Modal } from './Modal';
 import { nameOf } from './names';
@@ -11,14 +14,23 @@ import { useEmitterValue } from './useStore';
 interface Props {
   roomId: string;
   teams: Teams;
+  /** Live runs in the lobby, to show how a run we left is going. */
+  runs: Runs;
+  onRejoin: () => void;
   presence: Presence;
   profile: Profile;
   onClose: () => void;
 }
 
 /** Opened at a lobby door: join a team waiting there, or create one. */
-export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props) {
+export function TeamDialog({ roomId, teams, runs, presence, profile, onRejoin, onClose }: Props) {
   const { t, i18n } = useTranslation();
+  // A run at this door that we left before it was finished.
+  const [saved, setSaved] = useState(() => {
+    const run = loadRun();
+    return run?.roomId === roomId ? run : null;
+  });
+  const live = useEmitterValue(runs.events, 'runs', () => runs.list()).find((r) => r.teamId === saved?.teamId);
   const all = useEmitterValue(teams.events, 'teams', () => teams.list());
   // Re-render when names arrive.
   useEmitterValue(presence.events, 'roster', () => presence.list());
@@ -48,6 +60,32 @@ export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props)
 
   return (
     <Modal title={roomTitle(roomId, i18n.language)} onClose={onClose}>
+      {saved && (
+        <section className="rejoin" aria-label={t('team.rejoinTitle')}>
+          <strong>{t('team.rejoinTitle')}</strong>
+          <p className="muted">
+            {t('team.rejoinStatus', {
+              solved: Object.keys((live ?? saved.state).solved).length,
+              total: ROOMS[roomId]?.puzzles.length ?? 0,
+            })}{' '}
+            {live ? t('team.rejoinPlaying', { count: live.members.length }) : t('team.rejoinNobody')}
+          </p>
+          <div className="modal-actions">
+            <button
+              type="button"
+              onClick={() => {
+                clearRun();
+                setSaved(null);
+              }}
+            >
+              {t('team.discard')}
+            </button>
+            <button type="button" className="primary" onClick={onRejoin}>
+              {t('team.rejoin')}
+            </button>
+          </div>
+        </section>
+      )}
       <p className="muted">{t('team.intro', { max: MAX_TEAM_SIZE })}</p>
       {waiting.length === 0 ? (
         <p>{t('team.none')}</p>

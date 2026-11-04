@@ -64,13 +64,20 @@
     "wrongPassword": "Falsches Passwort. Frag die Teamleitung.",
     "group": "Gruppe (optional)",
     "groupPlaceholder": "z. B. DS-Nov-26",
-    "groupHelp": "Deine Klasse oder Kohorte, damit deine Lehrkraft euer Team findet."
+    "groupHelp": "Deine Klasse oder Kohorte, damit deine Lehrkraft euer Team findet.",
+    "rejoinTitle": "Der Lauf deines Teams",
+    "rejoinStatus": "{{solved}}/{{total}} gelöst.",
+    "rejoinPlaying_one": "{{count}} Person ist noch im Raum.",
+    "rejoinPlaying_other": "{{count}} Personen sind noch im Raum.",
+    "rejoinNobody": "Gerade ist niemand im Raum; du kannst allein weitermachen.",
+    "rejoin": "Wieder einsteigen",
+    "discard": "Verwerfen"
   },
   "room": {
     "exit": "Zurück in die Lobby",
     "exitPrompt": "Drücke E, um den Raum zu verlassen",
     "leaveTitle": "Raum verlassen?",
-    "leaveBody": "Du gehst zurück in die Lobby. Dein Team kann ohne dich weiterspielen.",
+    "leaveBody": "Du gehst zurück in die Lobby. Dein Team kann weiterspielen, und du kannst an der Tür des Raums wieder einsteigen.",
     "leaveConfirm": "Verlassen",
     "stay": "Bleiben",
     "timer": "Zeit seit Spielbeginn",
@@ -82,7 +89,8 @@
     "escapedBody_other": "Euer Team ist in {{time}} entkommen und hat {{count}} Tipps benutzt.",
     "backToLobby": "Zurück in die Lobby",
     "keepLooking": "Umsehen",
-    "alone": "Gerade ist sonst niemand aus deinem Team hier."
+    "alone": "Gerade ist sonst niemand aus deinem Team hier.",
+    "leaveBodyFinished": "Du gehst zurück in die Lobby."
   },
   "interact": {
     "puzzlePrompt": "Drücke E zum Untersuchen",

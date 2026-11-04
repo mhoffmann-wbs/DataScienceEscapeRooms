@@ -44,11 +44,14 @@ interface Props {
   lobby: LobbySession | null;
   transport: Transport;
   onEnterRoom: (started: StartedTeam, leader: string) => void;
-  onLeaveRoom: () => void;
+  /** `finished`: the team escaped, so the saved run can go. */
+  onLeaveRoom: (finished: boolean) => void;
+  /** Go back into the saved, unfinished run. */
+  onRejoin: () => void;
 }
 
 /** One place in the world: its Phaser game, and for rooms the room's network session. */
-export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom }: Props) {
+export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom, onRejoin }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const offline = place.kind === 'room' && !!place.author;
   const roomTransport = useMemo(() => (offline ? createMemoryTransport(new MemoryHub(), 'author') : transport), [offline, transport]);
@@ -95,7 +98,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
     <>
       {/* Clicking the map ends typing in any field (chat, notes), so walking works again. */}
       <div ref={containerRef} className="game" onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
-      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} onEnterRoom={onEnterRoom} />}
+      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} onEnterRoom={onEnterRoom} onRejoin={onRejoin} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         <RoomOverlays session={session} lobby={lobby} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
       )}
@@ -103,7 +106,14 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
   );
 }
 
-function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySession; profile: Profile; onEnterRoom: (started: StartedTeam, leader: string) => void }) {
+interface LobbyOverlaysProps {
+  session: LobbySession;
+  profile: Profile;
+  onEnterRoom: (started: StartedTeam, leader: string) => void;
+  onRejoin: () => void;
+}
+
+function LobbyOverlays({ session, profile, onEnterRoom, onRejoin }: LobbyOverlaysProps) {
   const { t } = useTranslation();
   const [dialogRoom, setDialogRoom] = useState<string | null>(null);
   useEffect(
@@ -117,7 +127,9 @@ function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySessio
     <>
       <InteractPrompt onUse={use} onLeave={leave} />
       <TeamBar teams={session.teams} presence={session.presence} profile={profile} />
-      {dialogRoom && <TeamDialog roomId={dialogRoom} teams={session.teams} presence={session.presence} profile={profile} onClose={leave} />}
+      {dialogRoom && (
+        <TeamDialog roomId={dialogRoom} teams={session.teams} runs={session.runs} presence={session.presence} profile={profile} onRejoin={onRejoin} onClose={leave} />
+      )}
       <ChatPanel chat={session.chat} />
       <ChatBubbles chat={session.chat} />
       <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('people.title', { count: n })} aloneText={t('people.alone')} />
@@ -134,7 +146,7 @@ interface RoomOverlaysProps {
   lobby: LobbySession | null;
   profile: Profile;
   author?: { puzzleId?: string };
-  onLeaveRoom: () => void;
+  onLeaveRoom: (finished: boolean) => void;
 }
 
 function RoomOverlays({ session, lobby, profile, author, onLeaveRoom }: RoomOverlaysProps) {
@@ -190,9 +202,9 @@ function RoomOverlays({ session, lobby, profile, author, onLeaveRoom }: RoomOver
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
       {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onPin={pin} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
       {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onPin={pin} onClose={close} />}
-      {dialog?.kind === 'leave' && <LeaveRoomDialog onLeave={onLeaveRoom} onStay={close} />}
+      {dialog?.kind === 'leave' && <LeaveRoomDialog finished={escaped} onLeave={() => onLeaveRoom(escaped)} onStay={close} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
-      {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={onLeaveRoom} onClose={close} />}
+      {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={() => onLeaveRoom(true)} onClose={close} />}
       <ChatPanel chat={session.chat} />
       <ChatBubbles chat={session.chat} />
       <div className="side-column">

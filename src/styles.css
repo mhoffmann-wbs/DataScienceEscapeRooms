@@ -987,3 +987,14 @@ code {
   border: 1px solid rgba(255, 255, 255, 0.2);
   margin-right: 4px;
 }
+
+.rejoin {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.rejoin p {
+  margin: 4px 0;
+}

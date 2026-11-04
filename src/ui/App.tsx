@@ -72,16 +72,22 @@ export function App() {
     setPlace({ kind: 'room', run });
   };
 
-  const leaveRoom = () => {
-    clearRun();
+  /** Back to the lobby. An unfinished run stays saved, so the player can rejoin it from the door. */
+  const leaveRoom = (finished: boolean) => {
+    if (finished) clearRun();
     setPlace({ kind: 'lobby' });
+  };
+
+  const rejoin = () => {
+    const run = loadRun();
+    if (run) setPlace({ kind: 'room', run });
   };
 
   return (
     <div className="app">
       {place && profile ? (
         // Until the lobby connection exists (one render), show nothing rather than the join screen.
-        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} />
+        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} />
       ) : (
         <JoinScreen initial={profile} onJoin={join} />
       )}

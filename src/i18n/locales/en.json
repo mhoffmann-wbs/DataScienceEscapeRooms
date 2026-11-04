@@ -64,13 +64,20 @@
     "wrongPassword": "Wrong password. Ask the team leader.",
     "group": "Group (optional)",
     "groupPlaceholder": "e.g. DS-Nov-26",
-    "groupHelp": "Your class or cohort, so your instructor can find your team."
+    "groupHelp": "Your class or cohort, so your instructor can find your team.",
+    "rejoinTitle": "Your team's run",
+    "rejoinStatus": "{{solved}}/{{total}} solved.",
+    "rejoinPlaying_one": "{{count}} player is still in the room.",
+    "rejoinPlaying_other": "{{count}} players are still in the room.",
+    "rejoinNobody": "Nobody is in the room right now; you can continue on your own.",
+    "rejoin": "Rejoin",
+    "discard": "Discard"
   },
   "room": {
     "exit": "Back to the lobby",
     "exitPrompt": "Press E to leave the room",
     "leaveTitle": "Leave the room?",
-    "leaveBody": "You'll go back to the lobby. Your team can keep playing without you.",
+    "leaveBody": "You'll go back to the lobby. Your team can keep playing, and you can rejoin from the room's door.",
     "leaveConfirm": "Leave",
     "stay": "Stay",
     "timer": "Time since the run started",
@@ -82,7 +89,8 @@
     "escapedBody_other": "Your team escaped in {{time}} using {{count}} hints.",
     "backToLobby": "Back to the lobby",
     "keepLooking": "Look around",
-    "alone": "Nobody else from your team is here right now."
+    "alone": "Nobody else from your team is here right now.",
+    "leaveBodyFinished": "You'll go back to the lobby."
   },
   "interact": {
     "puzzlePrompt": "Press E to examine",
