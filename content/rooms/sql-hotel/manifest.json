@@ -28,6 +28,10 @@
         "ordered": true,
         "hash": "76e5fa1c12ce8a5f39cded3e169ece2a553f667aac1475e58d68980d3aeb0e3d"
       },
+      "practises": {
+        "en": "`SELECT`, `WHERE` with `BETWEEN`, `ORDER BY`",
+        "de": "`SELECT`, `WHERE` mit `BETWEEN`, `ORDER BY`"
+      },
       "hints": [
         {
           "en": "Filter rows with `WHERE`. `BETWEEN 400 AND 499` is handy.",
@@ -56,6 +60,10 @@
         "type": "answer",
         "mode": "caseless",
         "hash": "52650a7aab8b530947606dc5295c2595397b59e7b0f45b7d0e7daed34de8643b"
+      },
+      "practises": {
+        "en": "Reading query results",
+        "de": "Abfrageergebnisse lesen"
       },
       "hints": [
         {

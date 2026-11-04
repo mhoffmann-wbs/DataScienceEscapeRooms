@@ -4,11 +4,13 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { MAPS, ROOM_IDS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { loadDataFile, ROOMS } from './index';
-import { solutionHash, type Engines } from './solutions';
+import { canonicalSolution, solutionHash, type Engines } from './solutions';
+import { LANGUAGES, renderWalkthrough, walkthroughPath, type SolvedPuzzle } from './walkthrough';
 
-// Gitignored reference solutions; when present, every stored hash is re-derived from them.
-const solutionFiles = import.meta.glob<Record<string, string>>('../../content/rooms/*/solutions.local.json', { eager: true, import: 'default' });
-const solutionsFor = (roomId: string) => solutionFiles[`../../content/rooms/${roomId}/solutions.local.json`];
+// Reference solutions; every stored hash is re-derived from them.
+const solutionFiles = import.meta.glob<Record<string, string>>('../../content/rooms/*/solutions.json', { eager: true, import: 'default' });
+const solutionsFor = (roomId: string) => solutionFiles[`../../content/rooms/${roomId}/solutions.json`];
+const walkthroughs = import.meta.glob<string>('../../docs/walkthroughs/*.md', { eager: true, query: '?raw', import: 'default' });
 
 describe('rooms', () => {
   it('every room folder has both a map and a manifest', () => {
@@ -46,7 +48,7 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
     expect(solved.size).toBe(manifest.puzzles.length);
   });
 
-  describe.skipIf(!solutionsFor(roomId))('reference solutions', () => {
+  describe('reference solutions', () => {
     let engines: Engines;
     beforeAll(async () => {
       engines = { SQL: await initSqlJs(), py: await loadPyodide(), readData: (f) => loadDataFile(roomId, f) };
@@ -56,6 +58,15 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
       const solution = solutionsFor(roomId)![puzzle.id];
       expect(solution, `no reference solution for ${puzzle.id}`).toBeDefined();
       expect(await solutionHash(manifest, puzzle, solution!, engines)).toBe(puzzle.check.hash);
+    });
+
+    it('has an up-to-date walkthrough (run `npm run walkthrough` to regenerate)', async () => {
+      const solved: Record<string, SolvedPuzzle> = {};
+      for (const p of manifest.puzzles) {
+        const solution = solutionsFor(roomId)![p.id]!;
+        solved[p.id] = { solution, result: await canonicalSolution(p, solution, engines) };
+      }
+      for (const lang of LANGUAGES) expect(walkthroughs[`../../${walkthroughPath(roomId, lang)}`]).toBe(renderWalkthrough(roomId, manifest, lang, solved));
     });
   });
 });

@@ -3,4 +3,3 @@ dist/
 *.tsbuildinfo
 .DS_Store
 coverage/
-content/rooms/*/solutions.local.json

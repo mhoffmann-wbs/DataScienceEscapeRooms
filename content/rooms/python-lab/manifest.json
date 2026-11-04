@@ -34,6 +34,14 @@
         "en": "The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:\n\n\"Note to self: never write the override order on the whiteboard again! It goes ☀ 🍄 ❄ 🌀.\"",
         "de": "Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:\n\n\"Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ☀ 🍄 ❄ 🌀.\""
       },
+      "practises": {
+        "en": "Variables, string methods (`.upper()`), turning numbers into text with `str()`, `len()`",
+        "de": "Variablen, String-Methoden (`.upper()`), Zahlen mit `str()` in Text umwandeln, `len()`"
+      },
+      "clues": [
+        "photo",
+        "diploma"
+      ],
       "hints": [
         {
           "en": "The cat's name is on the photo on Ida's desk, the year on her diploma on the wall. Careful: there is more than one year in this room.",
@@ -74,6 +82,13 @@
         "en": "The incubator beeps and its display lights up: **☀ 6**",
         "de": "Der Inkubator piept und sein Display leuchtet auf: **☀ 6**"
       },
+      "practises": {
+        "en": "Lists, `for` loops with `enumerate`, `if`/`elif`, counting, skipping missing values (`None`)",
+        "de": "Listen, `for`-Schleifen mit `enumerate`, `if`/`elif`, Zählen, fehlende Werte (`None`) überspringen"
+      },
+      "clues": [
+        "manual"
+      ],
       "hints": [
         {
           "en": "The manual on the wall in the lower lab gives the safe range and explains what `None` means. `for hour, t in enumerate(temps):` gives you both the hour and the temperature.",
@@ -114,6 +129,13 @@
         "en": "The decrypted notes:\n\n\"Day 212: the caps only glow when it is cold.\n\nI moved all glowing samples into the freezer.\n\nFreezer lock: add up the spore counts of the samples listed on its door.\n\nThe mushroom digit for the override is three.\"",
         "de": "Die entschlüsselten Notizen:\n\n\"Tag 212: Die Hüte leuchten nur, wenn es kalt ist.\n\nIch habe alle leuchtenden Proben in den Gefrierschrank gelegt.\n\nGefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.\n\nDie Pilz-Ziffer für den Override ist drei.\""
       },
+      "practises": {
+        "en": "Strings: reversing with `[::-1]`, looping over characters, building a string, writing a function",
+        "de": "Strings: Umdrehen mit `[::-1]`, Schleifen über Zeichen, Strings zusammenbauen, eine Funktion schreiben"
+      },
+      "clues": [
+        "microscope"
+      ],
       "hints": [
         {
           "en": "KEY is a number you can find on a piece of lab equipment. Look through the microscope.",
@@ -157,6 +179,10 @@
         "en": "The padlock clicks open and cold mist pours out. Between the frosted sample tubes stands one vial with a label: **❄ 4**",
         "de": "Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **❄ 4**"
       },
+      "practises": {
+        "en": "Dictionaries: nested lookups, looping over `.items()`, filtering with conditions",
+        "de": "Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen"
+      },
       "hints": [
         {
           "en": "Ida's decrypted notes say how the padlock code works. The label tells you which samples to use.",
@@ -197,6 +223,13 @@
         "en": "The vents rumble back to life. A display on the control panel shows: **🌀 8**",
         "de": "Die Lüftung springt rumpelnd wieder an. Ein Display an der Steuerung zeigt: **🌀 8**"
       },
+      "practises": {
+        "en": "Debugging: reading error messages, syntax and indentation errors, `int()` conversion, `+=` versus `=`",
+        "de": "Debugging: Fehlermeldungen lesen, Syntax- und Einrückungsfehler, Umwandlung mit `int()`, `+=` statt `=`"
+      },
+      "clues": [
+        "poster"
+      ],
       "hints": [
         {
           "en": "Run the script and fix one error at a time: the error message names the line. The thresholds are on the air-quality poster.",
@@ -235,6 +268,13 @@
         "ventilation"
       ],
       "final": true,
+      "practises": {
+        "en": "Combining results from the whole room",
+        "de": "Ergebnisse aus dem ganzen Raum kombinieren"
+      },
+      "clues": [
+        "whiteboard"
+      ],
       "hints": [
         {
           "en": "Every station you solved gives you a digit next to a symbol. Open a solved station again to read its digit.",

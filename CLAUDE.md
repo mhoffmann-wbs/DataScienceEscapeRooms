@@ -41,7 +41,8 @@ npx vitest run path/to/file.test.ts   # single test file
 npx vitest run -t "test name"         # single test by name
 node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and avatar sheet
 npm run validate-rooms                # room tests: manifests, map placement, data files, reference solutions
-npm run hash-answer -- <roomId>       # re-derive answer hashes from solutions.local.json (add --write to update the manifest)
+npm run hash-answer -- <roomId>       # re-derive answer hashes from solutions.json (add --write to update the manifest)
+npm run walkthrough [-- <roomId>]     # regenerate the instructor walkthroughs in docs/walkthroughs/
 VITE_AUTHOR=1 npm run build           # production build with the author shortcut enabled
 ```
 
@@ -90,17 +91,18 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 ### Rooms are data, not code
 - Each room is a folder `content/rooms/<roomId>/`; the folder name is the roomId. It contains:
   - `map.json`: the Tiled export, with one `puzzle` object per manifest puzzle and one `clue` object per manifest clue.
-  - `manifest.json`: title and intro text, the puzzles and the clues. Each puzzle has DE/EN title, text and hints, a `workspace` (`none`/`python`/`sql`), starter code (a string, or DE/EN when its comments need translating), an optional data file, an optional `reveal` (shown to the team once solved), `requires`, `final`, and a `check`. Each clue has DE/EN title and text and is read-only. Text supports blank-line paragraphs, `` `code` `` and `**bold**`. The format is defined in `src/rooms/manifest.ts`, which is the source of truth.
+  - `manifest.json`: title and intro text, the puzzles and the clues. Each puzzle has DE/EN title, text and hints, a `workspace` (`none`/`python`/`sql`), starter code (a string, or DE/EN when its comments need translating), an optional data file, an optional `reveal` (shown to the team once solved), `practises` (what it teaches), `clues` (the clue ids it needs), `requires`, `final`, and a `check`. Each clue has DE/EN title and text and is read-only. Text supports blank-line paragraphs, `` `code` `` and `**bold**`. The format is defined in `src/rooms/manifest.ts`, which is the source of truth.
   - `data/`: `.py` files, run before the student's code, and `.sql` files, which build the database. They load lazily, so a room's data is only downloaded when needed.
-  - `solutions.local.json` (gitignored): reference solutions, `{ puzzleId: answer | Python code | SQL query }`.
+  - `solutions.json`: reference solutions, `{ puzzleId: answer | Python code | SQL query }`. Solutions are public on purpose, like the walkthroughs.
 - Data files are shared by both languages, so checks stay language-independent. When students must read text from the data (like encrypted notes), provide both languages in it (e.g. `notes["en"]`, `notes["de"]`) and make the check cover both.
 - Rooms are discovered with `import.meta.glob` (`src/rooms/index.ts`). Adding a room means adding a folder, with no engine changes. Room titles and all in-room text come from manifests, never from the locale files.
 - Check types (`check.type`); every one compares a salted PBKDF2 hash, so plaintext answers never go in the bundle:
   - `answer`: typed text, normalized per `mode` (`caseless`/`exact`/`number`).
   - `python`: after the student's code runs, `expr` is evaluated in its namespace and compared as canonical JSON.
   - `sql`: the last statement's rows, with column names ignored and floats rounded; sorted unless `ordered`.
-- Authoring loop: write the reference solution into `solutions.local.json`, run `npm run hash-answer -- <roomId> --write` (it runs the solution through the same runner code as the game), then `npm run validate-rooms`. The solution tests are skipped when the file is absent, e.g. in CI.
-- Hashes only deter casual peeking: a public GitHub Pages repo ships its manifests, and short codes can be brute-forced. Treat answers as a game mechanic, not a secret.
+- Authoring loop: write the reference solution into `solutions.json`, run `npm run hash-answer -- <roomId> --write` (it runs the solution through the same runner code as the game), then `npm run walkthrough -- <roomId>` and `npm run validate-rooms`. Every puzzle needs a reference solution.
+- **Instructor walkthroughs** (`docs/walkthroughs/<roomId>.<en|de>.md`) are generated from the manifest and solutions by `src/rooms/walkthrough.ts`: overview, final code, and per station the task, starter code, model solution, checked result, reveal, hints and clues. A room test fails when a committed walkthrough is out of date, so regenerate after every content change.
+- Hashes only keep answers out of the running game's code: the solutions and walkthroughs are public in the repo anyway. Treat answers as a game mechanic, not a secret.
 
 ### Code execution
 - Pyodide loads **lazily, only when a Python puzzle opens**, because it is about 12 MB. Its runtime files are served from our own site, not a CDN: the `pyodide-files` plugin in `vite.config.ts` serves them from `node_modules` in dev and copies them to `dist/pyodide/` in builds. sql.js's wasm is bundled as a Vite asset. Only the Python core is available; packages such as pandas would need their wheels served the same way.

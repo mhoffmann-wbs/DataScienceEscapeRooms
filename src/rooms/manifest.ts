@@ -33,6 +33,10 @@ export const puzzleSchema = z
     /** File in the room's data/ folder: Python run before the student's code, or the SQL database setup. */
     data: z.string().regex(/^[\w.-]+\.(py|sql)$/).optional(),
     check: checkSchema,
+    /** What the puzzle teaches, for the debrief and the instructor walkthrough. */
+    practises: localized,
+    /** Clues the puzzle needs from the room, for the walkthrough. */
+    clues: z.array(clueId).default([]),
     /** Tiered hints, gentlest first. */
     hints: z.array(localized).min(1).max(3),
     /** Shown to the whole team once solved: what the solved object gives back (a code digit, a message). */
@@ -67,7 +71,10 @@ export const manifestSchema = z
     if (ids.size !== m.puzzles.length) ctx.addIssue({ code: 'custom', message: 'duplicate puzzle ids' });
     if (new Set(m.clues.map((c) => c.id)).size !== m.clues.length) ctx.addIssue({ code: 'custom', message: 'duplicate clue ids' });
     if (m.puzzles.filter((p) => p.final).length !== 1) ctx.addIssue({ code: 'custom', message: 'exactly one puzzle must be final' });
-    for (const p of m.puzzles)
+    const clueIds = new Set(m.clues.map((c) => c.id));
+    for (const p of m.puzzles) {
       for (const r of p.requires) if (!ids.has(r)) ctx.addIssue({ code: 'custom', message: `${p.id} requires unknown puzzle ${r}` });
+      for (const c of p.clues) if (!clueIds.has(c)) ctx.addIssue({ code: 'custom', message: `${p.id} uses unknown clue ${c}` });
+    }
   });
 export type Manifest = z.infer<typeof manifestSchema>;

@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "hash-answer": "node scripts/hash-answer.ts",
+    "walkthrough": "node scripts/walkthrough.ts",
     "validate-rooms": "vitest run src/rooms"
   },
   "dependencies": {

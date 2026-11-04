@@ -3,7 +3,7 @@
 //   npm run hash-answer -- <roomId>           print hashes and whether the manifest matches
 //   npm run hash-answer -- <roomId> --write   also write them into manifest.json
 //
-// Reference solutions live in content/rooms/<roomId>/solutions.local.json (gitignored):
+// Reference solutions live in content/rooms/<roomId>/solutions.json:
 // { "<puzzleId>": "<answer text | Python code | SQL query>" }, depending on the check type.
 import { readFile, writeFile } from 'node:fs/promises';
 import { loadPyodide } from 'pyodide';
@@ -19,7 +19,7 @@ if (!roomId) {
 const dir = `content/rooms/${roomId}`;
 const raw = JSON.parse(await readFile(`${dir}/manifest.json`, 'utf8'));
 const manifest = manifestSchema.parse(raw);
-const solutions: Record<string, string> = JSON.parse(await readFile(`${dir}/solutions.local.json`, 'utf8'));
+const solutions: Record<string, string> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
 
 const engines = { SQL: await initSqlJs(), py: await loadPyodide(), readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8') };
 
