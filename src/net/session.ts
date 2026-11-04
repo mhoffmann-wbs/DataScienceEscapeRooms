@@ -81,6 +81,8 @@ export interface RunInfo {
   notes?: Notes;
   /** Set for password-protected teams: the room's connection is encrypted with it. */
   password?: string;
+  /** Solo practice: played offline, alone; not on the scoreboard. */
+  solo?: boolean;
   /** The leader's nickname, for "<leader>'s team" on the scoreboard and for instructors. */
   leader?: string;
   group?: string | null;

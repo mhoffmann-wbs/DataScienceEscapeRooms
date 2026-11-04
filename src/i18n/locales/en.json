@@ -71,7 +71,10 @@
     "rejoinPlaying_other": "{{count}} players are still in the room.",
     "rejoinNobody": "Nobody is in the room right now; you can continue on your own.",
     "rejoin": "Rejoin",
-    "discard": "Discard"
+    "discard": "Discard",
+    "practice": "Practice alone",
+    "practiceHelp": "Play this room on your own, offline. It doesn't count for the scoreboard.",
+    "practiceTitle": "Your practice run"
   },
   "room": {
     "exit": "Back to the lobby",
@@ -90,7 +93,8 @@
     "backToLobby": "Back to the lobby",
     "keepLooking": "Look around",
     "alone": "Nobody else from your team is here right now.",
-    "leaveBodyFinished": "You'll go back to the lobby."
+    "leaveBodyFinished": "You'll go back to the lobby.",
+    "practice": "Practice"
   },
   "interact": {
     "puzzlePrompt": "Press E to examine",

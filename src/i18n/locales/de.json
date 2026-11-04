@@ -71,7 +71,10 @@
     "rejoinPlaying_other": "{{count}} Personen sind noch im Raum.",
     "rejoinNobody": "Gerade ist niemand im Raum; du kannst allein weitermachen.",
     "rejoin": "Wieder einsteigen",
-    "discard": "Verwerfen"
+    "discard": "Verwerfen",
+    "practice": "Allein üben",
+    "practiceHelp": "Spiel diesen Raum allein und offline. Er zählt nicht für die Bestenliste.",
+    "practiceTitle": "Dein Übungslauf"
   },
   "room": {
     "exit": "Zurück in die Lobby",
@@ -90,7 +93,8 @@
     "backToLobby": "Zurück in die Lobby",
     "keepLooking": "Umsehen",
     "alone": "Gerade ist sonst niemand aus deinem Team hier.",
-    "leaveBodyFinished": "Du gehst zurück in die Lobby."
+    "leaveBodyFinished": "Du gehst zurück in die Lobby.",
+    "practice": "Übung"
   },
   "interact": {
     "puzzlePrompt": "Drücke E zum Untersuchen",

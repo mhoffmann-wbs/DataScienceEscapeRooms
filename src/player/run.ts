@@ -11,6 +11,7 @@ const savedRunSchema = z.object({
   teamId: z.string(),
   password: z.string().optional(),
   leader: z.string().optional(),
+  solo: z.boolean().optional(),
   group: z.string().nullable().optional(),
   state: runStateSchema,
   notes: notesSchema.optional(),

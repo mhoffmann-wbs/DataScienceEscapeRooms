@@ -87,6 +87,14 @@ export function App() {
     setPlace({ kind: 'lobby' });
   };
 
+  /** Solo practice: an offline copy of the room, saved like a team run. */
+  const practise = (roomId: string) => {
+    if (!profile) return;
+    const run: SavedRun = { roomId, teamId: `solo-${Date.now().toString(36)}`, solo: true, leader: profile.nickname, state: emptyRun(Date.now()) };
+    saveRun(run);
+    setPlace({ kind: 'room', run });
+  };
+
   const rejoin = () => {
     const run = loadRun();
     if (run) setPlace({ kind: 'room', run });
@@ -96,7 +104,7 @@ export function App() {
     <div className="app">
       {place && profile ? (
         // Until the lobby connection exists (one render), show nothing rather than the join screen.
-        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} />
+        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} onPractise={practise} />
       ) : (
         <JoinScreen initial={profile} onJoin={join} />
       )}

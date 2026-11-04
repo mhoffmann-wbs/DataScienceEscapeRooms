@@ -17,13 +17,14 @@ interface Props {
   /** Live runs in the lobby, to show how a run we left is going. */
   runs: Runs;
   onRejoin: () => void;
+  onPractise: () => void;
   presence: Presence;
   profile: Profile;
   onClose: () => void;
 }
 
 /** Opened at a lobby door: join a team waiting there, or create one. */
-export function TeamDialog({ roomId, teams, runs, presence, profile, onRejoin, onClose }: Props) {
+export function TeamDialog({ roomId, teams, runs, presence, profile, onRejoin, onPractise, onClose }: Props) {
   const { t, i18n } = useTranslation();
   // A run at this door that we left before it was finished.
   const [saved, setSaved] = useState(() => {
@@ -62,13 +63,13 @@ export function TeamDialog({ roomId, teams, runs, presence, profile, onRejoin, o
     <Modal title={roomTitle(roomId, i18n.language)} onClose={onClose}>
       {saved && (
         <section className="rejoin" aria-label={t('team.rejoinTitle')}>
-          <strong>{t('team.rejoinTitle')}</strong>
+          <strong>{saved.solo ? t('team.practiceTitle') : t('team.rejoinTitle')}</strong>
           <p className="muted">
             {t('team.rejoinStatus', {
               solved: Object.keys((live ?? saved.state).solved).length,
               total: ROOMS[roomId]?.puzzles.length ?? 0,
             })}{' '}
-            {live ? t('team.rejoinPlaying', { count: live.members.length }) : t('team.rejoinNobody')}
+            {saved.solo ? '' : live ? t('team.rejoinPlaying', { count: live.members.length }) : t('team.rejoinNobody')}
           </p>
           <div className="modal-actions">
             <button
@@ -172,6 +173,9 @@ export function TeamDialog({ roomId, teams, runs, presence, profile, onRejoin, o
       <div className="modal-actions">
         <button type="button" onClick={onClose}>
           {t('team.close')}
+        </button>
+        <button type="button" title={t('team.practiceHelp')} onClick={onPractise}>
+          {t('team.practice')}
         </button>
         <button
           type="button"

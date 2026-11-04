@@ -23,7 +23,7 @@ function useNow(intervalMs: number): number {
 }
 
 /** Room name, progress, and the team's run timer (frozen once the team escapes, with a way back to the debrief). */
-export function RoomHud({ roomId, run, onDebrief }: { roomId: string; run: RunSync; onDebrief: () => void }) {
+export function RoomHud({ roomId, run, solo = false, onDebrief }: { roomId: string; run: RunSync; solo?: boolean; onDebrief: () => void }) {
   const { t, i18n } = useTranslation();
   const state = useEmitterValue(run.events, 'state', () => run.state);
   const now = useNow(1000);
@@ -34,6 +34,7 @@ export function RoomHud({ roomId, run, onDebrief }: { roomId: string; run: RunSy
   return (
     <section className="overlay room-hud" aria-label={roomTitle(roomId, i18n.language)}>
       <strong>{roomTitle(roomId, i18n.language)}</strong>
+      {solo && <span className="team-group">{t('room.practice')}</span>}
       <span>{t('room.progress', { solved, total })}</span>
       {state.startedAt !== null && (
         <span className={escapedAt !== undefined ? 'room-timer escaped' : 'room-timer'} aria-label={t('room.timer')}>
