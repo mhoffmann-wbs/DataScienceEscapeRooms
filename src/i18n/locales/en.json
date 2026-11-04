@@ -101,5 +101,13 @@
     "empty": "(no output)",
     "close": "Close",
     "reveal": "What you found"
+  },
+  "debrief": {
+    "open": "Debrief",
+    "practised": "Practised:",
+    "solvedAfter": "solved after {{time}}",
+    "notSolved": "not solved",
+    "solution": "Model solution",
+    "hints": "{{count}}/{{total}} hints used"
   }
 }

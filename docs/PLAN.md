@@ -63,7 +63,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Clues and reveals:** ✅ read-only `clue` objects in maps and manifests, and a puzzle `reveal` shown to the team once solved, so room exploration and coding feed into each other.
 - **The Blue Index / hotel mystery (SQL):** ✅ content built, playtest pending. Name the thief who opened room 404's safe: reception list (`WHERE`, dates, `ORDER BY`), door-lock server (time ranges), key-card encoder (`JOIN`), security PC (`GROUP BY`), bar till alibis (`JOIN` + `WHERE`), and an accusation on the manager's phone.
 - Each room: about 30 minutes, 5–6 puzzles ordered easy to hard, a final lock combining earlier results, story text in DE and EN, hints, datasets.
-- **Debrief screen** after escaping: what each puzzle practised, model solutions, time and hints used.
+- **Debrief screen** ✅ after escaping: what each puzzle practised, model solutions, time and hints used per puzzle; reopenable from the room HUD.
 - Playtest each room against the time budget using the author shortcut.
 
 ### 7. Proximity, voice/video and collaboration
@@ -73,6 +73,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Nearby ring:** a faint circle around the local avatar showing who can hear you (for nearby chat and A/V).
 - **Speech bubbles:** nearby chat messages appear briefly above the speaker's head.
 - **Private areas:** zones such as a couch corner or a group of tables, drawn in Tiled as `area` objects. Inside one, "nearby" means everyone in the same area and nobody outside it, whatever the distance. This applies to both nearby chat and A/V. Outside any area, the normal radius applies.
+- **Team notebook:** a shared notes panel in the room, below the team list, where players collect what they find (clue values, digits, suspects, card ids). Anyone can add a note by typing, edit it, drag it to reorder, and cross it off when it's no longer needed; crossed-off notes stay visible but greyed out until deleted. A "pin to notes" button on clue cards and reveals copies their key text in one click. Notes are part of the team's run state and must merge without a leader: each note is keyed by a random id with last-write-wins fields (text, crossed off, deleted) and a sortable position key for the order. They are saved like the run, so a refresh keeps them.
 - **Shared code view:** teammates can watch each other's editors live inside a puzzle, so a team can work through a query or script together, as in pair programming.
 
 ### 8. Progress, scoreboard, instructor mode, solo mode

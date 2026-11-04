@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RunState } from '../net/run';
-import { finalPuzzleId, getClue, loc, ROOMS } from '../rooms';
+import { finalPuzzleId, getClue, loadSolutions, loc, ROOMS } from '../rooms';
+import { debriefRows } from '../rooms/debrief';
 import { Modal } from './Modal';
 import { RichText } from './RichText';
 import { formatDuration } from './RoomHud';
@@ -39,14 +41,51 @@ export function ClueDialog({ roomId, clueId, onClose }: { roomId: string; clueId
   );
 }
 
-/** Shown when the final puzzle is solved. The full debrief comes with plan step 6. */
-export function EscapeDialog({ roomId, state, onLobby, onClose }: { roomId: string; state: RunState; onLobby: () => void; onClose: () => void }) {
-  const { t } = useTranslation();
+/** Shown when the final puzzle is solved: the team's result and, per puzzle, what it practised and a model solution. */
+export function DebriefDialog({ roomId, state, onLobby, onClose }: { roomId: string; state: RunState; onLobby: () => void; onClose: () => void }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const manifest = ROOMS[roomId]!;
+  const rows = debriefRows(manifest, state);
+  const [solutions, setSolutions] = useState<Record<string, string> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void loadSolutions(roomId).then((s) => !cancelled && setSolutions(s));
+    return () => {
+      cancelled = true;
+    };
+  }, [roomId]);
+
   const escapedAt = state.solved[finalPuzzleId(roomId) ?? ''];
   const time = state.startedAt !== null && escapedAt !== undefined ? formatDuration(escapedAt - state.startedAt) : '–';
   return (
-    <Modal title={t('room.escapedTitle')} onClose={onClose}>
+    <Modal title={t('room.escapedTitle')} onClose={onClose} wide>
       <p>{t('room.escapedBody', { time, count: Object.keys(state.hints).length })}</p>
+      <ol className="debrief-list">
+        {rows.map(({ puzzle, solvedAfter, hintsUsed }) => {
+          const solution = solutions?.[puzzle.id];
+          return (
+            <li key={puzzle.id}>
+              <div className="debrief-head">
+                <strong>{loc(puzzle.title, lang)}</strong>
+                <span className="muted">
+                  {solvedAfter === null ? t('debrief.notSolved') : t('debrief.solvedAfter', { time: formatDuration(solvedAfter) })} ·{' '}
+                  {t('debrief.hints', { count: hintsUsed, total: puzzle.hints.length })}
+                </span>
+              </div>
+              <div className="debrief-practised">
+                <span className="muted">{t('debrief.practised')}</span> <RichText text={loc(puzzle.practises, lang)} />
+              </div>
+              {solution !== undefined && (
+                <details>
+                  <summary>{t('debrief.solution')}</summary>
+                  {puzzle.check.type === 'answer' ? <p><code>{solution}</code></p> : <pre className="output">{solution.trimEnd()}</pre>}
+                </details>
+              )}
+            </li>
+          );
+        })}
+      </ol>
       <div className="modal-actions">
         <button type="button" onClick={onClose}>
           {t('room.keepLooking')}

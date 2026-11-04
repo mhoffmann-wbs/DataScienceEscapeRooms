@@ -101,5 +101,13 @@
     "empty": "(keine Ausgabe)",
     "close": "Schließen",
     "reveal": "Was ihr gefunden habt"
+  },
+  "debrief": {
+    "open": "Auswertung",
+    "practised": "Geübt:",
+    "solvedAfter": "gelöst nach {{time}}",
+    "notSolved": "nicht gelöst",
+    "solution": "Musterlösung",
+    "hints": "{{count}}/{{total}} Hinweise genutzt"
   }
 }

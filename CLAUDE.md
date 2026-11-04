@@ -114,6 +114,9 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 - Each puzzle has 1–3 tiered hints in its manifest, from a gentle nudge up to near-solution, revealed in order. A reveal applies to the whole team and is recorded in the run state's `hints` map (`<puzzleId>#<tier>`), which merges the same way `solved` does.
 - Hint usage is part of the result: the scoreboard shows escape time *and* hints used, and the instructor view shows hints per puzzle per team. This shows instructors which puzzles are too hard.
 
+### Debrief
+- Solving the final puzzle opens the debrief (`DebriefDialog` in `src/ui/RoomDialogs.tsx`): escape time, total hints, and per puzzle its `practises`, solve time, hints used and the model solution. A HUD button reopens it. The numbers come from `debriefRows` (`src/rooms/debrief.ts`); solutions load lazily from `solutions.json` only when the debrief opens.
+
 ### Persistence, scoreboard, instructor
 - Progress and identity (nickname, avatar, class code) live in `localStorage`, so a page refresh restores the current run. Every storage key starts with `dser.`; the profile is zod-validated on load (`src/player/profile.ts`), and corrupt data counts as missing.
 - The lobby scoreboard is gossiped P2P and **not cheat-proof**. The UI should not present it as authoritative.
