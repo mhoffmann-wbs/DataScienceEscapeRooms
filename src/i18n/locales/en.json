@@ -38,7 +38,8 @@
   "people": {
     "title": "Online ({{count}})",
     "you": "(you)",
-    "alone": "Nobody else here yet."
+    "alone": "Nobody else here yet.",
+    "inRoom": "in {{room}}"
   },
   "team": {
     "intro": "Form a team of up to {{max}} players. Every team plays its own copy of the room.",
@@ -60,7 +61,10 @@
     "passwordHelp": "Tell your teammates the password, for example out loud or in nearby chat.",
     "passwordTooShort": "Use at least {{min}} characters.",
     "locked": "Password-protected",
-    "wrongPassword": "Wrong password. Ask the team leader."
+    "wrongPassword": "Wrong password. Ask the team leader.",
+    "group": "Group (optional)",
+    "groupPlaceholder": "e.g. DS-Nov-26",
+    "groupHelp": "Your class or cohort, so your instructor can find your team."
   },
   "room": {
     "exit": "Back to the lobby",

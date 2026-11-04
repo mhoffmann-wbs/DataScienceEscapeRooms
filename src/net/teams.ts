@@ -21,6 +21,8 @@ export const teamSchema = z.object({
   startedAt: z.number().finite().nullable(),
   /** Password-protected: joining needs the password the leader set. */
   locked: z.boolean().default(false),
+  /** Optional class or cohort tag, so instructors and the scoreboard can filter. */
+  group: z.string().trim().max(24).nullable().default(null),
 });
 export type Team = z.infer<typeof teamSchema>;
 
@@ -106,11 +108,12 @@ export class Teams {
   }
 
   /** Creates a team; with a password, only players who know it can join. */
-  create(roomId: string, password?: string): void {
+  create(roomId: string, password?: string, group?: string): void {
     this.leave();
     const id = `${this.selfId.slice(0, 12)}-${(this.counter++).toString(36)}-${this.now().toString(36)}`;
     if (password) this.passwords.set(id, password);
-    this.publish({ id, roomId, leader: this.selfId, members: [this.selfId], status: 'forming', startedAt: null, locked: !!password });
+    const tag = group?.trim().slice(0, 24) || null;
+    this.publish({ id, roomId, leader: this.selfId, members: [this.selfId], status: 'forming', startedAt: null, locked: !!password, group: tag });
   }
 
   /** Asks the leader to join. Locked teams need the password; a wrong one fires `rejected`. */

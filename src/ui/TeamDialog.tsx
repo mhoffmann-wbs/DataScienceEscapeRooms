@@ -24,6 +24,7 @@ export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props)
   useEmitterValue(presence.events, 'roster', () => presence.list());
   const waiting = all.filter((team) => team.roomId === roomId);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+  const [group, setGroup] = useState(loadGroup);
   const [newPassword, setNewPassword] = useState('');
   // A locked team we're entering the password for, and whether the leader said it was wrong.
   const [unlocking, setUnlocking] = useState<string | null>(null);
@@ -60,6 +61,7 @@ export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props)
                 <div>
                   <strong>{t('team.teamOf', { name: nameOf(team.leader, presence, profile) })}</strong>{' '}
                   {team.locked && <span title={t('team.locked')} aria-label={t('team.locked')}>🔒 </span>}
+                  {team.group && <span className="team-group">{team.group}</span>}
                   <span className="muted">{t('team.size', { count: team.members.length, max: MAX_TEAM_SIZE })}</span>
                   <div className="muted">{team.members.map((m) => nameOf(m, presence, profile)).join(', ')}</div>
                 </div>
@@ -114,6 +116,11 @@ export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props)
           <input type="radio" name="visibility" checked={visibility === 'private'} onChange={() => setVisibility('private')} />
           {t('team.private')}
         </label>
+        <label className="team-new-password">
+          <span>{t('team.group')}</span>
+          <input type="text" value={group} maxLength={24} placeholder={t('team.groupPlaceholder')} onChange={(e) => setGroup(e.target.value)} />
+          <small className="muted">{t('team.groupHelp')}</small>
+        </label>
         {visibility === 'private' && (
           <label className="team-new-password">
             <span>{t('team.password')}</span>
@@ -133,7 +140,8 @@ export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props)
           className="primary"
           disabled={tooShort}
           onClick={() => {
-            teams.create(roomId, visibility === 'private' ? newPassword : undefined);
+            saveGroup(group);
+            teams.create(roomId, visibility === 'private' ? newPassword : undefined, group);
             onClose();
           }}
         >
@@ -142,4 +150,23 @@ export function TeamDialog({ roomId, teams, presence, profile, onClose }: Props)
       </div>
     </Modal>
   );
+}
+
+const GROUP_KEY = 'dser.group';
+
+/** The last group tag used, as a convenience for the next team. */
+function loadGroup(): string {
+  try {
+    return localStorage.getItem(GROUP_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function saveGroup(group: string): void {
+  try {
+    localStorage.setItem(GROUP_KEY, group.trim());
+  } catch {
+    // a convenience only
+  }
 }

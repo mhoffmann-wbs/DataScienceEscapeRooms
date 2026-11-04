@@ -26,13 +26,11 @@ export class RemoteAvatars {
       presence.events.on('peer:join', (p) => this.add(p)),
       presence.events.on('peer:update', (p) => {
         const remote = this.remotes.get(p.id);
-        if (remote) remote.peer = p;
+        if (p.away) this.remove(p.id);
+        else if (remote) remote.peer = p;
         else this.add(p);
       }),
-      presence.events.on('peer:leave', (p) => {
-        this.remotes.get(p.id)?.avatar.destroy();
-        this.remotes.delete(p.id);
-      }),
+      presence.events.on('peer:leave', (p) => this.remove(p.id)),
     ];
   }
 
@@ -61,8 +59,14 @@ export class RemoteAvatars {
     this.remotes.clear();
   }
 
+  private remove(peerId: string): void {
+    this.remotes.get(peerId)?.avatar.destroy();
+    this.remotes.delete(peerId);
+  }
+
+  /** Players away in a room stay connected but aren't drawn on the map. */
   private add(peer: PeerInfo): void {
-    if (this.remotes.has(peer.id)) return;
+    if (this.remotes.has(peer.id) || peer.away) return;
     this.remotes.set(peer.id, { avatar: new Avatar(this.scene, peer.x, peer.y, peer.avatar, peer.nickname), peer });
   }
 }

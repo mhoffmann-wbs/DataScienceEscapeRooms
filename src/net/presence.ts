@@ -7,6 +7,8 @@ export interface PeerInfo extends Pos {
   id: string;
   nickname: string;
   avatar: number;
+  /** The roomId they are playing in, if not on this map (lobby only). */
+  away: string | null;
 }
 
 interface PresenceEvents {
@@ -28,6 +30,7 @@ export class Presence {
   readonly events = new Emitter<PresenceEvents>();
   private readonly peers = new Map<string, PeerInfo>();
   private self: Pos | null = null;
+  private away: string | null = null;
   private lastSent: Pos | null = null;
   private lastSentAt = -Infinity;
   private roster: readonly PeerInfo[] = [];
@@ -51,11 +54,16 @@ export class Presence {
       this.hello.subscribe((data, from) => {
         const parsed = helloSchema.safeParse(data);
         if (!parsed.success) return;
-        const isNew = !this.peers.has(from);
+        const previous = this.peers.get(from);
+        const isNew = !previous;
         const info: PeerInfo = { id: from, ...parsed.data };
         this.peers.set(from, info);
         this.events.emit(isNew ? 'peer:join' : 'peer:update', info);
-        if (!isNew) return;
+        if (!isNew) {
+          // Walking into or out of a room changes the roster's "where".
+          if (previous.away !== info.away) this.publishRoster();
+          return;
+        }
         this.publishRoster();
         // Answer a peer's first hello in case ours got lost (e.g. it wasn't listening yet).
         // Bounded: each side treats a peer as new only once.
@@ -93,6 +101,18 @@ export class Presence {
     this.markSent(state, now);
   }
 
+  /**
+   * Marks us as playing in a room (or back on this map with null). Away players stay connected
+   * but are hidden from the map and from "nearby".
+   */
+  setAway(roomId: string | null): void {
+    if (this.away === roomId) return;
+    this.away = roomId;
+    // Someone who loaded straight into a room never had a position here; any will do while away.
+    this.self ??= { x: 0, y: 0, dir: 'down', moving: false };
+    this.hello.send(this.helloPayload(this.self));
+  }
+
   get(id: string): PeerInfo | undefined {
     return this.peers.get(id);
   }
@@ -105,8 +125,8 @@ export class Presence {
   /** Peers near our own position. Peers in `wasNear` get the wider leave radius (hysteresis). */
   nearby(proximity: Proximity, wasNear: ReadonlySet<string> = new Set()): string[] {
     const self = this.self;
-    if (!self) return [];
-    return [...this.peers.values()].filter((p) => proximity.near(self, p, wasNear.has(p.id))).map((p) => p.id);
+    if (!self || this.away) return [];
+    return [...this.peers.values()].filter((p) => !p.away && proximity.near(self, p, wasNear.has(p.id))).map((p) => p.id);
   }
 
   destroy(): void {
@@ -115,7 +135,7 @@ export class Presence {
   }
 
   private helloPayload(pos: Pos): Hello {
-    return { ...pos, nickname: this.me.nickname, avatar: this.me.avatar };
+    return { ...pos, nickname: this.me.nickname, avatar: this.me.avatar, away: this.away };
   }
 
   private markSent(state: Pos, now: number): void {

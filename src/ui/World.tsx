@@ -5,9 +5,11 @@ import { bus, type Interactable } from '../game/events';
 import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { createMemoryTransport, MemoryHub } from '../net/memoryTransport';
+import type { RunState } from '../net/run';
+import type { RunSummary } from '../net/runs';
 import { LobbySession, RoomSession } from '../net/session';
 import type { StartedTeam } from '../net/teams';
-import { createTrysteroTransport } from '../net/trysteroTransport';
+import type { Transport } from '../net/transport';
 import type { Profile } from '../player/profile';
 import { saveRun, type SavedRun } from '../player/run';
 import { finalPuzzleId, getPuzzle } from '../rooms';
@@ -23,6 +25,7 @@ import { PuzzleDialog } from './PuzzleDialog';
 import { RoomHud } from './RoomHud';
 import { TeamBar } from './TeamBar';
 import { TeamDialog } from './TeamDialog';
+import { nameOf } from './names';
 import { useEmitterValue } from './useStore';
 
 export type Place =
@@ -37,24 +40,32 @@ export type Place =
 interface Props {
   profile: Profile;
   place: Place;
-  onEnterRoom: (started: StartedTeam) => void;
+  /** The shared lobby connection (App owns it); null when offline (author mode). */
+  lobby: LobbySession | null;
+  transport: Transport;
+  onEnterRoom: (started: StartedTeam, leader: string) => void;
   onLeaveRoom: () => void;
 }
 
-/** One place in the world: owns its network session and Phaser game for as long as it is shown. */
-export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
+/** One place in the world: its Phaser game, and for rooms the room's network session. */
+export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const offline = place.kind === 'room' && !!place.author;
-  const transport = useMemo(
-    () => (offline ? createMemoryTransport(new MemoryHub(), 'author') : createTrysteroTransport()),
-    [offline],
-  );
+  const roomTransport = useMemo(() => (offline ? createMemoryTransport(new MemoryHub(), 'author') : transport), [offline, transport]);
   const [session, setSession] = useState<LobbySession | RoomSession | null>(null);
 
   useEffect(() => {
     const mapKey = place.kind === 'lobby' ? LOBBY : place.run.roomId;
-    const { areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
-    const s = place.kind === 'lobby' ? new LobbySession(transport, profile, areas) : new RoomSession(transport, profile, place.run, areas);
+    let s: LobbySession | RoomSession;
+    if (place.kind === 'lobby') {
+      if (!lobby) return;
+      s = lobby;
+    } else {
+      const { areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
+      s = new RoomSession(roomTransport, profile, place.run, areas);
+    }
+    // In the lobby we're on the map; in a room we stay connected to the lobby but away.
+    lobby?.presence.setAway(place.kind === 'room' ? place.run.roomId : null);
     const offs: (() => void)[] = [];
     if (s instanceof RoomSession && place.kind === 'room' && !place.author) {
       const save = () => saveRun({ ...place.run, state: s.run.state, notes: s.notebook.state });
@@ -66,18 +77,19 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
     setSession(s);
     // Typing starts on the canvas, not on whatever button was last clicked.
     (document.activeElement as HTMLElement | null)?.blur();
-    // Closing connections explicitly lets peers see us leave at once instead of
-    // after WebRTC's ~10 s disconnect timeout.
-    const onPageHide = () => s.leave();
+    // The room session is ours to close (App closes the lobby). Closing explicitly lets peers
+    // see us leave at once instead of after WebRTC's ~10 s disconnect timeout.
+    const own = s !== lobby;
+    const onPageHide = () => own && s.leave();
     window.addEventListener('pagehide', onPageHide);
     return () => {
       window.removeEventListener('pagehide', onPageHide);
       offs.forEach((off) => off());
       game.destroy(true);
-      s.leave();
+      if (own) s.leave();
       setSession(null);
     };
-  }, [transport, profile, place]);
+  }, [roomTransport, lobby, profile, place]);
 
   return (
     <>
@@ -85,16 +97,19 @@ export function World({ profile, place, onEnterRoom, onLeaveRoom }: Props) {
       <div ref={containerRef} className="game" onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
       {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} onEnterRoom={onEnterRoom} />}
       {session instanceof RoomSession && place.kind === 'room' && (
-        <RoomOverlays session={session} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
+        <RoomOverlays session={session} lobby={lobby} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
       )}
     </>
   );
 }
 
-function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySession; profile: Profile; onEnterRoom: (started: StartedTeam) => void }) {
+function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySession; profile: Profile; onEnterRoom: (started: StartedTeam, leader: string) => void }) {
   const { t } = useTranslation();
   const [dialogRoom, setDialogRoom] = useState<string | null>(null);
-  useEffect(() => session.teams.events.on('started', onEnterRoom), [session, onEnterRoom]);
+  useEffect(
+    () => session.teams.events.on('started', (started) => onEnterRoom(started, nameOf(started.team.leader, session.presence, profile))),
+    [session, onEnterRoom, profile],
+  );
   const use = useCallback((target: Interactable) => target.kind === 'door' && setDialogRoom(target.doorTo), []);
   const leave = useCallback(() => setDialogRoom(null), []);
 
@@ -115,12 +130,14 @@ type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId:
 
 interface RoomOverlaysProps {
   session: RoomSession;
+  /** Where the run's summary is published (null offline). */
+  lobby: LobbySession | null;
   profile: Profile;
   author?: { puzzleId?: string };
   onLeaveRoom: () => void;
 }
 
-function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysProps) {
+function RoomOverlays({ session, lobby, profile, author, onLeaveRoom }: RoomOverlaysProps) {
   const { t } = useTranslation();
   const { roomId } = session.info;
   const { run } = session;
@@ -129,6 +146,14 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
     if (author?.puzzleId) return { kind: 'puzzle', puzzleId: author.puzzleId };
     return author || Object.keys(run.state.solved).length > 0 ? null : { kind: 'intro' };
   });
+
+  // Tell the lobby how the run is going (scoreboard, instructors), and stop when we leave.
+  const roster = useEmitterValue(session.presence.events, 'roster', () => session.presence.list());
+  useEffect(() => {
+    if (!lobby) return;
+    lobby.runs.publish(summarize(session, state, [profile.nickname, ...roster.map((p) => p.nickname)], profile.nickname));
+  }, [lobby, session, state, roster, profile.nickname]);
+  useEffect(() => () => lobby?.runs.withdraw(), [lobby]);
 
   // Keep the map's ✓ markers in sync, including after the scene (re)starts.
   useEffect(() => {
@@ -177,4 +202,28 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
       {!author && <AvDock media={session.media} presence={session.presence} scope="team" />}
     </>
   );
+}
+
+/** The lobby-facing summary of this team's run. */
+function summarize(session: RoomSession, state: RunState, members: string[], self: string): RunSummary {
+  const { roomId, teamId, leader, group } = session.info;
+  const hints: Record<string, number> = {};
+  for (const key of Object.keys(state.hints)) {
+    const puzzleId = key.split('#')[0]!;
+    hints[puzzleId] = (hints[puzzleId] ?? 0) + 1;
+  }
+  return {
+    teamId,
+    roomId,
+    leader: leader ?? self,
+    group: group ?? null,
+    members,
+    epoch: 0,
+    startedAt: state.startedAt,
+    solved: state.solved,
+    hints,
+    attempts: {},
+    escapedAt: state.solved[finalPuzzleId(roomId) ?? ''] ?? null,
+    at: Date.now(),
+  };
 }

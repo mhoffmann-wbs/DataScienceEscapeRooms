@@ -101,6 +101,21 @@ describe('chat', () => {
     expect(texts(outside)).toEqual([]);
   });
 
+  it('hides players who are away in a room from the map and from nearby chat', () => {
+    const hub = new MemoryHub();
+    const ada = player(hub, 'ada', 0, 0);
+    const bob = player(hub, 'bob', 10, 0);
+    const rosterEvents: string[] = [];
+    ada.presence.events.on('roster', (r) => rosterEvents.push(r.map((p) => `${p.nickname}:${p.away}`).join()));
+    bob.presence.setAway('python-lab');
+    expect(ada.presence.get('bob')?.away).toBe('python-lab');
+    expect(rosterEvents.at(-1)).toBe('bob:python-lab');
+    expect(ada.presence.nearby(ada.proximity)).toEqual([]);
+    expect(bob.presence.nearby(bob.proximity)).toEqual([]);
+    bob.presence.setAway(null);
+    expect(ada.presence.nearby(ada.proximity)).toEqual(['bob']);
+  });
+
   it('tells the sender when nobody is nearby, and rejects empty or oversized text', () => {
     const hub = new MemoryHub();
     const ada = player(hub, 'ada');

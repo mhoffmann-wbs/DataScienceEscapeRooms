@@ -6,6 +6,7 @@ import { Notebook, type Notes } from './notebook';
 import { Presence } from './presence';
 import { Proximity, type Area } from './proximity';
 import { RunSync, type RunState } from './run';
+import { Runs } from './runs';
 import { roomScope, Teams } from './teams';
 import type { NetRoom, Transport } from './transport';
 
@@ -45,16 +46,20 @@ export class Session {
   protected dispose(): void {}
 }
 
+/** The shared lobby. Players stay connected to it while in a room (presence marks them away). */
 export class LobbySession extends Session {
   readonly kind = 'lobby';
   readonly teams: Teams;
+  readonly runs: Runs;
 
   constructor(transport: Transport, profile: Profile, areas: readonly Area[] = []) {
     super(transport, 'lobby', profile, areas);
     this.teams = new Teams(this.room);
+    this.runs = new Runs(this.room);
   }
 
   protected override dispose(): void {
+    this.runs.destroy();
     this.teams.destroy();
   }
 }
@@ -67,6 +72,9 @@ export interface RunInfo {
   notes?: Notes;
   /** Set for password-protected teams: the room's connection is encrypted with it. */
   password?: string;
+  /** The leader's nickname, for "<leader>'s team" on the scoreboard and for instructors. */
+  leader?: string;
+  group?: string | null;
 }
 
 export class RoomSession extends Session {

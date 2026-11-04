@@ -15,6 +15,8 @@ export type Pos = z.infer<typeof posSchema>;
 export const helloSchema = posSchema.extend({
   nickname: z.string().trim().min(1).max(20),
   avatar: z.number().int().min(0).max(AVATAR_COUNT - 1),
+  /** In the lobby: the roomId a player is currently playing in (not on the lobby map), or null. */
+  away: z.string().max(64).nullable().default(null),
 });
 export type Hello = z.infer<typeof helloSchema>;
 

@@ -44,6 +44,16 @@ describe('teams', () => {
     expect(bob.startedWith[0]!.password).toBe('blue-index');
   });
 
+  it('carries an optional group tag', () => {
+    const hub = new MemoryHub();
+    const ada = lobby(hub, 'ada');
+    const bob = lobby(hub, 'bob');
+    ada.teams.create('python-lab', undefined, '  DS-Nov-26 ');
+    expect(bob.teams.list()[0]!.group).toBe('DS-Nov-26');
+    ada.teams.create('python-lab');
+    expect(bob.teams.list()[0]!.group).toBeNull();
+  });
+
   it('public teams need no password and start without one', () => {
     const hub = new MemoryHub();
     const ada = lobby(hub, 'ada');

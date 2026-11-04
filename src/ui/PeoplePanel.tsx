@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Presence } from '../net/presence';
 import type { Profile } from '../player/profile';
+import { roomTitle } from '../rooms';
 import { AvatarPreview } from './AvatarPreview';
 import { useEmitterValue } from './useStore';
 
@@ -15,7 +16,7 @@ interface Props {
 }
 
 export function PeoplePanel({ presence, self, heading, aloneText }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const peers = useEmitterValue(presence.events, 'roster', () => presence.list());
   const [open, setOpen] = useState(true);
 
@@ -34,6 +35,7 @@ export function PeoplePanel({ presence, self, heading, aloneText }: Props) {
             <li key={p.id}>
               <AvatarPreview avatar={p.avatar} scale={1} />
               {p.nickname}
+              {p.away && <span className="muted"> · {t('people.inRoom', { room: roomTitle(p.away, i18n.language) })}</span>}
             </li>
           ))}
           {peers.length === 0 && <li className="muted">{aloneText}</li>}
