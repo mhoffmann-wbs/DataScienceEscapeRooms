@@ -64,7 +64,7 @@ export function DebriefDialog({ roomId, state, onLobby, onClose }: { roomId: str
     <Modal title={t('room.escapedTitle')} onClose={onClose} wide>
       <p>{t('room.escapedBody', { time, count: Object.keys(state.hints).length })}</p>
       <ol className="debrief-list">
-        {rows.map(({ puzzle, solvedAfter, hintsUsed }) => {
+        {rows.map(({ puzzle, solvedAfter, hintsUsed, wrongAttempts }) => {
           const solution = solutions?.[puzzle.id];
           return (
             <li key={puzzle.id}>
@@ -72,7 +72,7 @@ export function DebriefDialog({ roomId, state, onLobby, onClose }: { roomId: str
                 <strong>{loc(puzzle.title, lang)}</strong>
                 <span className="muted">
                   {solvedAfter === null ? t('debrief.notSolved') : t('debrief.solvedAfter', { time: formatDuration(solvedAfter) })} ·{' '}
-                  {t('debrief.hints', { count: hintsUsed, total: puzzle.hints.length })}
+                  {t('debrief.hints', { count: hintsUsed, total: puzzle.hints.length })} · {t('debrief.wrong', { count: wrongAttempts })}
                 </span>
               </div>
               <div className="debrief-practised">

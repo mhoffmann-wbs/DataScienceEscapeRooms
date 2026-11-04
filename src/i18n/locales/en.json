@@ -129,7 +129,9 @@
     "solvedAfter": "solved after {{time}}",
     "notSolved": "not solved",
     "solution": "Model solution",
-    "hints": "{{count}}/{{total}} hints used"
+    "hints": "{{count}}/{{total}} hints used",
+    "wrong_one": "{{count}} wrong attempt",
+    "wrong_other": "{{count}} wrong attempts"
   },
   "av": {
     "title": "Voice and video",

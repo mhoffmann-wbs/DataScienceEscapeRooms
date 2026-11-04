@@ -123,7 +123,10 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
     if ((await hashAnswer(salt, puzzle.id, canonical)) === puzzle.check.hash) {
       run.markSolved(puzzle.id);
       setWrong(false);
-    } else setWrong(true);
+    } else {
+      setWrong(true);
+      run.recordAttempt(puzzle.id);
+    }
   };
 
   const execute = async (check: boolean) => {
@@ -140,7 +143,10 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
         const res = await runners.sql(setup, code);
         setOutput(res.ok ? { kind: 'table', table: res.result } : { kind: 'error', error: res.error });
         if (check && res.ok && res.result && puzzle.check.type === 'sql') await accept(canonicalRows(res.result.rows, puzzle.check.ordered));
-        else if (check && res.ok) setWrong(true);
+        else if (check && res.ok) {
+          setWrong(true);
+          run.recordAttempt(puzzle.id);
+        }
       }
     } catch (e) {
       setOutput({ kind: 'error', error: e instanceof RunTimeout ? t('puzzle.timeout', { s: RUN_TIMEOUT_MS / 1000 }) : String(e) });

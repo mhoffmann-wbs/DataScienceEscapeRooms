@@ -5,7 +5,7 @@ import { bus, type Interactable } from '../game/events';
 import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { createMemoryTransport, MemoryHub } from '../net/memoryTransport';
-import type { RunState } from '../net/run';
+import { attemptsPerPuzzle, type RunState } from '../net/run';
 import type { RunSummary } from '../net/runs';
 import { LobbySession, RoomSession } from '../net/session';
 import type { StartedTeam } from '../net/teams';
@@ -230,11 +230,11 @@ function summarize(session: RoomSession, state: RunState, members: string[], sel
     leader: leader ?? self,
     group: group ?? null,
     members,
-    epoch: 0,
+    epoch: state.epoch,
     startedAt: state.startedAt,
     solved: state.solved,
     hints,
-    attempts: {},
+    attempts: attemptsPerPuzzle(state),
     escapedAt: state.solved[finalPuzzleId(roomId) ?? ''] ?? null,
     at: Date.now(),
   };

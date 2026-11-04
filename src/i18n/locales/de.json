@@ -129,7 +129,9 @@
     "solvedAfter": "gelöst nach {{time}}",
     "notSolved": "nicht gelöst",
     "solution": "Musterlösung",
-    "hints": "{{count}}/{{total}} Hinweise genutzt"
+    "hints": "{{count}}/{{total}} Hinweise genutzt",
+    "wrong_one": "{{count}} Fehlversuch",
+    "wrong_other": "{{count}} Fehlversuche"
   },
   "av": {
     "title": "Sprache und Video",
