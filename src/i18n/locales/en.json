@@ -186,5 +186,20 @@
   "chart": {
     "lag": "Lag",
     "data": "Show data"
+  },
+  "scores": {
+    "title": "Scoreboard",
+    "group": "Group",
+    "allGroups": "All groups",
+    "period": "Period",
+    "today": "Today",
+    "week": "Last 7 days",
+    "all": "All",
+    "team": "Team",
+    "time": "Time",
+    "hints": "Hints",
+    "when": "Escaped",
+    "empty": "No escapes yet for this selection.",
+    "notCheatProof": "Results are shared between players' browsers, without a server, so they can't be verified. Take the ranking as a bit of fun, not as grades."
   }
 }

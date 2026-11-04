@@ -186,5 +186,20 @@
   "chart": {
     "lag": "Lag",
     "data": "Daten anzeigen"
+  },
+  "scores": {
+    "title": "Bestenliste",
+    "group": "Gruppe",
+    "allGroups": "Alle Gruppen",
+    "period": "Zeitraum",
+    "today": "Heute",
+    "week": "Letzte 7 Tage",
+    "all": "Alle",
+    "team": "Team",
+    "time": "Zeit",
+    "hints": "Hinweise",
+    "when": "Entkommen",
+    "empty": "Für diese Auswahl gibt es noch keine Fluchten.",
+    "notCheatProof": "Die Ergebnisse werden ohne Server zwischen den Browsern der Spielenden geteilt und lassen sich deshalb nicht überprüfen. Nehmt die Rangliste als Spaß, nicht als Note."
   }
 }

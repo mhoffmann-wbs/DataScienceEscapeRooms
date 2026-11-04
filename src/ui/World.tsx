@@ -23,6 +23,7 @@ import { NotesPanel } from './NotesPanel';
 import { PeoplePanel } from './PeoplePanel';
 import { PuzzleDialog } from './PuzzleDialog';
 import { RoomHud } from './RoomHud';
+import { ScoreboardDialog } from './ScoreboardDialog';
 import { TeamBar } from './TeamBar';
 import { TeamDialog } from './TeamDialog';
 import { nameOf } from './names';
@@ -116,6 +117,7 @@ interface LobbyOverlaysProps {
 function LobbyOverlays({ session, profile, onEnterRoom, onRejoin }: LobbyOverlaysProps) {
   const { t } = useTranslation();
   const [dialogRoom, setDialogRoom] = useState<string | null>(null);
+  const [scoreboard, setScoreboard] = useState(false);
   useEffect(
     () => session.teams.events.on('started', (started) => onEnterRoom(started, nameOf(started.team.leader, session.presence, profile))),
     [session, onEnterRoom, profile],
@@ -126,6 +128,12 @@ function LobbyOverlays({ session, profile, onEnterRoom, onRejoin }: LobbyOverlay
   return (
     <>
       <InteractPrompt onUse={use} onLeave={leave} />
+      <div className="overlay lobby-actions">
+        <button type="button" onClick={() => setScoreboard(true)}>
+          🏆 {t('scores.title')}
+        </button>
+      </div>
+      {scoreboard && <ScoreboardDialog scores={session.scores} onClose={() => setScoreboard(false)} />}
       <TeamBar teams={session.teams} presence={session.presence} profile={profile} />
       {dialogRoom && (
         <TeamDialog roomId={dialogRoom} teams={session.teams} runs={session.runs} presence={session.presence} profile={profile} onRejoin={onRejoin} onClose={leave} />

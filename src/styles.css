@@ -998,3 +998,55 @@ code {
 .rejoin p {
   margin: 4px 0;
 }
+
+/* Lobby: scoreboard (and later instructor) buttons, below the top bar */
+.lobby-actions {
+  top: 68px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+}
+
+.score-tabs,
+.score-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.score-tabs button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.score-filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.score-table th,
+.score-table td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+
+.score-table td:nth-child(4),
+.score-table td:nth-child(5) {
+  font-variant-numeric: tabular-nums;
+}
+
+.small-print {
+  font-size: 12px;
+}

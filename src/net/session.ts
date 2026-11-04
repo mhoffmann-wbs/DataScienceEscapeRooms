@@ -7,6 +7,7 @@ import { Presence } from './presence';
 import { Proximity, type Area } from './proximity';
 import { RunSync, type RunState } from './run';
 import { Runs } from './runs';
+import { Scores } from './scores';
 import { roomScope, Teams } from './teams';
 import type { NetRoom, Transport } from './transport';
 
@@ -51,14 +52,17 @@ export class LobbySession extends Session {
   readonly kind = 'lobby';
   readonly teams: Teams;
   readonly runs: Runs;
+  readonly scores: Scores;
 
   constructor(transport: Transport, profile: Profile, areas: readonly Area[] = []) {
     super(transport, 'lobby', profile, areas);
     this.teams = new Teams(this.room);
     this.runs = new Runs(this.room);
+    this.scores = new Scores(this.room, this.runs);
   }
 
   protected override dispose(): void {
+    this.scores.destroy();
     this.runs.destroy();
     this.teams.destroy();
   }

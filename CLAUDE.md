@@ -138,7 +138,7 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 
 ### Persistence, scoreboard, instructor
 - Progress and identity (nickname, avatar) live in `localStorage`, so a page refresh restores the current run. Every storage key starts with `dser.`; the profile is zod-validated on load (`src/player/profile.ts`), and corrupt data counts as missing.
-- The lobby scoreboard is gossiped P2P and **not cheat-proof**. The UI should not present it as authoritative.
+- The lobby scoreboard (`Scores`, `src/net/scores.ts`; `ScoreboardDialog`) turns finished runs from the live summaries into results, keeps them in `localStorage` (`dser.scores`, newest 300, 60 days) and hands them to every newcomer, so it fills up across visits. Results merge per team and epoch (earliest escape wins); implausible times are dropped. It is **not cheat-proof**, and the dialog says so.
 - Instructor mode is unlocked with an instructor PIN. It can see teams and their progress, reset a team's room, and broadcast announcements. In a P2P setup this is trust-based, not real security, so state that wherever it matters.
 
 ### i18n
