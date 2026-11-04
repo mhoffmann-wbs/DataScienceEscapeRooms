@@ -12,6 +12,7 @@ import type { Profile } from '../player/profile';
 import { saveRun, type SavedRun } from '../player/run';
 import { finalPuzzleId, getPuzzle } from '../rooms';
 import { AvDock } from './AvDock';
+import { ChatBubbles } from './ChatBubbles';
 import { ChatPanel } from './ChatPanel';
 import { ClueDialog, DebriefDialog, IntroDialog } from './RoomDialogs';
 import { InteractPrompt } from './InteractPrompt';
@@ -100,6 +101,7 @@ function LobbyOverlays({ session, profile, onEnterRoom }: { session: LobbySessio
       <TeamBar teams={session.teams} presence={session.presence} profile={profile} />
       {dialogRoom && <TeamDialog roomId={dialogRoom} teams={session.teams} presence={session.presence} profile={profile} onClose={leave} />}
       <ChatPanel chat={session.chat} />
+      <ChatBubbles chat={session.chat} />
       <PeoplePanel presence={session.presence} self={profile} heading={(n) => `${t('people.title', { count: n })} · ${profile.classCode}`} aloneText={t('people.alone')} />
       <AvDock media={session.media} presence={session.presence} scope="proximity" />
     </>
@@ -163,6 +165,7 @@ function RoomOverlays({ session, profile, author, onLeaveRoom }: RoomOverlaysPro
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={onLeaveRoom} onClose={close} />}
       <ChatPanel chat={session.chat} />
+      <ChatBubbles chat={session.chat} />
       <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('room.team', { count: n })} aloneText={t('room.alone')} />
       {!author && <AvDock media={session.media} presence={session.presence} scope="team" />}
     </>

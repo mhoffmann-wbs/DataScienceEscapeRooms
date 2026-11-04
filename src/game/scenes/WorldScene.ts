@@ -115,8 +115,10 @@ export class WorldScene extends Phaser.Scene {
 
     this.remotes = new RemoteAvatars(this, this.presence);
     const offSolved = bus.on('puzzles:solved', ({ ids }) => this.markSolved(ids));
+    const offBubble = bus.on('chat:bubble', ({ peerId, self, text }) => (self ? this.player : this.remotes.get(peerId))?.say(text));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       offSolved();
+      offBubble();
       this.remotes.destroy();
       bus.emit('interact:changed', { target: null });
     });

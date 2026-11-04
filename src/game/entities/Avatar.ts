@@ -1,14 +1,21 @@
 import Phaser from 'phaser';
 import { frameIndex, walkAnimKey, type Direction } from '../avatars';
 
-/** A character sprite with a name label. Used for the local player and, later, remote peers. */
+/** How long a speech bubble stays, plus a little per character so longer messages can be read. */
+const BUBBLE_MS = 4000;
+const BUBBLE_MS_PER_CHAR = 40;
+const BUBBLE_MAX_CHARS = 80;
+
+/** A character sprite with a name label and an optional speech bubble. Used for the local player and remote peers. */
 export class Avatar {
   readonly sprite: Phaser.GameObjects.Sprite;
   private readonly label: Phaser.GameObjects.Text;
+  private bubble: Phaser.GameObjects.Text | null = null;
+  private bubbleTimer: Phaser.Time.TimerEvent | null = null;
   private facing: Direction = 'down';
 
   constructor(
-    scene: Phaser.Scene,
+    private readonly scene: Phaser.Scene,
     x: number,
     y: number,
     private readonly avatar: number,
@@ -32,13 +39,42 @@ export class Avatar {
     }
   }
 
+  /** Shows `text` above the head for a few seconds, replacing any current bubble. */
+  say(text: string): void {
+    this.clearBubble();
+    const shown = text.length > BUBBLE_MAX_CHARS ? `${text.slice(0, BUBBLE_MAX_CHARS - 1)}…` : text;
+    this.bubble = this.scene.add
+      .text(0, 0, shown, {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '11px',
+        color: '#111827',
+        backgroundColor: '#f8fafc',
+        padding: { x: 5, y: 3 },
+        wordWrap: { width: 140 },
+        align: 'center',
+      })
+      .setOrigin(0.5, 1)
+      .setResolution(2);
+    this.bubbleTimer = this.scene.time.delayedCall(BUBBLE_MS + shown.length * BUBBLE_MS_PER_CHAR, () => this.clearBubble());
+    this.syncLabel();
+  }
+
   syncLabel(): void {
     this.sprite.setDepth(this.sprite.y);
     this.label.setPosition(this.sprite.x, this.sprite.y - 16).setDepth(this.sprite.y + 10000);
+    this.bubble?.setPosition(this.sprite.x, this.label.y - this.label.height - 3).setDepth(this.sprite.y + 15000);
   }
 
   destroy(): void {
+    this.clearBubble();
     this.sprite.destroy();
     this.label.destroy();
+  }
+
+  private clearBubble(): void {
+    this.bubbleTimer?.remove();
+    this.bubbleTimer = null;
+    this.bubble?.destroy();
+    this.bubble = null;
   }
 }

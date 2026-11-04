@@ -14,6 +14,8 @@ export interface GameEvents {
   'interact:use': { target: Interactable };
   /** React -> scene: puzzles to mark as solved on the map. */
   'puzzles:solved': { ids: readonly string[] };
+  /** React -> scene: a nearby chat message to show as a speech bubble (`self` for our own). */
+  'chat:bubble': { peerId: string; self: boolean; text: string };
 }
 
 export const bus = new Emitter<GameEvents>();

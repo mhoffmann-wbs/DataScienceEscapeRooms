@@ -92,6 +92,7 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 - The game and React share one `Session`. The scene reads it from the Phaser registry (`src/game/registry.ts`); components subscribe with `useEmitterValue` (`src/ui/useStore.ts`). Presence's `roster` event fires only on join/leave, so React doesn't re-render at position-update rate.
 - Each avatar sprite sheet row is one avatar; its columns are 4 directions × 2 walk frames. `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
 - The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `WorldScene`), so the overlays never hide parts of the map.
+- Nearby chat messages also appear as speech bubbles: `ChatBubbles` forwards new ones as `chat:bubble` on the bus, and `Avatar.say` shows them for a few seconds.
 - `Avatar` (`src/game/entities/`) is the sprite plus name label. The local player adds an arcade body sized to the feet; remote players will reuse the class without physics.
 - Team flow: when a player steps on a lobby door, a dialog lets them create or join a team waiting at that door. Entering then switches the player to that team's room instance.
 - Enter does not open the chat while a modal (`aria-modal`) is open or a code editor has focus.

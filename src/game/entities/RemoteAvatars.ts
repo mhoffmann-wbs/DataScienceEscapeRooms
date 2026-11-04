@@ -50,6 +50,11 @@ export class RemoteAvatars {
     }
   }
 
+  /** The avatar of a peer, if it is on the map. */
+  get(peerId: string): Avatar | undefined {
+    return this.remotes.get(peerId)?.avatar;
+  }
+
   destroy(): void {
     this.offs.forEach((off) => off());
     this.remotes.forEach((r) => r.avatar.destroy());
