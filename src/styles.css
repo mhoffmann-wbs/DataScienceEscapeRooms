@@ -822,6 +822,55 @@ code {
   border: 0;
 }
 
+.notes-tools {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.notes-tools button {
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+.notes-tools button:only-child[aria-expanded] {
+  margin-left: auto;
+}
+
+.note-confirm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.note-confirm button {
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+.notes-trash {
+  border-top: 1px solid #3d465e;
+  padding-top: 4px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-trash h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a9b1c4;
+}
+
+.notes-trash .note-text {
+  cursor: default;
+  opacity: 0.7;
+}
+
 .notes-add {
   display: flex;
   gap: 4px;

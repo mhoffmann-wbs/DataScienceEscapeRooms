@@ -14,7 +14,10 @@ const register = <T extends z.ZodType>(value: T) => z.object({ v: value, t: z.nu
 const noteSchema = z.object({
   text: register(z.string().max(NOTE_MAX_LENGTH)),
   crossed: register(z.boolean()),
-  /** Deleted notes stay as tombstones, so a delete can't be undone by an older copy. */
+  /**
+   * Deleted notes stay as tombstones, so a delete can't be undone by an older copy. They keep
+   * their text and sit in the trash until restored, or deleted for good by blanking the text.
+   */
   deleted: register(z.boolean()),
   /** Sort key; moving a note picks a value between its new neighbours. */
   pos: register(z.number().finite()),
@@ -62,11 +65,21 @@ export function sameNotes(a: Notes, b: Notes): boolean {
   });
 }
 
+// Notes with a blank text are gone for good: even a concurrent restore can't bring them back.
+
 /** Live notes in display order. */
 export function viewNotes(notes: Notes): NoteView[] {
   return Object.entries(notes)
-    .filter(([, n]) => !n.deleted.v)
+    .filter(([, n]) => !n.deleted.v && n.text.v)
     .sort(([ia, a], [ib, b]) => a.pos.v - b.pos.v || (ia < ib ? -1 : 1))
+    .map(([id, n]) => ({ id, text: n.text.v, crossed: n.crossed.v }));
+}
+
+/** Notes in the trash, most recently deleted first. */
+export function viewTrash(notes: Notes): NoteView[] {
+  return Object.entries(notes)
+    .filter(([, n]) => n.deleted.v && n.text.v)
+    .sort(([ia, a], [ib, b]) => b.deleted.t - a.deleted.t || (ia < ib ? -1 : 1))
     .map(([id, n]) => ({ id, text: n.text.v, crossed: n.crossed.v }));
 }
 
@@ -77,6 +90,7 @@ export class Notebook {
   readonly events = new Emitter<{ notes: Notes }>();
   private current: Notes;
   private view: NoteView[];
+  private trashView: NoteView[];
   private readonly channel;
   private readonly offs: (() => void)[];
 
@@ -88,6 +102,7 @@ export class Notebook {
   ) {
     this.current = initial;
     this.view = viewNotes(initial);
+    this.trashView = viewTrash(initial);
     this.channel = room.channel<Notes>('notes');
     this.offs = [
       room.onPeerJoin((id) => this.channel.send(this.current, [id])),
@@ -105,6 +120,11 @@ export class Notebook {
   /** Stable snapshot that only changes when the notes do (for React). */
   list(): readonly NoteView[] {
     return this.view;
+  }
+
+  /** Stable snapshot of the trash, like `list`. */
+  trash(): readonly NoteView[] {
+    return this.trashView;
   }
 
   /** Adds a note at the end. Returns false if it is empty or the notebook is full. */
@@ -128,8 +148,19 @@ export class Notebook {
     this.change(id, { crossed: this.reg(crossed) });
   }
 
+  /** Moves a note to the trash. */
   remove(id: string): void {
-    this.change(id, { deleted: this.reg(true), text: this.reg('') });
+    this.change(id, { deleted: this.reg(true) });
+  }
+
+  /** Takes a note out of the trash, back to where it was. */
+  restore(id: string): void {
+    this.change(id, { deleted: this.reg(false) });
+  }
+
+  /** Deletes a note in the trash for good. */
+  purge(id: string): void {
+    if (this.current[id]?.deleted.v) this.change(id, { text: this.reg('') });
   }
 
   /** Moves a note to `index` in the displayed order. */
@@ -168,6 +199,7 @@ export class Notebook {
     if (sameNotes(merged, this.current)) return;
     this.current = merged;
     this.view = viewNotes(merged);
+    this.trashView = viewTrash(merged);
     this.events.emit('notes', merged);
     if (local) this.channel.send(merged);
   }

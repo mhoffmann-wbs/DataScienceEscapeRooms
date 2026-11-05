@@ -56,6 +56,41 @@ describe('Notebook', () => {
     expect(texts(ada)).toEqual(['two']);
   });
 
+  it('keeps deleted notes in a shared trash, to restore or delete for good', () => {
+    const { ada, bob, clock } = pair();
+    for (const t of ['one', 'two', 'three']) {
+      ada.add(t);
+      clock.t++;
+    }
+    const [one, two] = ada.list();
+    ada.remove(one!.id);
+    clock.t++;
+    ada.remove(two!.id);
+    expect(bob.trash().map((n) => n.text)).toEqual(['two', 'one']);
+    bob.restore(one!.id);
+    expect(texts(ada)).toEqual(['one', 'three']);
+    expect(ada.trash().map((n) => n.text)).toEqual(['two']);
+    bob.purge(two!.id);
+    expect(ada.trash()).toEqual([]);
+    // Only notes in the trash can be deleted for good.
+    bob.purge(one!.id);
+    expect(texts(ada)).toEqual(['one', 'three']);
+  });
+
+  it('a note deleted for good stays gone, even after a concurrent restore', () => {
+    const { ada, bob, clock } = pair();
+    ada.add('x');
+    const id = ada.list()[0]!.id;
+    clock.t++;
+    ada.remove(id);
+    clock.t++;
+    ada.purge(id);
+    bob.restore(id);
+    expect(texts(ada)).toEqual([]);
+    expect(texts(bob)).toEqual([]);
+    expect(bob.trash()).toEqual([]);
+  });
+
   it('rejects empty notes and caps the length', () => {
     const { ada } = pair();
     expect(ada.add('   ')).toBe(false);
