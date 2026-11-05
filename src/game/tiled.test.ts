@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
+import { DOORS } from '../rooms/doors';
+import { ROOMS } from '../rooms';
 import { LOBBY, MAPS, ROOM_IDS } from './maps';
 import { collidingGids, containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema } from './tiled';
 
 describe('maps', () => {
-  it('the lobby has a door to every room, and every room has an exit to the lobby', () => {
+  it('the lobby has one door per room type, every room has a type, and every room has an exit to the lobby', () => {
     const doorsOf = (key: string) => parseMapObjects(tiledMapSchema.parse(MAPS[key])).doors.map((d) => d.doorTo);
-    expect(doorsOf(LOBBY).sort()).toEqual([...ROOM_IDS].sort());
+    expect(doorsOf(LOBBY).sort()).toEqual(DOORS.map((d) => d.id).sort());
+    for (const room of Object.values(ROOMS)) expect(doorsOf(LOBBY)).toContain(room.category);
     for (const roomId of ROOM_IDS) expect(doorsOf(roomId)).toContain(LOBBY);
   });
 });

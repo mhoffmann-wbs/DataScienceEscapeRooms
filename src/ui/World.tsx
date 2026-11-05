@@ -128,14 +128,14 @@ interface LobbyOverlaysProps {
 
 function LobbyOverlays({ session, profile, instructorKey, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
   const { t } = useTranslation();
-  const [dialogRoom, setDialogRoom] = useState<string | null>(null);
+  const [dialogDoor, setDialogDoor] = useState<string | null>(null);
   const [scoreboard, setScoreboard] = useState(false);
   useEffect(
     () => session.teams.events.on('started', (started) => onEnterRoom(started, nameOf(started.team.leader, session.presence, profile))),
     [session, onEnterRoom, profile],
   );
-  const use = useCallback((target: Interactable) => target.kind === 'door' && setDialogRoom(target.doorTo), []);
-  const leave = useCallback(() => setDialogRoom(null), []);
+  const use = useCallback((target: Interactable) => target.kind === 'door' && setDialogDoor(target.doorTo), []);
+  const leave = useCallback(() => setDialogDoor(null), []);
 
   return (
     <>
@@ -153,15 +153,15 @@ function LobbyOverlays({ session, profile, instructorKey, onEnterRoom, onRejoin,
         />
       )}
       <TeamBar teams={session.teams} presence={session.presence} profile={profile} />
-      {dialogRoom && (
+      {dialogDoor && (
         <TeamDialog
-          roomId={dialogRoom}
+          doorId={dialogDoor}
           teams={session.teams}
           runs={session.runs}
           presence={session.presence}
           profile={profile}
           onRejoin={onRejoin}
-          onPractise={() => onPractise(dialogRoom)}
+          onPractise={onPractise}
           onClose={leave}
         />
       )}

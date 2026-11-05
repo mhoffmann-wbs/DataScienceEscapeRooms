@@ -16,7 +16,7 @@
   },
   "lobby": {
     "controls": "Move: WASD or arrow keys · Use doors and objects: E · Chat: Enter, Esc to leave",
-    "doorPrompt": "Press E to form or join a team",
+    "doorPrompt": "Press E to choose a scenario and form a team",
     "changeProfile": "Change profile"
   },
   "settings": {
@@ -76,6 +76,20 @@
     "practice": "Practice alone",
     "practiceHelp": "Play this room on your own, offline. It doesn't count for the scoreboard.",
     "practiceTitle": "Your practice run"
+  },
+  "scenario": {
+    "choose": "Choose a scenario",
+    "comingSoon": "Coming soon",
+    "story": "Story",
+    "practises": "Practises",
+    "tools": "Tools",
+    "difficulty": {
+      "beginner": "Beginner",
+      "advanced": "Advanced",
+      "expert": "Expert"
+    },
+    "pickFirst": "Choose a scenario first.",
+    "about": "About this scenario"
   },
   "room": {
     "exit": "Back to the lobby",
@@ -278,7 +292,7 @@
     },
     "teams": {
       "title": "Forming a team",
-      "body": "Each door leads to a room. Walk onto it and press E to **create a team** or **join** one waiting there; up to 5 players per team, and every team plays its own copy of the room.\n\nA **private** team needs a password: tell it to your teammates, for example in nearby chat. Add your **group** (class or cohort) so your instructor finds you. The creator starts the run when everyone is in.\n\nWant to try a room first? **Practice alone** plays it offline; it doesn't count for the scoreboard."
+      "body": "Each door stands for a room type (🐍 Python, 🗄️ SQL, 📈 time series). Walk onto it and press E, then **choose a scenario**: each shows its difficulty, and its ⓘ button tells you the story, what it practises and which tools it uses. Then **create a team** or **join** one waiting there; up to 5 players per team, and every team plays its own copy of the room.\n\nA **private** team needs a password: tell it to your teammates, for example in nearby chat. Add your **group** (class or cohort) so your instructor finds you. The creator starts the run when everyone is in.\n\nWant to try a room first? **Practice alone** plays it offline; it doesn't count for the scoreboard."
     },
     "room": {
       "title": "In a room",

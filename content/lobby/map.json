@@ -102,10 +102,10 @@
     1,
     1,
     1,
-    1,
-    1,
-    1,
-    1,
+    2,
+    2,
+    2,
+    2,
     1,
     1,
     1,
@@ -134,10 +134,10 @@
     1,
     1,
     1,
-    1,
-    1,
-    1,
-    1,
+    2,
+    2,
+    2,
+    2,
     1,
     1,
     1,
@@ -166,10 +166,10 @@
     1,
     1,
     1,
-    1,
-    1,
-    1,
-    1,
+    2,
+    2,
+    2,
+    2,
     1,
     1,
     1,
@@ -1470,7 +1470,7 @@
     },
     {
      "id": 2,
-     "name": "door-python-lab",
+     "name": "door-python",
      "type": "door",
      "x": 192,
      "y": 32,
@@ -1482,13 +1482,13 @@
       {
        "name": "doorTo",
        "type": "string",
-       "value": "python-lab"
+       "value": "python"
       }
      ]
     },
     {
      "id": 3,
-     "name": "door-sql-hotel",
+     "name": "door-sql",
      "type": "door",
      "x": 768,
      "y": 32,
@@ -1500,7 +1500,7 @@
       {
        "name": "doorTo",
        "type": "string",
-       "value": "sql-hotel"
+       "value": "sql"
       }
      ]
     },
@@ -1528,7 +1528,7 @@
     },
     {
      "id": 6,
-     "name": "door-ts-nordlys",
+     "name": "door-timeseries",
      "type": "door",
      "x": 480,
      "y": 32,
@@ -1540,7 +1540,7 @@
       {
        "name": "doorTo",
        "type": "string",
-       "value": "ts-nordlys"
+       "value": "timeseries"
       }
      ]
     }

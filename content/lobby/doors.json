@@ -1,0 +1,70 @@
+{
+  "doors": [
+    {
+      "id": "python",
+      "icon": "🐍",
+      "title": { "en": "Python", "de": "Python" },
+      "upcoming": [
+        {
+          "title": { "en": "Market Day", "de": "Markttag" },
+          "difficulty": "advanced",
+          "about": {
+            "tools": ["Python", "pandas"],
+            "practises": {
+              "en": "DataFrames, filtering, cleaning messy columns, groupby and merge.",
+              "de": "DataFrames, Filtern, unsaubere Spalten bereinigen, groupby und merge."
+            },
+            "story": {
+              "en": "The cashbox of a farmers' market went missing; piece the stalls' messy sales sheets together to find out where the money went.",
+              "de": "Die Kasse eines Bauernmarkts ist verschwunden; setzt die unordentlichen Verkaufslisten der Stände zusammen, um herauszufinden, wohin das Geld ging."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql",
+      "icon": "🗄️",
+      "title": { "en": "SQL", "de": "SQL" },
+      "upcoming": [
+        {
+          "title": { "en": "Night Train", "de": "Nachtzug" },
+          "difficulty": "advanced",
+          "about": {
+            "tools": ["SQL (SQLite)"],
+            "practises": {
+              "en": "Subqueries, CTEs (WITH), LEFT JOIN, window functions such as LAG and ROW_NUMBER.",
+              "de": "Unterabfragen, CTEs (WITH), LEFT JOIN, Fensterfunktionen wie LAG und ROW_NUMBER."
+            },
+            "story": {
+              "en": "A passenger vanished from an overnight train between two stations; rebuild everyone's movements from ticket scans and door sensors.",
+              "de": "Ein Fahrgast ist zwischen zwei Bahnhöfen aus einem Nachtzug verschwunden; rekonstruiert die Wege aller aus Ticketscans und Türsensoren."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "timeseries",
+      "icon": "📈",
+      "title": { "en": "Time series", "de": "Zeitreihen" },
+      "upcoming": [
+        {
+          "title": { "en": "Festival Season", "de": "Festivalsaison" },
+          "difficulty": "expert",
+          "about": {
+            "tools": ["Python", "pandas", "Prophet-style model"],
+            "practises": {
+              "en": "Trend changepoints, yearly and weekly seasonality, holiday effects, multiplicative seasonality, beating a baseline.",
+              "de": "Trend-Changepoints, jährliche und wöchentliche Saisonalität, Feiertagseffekte, multiplikative Saisonalität, eine Baseline schlagen."
+            },
+            "story": {
+              "en": "A city's festival planners lost their visitor forecast days before the season; rebuild it from daily ticket sales so the stages open in time.",
+              "de": "Das Planungsteam eines Stadtfestivals hat kurz vor der Saison seine Besucherprognose verloren; baut sie aus den täglichen Ticketverkäufen neu auf, damit die Bühnen rechtzeitig öffnen."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -16,7 +16,7 @@
   },
   "lobby": {
     "controls": "Bewegen: WASD oder Pfeiltasten · Türen und Objekte benutzen: E · Chat: Enter, Esc zum Verlassen",
-    "doorPrompt": "Drücke E, um ein Team zu bilden oder beizutreten",
+    "doorPrompt": "Drücke E, um ein Szenario zu wählen und ein Team zu bilden",
     "changeProfile": "Profil ändern"
   },
   "settings": {
@@ -76,6 +76,20 @@
     "practice": "Allein üben",
     "practiceHelp": "Spiel diesen Raum allein und offline. Er zählt nicht für die Bestenliste.",
     "practiceTitle": "Dein Übungslauf"
+  },
+  "scenario": {
+    "choose": "Wählt ein Szenario",
+    "comingSoon": "Bald verfügbar",
+    "story": "Geschichte",
+    "practises": "Übt",
+    "tools": "Werkzeuge",
+    "difficulty": {
+      "beginner": "Einsteiger",
+      "advanced": "Fortgeschritten",
+      "expert": "Experte"
+    },
+    "pickFirst": "Wählt zuerst ein Szenario.",
+    "about": "Über dieses Szenario"
   },
   "room": {
     "exit": "Zurück in die Lobby",
@@ -278,7 +292,7 @@
     },
     "teams": {
       "title": "Ein Team bilden",
-      "body": "Jede Tür führt in einen Raum. Stell dich darauf und drück E, um ein **Team zu gründen** oder einem wartenden Team **beizutreten**; bis zu 5 Personen pro Team, und jedes Team spielt seine eigene Kopie des Raums.\n\nEin **privates** Team braucht ein Passwort: Sag es deinem Team, zum Beispiel im Chat in der Nähe. Gib deine **Gruppe** (Kurs oder Jahrgang) an, damit deine Lehrkraft dich findet. Wer das Team gegründet hat, startet den Lauf, sobald alle da sind.\n\nErst mal ausprobieren? **Allein üben** spielt den Raum offline; das zählt nicht für die Bestenliste."
+      "body": "Jede Tür steht für eine Raumart (🐍 Python, 🗄️ SQL, 📈 Zeitreihen). Stell dich darauf, drück E und **wähl ein Szenario**: Jedes zeigt seinen Schwierigkeitsgrad, und sein ⓘ-Knopf verrät die Geschichte, was es übt und welche Werkzeuge es nutzt. Dann kannst du ein **Team gründen** oder einem wartenden Team **beitreten**; bis zu 5 Personen pro Team, und jedes Team spielt seine eigene Kopie des Raums.\n\nEin **privates** Team braucht ein Passwort: Sag es deinem Team, zum Beispiel im Chat in der Nähe. Gib deine **Gruppe** (Kurs oder Jahrgang) an, damit deine Lehrkraft dich findet. Wer das Team gegründet hat, startet den Lauf, sobald alle da sind.\n\nErst mal ausprobieren? **Allein üben** spielt den Raum offline; das zählt nicht für die Bestenliste."
     },
     "room": {
       "title": "Im Raum",

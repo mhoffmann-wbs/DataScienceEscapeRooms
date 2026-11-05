@@ -85,6 +85,10 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Wrong-attempt counts:** ✅ count failed checks per puzzle, shown to instructors next to hints used, to spot puzzles that are too hard. Counts merge as per-player counters (each player's highest count wins), not as earliest timestamps.
 - **Solo practice mode:** ✅ play a room alone without networking ("Practice alone" at a door), for revising at home; not on the scoreboard.
 
+### 8b. Doors as room types ✅
+- Lobby doors stand for room types (🐍 Python, 🗄️ SQL, 📈 time series), with an icon sign above each.
+- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series). Move an entry from `upcoming` into a room manifest when it gets built.
+
 ### 9. Polish
 - Replace the placeholder art with a CC0 tileset (e.g. Kenney) and proper character sprites.
 - Accessibility pass: keyboard-only play, readable contrast, chat usable with a screen reader.

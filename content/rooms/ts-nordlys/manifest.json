@@ -5,6 +5,23 @@
     "en": "Station Nordlys",
     "de": "Station Nordlys"
   },
+  "category": "timeseries",
+  "difficulty": "advanced",
+  "about": {
+    "tools": [
+      "Python",
+      "pandas",
+      "statsmodels"
+    ],
+    "practises": {
+      "en": "Interpolating gaps, detrending vs. differencing, log transform, baselines, ADF test, ACF/PACF, AR and SARIMA forecasts.",
+      "de": "Lücken interpolieren, Trendbereinigung vs. Differenzieren, Log-Transformation, Baselines, ADF-Test, ACF/PACF, AR- und SARIMA-Prognosen."
+    },
+    "story": {
+      "en": "A polar storm put an Arctic research station into safe mode. Rebuild its forecasting pipeline and order enough heating fuel for next winter.",
+      "de": "Ein Polarsturm hat eine arktische Forschungsstation in den Notbetrieb geschickt. Baut ihre Prognose-Pipeline neu auf und bestellt genug Heizöl für den nächsten Winter."
+    }
+  },
   "intro": {
     "en": "A polar storm knocked Station Nordlys into safe mode. The heating is off, the doors are sealed, and the station computer won't order fuel until someone rebuilds its forecasting pipeline.\n\nRepair the fuel log, prove a model beats the chief's rule of thumb, and send January's order before the station freezes. This room loads Python with pandas and statsmodels: the first puzzle you open takes a little while.",
     "de": "Ein Polarsturm hat die Station Nordlys in den Notbetrieb geschickt. Die Heizung ist aus, die Türen sind versiegelt, und der Stationscomputer bestellt erst wieder Heizöl, wenn jemand seine Prognose-Pipeline neu aufbaut.\n\nRepariert das Heizöl-Logbuch, zeigt, dass ein Modell die Faustregel der Leiterin schlägt, und schickt die Januar-Bestellung ab, bevor die Station einfriert. Dieser Raum lädt Python mit pandas und statsmodels: Das erste Rätsel, das ihr öffnet, braucht einen Moment."

@@ -81,6 +81,11 @@ button.primary {
   padding: 8px 14px;
 }
 
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .top-bar-actions {
   display: flex;
   gap: 12px;
@@ -1259,4 +1264,151 @@ button.calling {
 
 .help p {
   margin: 0 0 8px;
+}
+
+/* Door dialog: scenarios behind a lobby door */
+.scenario-heading {
+  font-size: 14px;
+  margin: 4px 0 8px;
+}
+
+.scenario-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scenario {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: #1f2433;
+}
+
+.scenario.selected {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.scenario.upcoming .scenario-title,
+.scenario.upcoming .difficulty {
+  opacity: 0.55;
+}
+
+.scenario-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The dialog focuses the first card on open; keep that ring neutral so it doesn't look like a selection. */
+.scenario-head:focus,
+.scenario-toggle:focus {
+  outline: none;
+}
+
+.scenario-head:focus-visible,
+.scenario-toggle:focus-visible {
+  outline: 1px dashed rgba(255, 255, 255, 0.35);
+  outline-offset: -3px;
+  border-radius: 8px;
+}
+
+.scenario-title {
+  font-weight: 600;
+  flex: 1;
+}
+
+.difficulty {
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.difficulty-beginner {
+  color: #6ee7b7;
+}
+
+.difficulty-advanced {
+  color: #fcd34d;
+}
+
+.difficulty-expert {
+  color: #fca5a5;
+}
+
+.scenario-soon {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.scenario-row {
+  display: flex;
+  align-items: center;
+}
+
+.scenario.upcoming .scenario-head {
+  cursor: default;
+}
+
+.scenario-toggle {
+  flex-shrink: 0;
+  margin-right: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.scenario-toggle:hover,
+.scenario-toggle[aria-expanded='true'] {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.scenario-about {
+  margin: 0;
+  padding: 0 12px 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+
+.scenario-about dt {
+  color: #9ca3af;
+}
+
+.scenario-about dd {
+  margin: 0;
+}
+
+.scenario-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tool-chip,
+.team-scenario {
+  font-size: 12px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
 }

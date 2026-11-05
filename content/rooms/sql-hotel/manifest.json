@@ -5,6 +5,21 @@
     "en": "The Blue Index",
     "de": "Der Blaue Index"
   },
+  "category": "sql",
+  "difficulty": "beginner",
+  "about": {
+    "tools": [
+      "SQL (SQLite)"
+    ],
+    "practises": {
+      "en": "SELECT and WHERE, ORDER BY, time ranges, JOIN, GROUP BY with COUNT.",
+      "de": "SELECT und WHERE, ORDER BY, Zeiträume, JOIN, GROUP BY mit COUNT."
+    },
+    "story": {
+      "en": "On a storm night a diamond vanished from room 404 of a mountain hotel. Query bookings, key cards, the door log and bar receipts to name the thief.",
+      "de": "In einer Sturmnacht verschwindet ein Diamant aus Zimmer 404 eines Berghotels. Fragt Buchungen, Schlüsselkarten, das Türprotokoll und Bar-Belege ab, um den Dieb zu überführen."
+    }
+  },
   "intro": {
     "en": "A storm night at Hotel Tabula, high up in the mountains. This morning the jeweller Victor Hale found the safe in room 404 open, and his diamond, the Blue Index, gone. The road is closed, and the police will only arrive by helicopter in about half an hour.\n\nThe manager has let you into the back office: the reception computer, the door-lock server, the security PC. Every door, every key card and every receipt leaves a trace in the hotel database. Find the thief before the helicopter lands.",
     "de": "Eine Sturmnacht im Hotel Tabula, hoch oben in den Bergen. Heute Morgen hat der Juwelier Victor Hale den Safe in Zimmer 404 offen vorgefunden, und sein Diamant, der Blaue Index, ist verschwunden. Die Straße ist gesperrt, und die Polizei kommt erst in etwa einer halben Stunde mit dem Hubschrauber.\n\nDer Manager hat euch ins Hinterzimmer gelassen: Rezeptionscomputer, Türschloss-Server, Sicherheits-PC. Jede Tür, jede Schlüsselkarte und jeder Beleg hinterlässt eine Spur in der Hoteldatenbank. Findet den Dieb, bevor der Hubschrauber landet."

@@ -1,4 +1,7 @@
 import Phaser from 'phaser';
+import i18n from '../../i18n';
+import { loc } from '../../rooms';
+import { getDoor } from '../../rooms/doors';
 import type { Presence } from '../../net/presence';
 import type { Direction } from '../avatars';
 import { Avatar } from '../entities/Avatar';
@@ -7,7 +10,7 @@ import { bus, type Interactable } from '../events';
 import { NEARBY_RADIUS } from '../../net/session';
 import { LOBBY, MAPS } from '../maps';
 import { getMapKey, getPresence, getProfile } from '../registry';
-import { containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Rect } from '../tiled';
+import { containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Door, type Rect } from '../tiled';
 
 const SPEED = 160;
 const ZOOM = 1.5;
@@ -80,6 +83,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.areaGraphics = this.add.graphics().setDepth(1);
     this.drawAreas();
+    const offLanguage = mapKey === LOBBY ? this.addDoorSigns(doors) : () => {};
 
     const start = pickSpawnPoint(spawn);
     this.player = new Avatar(this, start.x, start.y, profile.avatar, profile.nickname);
@@ -129,6 +133,7 @@ export class WorldScene extends Phaser.Scene {
       offSolved();
       offBubble();
       offInstructors();
+      offLanguage();
       this.remotes.destroy();
       bus.emit('interact:changed', { target: null });
     };
@@ -172,6 +177,30 @@ export class WorldScene extends Phaser.Scene {
     const g = this.areaGraphics.clear();
     const a = this.currentArea;
     if (a) g.fillStyle(0xffffff, 0.07).fillRect(a.x, a.y, a.width, a.height);
+  }
+
+  /** A sign above each lobby door naming its room type; returns a function that stops following language changes. */
+  private addDoorSigns(doors: readonly Door[]): () => void {
+    const signs = doors.flatMap((d) => {
+      const info = getDoor(d.doorTo);
+      if (!info) return [];
+      const text = this.add
+        .text(d.x + d.width / 2, d.y - 2, '', {
+          fontFamily: 'system-ui, sans-serif',
+          fontSize: '11px',
+          color: '#f3f4f6',
+          backgroundColor: '#1b1f2bdd',
+          padding: { x: 5, y: 2 },
+        })
+        .setOrigin(0.5, 1)
+        .setResolution(2)
+        .setDepth(5);
+      return [{ text, info }];
+    });
+    const label = () => signs.forEach(({ text, info }) => text.setText(`${info.icon} ${loc(info.title, i18n.language)}`));
+    label();
+    i18n.on('languageChanged', label);
+    return () => i18n.off('languageChanged', label);
   }
 
   private updateTarget(): void {

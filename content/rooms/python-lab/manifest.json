@@ -5,6 +5,21 @@
     "en": "Quarantine",
     "de": "Quarantäne"
   },
+  "category": "python",
+  "difficulty": "beginner",
+  "about": {
+    "tools": [
+      "Python"
+    ],
+    "practises": {
+      "en": "Variables, lists and loops, string decoding, dictionary lookups, debugging error messages.",
+      "de": "Variablen, Listen und Schleifen, Strings entschlüsseln, Dictionary-Zugriffe, Fehlermeldungen debuggen."
+    },
+    "story": {
+      "en": "A mycologist's lab sealed itself after a sensor fault. Fix her broken scripts to find the four digits of the override code.",
+      "de": "Das Labor einer Pilzforscherin hat sich nach einem Sensorfehler selbst versiegelt. Repariert ihre kaputten Skripte, um die vier Ziffern des Override-Codes zu finden."
+    }
+  },
   "intro": {
     "en": "Dr. Ida Kranich studies mushrooms that glow in the dark. Last night a faulty sensor triggered the lab's quarantine, and the doors sealed themselves. Ida escaped through the vents, and now you are locked in.\n\nThe exit only opens with a 4-digit override code. Ida never kept a whole code in one place, so the digits are hidden in her equipment. Split up, look around and tell each other what you find.",
     "de": "Dr. Ida Kranich erforscht Pilze, die im Dunkeln leuchten. Letzte Nacht hat ein defekter Sensor die Quarantäne des Labors ausgelöst, und die Türen haben sich verriegelt. Ida ist durch die Lüftung entkommen, und jetzt seid ihr eingeschlossen.\n\nDer Ausgang öffnet sich nur mit einem 4-stelligen Override-Code. Ida hat nie einen ganzen Code an einem Ort aufbewahrt, also sind die Ziffern in ihren Geräten versteckt. Teilt euch auf, seht euch um und erzählt einander, was ihr findet."

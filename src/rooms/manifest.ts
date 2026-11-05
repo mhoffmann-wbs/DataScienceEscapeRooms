@@ -55,12 +55,23 @@ export type Puzzle = z.infer<typeof puzzleSchema>;
 export const clueSchema = z.object({ id: clueId, title: localized, text: localized });
 export type Clue = z.infer<typeof clueSchema>;
 
+export const difficulties = ['beginner', 'advanced', 'expert'] as const;
+export type Difficulty = (typeof difficulties)[number];
+
+/** How a scenario presents itself at the lobby door: the tools it uses, what it practises, its story in one sentence. */
+export const aboutSchema = z.object({ tools: z.array(z.string().min(1)).min(1), practises: localized, story: localized });
+export type About = z.infer<typeof aboutSchema>;
+
 export const manifestSchema = z
   .object({
     version: z.literal(1),
     /** Random per room; mixed into every answer hash. */
     salt: z.string().min(8),
     title: localized,
+    /** The lobby door this scenario is played from (an id in content/lobby/doors.json). */
+    category: z.string().regex(/^[a-z0-9-]+$/),
+    difficulty: z.enum(difficulties),
+    about: aboutSchema,
     /** Shown when the run starts. */
     intro: localized,
     /** Pyodide packages this room's Python puzzles need (e.g. `statsmodels`), loaded when a puzzle opens. */
