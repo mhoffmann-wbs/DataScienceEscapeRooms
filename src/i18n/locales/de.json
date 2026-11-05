@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Data Science Escape Rooms",
-    "loading": "Wird geladen…"
+    "loading": "Wird geladen…",
+    "close": "Schließen"
   },
   "join": {
     "title": "Lobby betreten",
@@ -176,6 +177,8 @@
     "add": "Notiz hinzufügen (Enter)",
     "crossOff": "Abhaken",
     "edit": "Zum Bearbeiten klicken",
+    "fold": "Nur eine Zeile zeigen",
+    "unfold": "Ganz zeigen",
     "delete": "Notiz löschen",
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",

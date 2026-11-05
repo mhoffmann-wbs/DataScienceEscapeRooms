@@ -273,11 +273,29 @@ button.primary {
 
 .people-toggle {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   text-align: left;
   background: transparent;
   border: 0;
   padding: 2px 0;
   font-weight: 600;
+}
+
+/* The same arrow as the chat's collapse button, to show that the heading collapses its panel. */
+.people-toggle::after {
+  content: '▾';
+  margin-left: auto;
+  padding: 0 8px;
+  background: #2c3346;
+  border: 1px solid #3d465e;
+  border-radius: 6px;
+  font-weight: normal;
+}
+
+.people-toggle[aria-expanded='false']::after {
+  content: '▸';
 }
 
 .people-panel ul {
@@ -308,6 +326,7 @@ button.primary {
 }
 
 .modal {
+  position: relative;
   width: min(460px, 100%);
   max-height: calc(100% - 32px);
   overflow-y: auto;
@@ -323,6 +342,28 @@ button.primary {
 .modal h2,
 .modal p {
   margin: 0;
+}
+
+.modal > h2 {
+  padding-right: 32px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: #a9b1c4;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text);
 }
 
 .modal-actions {
@@ -744,6 +785,12 @@ code {
   font-size: 13px;
   overflow-wrap: anywhere;
   cursor: text;
+}
+
+.note-text.folded {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .notes-list li.crossed .note-text {

@@ -120,13 +120,20 @@ export class WorldScene extends Phaser.Scene {
       this.player.setInstructor(self);
       this.remotes.setInstructors(ids);
     });
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    // Leaving a place destroys the whole game, which fires DESTROY but not SHUTDOWN. Without
+    // this, a destroyed scene stays subscribed and throws on the next bus event.
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
       offSolved();
       offBubble();
       offInstructors();
       this.remotes.destroy();
       bus.emit('interact:changed', { target: null });
-    });
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
+    this.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
     bus.emit('scene:ready', { scene: mapKey });
   }
 

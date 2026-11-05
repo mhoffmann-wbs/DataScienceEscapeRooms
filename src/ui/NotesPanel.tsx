@@ -3,11 +3,52 @@ import { useTranslation } from 'react-i18next';
 import { NOTE_MAX_LENGTH, type Notebook, type NoteView } from '../net/notebook';
 import { useEmitterValue } from './useStore';
 
+const COLLAPSED_KEY = 'dser.notes.collapsed';
+// Notes shown as one line. A view setting per player, not shared with the team.
+const FOLDED_KEY = 'dser.notes.folded';
+
+function loadOpen(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) !== '1';
+  } catch {
+    return true;
+  }
+}
+
+function loadFolded(): Set<string> {
+  try {
+    const ids: unknown = JSON.parse(localStorage.getItem(FOLDED_KEY) ?? '[]');
+    return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
 /** The team's shared notes: add, edit, cross off, reorder (drag or ↑/↓) and delete. */
 export function NotesPanel({ notebook }: { notebook: Notebook }) {
   const { t } = useTranslation();
   const notes = useEmitterValue(notebook.events, 'notes', () => notebook.list());
-  const [open, setOpen] = useState(true);
+  const [open, setOpenState] = useState(loadOpen);
+  const setOpen = (value: boolean) => {
+    setOpenState(value);
+    try {
+      localStorage.setItem(COLLAPSED_KEY, value ? '0' : '1');
+    } catch {
+      // a convenience only
+    }
+  };
+  const [folded, setFolded] = useState(loadFolded);
+  const toggleFold = (id: string) => {
+    const next = new Set([...folded].filter((f) => notes.some((n) => n.id === f)));
+    if (folded.has(id)) next.delete(id);
+    else next.add(id);
+    setFolded(next);
+    try {
+      localStorage.setItem(FOLDED_KEY, JSON.stringify([...next]));
+    } catch {
+      // a convenience only
+    }
+  };
   const [draft, setDraft] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
@@ -59,11 +100,14 @@ export function NotesPanel({ notebook }: { notebook: Notebook }) {
                       setEditing(null);
                     }} />
                 ) : (
-                  <button type="button" className="note-text" title={t('notes.edit')} onClick={() => setEditing(note.id)}>
+                  <button type="button" className={folded.has(note.id) ? 'note-text folded' : 'note-text'} title={t('notes.edit')} onClick={() => setEditing(note.id)}>
                     {note.text}
                   </button>
                 )}
                 <span className="note-actions">
+                  <button type="button" aria-label={t(folded.has(note.id) ? 'notes.unfold' : 'notes.fold')} title={t(folded.has(note.id) ? 'notes.unfold' : 'notes.fold')} aria-expanded={!folded.has(note.id)} onClick={() => toggleFold(note.id)}>
+                    {folded.has(note.id) ? '▸' : '▾'}
+                  </button>
                   <button type="button" aria-label={t('notes.moveUp')} disabled={i === 0} onClick={() => notebook.move(note.id, i - 1)}>
                     ↑
                   </button>

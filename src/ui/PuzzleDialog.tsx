@@ -133,26 +133,29 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
     if (!workspace || setup === null || busy) return;
     setBusy(true);
     setWrong(false);
+    // What the check compares, or null when the run gives nothing to check (a wrong attempt).
+    let canonical: string | null | undefined;
     try {
       if (workspace === 'python') {
         const expr = check && puzzle.check.type === 'python' ? puzzle.check.expr : undefined;
         const res = await runners.python(code, setup, expr);
         setOutput({ kind: 'text', text: res.stdout, error: res.ok ? undefined : res.error, plots: res.plots });
-        if (check && res.ok && res.check !== null) await accept(res.check);
+        if (check && res.ok && res.check !== null) canonical = res.check;
       } else {
         const res = await runners.sql(setup, code);
         setOutput(res.ok ? { kind: 'table', table: res.result } : { kind: 'error', error: res.error });
-        if (check && res.ok && res.result && puzzle.check.type === 'sql') await accept(canonicalRows(res.result.rows, puzzle.check.ordered));
-        else if (check && res.ok) {
-          setWrong(true);
-          run.recordAttempt(puzzle.id);
-        }
+        if (check && res.ok) canonical = res.result && puzzle.check.type === 'sql' ? canonicalRows(res.result.rows, puzzle.check.ordered) : null;
       }
     } catch (e) {
       setOutput({ kind: 'error', error: e instanceof RunTimeout ? t('puzzle.timeout', { s: RUN_TIMEOUT_MS / 1000 }) : String(e) });
     } finally {
       setBusy(false);
     }
+    // Outside the try: the output shows the run, never errors from checking or marking solved.
+    if (canonical === null) {
+      setWrong(true);
+      run.recordAttempt(puzzle.id);
+    } else if (canonical !== undefined) await accept(canonical);
   };
 
   const submitAnswer = async (e: FormEvent) => {

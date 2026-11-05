@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Data Science Escape Rooms",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "close": "Close"
   },
   "join": {
     "title": "Join the lobby",
@@ -176,6 +177,8 @@
     "add": "Add a note (Enter)",
     "crossOff": "Cross off",
     "edit": "Click to edit",
+    "fold": "Show one line",
+    "unfold": "Show all",
     "delete": "Delete note",
     "moveUp": "Move up",
     "moveDown": "Move down",
