@@ -1136,3 +1136,31 @@ button.calling {
   flex-wrap: wrap;
   gap: 4px;
 }
+
+/* Help: the ? in the top bar and the how-to-play dialog */
+.help-button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.help {
+  max-height: 65vh;
+  overflow-y: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  padding-right: 4px;
+}
+
+.help h3 {
+  margin: 16px 0 4px;
+}
+
+.help section:first-child h3 {
+  margin-top: 0;
+}
+
+.help p {
+  margin: 0 0 8px;
+}

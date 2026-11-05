@@ -246,5 +246,45 @@
     "groups": "Gruppen",
     "teams": "Teams",
     "visitNotice": "Deine Lehrkraft kommt in euren Raum."
+  },
+  "help": {
+    "open": "Hilfe",
+    "title": "So wird gespielt",
+    "goal": {
+      "title": "Das Ziel",
+      "body": "Bildet ein Team mit 1–4 anderen und entkommt aus einem Themenraum, indem ihr Data-Science-Rätsel in Python oder SQL löst. Ein Einsteigerteam braucht für einen Raum etwa 30 Minuten. Eure Zeit und die genutzten Tipps kommen auf die 🏆 Bestenliste."
+    },
+    "controls": {
+      "title": "Steuerung",
+      "body": "Mit **WASD** oder den **Pfeiltasten** läufst du. **E** benutzt, worauf du stehst: eine Tür, ein Terminal, einen Hinweis.\n\n**Enter** öffnet den Chat; Enter sendet und bringt dich zurück zum Laufen; **Esc** verlässt den Chat. Ein Klick auf die Karte bringt dich ebenfalls zurück zum Laufen. **Strg/⌘ + Enter** führt im Code-Editor deinen Code aus."
+    },
+    "lobby": {
+      "title": "Die Lobby",
+      "body": "Hier treffen sich alle, die online sind. Der Chat geht an **Alle** oder nur an Leute **In der Nähe**: Der blasse Kreis um dich zeigt, wie weit „in der Nähe“ reicht. In einer Ecke mit Teppich heißt in der Nähe: alle auf demselben Teppich.\n\nMit **🎙 Sprache beitreten** (unten rechts) sprichst du mit den Leuten in deiner Nähe, mit oder ohne Kamera. Die Liste an der Seite zeigt, wer online ist und wer gerade in einem Raum spielt. Wer 🎓 vor dem Namen hat, ist eine Lehrkraft."
+    },
+    "teams": {
+      "title": "Ein Team bilden",
+      "body": "Jede Tür führt in einen Raum. Stell dich darauf und drück E, um ein **Team zu gründen** oder einem wartenden Team **beizutreten**; bis zu 5 Personen pro Team, und jedes Team spielt seine eigene Kopie des Raums.\n\nEin **privates** Team braucht ein Passwort: Sag es deinem Team, zum Beispiel im Chat in der Nähe. Gib deine **Gruppe** (Kurs oder Jahrgang) an, damit deine Lehrkraft dich findet. Wer das Team gegründet hat, startet den Lauf, sobald alle da sind.\n\nErst mal ausprobieren? **Allein üben** spielt den Raum offline; das zählt nicht für die Bestenliste."
+    },
+    "room": {
+      "title": "Im Raum",
+      "body": "Oben siehst du euren Fortschritt und die Teamzeit. Geh zu Gegenständen und drück E: **Rätsel** (Terminals, Tresore, Tastenfelder) brauchen Code oder eine Antwort, **Hinweise** (Poster, Fotos, Handbücher) enthalten Werte, die die Rätsel brauchen.\n\nManche Rätsel sind gesperrt, bis andere gelöst sind. Mehrere sind von Anfang an offen, also teilt euch auf. Das letzte, das Schlussschloss, kombiniert, was ihr gefunden habt."
+    },
+    "puzzles": {
+      "title": "Rätsel lösen",
+      "body": "Schreib deinen Code in den Editor, probier ihn mit **Ausführen ▶** so oft du willst und klick dann auf **Lösung prüfen**. Jede und jeder hat einen eigenen Editor und eine eigene Sandbox; für die anderen geht nichts kaputt.\n\nGelöste Rätsel **verraten** oft etwas (eine Ziffer, eine entschlüsselte Nachricht), das ein anderes Rätsel braucht.\n\nKommt ihr nicht weiter? Jedes Rätsel hat bis zu 3 **Tipps**, vom Anstoß bis fast zur Lösung. Tipps gelten fürs ganze Team und zählen auf der Bestenliste, also erst probieren, dann fragen."
+    },
+    "together": {
+      "title": "Als Team arbeiten",
+      "body": "Im Raum erreichen Chat und Sprachchat dein ganzes Team, egal wo ihr steht.\n\nDie **Teamnotizen** (an der Seite) sind gemeinsam: Sammelt dort Codes, Namen und Zahlen. Hinweise und Funde haben einen Knopf **📌 In Notizen übernehmen**.\n\nHat jemand aus deinem Team dasselbe Rätsel offen, siehst du einen Tab mit **ihrem Code**, live und schreibgeschützt. Kopier ihn in deinen Editor, um ihn auszuführen oder zu ändern."
+    },
+    "instructor": {
+      "title": "Hilfe holen",
+      "body": "**🙋 Lehrkraft rufen** oben im Raum bittet deine Lehrkraft dazu; ein zweiter Klick bricht ab. Deine Lehrkraft kann in euren Raum kommen und Nachrichten schicken, die oben auf dem Bildschirm erscheinen."
+    },
+    "after": {
+      "title": "Verlassen, zurückkehren, entkommen",
+      "body": "Dein Lauf wird im Browser gespeichert, nach dem Neuladen bist du wieder in deinem Raum. Verlass den Raum durch seine Ausgangstür; an der Tür des Raums in der Lobby kannst du dann bei deinem Team **wieder einsteigen**.\n\nSobald euer Team das Schlussschloss löst, seid ihr entkommen: Die **Auswertung** zeigt eure Zeit, die genutzten Tipps und eine Musterlösung zu jedem Rätsel. Vergleicht sie mit eurer, meist gibt es mehr als einen Weg."
+    }
   }
 }

@@ -81,6 +81,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - **Rejoin an ongoing run:** ✅ a player who left a room for the lobby can go back into their team's run from the room's door (the saved run is kept until the team escapes or the player discards it).
 - ✅ Lobby scoreboard per room: escape time and hints used, filterable by group and period. Labelled as not cheat-proof.
 - **Instructor mode** ✅ (signed messages; passphrase-protected key): see teams and their progress, hints used per puzzle, reset a team's room, send announcements (to everyone, a group or one team). Teams can call the instructor (🙋), and the instructor can visit a team's room as an observer, private rooms included. Instructors can remove scoreboard entries for everyone.
+- **Help page** ✅: the ? in the top bar opens "How to play" (`HelpDialog`, text in the locale files under `help.*`), covering controls, lobby, teams, rooms, puzzles, teamwork, calling the instructor and the debrief. It opens by itself the first time a player joins (`dser.helpSeen`). Keep it in sync when mechanics change.
 - **Wrong-attempt counts:** ✅ count failed checks per puzzle, shown to instructors next to hints used, to spot puzzles that are too hard. Counts merge as per-player counters (each player's highest count wins), not as earliest timestamps.
 - **Solo practice mode:** ✅ play a room alone without networking ("Practice alone" at a door), for revising at home; not on the scoreboard.
 

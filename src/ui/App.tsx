@@ -13,6 +13,7 @@ import { loadProfile, saveProfile, type Profile } from '../player/profile';
 import { clearRun, loadRun, saveRun, type SavedRun } from '../player/run';
 import { ROOMS } from '../rooms';
 import { Announcements } from './Announcements';
+import { HelpDialog, helpSeen, markHelpSeen } from './HelpDialog';
 import { InstructorPanel, InstructorUnlock } from './InstructorPanel';
 import { JoinScreen } from './JoinScreen';
 import { loadGroup } from './TeamDialog';
@@ -67,6 +68,11 @@ export function App() {
   // Instructor mode: the signing key, only in memory (a reload locks it again).
   const [instructorKey, setInstructorKey] = useState<CryptoKey | null>(null);
   const [instructorOpen, setInstructorOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const openHelp = () => {
+    markHelpSeen();
+    setHelpOpen(true);
+  };
   const group = place?.kind === 'room' ? (place.run.group ?? null) : loadGroup() || null;
 
   // Once unlocked, everyone sees 🎓 over our head (a signed claim, so students can't copy it).
@@ -88,6 +94,8 @@ export function App() {
   const join = (p: Profile) => {
     saveProfile(p);
     setProfile(p);
+    // First visit: show how to play right away.
+    if (!helpSeen()) openHelp();
     // Resume a run that was interrupted by a refresh.
     const run = loadRun();
     setPlace(run ? { kind: 'room', run } : { kind: 'lobby' });
@@ -150,8 +158,12 @@ export function App() {
             </button>
           )}
           <LanguageSwitch />
+          <button type="button" className="help-button" onClick={openHelp} aria-label={t('help.open')} title={t('help.open')}>
+            ?
+          </button>
         </div>
       </header>
+      {helpOpen && <HelpDialog onClose={() => setHelpOpen(false)} />}
     </div>
   );
 }

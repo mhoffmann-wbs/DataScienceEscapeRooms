@@ -246,5 +246,45 @@
     "groups": "Groups",
     "teams": "Teams",
     "visitNotice": "Your instructor is joining your room."
+  },
+  "help": {
+    "open": "Help",
+    "title": "How to play",
+    "goal": {
+      "title": "The goal",
+      "body": "Team up with 1–4 other players and escape from a themed room by solving data science puzzles in Python or SQL. A room takes a beginner team about 30 minutes. Your time and the hints you use go on the 🏆 scoreboard."
+    },
+    "controls": {
+      "title": "Controls",
+      "body": "**WASD** or the **arrow keys** walk. **E** uses whatever you're standing on: a door, a terminal, a clue.\n\n**Enter** opens the chat; Enter again sends and returns to walking; **Esc** leaves the chat. Clicking the map also gets you back to walking. **Ctrl/⌘ + Enter** runs your code in a code editor."
+    },
+    "lobby": {
+      "title": "The lobby",
+      "body": "Everyone online meets here. Chat goes to **Everyone** or only to people **Nearby**: the faint circle around you shows how far nearby reaches. Inside a rug-marked corner, nearby means everyone on the same rug.\n\n**🎙 Join voice** (bottom right) to talk to the people near you, with or without camera. The list on the side shows who is online and who is playing in a room. People with 🎓 before their name are instructors."
+    },
+    "teams": {
+      "title": "Forming a team",
+      "body": "Each door leads to a room. Walk onto it and press E to **create a team** or **join** one waiting there; up to 5 players per team, and every team plays its own copy of the room.\n\nA **private** team needs a password: tell it to your teammates, for example in nearby chat. Add your **group** (class or cohort) so your instructor finds you. The creator starts the run when everyone is in.\n\nWant to try a room first? **Practice alone** plays it offline; it doesn't count for the scoreboard."
+    },
+    "room": {
+      "title": "In a room",
+      "body": "The top bar shows your progress and the team timer. Walk up to objects and press E: **puzzles** (terminals, safes, keypads) need code or an answer, **clues** (posters, photos, manuals) hold values the puzzles need.\n\nSome puzzles are locked until you've solved others. Several are open from the start, so split up. The last one, the final lock, combines what you found."
+    },
+    "puzzles": {
+      "title": "Solving puzzles",
+      "body": "Write your code in the editor, press **Run ▶** to try it as often as you like, then **Check solution**. Each of you has your own editor and sandbox; nothing breaks for the others.\n\nSolved puzzles often **reveal** something (a digit, a decoded message) that another puzzle needs.\n\nStuck? Each puzzle has up to 3 **hints**, from a nudge to almost the solution. Hints are shared with your team and count on the scoreboard, so try first, then ask."
+    },
+    "together": {
+      "title": "Working as a team",
+      "body": "In a room, chat and voice reach your whole team, wherever you stand.\n\n**Team notes** (on the side) are shared: collect codes, names and numbers there. Clues and reveals have a **📌 Pin to notes** button.\n\nWhen a teammate has the same puzzle open, you see a tab with **their code**, live and read-only. Copy it into your editor to run or change it."
+    },
+    "instructor": {
+      "title": "Getting help",
+      "body": "**🙋 Call instructor** in the room's top bar asks your instructor to come over; press it again to cancel. Your instructor can join your room, and may send messages that appear at the top of the screen."
+    },
+    "after": {
+      "title": "Leaving, rejoining, escaping",
+      "body": "Your run is saved in your browser, so reloading the page puts you back in your room. Leave through the room's exit door; the room's door in the lobby then lets you **rejoin** your team.\n\nOnce your team solves the final lock, you've escaped: the **debrief** shows your time, the hints you used and a model solution for each puzzle. Compare it with yours, there's usually more than one way."
+    }
   }
 }
