@@ -5,6 +5,8 @@ import { frameIndex, walkAnimKey, type Direction } from '../avatars';
 const BUBBLE_MS = 4000;
 const BUBBLE_MS_PER_CHAR = 40;
 const BUBBLE_MAX_CHARS = 80;
+/** Marks instructors' names; nobody else may show it, so it's removed from nicknames. */
+export const INSTRUCTOR_MARK = '🎓';
 
 /** A character sprite with a name label and an optional speech bubble. Used for the local player and remote peers. */
 export class Avatar {
@@ -13,6 +15,8 @@ export class Avatar {
   private bubble: Phaser.GameObjects.Text | null = null;
   private bubbleTimer: Phaser.Time.TimerEvent | null = null;
   private facing: Direction = 'down';
+  private readonly name: string;
+  private instructor = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -21,9 +25,10 @@ export class Avatar {
     private readonly avatar: number,
     name: string,
   ) {
+    this.name = name.replaceAll(INSTRUCTOR_MARK, '').trim();
     this.sprite = scene.add.sprite(x, y, 'avatars', frameIndex(avatar, 'down'));
     this.label = scene.add
-      .text(x, y, name, { fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#ffffff', backgroundColor: '#00000088', padding: { x: 3, y: 1 } })
+      .text(x, y, this.name, { fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#ffffff', backgroundColor: '#00000088', padding: { x: 3, y: 1 } })
       .setOrigin(0.5, 1)
       .setResolution(2);
     this.syncLabel();
@@ -37,6 +42,13 @@ export class Avatar {
       this.sprite.anims.stop();
       this.sprite.setFrame(frameIndex(this.avatar, this.facing));
     }
+  }
+
+  /** Labels the avatar as an instructor's. */
+  setInstructor(on: boolean): void {
+    if (on === this.instructor) return;
+    this.instructor = on;
+    this.label.setText(on ? `${INSTRUCTOR_MARK} ${this.name}` : this.name);
   }
 
   /** Shows `text` above the head for a few seconds, replacing any current bubble. */

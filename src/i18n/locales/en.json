@@ -94,7 +94,11 @@
     "keepLooking": "Look around",
     "alone": "Nobody else from your team is here right now.",
     "leaveBodyFinished": "You'll go back to the lobby.",
-    "practice": "Practice"
+    "practice": "Practice",
+    "callInstructor": "Call instructor",
+    "called": "Instructor called (cancel)",
+    "cancelCall": "Cancel the call",
+    "visiting": "Visiting"
   },
   "interact": {
     "puzzlePrompt": "Press E to examine",
@@ -229,6 +233,16 @@
     "trust": "Your announcements and resets are signed, so students can't fake them. The progress shown here comes from the players' browsers and isn't verified.",
     "fromInstructor": "Instructor:",
     "dismiss": "Dismiss",
-    "resetNotice": "Your instructor reset this room: the run starts over."
+    "resetNotice": "Your instructor reset this room: the run starts over.",
+    "titleCalls_one": "Instructor: {{count}} team calls for help",
+    "titleCalls_other": "Instructor: {{count}} teams call for help",
+    "calling": "Calls for help",
+    "message": "Message",
+    "visit": "Visit",
+    "visiting": "Asking…",
+    "visitFailed": "Nobody from this team answered. They may have left the room.",
+    "groups": "Groups",
+    "teams": "Teams",
+    "visitNotice": "Your instructor is joining your room."
   }
 }

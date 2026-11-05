@@ -14,6 +14,8 @@ export interface GameEvents {
   'interact:use': { target: Interactable };
   /** React -> scene: puzzles to mark as solved on the map. */
   'puzzles:solved': { ids: readonly string[] };
+  /** React -> scene: peers that are instructors (signed, see InstructorChannel), and whether we are one. */
+  'instructors:changed': { ids: readonly string[]; self: boolean };
   /** React -> scene: a chat message to show as a speech bubble (`self` for our own). */
   'chat:bubble': { peerId: string; self: boolean; text: string };
 }

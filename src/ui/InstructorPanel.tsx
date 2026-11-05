@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Invite } from '../net/help';
 import { unlockInstructor, type InstructorConfig } from '../net/instructor';
 import type { RunSummary } from '../net/runs';
 import type { LobbySession } from '../net/session';
@@ -52,13 +53,26 @@ export function InstructorUnlock({ config, onUnlock, onClose }: { config: Instru
   );
 }
 
-/** Live runs with progress per puzzle, resets and announcements. */
-export function InstructorPanel({ lobby, signingKey, onClose }: { lobby: LobbySession; signingKey: CryptoKey; onClose: () => void }) {
+interface PanelProps {
+  lobby: LobbySession;
+  signingKey: CryptoKey;
+  /** A team let us in: go to its room. */
+  onVisit: (invite: Invite) => void;
+  onClose: () => void;
+}
+
+/** Live runs with progress per puzzle and calls for help; messages, visits, resets and announcements. */
+export function InstructorPanel({ lobby, signingKey, onVisit, onClose }: PanelProps) {
   const { t, i18n } = useTranslation();
   const runs = useEmitterValue(lobby.runs.events, 'runs', () => lobby.runs.list());
+  const calls = useEmitterValue(lobby.help.events, 'calls', () => lobby.help.list());
+  const [visiting, setVisiting] = useState<string | null>(null);
+  const [visitFailed, setVisitFailed] = useState<string | null>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const [group, setGroup] = useState('');
   const [open, setOpen] = useState<string | null>(null);
   const [text, setText] = useState('');
+  /** '' everyone, `g:<group>` or `t:<teamId>`. */
   const [target, setTarget] = useState('');
   const [sent, setSent] = useState(false);
   const [now] = useState(Date.now);
@@ -69,9 +83,29 @@ export function InstructorPanel({ lobby, signingKey, onClose }: { lobby: LobbySe
   const announce = async (e: FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
-    await lobby.instructor.send(signingKey, { type: 'announce', text: text.trim(), group: target || null });
+    const group = target.startsWith('g:') ? target.slice(2) : null;
+    const teamId = target.startsWith('t:') ? target.slice(2) : null;
+    await lobby.instructor.send(signingKey, { type: 'announce', text: text.trim(), group, teamId });
     setText('');
     setSent(true);
+  };
+
+  const teamName = (run: RunSummary) => `${t('team.teamOf', { name: run.leader })} · ${roomTitle(run.roomId, i18n.language)}`;
+
+  const message = (run: RunSummary) => {
+    setTarget(`t:${run.teamId}`);
+    setSent(false);
+    textRef.current?.focus();
+  };
+
+  const visit = async (run: RunSummary) => {
+    setVisiting(run.teamId);
+    setVisitFailed(null);
+    const invite = await lobby.help.visit(signingKey, run.teamId);
+    setVisiting(null);
+    // Only an invite into the room the team reports playing.
+    if (invite && invite.roomId === run.roomId) onVisit(invite);
+    else setVisitFailed(run.teamId);
   };
 
   const reset = (run: RunSummary) => {
@@ -117,9 +151,11 @@ export function InstructorPanel({ lobby, signingKey, onClose }: { lobby: LobbySe
               const sum = (r: Record<string, number>) => Object.values(r).reduce((a, b) => a + b, 0);
               const elapsed = run.startedAt === null ? null : (run.escapedAt ?? now) - run.startedAt;
               const expanded = open === run.teamId;
+              const calling = calls.some((c) => c.teamId === run.teamId);
               return [
-                <tr key={run.teamId}>
+                <tr key={run.teamId} className={calling ? 'calling' : undefined}>
                   <td>
+                    {calling && <div className="call-flag">🙋 {t('instructor.calling')}</div>}
                     <button type="button" className="link-button" aria-expanded={expanded} onClick={() => setOpen(expanded ? null : run.teamId)}>
                       {expanded ? '▾' : '▸'} {t('team.teamOf', { name: run.leader })}
                     </button>
@@ -135,9 +171,22 @@ export function InstructorPanel({ lobby, signingKey, onClose }: { lobby: LobbySe
                   <td>{sum(run.hints)}</td>
                   <td>{sum(run.attempts)}</td>
                   <td>
-                    <button type="button" onClick={() => reset(run)}>
-                      {t('instructor.reset')}
-                    </button>
+                    <div className="instructor-actions">
+                      <button type="button" onClick={() => message(run)}>
+                        {t('instructor.message')}
+                      </button>
+                      <button type="button" className={calling ? 'primary' : undefined} disabled={visiting !== null} onClick={() => void visit(run)}>
+                        {visiting === run.teamId ? t('instructor.visiting') : t('instructor.visit')}
+                      </button>
+                      <button type="button" onClick={() => reset(run)}>
+                        {t('instructor.reset')}
+                      </button>
+                    </div>
+                    {visitFailed === run.teamId && (
+                      <p className="error" role="alert">
+                        {t('instructor.visitFailed')}
+                      </p>
+                    )}
                   </td>
                 </tr>,
                 expanded && room && (
@@ -180,6 +229,7 @@ export function InstructorPanel({ lobby, signingKey, onClose }: { lobby: LobbySe
       <form className="instructor-announce" onSubmit={(e) => void announce(e)}>
         <h3>{t('instructor.announce')}</h3>
         <textarea
+          ref={textRef}
           value={text}
           maxLength={500}
           rows={2}
@@ -194,11 +244,24 @@ export function InstructorPanel({ lobby, signingKey, onClose }: { lobby: LobbySe
             <span>{t('instructor.to')}</span>
             <select value={target} onChange={(e) => setTarget(e.target.value)}>
               <option value="">{t('instructor.everyone')}</option>
-              {groups.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
+              {groups.length > 0 && (
+                <optgroup label={t('instructor.groups')}>
+                  {groups.map((g) => (
+                    <option key={g} value={`g:${g}`}>
+                      {g}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {runs.length > 0 && (
+                <optgroup label={t('instructor.teams')}>
+                  {runs.map((r) => (
+                    <option key={r.teamId} value={`t:${r.teamId}`}>
+                      {teamName(r)}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </label>
           <button type="submit" className="primary" disabled={!text.trim()}>

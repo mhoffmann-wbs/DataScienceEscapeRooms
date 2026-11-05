@@ -1,6 +1,7 @@
 import type { Profile } from '../player/profile';
 import { Chat } from './chat';
 import { CodeShare } from './codeShare';
+import { HelpDesk } from './help';
 import { InstructorChannel, type InstructorConfig } from './instructor';
 import { Media, type MediaMode } from './media';
 import { Notebook, type Notes } from './notebook';
@@ -33,6 +34,11 @@ export class Session {
     this.media = new Media(this.room, this.presence, this.proximity, mediaMode);
   }
 
+  /** Our peer id; the same in the lobby and in rooms. */
+  get selfId(): string {
+    return this.room.selfId;
+  }
+
   /** Idempotent: called both on unmount and on page hide. */
   leave(): void {
     if (this.left) return;
@@ -55,6 +61,7 @@ export class LobbySession extends Session {
   readonly runs: Runs;
   readonly scores: Scores;
   readonly instructor: InstructorChannel;
+  readonly help: HelpDesk;
 
   /** `instructor`: the public instructor config; null means instructor messages are ignored. */
   constructor(transport: Transport, profile: Profile, areas: readonly Area[] = [], instructor: InstructorConfig | null = null) {
@@ -63,9 +70,11 @@ export class LobbySession extends Session {
     this.runs = new Runs(this.room);
     this.scores = new Scores(this.room, this.runs);
     this.instructor = new InstructorChannel(this.room, instructor);
+    this.help = new HelpDesk(this.room, this.instructor);
   }
 
   protected override dispose(): void {
+    this.help.destroy();
     this.instructor.destroy();
     this.scores.destroy();
     this.runs.destroy();

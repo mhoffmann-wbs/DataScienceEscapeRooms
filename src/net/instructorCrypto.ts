@@ -12,12 +12,18 @@ export type InstructorConfig = z.infer<typeof instructorConfigSchema>;
 
 const base = { at: z.number().finite(), nonce: z.string().min(8).max(64) };
 export const instructorMessageSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('announce'), text: z.string().trim().min(1).max(500), group: z.string().max(24).nullable(), ...base }),
+  // `teamId` set: only that team gets it; otherwise everyone, or one group.
+  z.object({ type: z.literal('announce'), text: z.string().trim().min(1).max(500), group: z.string().max(24).nullable(), teamId: z.string().min(1).max(64).nullable().default(null), ...base }),
   z.object({ type: z.literal('reset'), teamId: z.string().min(1).max(64), epoch: z.number().finite(), ...base }),
+  // The instructor (lobby peer `peerId`) wants to visit a team's room; a member invites that peer.
+  z.object({ type: z.literal('visit'), teamId: z.string().min(1).max(64), peerId: z.string().min(1).max(64), ...base }),
+  // Peer `peerId` is an instructor: everyone labels its avatar.
+  z.object({ type: z.literal('present'), peerId: z.string().min(1).max(64), ...base }),
 ]);
 export type InstructorMessage = z.infer<typeof instructorMessageSchema>;
 /** What the instructor composes; time and nonce are added when signing. */
-export type InstructorDraft = InstructorMessage extends infer M ? (M extends InstructorMessage ? Omit<M, 'at' | 'nonce'> : never) : never;
+type MessageInput = z.input<typeof instructorMessageSchema>;
+export type InstructorDraft = MessageInput extends infer M ? (M extends MessageInput ? Omit<M, 'at' | 'nonce'> : never) : never;
 
 export const signedSchema = z.object({ payload: z.string().max(4000), signature: z.string().max(200) });
 export type Signed = z.infer<typeof signedSchema>;

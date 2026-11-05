@@ -11,8 +11,9 @@ interface Shown {
 }
 
 /**
- * Instructor messages as a banner: announcements (for everyone or for one group), and a notice
- * when the instructor resets the run of `teamId` (the room applies the reset itself).
+ * Instructor messages as a banner: announcements (for everyone, one group or one team), and
+ * notices when the instructor resets the run of `teamId` (the room applies the reset itself)
+ * or is on the way to visit it.
  */
 export function Announcements({ instructor, group, teamId }: { instructor: InstructorChannel; group: string | null; teamId: string | null }) {
   const { t } = useTranslation();
@@ -25,10 +26,14 @@ export function Announcements({ instructor, group, teamId }: { instructor: Instr
     };
     const offs = [
       instructor.events.on('announce', (m) => {
-        if (!m.group || m.group === group) show({ id: m.nonce, text: m.text, title: 'fromInstructor' });
+        const forUs = m.teamId ? m.teamId === teamId : !m.group || m.group === group;
+        if (forUs) show({ id: m.nonce, text: m.text, title: 'fromInstructor' });
       }),
       instructor.events.on('reset', (m) => {
         if (m.teamId === teamId) show({ id: m.nonce, text: t('instructor.resetNotice'), title: 'fromInstructor' });
+      }),
+      instructor.events.on('visit', (m) => {
+        if (m.teamId === teamId) show({ id: m.nonce, text: t('instructor.visitNotice'), title: 'fromInstructor' });
       }),
     ];
     return () => offs.forEach((off) => off());

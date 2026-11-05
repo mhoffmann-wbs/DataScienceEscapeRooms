@@ -80,7 +80,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Progress saved in the browser so a refresh restores the run (done in step 4).
 - **Rejoin an ongoing run:** ✅ a player who left a room for the lobby can go back into their team's run from the room's door (the saved run is kept until the team escapes or the player discards it).
 - ✅ Lobby scoreboard per room: escape time and hints used, filterable by group and period. Labelled as not cheat-proof.
-- **Instructor mode** ✅ (signed messages; passphrase-protected key): see teams and their progress, hints used per puzzle, reset a team's room, send announcements.
+- **Instructor mode** ✅ (signed messages; passphrase-protected key): see teams and their progress, hints used per puzzle, reset a team's room, send announcements (to everyone, a group or one team). Teams can call the instructor (🙋), and the instructor can visit a team's room as an observer, private rooms included.
 - **Wrong-attempt counts:** ✅ count failed checks per puzzle, shown to instructors next to hints used, to spot puzzles that are too hard. Counts merge as per-player counters (each player's highest count wins), not as earliest timestamps.
 - **Solo practice mode:** ✅ play a room alone without networking ("Practice alone" at a door), for revising at home; not on the scoreboard.
 

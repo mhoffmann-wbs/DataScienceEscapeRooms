@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { bus } from '../game/events';
 import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
+import type { Invite } from '../net/help';
 import { emptyRun } from '../net/run';
 import { INSTRUCTOR_CONFIG } from '../net/instructorConfig';
 import { LobbySession } from '../net/session';
@@ -15,6 +17,7 @@ import { InstructorPanel, InstructorUnlock } from './InstructorPanel';
 import { JoinScreen } from './JoinScreen';
 import { loadGroup } from './TeamDialog';
 import { LanguageSwitch } from './LanguageSwitch';
+import { useEmitterValue } from './useStore';
 import { World, type Place } from './World';
 
 const AUTHOR_PROFILE: Profile = { nickname: 'Author', avatar: 0 };
@@ -66,6 +69,22 @@ export function App() {
   const [instructorOpen, setInstructorOpen] = useState(false);
   const group = place?.kind === 'room' ? (place.run.group ?? null) : loadGroup() || null;
 
+  // Once unlocked, everyone sees 🎓 over our head (a signed claim, so students can't copy it).
+  useEffect(() => {
+    if (lobby && instructorKey) void lobby.instructor.showPresence(instructorKey);
+  }, [lobby, instructorKey]);
+  // Tell the scene who the instructors are, also whenever it (re)starts.
+  useEffect(() => {
+    if (!lobby) return;
+    const send = () => {
+      const ids = lobby.instructor.instructors();
+      bus.emit('instructors:changed', { ids, self: ids.includes(lobby.selfId) });
+    };
+    send();
+    const offs = [lobby.instructor.events.on('instructors', send), bus.on('scene:ready', send)];
+    return () => offs.forEach((off) => off());
+  }, [lobby]);
+
   const join = (p: Profile) => {
     saveProfile(p);
     setProfile(p);
@@ -83,7 +102,8 @@ export function App() {
 
   /** Back to the lobby. An unfinished run stays saved, so the player can rejoin it from the door. */
   const leaveRoom = (finished: boolean) => {
-    if (finished) clearRun();
+    // A visiting instructor's own saved run (if any) isn't the one they leave.
+    if (finished && !(place?.kind === 'room' && place.observer)) clearRun();
     setPlace({ kind: 'lobby' });
   };
 
@@ -93,6 +113,13 @@ export function App() {
     const run: SavedRun = { roomId, teamId: `solo-${Date.now().toString(36)}`, solo: true, leader: profile.nickname, state: emptyRun(Date.now()) };
     saveRun(run);
     setPlace({ kind: 'room', run });
+  };
+
+  /** Instructor: into a team's room as a visitor, with the invite a member sent. */
+  const visit = (invite: Invite) => {
+    setInstructorOpen(false);
+    const { roomId, teamId, password, leader, group } = invite;
+    setPlace({ kind: 'room', run: { roomId, teamId, password: password ?? undefined, leader: leader ?? undefined, group, state: emptyRun() }, observer: true });
   };
 
   const rejoin = () => {
@@ -112,16 +139,11 @@ export function App() {
       {lobby && instructorOpen && INSTRUCTOR_CONFIG && !instructorKey && (
         <InstructorUnlock config={INSTRUCTOR_CONFIG} onUnlock={setInstructorKey} onClose={() => setInstructorOpen(false)} />
       )}
-      {lobby && instructorOpen && instructorKey && <InstructorPanel lobby={lobby} signingKey={instructorKey} onClose={() => setInstructorOpen(false)} />}
+      {lobby && instructorOpen && instructorKey && <InstructorPanel lobby={lobby} signingKey={instructorKey} onVisit={visit} onClose={() => setInstructorOpen(false)} />}
       <header className="overlay top-bar">
         <h1>{t('app.title')}</h1>
         <div className="top-bar-actions">
-          {lobby && INSTRUCTOR_CONFIG && (
-            <button type="button" onClick={() => setInstructorOpen(true)}>
-              {instructorKey ? '🎓 ' : ''}
-              {t('instructor.title')}
-            </button>
-          )}
+          {lobby && INSTRUCTOR_CONFIG && <InstructorButton lobby={lobby} unlocked={!!instructorKey} onOpen={() => setInstructorOpen(true)} />}
           {place && (
             <button type="button" onClick={() => setPlace(null)}>
               {t('lobby.changeProfile')}
@@ -131,5 +153,19 @@ export function App() {
         </div>
       </header>
     </div>
+  );
+}
+
+/** Opens instructor mode; once unlocked it also counts the teams calling for help. */
+function InstructorButton({ lobby, unlocked, onOpen }: { lobby: LobbySession; unlocked: boolean; onOpen: () => void }) {
+  const { t } = useTranslation();
+  const calls = useEmitterValue(lobby.help.events, 'calls', () => lobby.help.list());
+  const waiting = unlocked ? calls.length : 0;
+  return (
+    <button type="button" className={waiting ? 'calling' : undefined} onClick={onOpen} aria-label={waiting ? t('instructor.titleCalls', { count: waiting }) : undefined}>
+      {unlocked ? '🎓 ' : ''}
+      {t('instructor.title')}
+      {waiting > 0 && ` · 🙋 ${waiting}`}
+    </button>
   );
 }

@@ -7,6 +7,7 @@ import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { createMemoryTransport, MemoryHub } from '../net/memoryTransport';
 import { attemptsPerPuzzle, type RunState } from '../net/run';
 import type { RunSummary } from '../net/runs';
+import { INSTRUCTOR_CONFIG } from '../net/instructorConfig';
 import { LobbySession, RoomSession } from '../net/session';
 import type { StartedTeam } from '../net/teams';
 import type { Transport } from '../net/transport';
@@ -36,6 +37,8 @@ export type Place =
       run: SavedRun;
       /** Author mode (dev only): offline, locks ignored, run not saved, optionally opens a puzzle. */
       author?: { puzzleId?: string };
+      /** An instructor visiting a team's room: run not saved, not counted as a member. */
+      observer?: boolean;
     };
 
 interface Props {
@@ -75,7 +78,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
     // In the lobby we're on the map; in a room we stay connected to the lobby but away.
     lobby?.presence.setAway(place.kind === 'room' ? place.run.roomId : null);
     const offs: (() => void)[] = [];
-    if (s instanceof RoomSession && place.kind === 'room' && !place.author) {
+    if (s instanceof RoomSession && place.kind === 'room' && !place.author && !place.observer) {
       const save = () => saveRun({ ...place.run, state: s.run.state, notes: s.notebook.state });
       offs.push(s.run.events.on('state', save), s.notebook.events.on('notes', save));
     }
@@ -106,7 +109,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
       {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         // A solo run has no team to report to the lobby.
-        <RoomOverlays session={session} lobby={solo ? null : lobby} solo={solo} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
+        <RoomOverlays session={session} lobby={solo ? null : lobby} solo={solo} observer={!!place.observer} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
       )}
     </>
   );
@@ -169,28 +172,41 @@ interface RoomOverlaysProps {
   lobby: LobbySession | null;
   /** Solo practice: no chat or voice, nobody to talk to. */
   solo: boolean;
+  /** A visiting instructor: neither reports the run nor calls for help. */
+  observer: boolean;
   profile: Profile;
   author?: { puzzleId?: string };
   onLeaveRoom: (finished: boolean) => void;
 }
 
-function RoomOverlays({ session, lobby, solo, profile, author, onLeaveRoom }: RoomOverlaysProps) {
+function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeaveRoom }: RoomOverlaysProps) {
   const { t } = useTranslation();
   const { roomId } = session.info;
   const { run } = session;
   const state = useEmitterValue(run.events, 'state', () => run.state);
   const [dialog, setDialog] = useState<RoomDialog>(() => {
     if (author?.puzzleId) return { kind: 'puzzle', puzzleId: author.puzzleId };
-    return author || Object.keys(run.state.solved).length > 0 ? null : { kind: 'intro' };
+    return author || observer || Object.keys(run.state.solved).length > 0 ? null : { kind: 'intro' };
   });
 
   // Tell the lobby how the run is going (scoreboard, instructors), and stop when we leave.
+  // A visiting instructor isn't a member, and doesn't report.
+  const reporter = observer ? null : lobby;
   const roster = useEmitterValue(session.presence.events, 'roster', () => session.presence.list());
   useEffect(() => {
-    if (!lobby) return;
-    lobby.runs.publish(summarize(session, state, [profile.nickname, ...roster.map((p) => p.nickname)], profile.nickname));
-  }, [lobby, session, state, roster, profile.nickname]);
-  useEffect(() => () => lobby?.runs.withdraw(), [lobby]);
+    if (!reporter) return;
+    const members = roster.filter((p) => !reporter.help.isVisitor(p.id)).map((p) => p.nickname);
+    reporter.runs.publish(summarize(session, state, [profile.nickname, ...members], profile.nickname));
+  }, [reporter, session, state, roster, profile.nickname]);
+  useEffect(() => () => reporter?.runs.withdraw(), [reporter]);
+
+  // Players can call the instructor, and answer the instructor's visit (see HelpDesk).
+  const help = reporter && INSTRUCTOR_CONFIG ? reporter.help : null;
+  useEffect(() => {
+    if (!help) return;
+    help.setPlaying(session.info);
+    return () => help.setPlaying(null);
+  }, [help, session]);
 
   // An instructor reset starts this team's run over (signed; see InstructorChannel). The
   // banner (Announcements) tells the players.
@@ -230,7 +246,7 @@ function RoomOverlays({ session, lobby, solo, profile, author, onLeaveRoom }: Ro
 
   return (
     <>
-      <RoomHud roomId={roomId} run={run} solo={solo} onDebrief={openDebrief} />
+      <RoomHud roomId={roomId} run={run} solo={solo} observer={observer} help={help} onDebrief={openDebrief} />
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
       {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onPin={pin} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
       {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onPin={pin} onClose={close} />}

@@ -79,3 +79,27 @@ describe('instructor messages', () => {
     expect(got).toEqual([]);
   });
 });
+
+describe('instructor presence', () => {
+  it('tells everyone, including later arrivals, which peer is an instructor', async () => {
+    const hub = new MemoryHub();
+    const teacher = new InstructorChannel(createMemoryTransport(hub, 'teacher').join('lobby'), config);
+    const early = new InstructorChannel(createMemoryTransport(hub, 'early').join('lobby'), config);
+    await teacher.showPresence(key);
+    await settle();
+    const late = new InstructorChannel(createMemoryTransport(hub, 'late').join('lobby'), config);
+    await settle();
+    expect(teacher.instructors()).toEqual(['teacher']);
+    expect(early.instructors()).toEqual(['teacher']);
+    expect(late.instructors()).toEqual(['teacher']);
+  });
+
+  it("can't be claimed without the key", async () => {
+    const hub = new MemoryHub();
+    const student = new InstructorChannel(createMemoryTransport(hub, 'student').join('lobby'), config);
+    const other = new InstructorChannel(createMemoryTransport(hub, 'other').join('lobby'), config);
+    await student.showPresence(otherKey);
+    await settle();
+    expect(other.instructors()).toEqual([]);
+  });
+});

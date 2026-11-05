@@ -15,6 +15,7 @@ interface Remote {
 /** Renders the peers of a Presence and glides them toward their last reported position. */
 export class RemoteAvatars {
   private readonly remotes = new Map<string, Remote>();
+  private instructors = new Set<string>();
   private readonly offs: (() => void)[];
 
   constructor(
@@ -48,6 +49,12 @@ export class RemoteAvatars {
     }
   }
 
+  /** Labels these peers as instructors (and no others). */
+  setInstructors(ids: readonly string[]): void {
+    this.instructors = new Set(ids);
+    for (const [id, { avatar }] of this.remotes) avatar.setInstructor(this.instructors.has(id));
+  }
+
   /** The avatar of a peer, if it is on the map. */
   get(peerId: string): Avatar | undefined {
     return this.remotes.get(peerId)?.avatar;
@@ -67,6 +74,8 @@ export class RemoteAvatars {
   /** Players away in a room stay connected but aren't drawn on the map. */
   private add(peer: PeerInfo): void {
     if (this.remotes.has(peer.id) || peer.away) return;
-    this.remotes.set(peer.id, { avatar: new Avatar(this.scene, peer.x, peer.y, peer.avatar, peer.nickname), peer });
+    const avatar = new Avatar(this.scene, peer.x, peer.y, peer.avatar, peer.nickname);
+    avatar.setInstructor(this.instructors.has(peer.id));
+    this.remotes.set(peer.id, { avatar, peer });
   }
 }

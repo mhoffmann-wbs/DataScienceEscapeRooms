@@ -1115,3 +1115,24 @@ code {
   align-items: center;
   gap: 8px;
 }
+
+/* Calls for help: the student's pending call, and the instructor's flagged teams */
+button.calling {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.score-table tr.calling > td {
+  background: rgba(110, 231, 183, 0.08);
+}
+
+.call-flag {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.instructor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}

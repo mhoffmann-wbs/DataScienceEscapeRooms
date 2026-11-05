@@ -94,7 +94,11 @@
     "keepLooking": "Umsehen",
     "alone": "Gerade ist sonst niemand aus deinem Team hier.",
     "leaveBodyFinished": "Du gehst zurück in die Lobby.",
-    "practice": "Übung"
+    "practice": "Übung",
+    "callInstructor": "Lehrkraft rufen",
+    "called": "Lehrkraft gerufen (abbrechen)",
+    "cancelCall": "Ruf abbrechen",
+    "visiting": "Zu Besuch"
   },
   "interact": {
     "puzzlePrompt": "Drücke E zum Untersuchen",
@@ -229,6 +233,16 @@
     "trust": "Deine Durchsagen und Zurücksetzungen sind signiert, Lernende können sie nicht fälschen. Der angezeigte Fortschritt stammt aus den Browsern der Spielenden und ist nicht überprüft.",
     "fromInstructor": "Lehrkraft:",
     "dismiss": "Schließen",
-    "resetNotice": "Deine Lehrkraft hat diesen Raum zurückgesetzt: Der Lauf beginnt von vorn."
+    "resetNotice": "Deine Lehrkraft hat diesen Raum zurückgesetzt: Der Lauf beginnt von vorn.",
+    "titleCalls_one": "Lehrkraft: {{count}} Team bittet um Hilfe",
+    "titleCalls_other": "Lehrkraft: {{count}} Teams bitten um Hilfe",
+    "calling": "Bittet um Hilfe",
+    "message": "Nachricht",
+    "visit": "Besuchen",
+    "visiting": "Frage an…",
+    "visitFailed": "Niemand aus diesem Team hat geantwortet. Vielleicht haben alle den Raum verlassen.",
+    "groups": "Gruppen",
+    "teams": "Teams",
+    "visitNotice": "Deine Lehrkraft kommt in euren Raum."
   }
 }
