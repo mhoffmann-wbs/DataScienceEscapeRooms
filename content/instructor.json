@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "publicKey": {
+    "key_ops": [
+      "verify"
+    ],
+    "ext": true,
+    "kty": "EC",
+    "x": "cBQ3kYpFuh9zSi-Ft8Qiy_nggh-UfFSJc_yFA-5CTc0",
+    "y": "vCqagaVxi-TC6iDsHu3I4FCXvTP0u39gUhvA9Rqt_Ik",
+    "crv": "P-256"
+  },
+  "encryptedKey": {
+    "salt": "FLBdtwp8HYtlAmF7fFUqHQ==",
+    "iv": "CTCWmSKn8riLIeVf",
+    "data": "JtMSE1jR5MUo1PMMFbdYh0HiEBYhzI7oHYWzLkCcggXcP1H2bTKIP4225PM7yVElBqnC3nGrKk+IDPcezdwvxMGfa8H/UHv0c47WuKaeQwKx2ymWkp42C2p9LLFMhervRIQgv0AT433Lf0tzAuD4W1JD2MRKupcFs5upO4DDanpNyKw6Pz3ZWejQI02ks50knk8RqnrD7F/XZw==",
+    "iterations": 600000
+  }
+}
