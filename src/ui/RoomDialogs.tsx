@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RunState } from '../net/run';
 import { finalPuzzleId, getClue, loadSolutions, loc, ROOMS } from '../rooms';
+import type { ReferenceSolution } from '../rooms/solutions';
 import { debriefRows } from '../rooms/debrief';
 import { Modal } from './Modal';
 import { PinButton, plainNote } from './NotesPanel';
@@ -49,7 +50,7 @@ export function DebriefDialog({ roomId, state, onLobby, onClose }: { roomId: str
   const lang = i18n.language;
   const manifest = ROOMS[roomId]!;
   const rows = debriefRows(manifest, state);
-  const [solutions, setSolutions] = useState<Record<string, string> | null>(null);
+  const [solutions, setSolutions] = useState<Record<string, ReferenceSolution> | null>(null);
   useEffect(() => {
     let cancelled = false;
     void loadSolutions(roomId).then((s) => !cancelled && setSolutions(s));
@@ -81,7 +82,20 @@ export function DebriefDialog({ roomId, state, onLobby, onClose }: { roomId: str
               {solution !== undefined && (
                 <details>
                   <summary>{t('debrief.solution')}</summary>
-                  {puzzle.check.type === 'answer' ? <p><code>{solution}</code></p> : <pre className="output">{solution.trimEnd()}</pre>}
+                  {typeof solution !== 'string' ? (
+                    <>
+                      <pre className="output">{solution.code.trimEnd()}</pre>
+                      <p>
+                        <code>{solution.answer}</code>
+                      </p>
+                    </>
+                  ) : puzzle.check.type === 'answer' ? (
+                    <p>
+                      <code>{solution}</code>
+                    </p>
+                  ) : (
+                    <pre className="output">{solution.trimEnd()}</pre>
+                  )}
                 </details>
               )}
             </li>

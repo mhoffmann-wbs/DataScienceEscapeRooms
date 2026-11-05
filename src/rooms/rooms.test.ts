@@ -4,11 +4,11 @@ import { MAPS, ROOM_IDS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { loadDataFile, ROOMS } from './index';
 import { nodePyodide } from '../runners/nodePython';
-import { canonicalSolution, solutionHash, type Engines } from './solutions';
+import { canonicalSolution, solutionHash, type Engines, type ReferenceSolution } from './solutions';
 import { LANGUAGES, renderWalkthrough, walkthroughPath, type SolvedPuzzle } from './walkthrough';
 
 // Reference solutions; every stored hash is re-derived from them.
-const solutionFiles = import.meta.glob<Record<string, string>>('../../content/rooms/*/solutions.json', { eager: true, import: 'default' });
+const solutionFiles = import.meta.glob<Record<string, ReferenceSolution>>('../../content/rooms/*/solutions.json', { eager: true, import: 'default' });
 const solutionsFor = (roomId: string) => solutionFiles[`../../content/rooms/${roomId}/solutions.json`];
 const walkthroughs = import.meta.glob<string>('../../docs/walkthroughs/*.md', { eager: true, query: '?raw', import: 'default' });
 

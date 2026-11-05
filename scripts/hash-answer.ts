@@ -4,12 +4,13 @@
 //   npm run hash-answer -- <roomId> --write   also write them into manifest.json
 //
 // Reference solutions live in content/rooms/<roomId>/solutions.json:
-// { "<puzzleId>": "<answer text | Python code | SQL query>" }, depending on the check type.
+// { "<puzzleId>": "<answer text | Python code | SQL query>" }, depending on the check type,
+// or { "answer": "…", "code": "…" } for an answer worked out in a code workspace.
 import { readFile, writeFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
 import { manifestSchema } from '../src/rooms/manifest.ts';
 import { nodePyodide } from '../src/runners/nodePython.ts';
-import { solutionHash } from '../src/rooms/solutions.ts';
+import { solutionHash, type ReferenceSolution } from '../src/rooms/solutions.ts';
 
 const [roomId, flag] = process.argv.slice(2);
 if (!roomId) {
@@ -19,7 +20,7 @@ if (!roomId) {
 const dir = `content/rooms/${roomId}`;
 const raw = JSON.parse(await readFile(`${dir}/manifest.json`, 'utf8'));
 const manifest = manifestSchema.parse(raw);
-const solutions: Record<string, string> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
+const solutions: Record<string, ReferenceSolution> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
 
 const engines = { SQL: await initSqlJs(), py: await nodePyodide(manifest.packages), readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8') };
 

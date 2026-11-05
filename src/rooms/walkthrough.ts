@@ -1,5 +1,6 @@
 import type { Language } from '../i18n/index.ts';
 import type { Localized, Manifest, Puzzle } from './manifest.ts';
+import type { ReferenceSolution } from './solutions.ts';
 
 // Instructor walkthrough of a room, rendered as Markdown from its manifest and reference
 // solutions. Written to docs/walkthroughs/ by scripts/walkthrough.ts; a room test fails when
@@ -10,8 +11,8 @@ export const LANGUAGES: readonly Language[] = ['en', 'de'];
 export const walkthroughPath = (roomId: string, lang: Language) => `docs/walkthroughs/${roomId}.${lang}.md`;
 
 export interface SolvedPuzzle {
-  /** Reference solution: answer text, Python code or SQL query. */
-  solution: string;
+  /** Reference solution: answer text, Python code or SQL query, or an answer with the code that finds it. */
+  solution: ReferenceSolution;
   /** What the check compares: the normalized answer, the JSON of the Python check expression, or the result rows. */
   result: string;
 }
@@ -107,8 +108,9 @@ export function renderWalkthrough(roomId: string, manifest: Manifest, lang: Lang
     ].join('\n'),
   ];
   const final = manifest.puzzles.find((p) => p.final)!;
+  const answerOf = (s: ReferenceSolution) => (typeof s === 'string' ? s : s.answer);
   const finalSolution = solved[final.id]?.solution;
-  if (final.check.type === 'answer' && finalSolution !== undefined) out.push(`**${t.finalAnswer}:** \`${finalSolution}\``);
+  if (final.check.type === 'answer' && finalSolution !== undefined) out.push(`**${t.finalAnswer}:** \`${answerOf(finalSolution)}\``);
   out.push(`## ${t.stations}`);
 
   manifest.puzzles.forEach((p, i) => {
@@ -122,9 +124,10 @@ export function renderWalkthrough(roomId: string, manifest: Manifest, lang: Lang
     if (starter.trim()) out.push(`<details><summary>${t.starter}</summary>\n\n${fence(starter, p.workspace)}\n\n</details>`);
 
     if (p.check.type === 'answer') {
-      out.push(`**${t.answer}:** \`${s.solution}\``);
+      if (typeof s.solution !== 'string') out.push(`**${t.solution}:**`, fence(s.solution.code, p.workspace));
+      out.push(`**${t.answer}:** \`${answerOf(s.solution)}\``);
     } else {
-      out.push(`**${t.solution}:**`, fence(s.solution, p.workspace));
+      out.push(`**${t.solution}:**`, fence(answerOf(s.solution), p.workspace));
       const what = p.check.type === 'python' ? `\`${p.check.expr}\`` : `${t.sqlRows}, ${p.check.ordered ? t.sqlOrdered : t.sqlUnordered}`;
       out.push(`**${t.result}** (${what}):`, fence(s.result, 'json'));
     }

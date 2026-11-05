@@ -239,6 +239,16 @@ print(catalog["M-01"])
 
 </details>
 
+**Musterlösung:**
+
+```python
+for sample_id, info in catalog.items():
+    if sample_id.startswith("M-1") and info["glows"]:
+        smudged = sample_id
+print(smudged)
+print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["spores"])
+```
+
 **Antwort:** `7325`
 
 **Zeigt nach dem Lösen:**

@@ -1,11 +1,12 @@
 import type { Language } from '../i18n';
 import { manifestSchema, type Clue, type Localized, type Manifest, type Puzzle } from './manifest';
+import type { ReferenceSolution } from './solutions';
 
 // Rooms are discovered from content/rooms/<roomId>/manifest.json; the folder name is the roomId.
 const manifests = import.meta.glob<unknown>('../../content/rooms/*/manifest.json', { eager: true, import: 'default' });
 // Data files load lazily, so a room's datasets are only downloaded when needed.
 // Reference solutions too: they are public, but only the debrief screen needs them.
-const solutionFiles = import.meta.glob<Record<string, string>>('../../content/rooms/*/solutions.json', { import: 'default' });
+const solutionFiles = import.meta.glob<Record<string, ReferenceSolution>>('../../content/rooms/*/solutions.json', { import: 'default' });
 const dataFiles = import.meta.glob<string>('../../content/rooms/*/data/*', { query: '?raw', import: 'default' });
 
 const roomIdOf = (path: string) => path.split('/').at(-2)!;
@@ -41,8 +42,8 @@ export async function loadDataFile(roomId: string, file: string): Promise<string
   return load();
 }
 
-/** Reference solutions by puzzle id (answer text, Python code or SQL query). */
-export async function loadSolutions(roomId: string): Promise<Record<string, string>> {
+/** Reference solutions by puzzle id (answer text, Python code or SQL query, or an answer with its code). */
+export async function loadSolutions(roomId: string): Promise<Record<string, ReferenceSolution>> {
   const load = solutionFiles[`../../content/rooms/${roomId}/solutions.json`];
   return load ? load() : {};
 }

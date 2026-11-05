@@ -13,11 +13,23 @@ export interface Engines {
 }
 
 /**
- * Turns an author's reference solution into the canonical string that gets hashed:
- * the answer text for `answer` checks, Python code for `python`, a query for `sql`.
+ * A puzzle's entry in solutions.json: the answer text for `answer` checks, Python code for
+ * `python`, a query for `sql`. An `answer` check that is worked out in a code workspace
+ * gives the answer plus the code that finds it, which is shown as the model solution.
  */
-export async function canonicalSolution(puzzle: Puzzle, solution: string, engines: Engines): Promise<string> {
+export type ReferenceSolution = string | { answer: string; code: string };
+
+/** The part of a reference solution that gets checked: the answer, code or query. */
+export const solutionText = (solution: ReferenceSolution) => (typeof solution === 'string' ? solution : solution.answer);
+
+/**
+ * Turns an author's reference solution into the canonical string that gets hashed.
+ * For answers with code, the code must run and show the answer (in its output or result rows).
+ */
+export async function canonicalSolution(puzzle: Puzzle, solution: ReferenceSolution, engines: Engines): Promise<string> {
   const data = puzzle.data ? await engines.readData(puzzle.data) : '';
+  if (typeof solution !== 'string') await checkWorkedAnswer(puzzle, solution, data, engines);
+  solution = solutionText(solution);
   switch (puzzle.check.type) {
     case 'answer':
       return normalizeAnswer(solution, puzzle.check.mode);
@@ -34,6 +46,23 @@ export async function canonicalSolution(puzzle: Puzzle, solution: string, engine
   }
 }
 
-export async function solutionHash(manifest: Manifest, puzzle: Puzzle, solution: string, engines: Engines): Promise<string> {
+async function checkWorkedAnswer(puzzle: Puzzle, { answer, code }: { answer: string; code: string }, data: string, engines: Engines) {
+  if (puzzle.check.type !== 'answer') throw new Error(`${puzzle.id}: only answer checks take an answer with code`);
+  let shown: string;
+  if (puzzle.workspace === 'python') {
+    const out = await runPython(engines.py, code, data);
+    if (!out.ok) throw new Error(`${puzzle.id}: reference code failed:\n${out.error}`);
+    shown = out.stdout;
+  } else if (puzzle.workspace === 'sql') {
+    const out = runSql(engines.SQL, data, code);
+    if (!out.ok) throw new Error(`${puzzle.id}: reference query failed: ${out.error}`);
+    shown = (out.result?.rows ?? []).flat().map(String).join('\n');
+  } else {
+    throw new Error(`${puzzle.id}: reference code needs a python or sql workspace`);
+  }
+  if (!shown.toLowerCase().includes(answer.toLowerCase())) throw new Error(`${puzzle.id}: reference code doesn't show the answer ${answer}; it shows:\n${shown}`);
+}
+
+export async function solutionHash(manifest: Manifest, puzzle: Puzzle, solution: ReferenceSolution, engines: Engines): Promise<string> {
   return hashAnswer(manifest.salt, puzzle.id, await canonicalSolution(puzzle, solution, engines));
 }

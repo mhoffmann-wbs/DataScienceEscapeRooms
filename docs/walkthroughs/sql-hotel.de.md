@@ -297,6 +297,21 @@ LIMIT 5;
 
 </details>
 
+**Musterlösung:**
+
+```sql
+SELECT b.guest_name, d.room, COUNT(*) AS openings
+FROM door_log AS d
+JOIN bookings AS b ON b.room = d.room
+WHERE d.card_id = 'M-02'
+  AND d.event = 'open'
+  AND d.time >= '2026-03-14 21:00'
+  AND b.check_in <= '2026-03-14'
+  AND b.check_out > '2026-03-14'
+GROUP BY b.guest_name, d.room
+ORDER BY openings DESC;
+```
+
 **Antwort:** `Nora Quill`
 
 **Hinweise:**

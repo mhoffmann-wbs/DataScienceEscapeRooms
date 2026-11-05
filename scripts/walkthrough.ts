@@ -8,7 +8,7 @@ import { dirname } from 'node:path';
 import initSqlJs from 'sql.js';
 import { manifestSchema } from '../src/rooms/manifest.ts';
 import { nodePyodide } from '../src/runners/nodePython.ts';
-import { canonicalSolution } from '../src/rooms/solutions.ts';
+import { canonicalSolution, type ReferenceSolution } from '../src/rooms/solutions.ts';
 import { LANGUAGES, renderWalkthrough, walkthroughPath, type SolvedPuzzle } from '../src/rooms/walkthrough.ts';
 
 const only = process.argv[2];
@@ -18,7 +18,7 @@ const SQL = await initSqlJs();
 for (const roomId of roomIds) {
   const dir = `content/rooms/${roomId}`;
   const manifest = manifestSchema.parse(JSON.parse(await readFile(`${dir}/manifest.json`, 'utf8')));
-  const solutions: Record<string, string> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
+  const solutions: Record<string, ReferenceSolution> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
   const py = await nodePyodide(manifest.packages);
   const engines = { SQL, py, readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8') };
 

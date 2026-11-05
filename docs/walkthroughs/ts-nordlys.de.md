@@ -98,6 +98,19 @@ show_plot(freezer, title="Temperatur im Gefrierschrank")
 
 </details>
 
+**Musterlösung:**
+
+```python
+import statsmodels.api as sm
+hours = np.arange(len(freezer))
+slope, intercept = np.polyfit(hours, freezer.values, 1)
+residuals = freezer.values - (slope * hours + intercept)
+show_plot(pd.Series(residuals, index=freezer.index), title="Freezer without the drift")
+ar1, ar2, sigma2 = sm.tsa.ARIMA(residuals, order=(2, 0, 0), trend="n").fit().params
+print(ar1, ar2)
+print(f"{abs(round(ar1 * 10))}{abs(round(ar2 * 10))}")
+```
+
 **Antwort:** `63`
 
 **Zeigt nach dem Lösen:**
