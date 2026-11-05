@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Scores } from '../net/scores';
+import type { InstructorChannel } from '../net/instructor';
+import { idOf, type Result, type Scores } from '../net/scores';
 import { ROOMS, roomTitle } from '../rooms';
 import { Modal } from './Modal';
 import { formatDuration } from './RoomHud';
@@ -9,8 +10,15 @@ import { useEmitterValue } from './useStore';
 type Period = 'today' | 'week' | 'all';
 const DAY = 24 * 3600_000;
 
+interface Props {
+  scores: Scores;
+  /** Unlocked instructor mode: results can be removed, for everyone. */
+  instructor?: { channel: InstructorChannel; signingKey: CryptoKey } | null;
+  onClose: () => void;
+}
+
 /** Escape times per room, filterable by group and period. Results come from players' browsers. */
-export function ScoreboardDialog({ scores, onClose }: { scores: Scores; onClose: () => void }) {
+export function ScoreboardDialog({ scores, instructor = null, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const results = useEmitterValue(scores.events, 'results', () => scores.list());
   const roomIds = Object.keys(ROOMS);
@@ -23,6 +31,11 @@ export function ScoreboardDialog({ scores, onClose }: { scores: Scores; onClose:
   const since = period === 'today' ? new Date(now).setHours(0, 0, 0, 0) : period === 'week' ? now - 7 * DAY : 0;
   const shown = results.filter((r) => r.roomId === roomId && r.escapedAt >= since && (!group || r.group === group));
   const date = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+  const remove = (r: Result) => {
+    if (!instructor || !window.confirm(t('scores.removeConfirm', { team: t('team.teamOf', { name: r.leader }) }))) return;
+    void instructor.channel.send(instructor.signingKey, { type: 'removeScore', id: idOf(r) });
+  };
 
   return (
     <Modal title={t('scores.title')} onClose={onClose} wide>
@@ -66,11 +79,12 @@ export function ScoreboardDialog({ scores, onClose }: { scores: Scores; onClose:
               <th>{t('scores.time')}</th>
               <th>{t('scores.hints')}</th>
               <th>{t('scores.when')}</th>
+              {instructor && <th />}
             </tr>
           </thead>
           <tbody>
             {shown.map((r, i) => (
-              <tr key={`${r.teamId}@${r.epoch}`}>
+              <tr key={idOf(r)}>
                 <td>{i + 1}</td>
                 <td>
                   <strong>{t('team.teamOf', { name: r.leader })}</strong>
@@ -80,6 +94,13 @@ export function ScoreboardDialog({ scores, onClose }: { scores: Scores; onClose:
                 <td>{formatDuration(r.escapedAt - r.startedAt)}</td>
                 <td>{r.hints}</td>
                 <td>{date.format(r.escapedAt)}</td>
+                {instructor && (
+                  <td>
+                    <button type="button" onClick={() => remove(r)}>
+                      {t('scores.remove')}
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

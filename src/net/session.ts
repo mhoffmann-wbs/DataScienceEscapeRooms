@@ -68,8 +68,8 @@ export class LobbySession extends Session {
     super(transport, 'lobby', profile, areas);
     this.teams = new Teams(this.room);
     this.runs = new Runs(this.room);
-    this.scores = new Scores(this.room, this.runs);
     this.instructor = new InstructorChannel(this.room, instructor);
+    this.scores = new Scores(this.room, this.runs, this.instructor);
     this.help = new HelpDesk(this.room, this.instructor);
   }
 

@@ -131,7 +131,7 @@ export function App() {
     <div className="app">
       {place && profile ? (
         // Until the lobby connection exists (one render), show nothing rather than the join screen.
-        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} onPractise={practise} />
+        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} onPractise={practise} instructorKey={instructorKey} />
       ) : (
         <JoinScreen initial={profile} onJoin={join} />
       )}

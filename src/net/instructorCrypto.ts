@@ -19,6 +19,8 @@ export const instructorMessageSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('visit'), teamId: z.string().min(1).max(64), peerId: z.string().min(1).max(64), ...base }),
   // Peer `peerId` is an instructor: everyone labels its avatar.
   z.object({ type: z.literal('present'), peerId: z.string().min(1).max(64), ...base }),
+  // Remove result `id` (`<teamId>@<epoch>`) from the scoreboard, for good: relayed to newcomers.
+  z.object({ type: z.literal('removeScore'), id: z.string().min(1).max(140), ...base }),
 ]);
 export type InstructorMessage = z.infer<typeof instructorMessageSchema>;
 /** What the instructor composes; time and nonce are added when signing. */

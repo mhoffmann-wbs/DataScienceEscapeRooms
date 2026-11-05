@@ -54,10 +54,12 @@ interface Props {
   onRejoin: () => void;
   /** Play a room alone, offline. */
   onPractise: (roomId: string) => void;
+  /** The unlocked instructor key, if any. */
+  instructorKey: CryptoKey | null;
 }
 
 /** One place in the world: its Phaser game, and for rooms the room's network session. */
-export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom, onRejoin, onPractise }: Props) {
+export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom, onRejoin, onPractise, instructorKey }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Author mode and solo practice play the room offline, on an in-process network of one.
   const solo = place.kind === 'room' && !!place.run.solo;
@@ -106,7 +108,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
     <>
       {/* Clicking the map ends typing in any field (chat, notes), so walking works again. */}
       <div ref={containerRef} className="game" onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
-      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
+      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} instructorKey={instructorKey} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         // A solo run has no team to report to the lobby.
         <RoomOverlays session={session} lobby={solo ? null : lobby} solo={solo} observer={!!place.observer} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
@@ -118,12 +120,13 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
 interface LobbyOverlaysProps {
   session: LobbySession;
   profile: Profile;
+  instructorKey: CryptoKey | null;
   onEnterRoom: (started: StartedTeam, leader: string) => void;
   onRejoin: () => void;
   onPractise: (roomId: string) => void;
 }
 
-function LobbyOverlays({ session, profile, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
+function LobbyOverlays({ session, profile, instructorKey, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
   const { t } = useTranslation();
   const [dialogRoom, setDialogRoom] = useState<string | null>(null);
   const [scoreboard, setScoreboard] = useState(false);
@@ -142,7 +145,13 @@ function LobbyOverlays({ session, profile, onEnterRoom, onRejoin, onPractise }: 
           🏆 {t('scores.title')}
         </button>
       </div>
-      {scoreboard && <ScoreboardDialog scores={session.scores} onClose={() => setScoreboard(false)} />}
+      {scoreboard && (
+        <ScoreboardDialog
+          scores={session.scores}
+          instructor={instructorKey && { channel: session.instructor, signingKey: instructorKey }}
+          onClose={() => setScoreboard(false)}
+        />
+      )}
       <TeamBar teams={session.teams} presence={session.presence} profile={profile} />
       {dialogRoom && (
         <TeamDialog

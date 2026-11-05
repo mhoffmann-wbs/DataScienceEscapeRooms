@@ -1,15 +1,20 @@
 import { z } from 'zod';
 import { Emitter } from '../lib/emitter';
+import { signedSchema, type InstructorChannel, type Signed } from './instructor';
 import type { RunSummary, Runs } from './runs';
 import type { NetRoom } from './transport';
 
 // The lobby scoreboard: finished runs, gossiped between players' browsers and kept in
 // localStorage. Not cheat-proof (anyone can send a result), and the UI says so. Results
-// merge by team and epoch, keeping the earliest escape.
+// merge by team and epoch, keeping the earliest escape. Instructors can remove results:
+// a signed removal deletes the result and is kept as a tombstone, so the result can't come
+// back from browsers that missed it; tombstones are relayed to every newcomer.
 
 const MAX_RESULTS = 300;
 const MAX_AGE_MS = 60 * 24 * 3600_000;
 const STORAGE_KEY = 'dser.scores';
+const REMOVED_KEY = 'dser.scores.removed';
+const MAX_REMOVED = 300;
 
 export const resultSchema = z.object({
   teamId: z.string().min(1).max(64),
@@ -25,7 +30,8 @@ export const resultSchema = z.object({
 export type Result = z.infer<typeof resultSchema>;
 
 const resultsSchema = z.array(resultSchema).max(MAX_RESULTS);
-const idOf = (r: Result) => `${r.teamId}@${r.epoch}`;
+const removedSchema = z.array(z.object({ id: z.string(), signed: signedSchema })).max(MAX_REMOVED);
+export const idOf = (r: Result) => `${r.teamId}@${r.epoch}`;
 /** Escape times outside this range are not plausible results. */
 const plausible = (r: Result) => r.escapedAt - r.startedAt > 30_000 && r.escapedAt - r.startedAt < 12 * 3600_000;
 
@@ -39,19 +45,27 @@ export function resultOf(s: RunSummary): Result | null {
 export class Scores {
   readonly events = new Emitter<{ results: readonly Result[] }>();
   private readonly results = new Map<string, Result>();
+  /** Removed result ids, with the instructor's signed removal (oldest first). */
+  private readonly removed = new Map<string, Signed>();
   private snapshot: readonly Result[] = [];
   private readonly channel;
   private readonly offs: (() => void)[];
 
+  /** `instructor`: where signed removals come from (null: results can't be removed). */
   constructor(
     room: NetRoom,
     runs: Runs,
+    instructor: InstructorChannel | null = null,
     private readonly now: () => number = Date.now,
   ) {
     this.load();
     this.channel = room.channel<Result[]>('scores');
     this.offs = [
-      room.onPeerJoin((id) => this.results.size && this.channel.send([...this.results.values()], [id])),
+      room.onPeerJoin((id) => {
+        if (this.results.size) this.channel.send([...this.results.values()], [id]);
+        for (const signed of this.removed.values()) instructor?.relay(signed, [id]);
+      }),
+      ...(instructor ? [instructor.events.on('removeScore', ({ id, signed }) => this.remove(id, signed))] : []),
       this.channel.subscribe((data) => {
         const parsed = resultsSchema.safeParse(data);
         if (parsed.success) this.add(parsed.data);
@@ -74,13 +88,24 @@ export class Scores {
   private add(incoming: readonly Result[]): void {
     let changed = false;
     for (const r of incoming) {
-      if (!plausible(r) || this.now() - r.escapedAt > MAX_AGE_MS) continue;
+      if (!plausible(r) || this.now() - r.escapedAt > MAX_AGE_MS || this.removed.has(idOf(r))) continue;
       const known = this.results.get(idOf(r));
       if (known && known.escapedAt <= r.escapedAt) continue;
       this.results.set(idOf(r), r);
       changed = true;
     }
-    if (!changed) return;
+    if (changed) this.commit();
+  }
+
+  private remove(id: string, signed: Signed): void {
+    if (this.removed.has(id)) return;
+    this.removed.set(id, signed);
+    for (const old of [...this.removed.keys()].slice(0, -MAX_REMOVED)) this.removed.delete(old);
+    this.results.delete(id);
+    this.commit();
+  }
+
+  private commit(): void {
     // Keep the newest MAX_RESULTS.
     const kept = [...this.results.values()].sort((a, b) => b.escapedAt - a.escapedAt).slice(0, MAX_RESULTS);
     this.results.clear();
@@ -92,6 +117,9 @@ export class Scores {
 
   private load(): void {
     try {
+      // Our own storage is trusted; others only accept the relayed signatures.
+      const removed = removedSchema.safeParse(JSON.parse(localStorage.getItem(REMOVED_KEY) ?? '[]'));
+      if (removed.success) removed.data.forEach(({ id, signed }) => this.removed.set(id, signed));
       const parsed = resultsSchema.safeParse(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]'));
       if (parsed.success) this.add(parsed.data);
     } catch {
@@ -102,6 +130,7 @@ export class Scores {
   private save(): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...this.results.values()]));
+      localStorage.setItem(REMOVED_KEY, JSON.stringify([...this.removed].map(([id, signed]) => ({ id, signed }))));
     } catch {
       // the scoreboard still works for this visit
     }

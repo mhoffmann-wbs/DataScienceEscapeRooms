@@ -2,14 +2,14 @@ import { Emitter } from '../lib/emitter';
 import { ECDSA, fromB64, instructorMessageSchema, SIGN, signedSchema, toB64, type InstructorConfig, type InstructorDraft, type InstructorMessage, type Signed } from './instructorCrypto';
 import type { NetRoom } from './transport';
 
-// Instructor messages (announcements, run resets, room visits, who is an instructor), signed with the instructor's private key.
+// Instructor messages (announcements, run resets, room visits, who is an instructor, scoreboard removals), signed with the instructor's private key.
 // Every client verifies them with the public key from content/instructor.json, so students
 // can't forge them. The private key is stored there too, encrypted with the instructor's
 // passphrase (scripts/instructor-keys.ts). A weak passphrase can be brute-forced offline,
 // since the encrypted key is public.
 
-export { createInstructorConfig, instructorConfigSchema, unlockInstructor } from './instructorCrypto';
-export type { InstructorConfig, InstructorDraft, InstructorMessage } from './instructorCrypto';
+export { createInstructorConfig, instructorConfigSchema, signedSchema, unlockInstructor } from './instructorCrypto';
+export type { InstructorConfig, InstructorDraft, InstructorMessage, Signed } from './instructorCrypto';
 
 /** Accepted clock difference between instructor and player, and how long a nonce is remembered. */
 const MAX_SKEW_MS = 10 * 60_000;
@@ -25,6 +25,8 @@ export class InstructorChannel {
     visit: Extract<InstructorMessage, { type: 'visit' }>;
     /** The peers known to be instructors changed. */
     instructors: readonly string[];
+    /** With the signed original, so the scoreboard can pass it on (see `relay`). */
+    removeScore: { id: string; signed: Signed };
   }>();
   private readonly channel;
   private readonly offs: (() => void)[];
@@ -63,6 +65,11 @@ export class InstructorChannel {
     if (this.presentKey) return;
     this.presentKey = signingKey;
     await this.send(signingKey, { type: 'present', peerId: this.room.selfId });
+  }
+
+  /** Passes a signed message on as is, e.g. a scoreboard removal to a newcomer. */
+  relay(signed: Signed, to?: string[]): void {
+    this.channel.send(signed, to);
   }
 
   /** Peers known to be instructors (may include ourselves). Stable between changes. */
@@ -110,12 +117,14 @@ export class InstructorChannel {
     if (!parsed.success) return;
     const msg = parsed.data;
     const now = this.now();
-    if (Math.abs(now - msg.at) > MAX_SKEW_MS || this.seen.has(msg.nonce)) return;
+    // Removals stay valid when relayed later; replaying one changes nothing.
+    if ((msg.type !== 'removeScore' && Math.abs(now - msg.at) > MAX_SKEW_MS) || this.seen.has(msg.nonce)) return;
     for (const [nonce, at] of this.seen) if (now - at > MAX_SKEW_MS) this.seen.delete(nonce);
     this.seen.set(msg.nonce, msg.at);
     if (msg.type === 'announce') this.events.emit('announce', msg);
     else if (msg.type === 'reset') this.events.emit('reset', msg);
     else if (msg.type === 'visit') this.events.emit('visit', msg);
+    else if (msg.type === 'removeScore') this.events.emit('removeScore', { id: msg.id, signed: signed.data });
     else if (!this.present.has(msg.peerId)) {
       this.present.add(msg.peerId);
       this.emitInstructors();
