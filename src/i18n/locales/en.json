@@ -149,7 +149,7 @@
     "empty": "(no output)",
     "close": "Close",
     "reveal": "What you found",
-    "loadingPackages": "Loading Python with {{list}}… the first time downloads about 30 MB and takes a little while."
+    "loadingPackages": "Loading Python with {{list}}… the first time downloads several megabytes and takes a little while."
   },
   "debrief": {
     "open": "Debrief",

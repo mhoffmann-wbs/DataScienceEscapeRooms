@@ -87,7 +87,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 
 ### 8b. Doors as room types ✅
 - Lobby doors stand for room types (🐍 Python, 🗄️ SQL, 📈 time series), with an icon sign above each.
-- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series, since built). Move an entry from `upcoming` into a room manifest when it gets built.
+- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python, since built), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series, since built). Move an entry from `upcoming` into a room manifest when it gets built.
 
 ### 9. Polish
 - **Art:** ✅ redrawn in our own generator (`scripts/generate-art.mjs`): outlined, shaded tiles with drop shadows and texture, doors that pair into double doors, and 12 characters (hair styles, skin tones, glasses, a cap) with idle and two walking frames per direction. Kenney's CC0 packs were checked and dropped: no lab, hotel or station props, and characters that only face forward. Players on an older build drop hellos from the new avatars 7–12 until they reload.
@@ -148,6 +148,15 @@ Observations from the first playthroughs.
 - **Go to a player:** ✅ an unlocked instructor's people list turns names into a menu with "🎓 Go to <name>": same map → jump next to them; player in the lobby → back to the lobby first; player in a room → the visit flow (summaries now carry the members' peer ids). Not yet on the map's name labels or in the instructor panel's member list.
 - **Players who left early:** ✅ the run state remembers every player (nickname → first joined); results list those who left before the escape, struck through, "left early".
 - **Scoreboard survival:** answered, no change: every browser keeps results (newest 300, 60 days) and hands them to newcomers, so an empty lobby doesn't lose them. See "Scoreboard export" below.
+
+### 12. pandas room "Market Day" ✅ content built (`pandas-market`, beginner), playtest pending
+(Kleeberg farmers' market, Saturday.) The cash count came up short and the market manager has locked the hall. A beginner pandas room behind the 🐍 door, loading only the pandas package (about 8 MB with numpy). The data file writes three CSV files into Pyodide's file system, so students load them with `pd.read_csv` as they would at home; `generate_data.py` (stdlib only) makes them. Market tiles (cobblestones, stalls, fountain, easel, envelope table) were added to the art generator.
+1. **Market register** (`read_csv`, filtering; open): count the vegetable stalls (2) and find the honey stall next to the fountain (S04). Clues: complaint, market plan. A red herring: S04 turns out honest.
+2. **Price tags** (cleaning numbers; open): prices written four ways (`2,50 €`, `€2.50`, `2.50`, `2,5`) → floats, `revenue`, total €1,889.00. Clue: price board.
+3. **Card terminal** (cleaning labels; open): `payment` (`Cash `, `CASH`, `EC`…) and `stall_id` (` s04`) normalised; 128 cash, 90 card, 12 stalls. Clue: market rules (`EC` is a card).
+4. **Cash ledger** (`groupby`; needs 2 and 3): cash per stall, €1,110.00 in total; S04 took the most.
+5. **Envelope table** (`merge`; needs 4): handover sheet (by stall name) → stalls → cash totals; shortfall per helper badge: badge 7 is €145.00 short over four envelopes, while badge 12 (−€0.50) and badge 3 (+€1) are coin noise.
+6. **Greta's report** (final; needs 1 and 5): the helper rota maps badge 7 to Tobi.
 
 ## Known limits
 

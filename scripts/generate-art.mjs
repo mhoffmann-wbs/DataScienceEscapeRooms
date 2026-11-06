@@ -775,6 +775,174 @@ drawTile(42, (g) => {
 // 43 door: time series (ice blue)
 drawTile(43, (g) => door(g, [120, 172, 204], [196, 242, 255]));
 
+// --- Market hall (pandas-market) -----------------------------------------------
+/** A market stall: a striped awning on poles over a wooden counter; `goods` draws on the counter. */
+function stall(o, stripe, goods) {
+  o.rect(3, 6, 2, 16, WOOD_DARK);
+  o.rect(T - 5, 6, 2, 16, WOOD_DARK);
+  for (let x = 1; x < T - 1; x++) o.rect(x, 1, 1, 6, Math.floor((x - 1) / 5) % 2 ? [248, 244, 232] : stripe);
+  for (let x = 1; x < T - 1; x += 5) o.ellipse(x + 2.5, 7, 2.5, 1.5, stripe);
+  o.rect(1, 1, T - 2, 1, sh(stripe, 1.25));
+  o.box(1, 18, T - 2, 11, WOOD, 1.3);
+  o.rect(1, 20, T - 2, 1, sh(WOOD, 0.85));
+  goods(o);
+}
+/** A crate seen from the front, filled with round produce. */
+function crate(o, x, y, w, fruit) {
+  o.box(x, y + 3, w, 6, [190, 140, 84]);
+  o.rect(x, y + 5, w, 1, [150, 104, 60]);
+  for (let i = x + 2; i < x + w - 1; i += 3) o.ellipse(i + 0.5, y + 2.5, 1.8, 1.8, fruit);
+  for (let i = x + 2; i < x + w - 1; i += 6) o.set(i, y + 1, sh(fruit, 1.4));
+}
+
+// 44 market floor: cobblestones
+drawTile(44, (g) => {
+  const mortar = [126, 118, 108];
+  g.rect(0, 0, T, T, mortar);
+  const r = rng(44);
+  for (let row = 0; row < 4; row++) {
+    const off = row % 2 ? 4 : 0;
+    for (let col = -1; col < 4; col++) {
+      const x = col * 8 + off;
+      const stone = sh([176, 166, 150], 0.9 + r() * 0.18);
+      g.rect(x + 1, row * 8 + 1, 7, 6, stone);
+      g.rect(x + 1, row * 8 + 1, 7, 1, sh(stone, 1.12));
+      g.rect(x + 1, row * 8 + 6, 7, 1, sh(stone, 0.86));
+    }
+  }
+});
+// 45 vegetable stall
+drawTile(45, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) =>
+    stall(o, [70, 150, 80], () => {
+      crate(o, 3, 11, 9, [230, 120, 40]);
+      crate(o, 13, 11, 8, [90, 170, 70]);
+      crate(o, 22, 11, 8, [210, 50, 50]);
+    }),
+  );
+});
+// 46 honey stall
+drawTile(46, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) =>
+    stall(o, [232, 176, 40], () => {
+      for (let i = 0; i < 4; i++) {
+        const x = 4 + i * 6;
+        o.box(x, 13, 5, 6, [236, 160, 30], 1.25);
+        o.rect(x, 12, 5, 2, [250, 246, 236]);
+        o.set(x + 1, 15, [255, 220, 130]);
+      }
+      o.box(12, 22, 8, 4, [250, 240, 200]);
+    }),
+  );
+});
+// 47 bread stall
+drawTile(47, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) =>
+    stall(o, [190, 70, 60], () => {
+      const crust = [196, 132, 64];
+      o.ellipse(9, 16, 5, 3, crust);
+      o.ellipse(9, 15, 4, 1.5, sh(crust, 1.2));
+      o.ellipse(20, 16, 4, 2.5, sh(crust, 0.9));
+      o.ellipse(26, 16, 2.5, 2.5, sh(crust, 1.1));
+      for (let x = 7; x < 12; x += 2) o.set(x, 15, sh(crust, 0.7));
+      o.box(4, 22, 7, 5, [250, 248, 238], 1, 0.85);
+      o.rect(5, 24, 4, 1, [80, 80, 90]);
+    }),
+  );
+});
+// 48 chalkboard easel
+drawTile(48, (g, { obj, shadow }) => {
+  shadow(16, 30, 10, 2);
+  obj((o) => {
+    o.rect(7, 24, 2, 6, WOOD_DARK);
+    o.rect(T - 9, 24, 2, 6, WOOD_DARK);
+    o.box(5, 2, T - 10, 23, [150, 104, 60], 1.3);
+    o.rect(7, 4, T - 14, 19, [44, 56, 50]);
+    for (let y = 7; y < 21; y += 4) {
+      o.rect(9, y, 6 + ((y * 3) % 5), 1, [230, 232, 226]);
+      o.rect(19, y, 4, 1, [250, 220, 120]);
+    }
+  });
+});
+// 49 fountain
+drawTile(49, (g, { obj, shadow }) => {
+  shadow(16, 28, 14, 3);
+  obj((o) => {
+    const stone = [170, 172, 180];
+    o.ellipse(16, 21, 14, 7, stone);
+    o.ellipse(16, 19, 12, 5, sh(stone, 1.15));
+    o.ellipse(16, 20, 10.5, 4, [90, 160, 210]);
+    o.ellipse(13, 19, 3, 1, [190, 230, 250]);
+    o.box(14, 8, 4, 12, stone);
+    o.ellipse(16, 8, 5, 2, sh(stone, 1.15));
+    o.rect(15, 2, 2, 6, [150, 210, 245]);
+    o.set(13, 5, [190, 230, 250]);
+    o.set(19, 4, [190, 230, 250]);
+    o.set(12, 9, [150, 210, 245]);
+    o.set(20, 9, [150, 210, 245]);
+  });
+});
+// 50 table with a ledger and a calculator
+drawTile(50, (g, { obj, shadow }) => {
+  shadow(16, 28, 13, 3);
+  obj((o) => {
+    o.box(1, 10, T - 2, 11, WOOD, 1.3);
+    o.rect(1, 12, T - 2, 1, sh(WOOD, 0.85));
+    o.rect(3, 21, 3, 8, WOOD_DARK);
+    o.rect(T - 6, 21, 3, 8, WOOD_DARK);
+    o.box(3, 3, 15, 10, [40, 90, 70]);
+    paper(o, 4, 4, 6, 8);
+    paper(o, 11, 4, 6, 8);
+    o.box(20, 4, 8, 9, [60, 64, 78]);
+    o.rect(21, 5, 6, 2, [160, 220, 170]);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) o.set(21 + c * 2, 8 + r * 2, [210, 214, 222]);
+  });
+});
+// 51 table with cash envelopes
+drawTile(51, (g, { obj, shadow }) => {
+  shadow(16, 28, 13, 3);
+  obj((o) => {
+    o.box(1, 10, T - 2, 11, WOOD, 1.3);
+    o.rect(1, 12, T - 2, 1, sh(WOOD, 0.85));
+    o.rect(3, 21, 3, 8, WOOD_DARK);
+    o.rect(T - 6, 21, 3, 8, WOOD_DARK);
+    const env = [236, 214, 160];
+    for (const [x, y] of [[3, 6], [10, 3], [17, 6], [22, 2]]) {
+      o.box(x, y, 8, 6, env, 1.1);
+      o.rect(x + 1, y + 1, 3, 1, sh(env, 0.8));
+      o.rect(x + 4, y + 1, 3, 1, sh(env, 0.8));
+      o.set(x + 4, y + 2, sh(env, 0.7));
+    }
+    o.rect(12, 7, 4, 2, [120, 170, 110]);
+  });
+});
+// 52 stacked crates of apples
+drawTile(52, (g, { obj, shadow }) => {
+  shadow(16, 29, 12, 2);
+  obj((o) => {
+    crate(o, 4, 19, 24, [210, 50, 50]);
+    crate(o, 4, 11, 12, [240, 190, 50]);
+    crate(o, 17, 11, 11, [100, 170, 70]);
+  });
+});
+// 53 buckets of flowers
+drawTile(53, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 2);
+  obj((o) => {
+    for (const [x, col] of [[5, [230, 80, 120]], [16, [250, 210, 60]], [26, [150, 110, 230]]]) {
+      o.rect(x - 1, 8, 1, 12, [70, 140, 70]);
+      o.rect(x + 1, 10, 1, 10, [70, 140, 70]);
+      o.ellipse(x - 1, 8, 2.5, 2.5, col);
+      o.ellipse(x + 2, 10, 2.5, 2.5, sh(col, 0.85));
+      o.ellipse(x, 6, 2, 2, sh(col, 1.2));
+      o.box(x - 4, 19, 8, 10, [90, 120, 160]);
+    }
+  });
+});
+
 // --- Avatars: rows = avatars, columns = direction x 3 frames (idle, step, step) ---
 // Directions in order: down, left, right, up (see src/game/avatars.ts).
 const SKIN = [[250, 218, 186], [236, 190, 150], [204, 150, 108], [160, 106, 70], [118, 76, 50]];

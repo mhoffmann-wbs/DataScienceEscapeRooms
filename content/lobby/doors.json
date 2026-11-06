@@ -3,24 +3,7 @@
     {
       "id": "python",
       "icon": "🐍",
-      "title": { "en": "Python", "de": "Python" },
-      "upcoming": [
-        {
-          "title": { "en": "Market Day", "de": "Markttag" },
-          "difficulty": "advanced",
-          "about": {
-            "tools": ["Python", "pandas"],
-            "practises": {
-              "en": "DataFrames, filtering, cleaning messy columns, groupby and merge.",
-              "de": "DataFrames, Filtern, unsaubere Spalten bereinigen, groupby und merge."
-            },
-            "story": {
-              "en": "The cashbox of a farmers' market went missing; piece the stalls' messy sales sheets together to find out where the money went.",
-              "de": "Die Kasse eines Bauernmarkts ist verschwunden; setzt die unordentlichen Verkaufslisten der Stände zusammen, um herauszufinden, wohin das Geld ging."
-            }
-          }
-        }
-      ]
+      "title": { "en": "Python", "de": "Python" }
     },
     {
       "id": "sql",

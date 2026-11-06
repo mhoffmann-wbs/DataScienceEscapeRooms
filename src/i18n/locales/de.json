@@ -149,7 +149,7 @@
     "empty": "(keine Ausgabe)",
     "close": "Schließen",
     "reveal": "Was ihr gefunden habt",
-    "loadingPackages": "Python mit {{list}} wird geladen… beim ersten Mal werden etwa 30 MB heruntergeladen, das dauert einen Moment."
+    "loadingPackages": "Python mit {{list}} wird geladen… beim ersten Mal werden einige Megabyte heruntergeladen, das dauert einen Moment."
   },
   "debrief": {
     "open": "Auswertung",

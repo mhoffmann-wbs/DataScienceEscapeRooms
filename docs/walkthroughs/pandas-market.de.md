@@ -1,0 +1,423 @@
+# Markttag: Lösungsweg
+
+<!-- Erzeugt mit `npm run walkthrough` aus dem Raum-Manifest und seinen Referenzlösungen. Nicht von Hand bearbeiten. -->
+
+## Geschichte
+
+> Samstag auf dem Kleeberger Bauernmarkt. Um 14:00 Uhr haben die Markthilfen die Bargeldumschläge aller Stände ins Marktbüro gebracht, und Greta, die Marktleiterin, hat nachgezählt. Es fehlt Geld. Sie hat die Markthalle abgeschlossen: Niemand geht, bevor die Zahlen stimmen.
+>
+> Die Verkaufslisten der Stände liegen als CSV-Dateien auf dem Bürocomputer. Bereinigt sie mit pandas und findet heraus, wohin das Geld verschwunden ist. Dieser Raum lädt Python mit pandas: Das erste Rätsel, das ihr öffnet, braucht einen Moment.
+
+## Überblick
+
+| # | Station | Übt | Braucht |
+|---|---|---|---|
+| 1 | Das Marktregister | Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen | 🔎 Eine Beschwerde, 🔎 Marktplan |
+| 2 | Preisschilder | Eine Textspalte mit `.str.replace` und `.str.strip` bereinigen, mit `astype(float)` umwandeln, eine neue Spalte berechnen, `sum` | 🔎 Preistafel |
+| 3 | Das Kartenterminal | Uneinheitliche Bezeichnungen mit `value_counts` und `nunique` finden, Text vereinheitlichen (`.str.strip`, `.str.lower`, `.str.upper`), Werte mit `replace` umbenennen, mit einer Bedingung zählen | 🔎 Marktordnung |
+| 4 | Das Kassenbuch | Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax` | 2. Preisschilder, 3. Das Kartenterminal, 🔎 Marktordnung |
+| 5 | Der Umschlagtisch | Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden | 4. Das Kassenbuch |
+| 6 | Gretas Bericht (Abschluss-Schloss) | Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen | 1. Das Marktregister, 5. Der Umschlagtisch, 🔎 Helferplan |
+
+**Abschluss-Code:** `Tobi`
+
+## Stationen
+
+### 1. Das Marktregister
+
+**Übt:** Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen  
+**Braucht:** 🔎 Eine Beschwerde, 🔎 Marktplan  
+**Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
+
+**Aufgabe:**
+
+> Gretas Register der heutigen Stände steht in `stalls.csv`. Ladet es mit pandas und schaut es euch an.
+>
+> Wie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.
+>
+> Eine Besucherin hat eine wütende Beschwerde über einen Stand hinterlassen. Findet diesen Stand und speichert seine `stall_id` in `suspect`.
+
+<details><summary>Startcode</summary>
+
+```python
+import pandas as pd
+
+stalls = pd.read_csv("stalls.csv")
+print(stalls.head())
+
+n_veg = None     # wie viele Stände verkaufen Gemüse?
+suspect = None   # stall_id des Stands aus der Beschwerde, z. B. "S01"
+```
+
+</details>
+
+**Musterlösung:**
+
+```python
+import pandas as pd
+
+stalls = pd.read_csv("stalls.csv")
+n_veg = len(stalls[stalls["product"] == "vegetables"])
+
+honey = stalls[stalls["product"] == "honey"]
+print(honey[["stall_id", "stall", "pitch"]])
+# The fountain stands between pitches 4 and 5 (market plan).
+suspect = honey[honey["pitch"].isin([4, 5])]["stall_id"].iloc[0]
+print(n_veg, suspect)
+```
+
+**Geprüftes Ergebnis** (`[int(n_veg), str(suspect).strip().upper()]`):
+
+```json
+[2, "S04"]
+```
+
+**Zeigt nach dem Lösen:**
+
+> Verdächtig: **S04**, die Imkerei Sommer von Lena Sommer. Eine Beschwerde ist aber kein Beweis. Folgt dem Geld.
+
+**Hinweise:**
+
+1. `stalls.columns` zeigt die Spaltennamen. `stalls[stalls["product"] == "vegetables"]` behält nur die passenden Zeilen, und `len(...)` zählt sie.
+2. Die Beschwerde liegt auf dem Tischchen am Brunnen. Zwei Stände verkaufen Honig; der Marktplan an der Wand sagt, welche Plätze neben dem Brunnen liegen.
+3. `stalls[stalls["product"] == "honey"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist `"S04"` verdächtig.
+
+### 2. Preisschilder
+
+**Übt:** Eine Textspalte mit `.str.replace` und `.str.strip` bereinigen, mit `astype(float)` umwandeln, eine neue Spalte berechnen, `sum`  
+**Braucht:** 🔎 Preistafel  
+**Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
+
+**Aufgabe:**
+
+> Alle Stände haben ihre Verkäufe in eine Liste getippt, `sales.csv`: eine Zeile pro Verkauf, mit der Menge `qty` und dem Stückpreis `price`. Aber `price` ist Text, und jeder Stand schreibt ihn anders, also kann pandas damit nicht rechnen.
+>
+> Macht aus `price` Zahlen, fügt eine Spalte `revenue` hinzu (Menge × Preis) und speichert den Gesamtumsatz des Tages, bar und Karte zusammen, in `total`.
+
+<details><summary>Startcode</summary>
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+print(sales.head(10))
+print(sales["price"].unique()[:12])
+
+# macht aus sales["price"] eine Spalte mit Zahlen
+# sales["revenue"] = ...
+
+total = None   # alle Verkäufe des Tages, in Euro
+```
+
+</details>
+
+**Musterlösung:**
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
+sales["revenue"] = sales["qty"] * sales["price"]
+total = sales["revenue"].sum()
+print(round(total, 2))
+```
+
+**Geprüftes Ergebnis** (`round(float(total), 2)`):
+
+```json
+1889.0
+```
+
+**Zeigt nach dem Lösen:**
+
+> Der Markt hat heute Waren für **1.889,00 €** verkauft, bar und mit Karte zusammen.
+
+**Hinweise:**
+
+1. `sales["price"].unique()` zeigt alle Schreibweisen. Textspalten haben `.str`-Methoden, zum Beispiel `.str.replace("€", "")` und `.str.strip()`.
+2. Entfernt das Euro-Zeichen, macht aus dem Dezimalkomma einen Punkt, entfernt die Leerzeichen und wandelt dann mit `.astype(float)` um. Die Preistafel erklärt die Schreibweisen.
+3. `sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)`, dann `sales["revenue"] = sales["qty"] * sales["price"]` und `total = sales["revenue"].sum()`.
+
+### 3. Das Kartenterminal
+
+**Übt:** Uneinheitliche Bezeichnungen mit `value_counts` und `nunique` finden, Text vereinheitlichen (`.str.strip`, `.str.lower`, `.str.upper`), Werte mit `replace` umbenennen, mit einer Bedingung zählen  
+**Braucht:** 🔎 Marktordnung  
+**Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
+
+**Aufgabe:**
+
+> Bar oder Karte? In der Spalte `payment` von `sales.csv` sollte nur `cash` oder `card` stehen, aber die Standbetreiber haben getippt, was sie wollten. Die Spalte `stall_id` ist genauso unordentlich, also taucht derselbe Stand unter mehreren Schreibweisen auf.
+>
+> Bereinigt beide Spalten direkt in `sales`. Zählt dann die Barverkäufe als `n_cash` und die Kartenverkäufe als `n_card`.
+
+<details><summary>Startcode</summary>
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+print(sales["payment"].value_counts())
+print(sales["stall_id"].nunique(), "verschiedene stall_ids")
+
+# bereinigt sales["payment"] und sales["stall_id"]
+
+n_cash = None
+n_card = None
+```
+
+</details>
+
+**Musterlösung:**
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
+sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
+
+n_cash = (sales["payment"] == "cash").sum()
+n_card = (sales["payment"] == "card").sum()
+print(n_cash, n_card, sales["stall_id"].nunique())
+```
+
+**Geprüftes Ergebnis** (`[int(n_cash), int(n_card), int(sales["stall_id"].nunique())]`):
+
+```json
+[128, 90, 12]
+```
+
+**Zeigt nach dem Lösen:**
+
+> **128** Barverkäufe und **90** Kartenverkäufe von **12** Ständen. Nur das Bargeld kam in die Umschläge.
+
+**Hinweise:**
+
+1. `sales["payment"].value_counts()` zeigt jede Schreibweise mit ihrer Anzahl. Es gibt 12 Stände, aber `sales["stall_id"].nunique()` sagt mehr: Gebt `sales["stall_id"].unique()` aus, um zu sehen, warum.
+2. `.str.strip()` entfernt Leerzeichen, `.str.lower()` und `.str.upper()` vereinheitlichen die Groß- und Kleinschreibung. Die Marktordnung erklärt, was `EC` bedeutet; `.replace({"ec": "card"})` benennt einen Wert um.
+3. `sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})`, `sales["stall_id"] = sales["stall_id"].str.strip().str.upper()`, dann `n_cash = (sales["payment"] == "cash").sum()` und dasselbe für `"card"`.
+
+### 4. Das Kassenbuch
+
+**Übt:** Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax`  
+**Braucht:** 2. Preisschilder, 3. Das Kartenterminal, 🔎 Marktordnung  
+**Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
+
+**Aufgabe:**
+
+> Greta will wissen, wie viel Bargeld jeder Stand in seinen Umschlag hätte stecken müssen. Die Bereinigung von den Preisschildern und vom Kartenterminal steht schon im Editor.
+>
+> Behaltet nur die Barverkäufe und addiert ihren `revenue` pro Stand mit `groupby`. Speichert das Ergebnis in `cash_by_stall` (eine Series mit einer Summe pro `stall_id`) und den Stand mit dem meisten Bargeld in `top_stall`.
+
+<details><summary>Startcode</summary>
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+# bereinigt an den Preisschildern und am Kartenterminal:
+sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
+sales["revenue"] = sales["qty"] * sales["price"]
+sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
+sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
+
+cash_by_stall = None   # Bareinnahmen pro stall_id
+top_stall = None       # stall_id mit dem meisten Bargeld
+```
+
+</details>
+
+**Musterlösung:**
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
+sales["revenue"] = sales["qty"] * sales["price"]
+sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
+sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
+
+cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+top_stall = cash_by_stall.idxmax()
+print(cash_by_stall.round(2))
+print(top_stall)
+```
+
+**Geprüftes Ergebnis** (`[round(float(cash_by_stall.sum()), 2), str(top_stall).strip().upper()]`):
+
+```json
+[1110.0, "S04"]
+```
+
+**Zeigt nach dem Lösen:**
+
+> In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €. Schon wieder der Honigstand …
+
+**Hinweise:**
+
+1. Erst filtern: `cash = sales[sales["payment"] == "cash"]`. Kartenzahlungen gehen direkt an die Bank, nicht in die Umschläge.
+2. `df.groupby("stall_id")["revenue"].sum()` ergibt eine Summe pro Stand. `.idxmax()` liefert das Index-Label (hier die stall_id) des größten Werts.
+3. `cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()` und `top_stall = cash_by_stall.idxmax()`.
+
+### 5. Der Umschlagtisch
+
+**Übt:** Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden  
+**Braucht:** 4. Das Kassenbuch  
+**Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
+
+**Aufgabe:**
+
+> Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit euren Bareinnahmen zu verbinden.
+>
+> Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Bareinnahmen minus Geld im Umschlag), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`.
+
+<details><summary>Startcode</summary>
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
+sales["revenue"] = sales["qty"] * sales["price"]
+sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
+sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
+cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+
+stalls = pd.read_csv("stalls.csv")
+handover = pd.read_csv("handover.csv")
+print(handover.head())
+
+# verbindet handover, stalls und cash_by_stall und vergleicht dann
+
+badge = None     # Ausweisnummer mit dem größten Fehlbetrag
+missing = None   # dessen Fehlbetrag insgesamt, in Euro
+```
+
+</details>
+
+**Musterlösung:**
+
+```python
+import pandas as pd
+
+sales = pd.read_csv("sales.csv")
+sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
+sales["revenue"] = sales["qty"] * sales["price"]
+sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
+sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
+cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+
+stalls = pd.read_csv("stalls.csv")
+handover = pd.read_csv("handover.csv")
+
+df = pd.merge(handover, stalls, on="stall")
+df = pd.merge(df, cash_by_stall.reset_index(name="cash"), on="stall_id")
+df["short"] = df["cash"] - df["envelope_eur"]
+print(df[["stall_id", "badge", "cash", "envelope_eur", "short"]].round(2))
+
+by_badge = df.groupby("badge")["short"].sum()
+badge = by_badge.idxmax()
+missing = by_badge.max()
+print(badge, round(missing, 2))
+```
+
+**Geprüftes Ergebnis** (`[int(badge), round(float(missing), 2)]`):
+
+```json
+[7, 145.0]
+```
+
+**Zeigt nach dem Lösen:**
+
+> Ausweis **7** hat vier Umschläge getragen, und in jedem fehlt Geld: **145,00 €** insgesamt. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 ist ein Euro zu viel: Münzen, kein Diebstahl. Der Umschlag der Imkerei Sommer stimmt auf den Cent.
+
+**Hinweise:**
+
+1. `pd.merge(handover, stalls, on="stall")` ergänzt jeden Umschlag um die `stall_id`. `cash_by_stall.reset_index(name="cash")` macht aus der Series eine Tabelle, die ihr `on="stall_id"` verbinden könnt.
+2. Dann `df["short"] = df["cash"] - df["envelope_eur"]` und `df.groupby("badge")["short"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt.
+3. `by_badge = df.groupby("badge")["short"].sum()`, dann `badge = by_badge.idxmax()` und `missing = by_badge.max()`.
+
+### 6. Gretas Bericht (Abschluss-Schloss)
+
+**Übt:** Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen  
+**Braucht:** 1. Das Marktregister, 5. Der Umschlagtisch, 🔎 Helferplan
+
+**Aufgabe:**
+
+> Greta will die Halle aufschließen, aber in ihren Bericht gehört erst ein Name.
+>
+> Wer hat das Geld genommen? Gebt den Vornamen ein.
+
+**Antwort:** `Tobi`
+
+**Hinweise:**
+
+1. Die Beschwerde zeigte auf den Honigstand. Sagen die Umschläge dasselbe?
+2. Der Umschlag von Lena Sommer stimmt auf den Cent. Das Geld ist auf dem Weg von den Ständen ins Büro verschwunden, also schaut, wer die Umschläge getragen hat, in denen etwas fehlt.
+3. Ausweis 7 hat alle vier Umschläge getragen, in denen etwas fehlt. Der Helferplan an der Wand sagt, wer Ausweis 7 trägt.
+
+## Hinweise im Raum
+
+### 🔎 Marktplan
+
+*Gebraucht von: 1. Das Marktregister*
+
+> KLEEBERGER SAMSTAGSMARKT · Platzplan
+>
+> Nordreihe: Plätze 1 bis 6. Südreihe: Plätze 7 bis 12.
+>
+> Der Brunnen steht mitten in der Nordreihe, **zwischen Platz 4 und Platz 5**.
+>
+> Marktbüro: Südostecke.
+
+### 🔎 Eine Beschwerde
+
+*Gebraucht von: 1. Das Marktregister*
+
+> An das Marktbüro!
+>
+> Die Frau am **Honigstand direkt neben dem Brunnen** hat mir auf einen Zwanziger herausgegeben, aber ich habe mit einem Fünfziger bezahlt! Ich will meine dreißig Euro zurück.
+>
+> H. Albers
+
+### 🔎 Preistafel
+
+*Gebraucht von: 2. Preisschilder*
+
+> PREISE
+>
+> Jeder Stand schreibt seine Preise anders: `2,50 €`, `€2.50`, `2.50` und `2,5` heißen alle zwei Euro fünfzig.
+>
+> Der Bürocomputer versteht nur `2.50`: ein Dezimal**punkt**, kein Euro-Zeichen, keine Leerzeichen.
+
+### 🔎 Marktordnung
+
+*Gebraucht von: 3. Das Kartenterminal, 4. Das Kassenbuch*
+
+> MARKTORDNUNG (Auszug)
+>
+> §4 Kundinnen und Kunden zahlen bar oder mit Karte. Die Kartenterminals drucken `EC` für eine Girocard: Auch das ist eine **Kartenzahlung**.
+>
+> §5 Kartenzahlungen gehen direkt an die Bank. Um 14:00 Uhr holt eine Markthilfe das **Bargeld** jedes Stands in einem versiegelten Umschlag ab, schreibt ihre Ausweisnummer darauf und bringt ihn ins Büro.
+>
+> §6 Die Standbetreiber tragen jeden Verkauf, bar und mit Karte, in die Verkaufsliste ein.
+
+### 🔎 Helferplan
+
+*Gebraucht von: 6. Gretas Bericht*
+
+> MARKTHILFEN · Samstag
+>
+> Ausweis 3: Greta Vogel (Marktleitung)
+>
+> Ausweis 5: Jule Arslan
+>
+> Ausweis 7: Tobi Wendt
+>
+> Ausweis 9: Ben Schuster
+>
+> Ausweis 12: Mia Roth
+>
+> Jeder Ausweis holt um 14:00 Uhr die Bargeldumschläge seiner Stände ab.

@@ -1,0 +1,374 @@
+{
+  "version": 1,
+  "salt": "4e8e44b9ad137aa8",
+  "title": {
+    "en": "Market Day",
+    "de": "Markttag"
+  },
+  "category": "python",
+  "difficulty": "beginner",
+  "about": {
+    "tools": [
+      "Python",
+      "pandas"
+    ],
+    "practises": {
+      "en": "Loading CSV files, filtering rows, cleaning messy text and number columns, groupby and merge.",
+      "de": "CSV-Dateien laden, Zeilen filtern, unordentliche Text- und Zahlenspalten bereinigen, groupby und merge."
+    },
+    "story": {
+      "en": "The cash count of a farmers' market came up short; clean up the stalls' messy sales sheets to find out where the money went.",
+      "de": "Beim Kassensturz eines Bauernmarkts fehlt Geld; bereinigt die unordentlichen Verkaufslisten der Stände, um herauszufinden, wohin es verschwunden ist."
+    }
+  },
+  "intro": {
+    "en": "Saturday at the Kleeberg farmers' market. At 14:00 the helpers carried every stall's cash envelope to the market office, and Greta, the market manager, counted them. The total is short. She has locked the market hall: nobody leaves until the numbers add up.\n\nThe stalls' sales sheets are on the office computer as CSV files. Clean them up with pandas and find out where the money went. This room loads Python with pandas: the first puzzle you open takes a moment.",
+    "de": "Samstag auf dem Kleeberger Bauernmarkt. Um 14:00 Uhr haben die Markthilfen die Bargeldumschläge aller Stände ins Marktbüro gebracht, und Greta, die Marktleiterin, hat nachgezählt. Es fehlt Geld. Sie hat die Markthalle abgeschlossen: Niemand geht, bevor die Zahlen stimmen.\n\nDie Verkaufslisten der Stände liegen als CSV-Dateien auf dem Bürocomputer. Bereinigt sie mit pandas und findet heraus, wohin das Geld verschwunden ist. Dieser Raum lädt Python mit pandas: Das erste Rätsel, das ihr öffnet, braucht einen Moment."
+  },
+  "packages": [
+    "pandas"
+  ],
+  "puzzles": [
+    {
+      "id": "register",
+      "title": {
+        "en": "The market register",
+        "de": "Das Marktregister"
+      },
+      "text": {
+        "en": "Greta's register of today's stalls is in `stalls.csv`. Load it with pandas and have a look around.\n\nHow many stalls sell vegetables? Store the number in `n_veg`.\n\nA visitor left an angry complaint about one stall. Find that stall and store its `stall_id` in `suspect`.",
+        "de": "Gretas Register der heutigen Stände steht in `stalls.csv`. Ladet es mit pandas und schaut es euch an.\n\nWie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.\n\nEine Besucherin hat eine wütende Beschwerde über einen Stand hinterlassen. Findet diesen Stand und speichert seine `stall_id` in `suspect`."
+      },
+      "workspace": "python",
+      "data": "market.py",
+      "starter": {
+        "en": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # how many stalls sell vegetables?\nsuspect = None   # stall_id of the stall in the complaint, e.g. \"S01\"\n",
+        "de": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # wie viele Stände verkaufen Gemüse?\nsuspect = None   # stall_id des Stands aus der Beschwerde, z. B. \"S01\"\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[int(n_veg), str(suspect).strip().upper()]",
+        "hash": "8ddf00e79daa4a9f5a39428eb9fa199d7c87223c5091dc3af0cabe8ee59459ee"
+      },
+      "practises": {
+        "en": "Loading a CSV with `read_csv`, looking at a DataFrame (`head`, `columns`), filtering rows with a condition, selecting columns",
+        "de": "Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen"
+      },
+      "clues": [
+        "complaint",
+        "market-plan"
+      ],
+      "hints": [
+        {
+          "en": "`stalls.columns` lists the column names. `stalls[stalls[\"product\"] == \"vegetables\"]` keeps only the matching rows, and `len(...)` counts them.",
+          "de": "`stalls.columns` zeigt die Spaltennamen. `stalls[stalls[\"product\"] == \"vegetables\"]` behält nur die passenden Zeilen, und `len(...)` zählt sie."
+        },
+        {
+          "en": "The complaint is on the little table by the fountain. Two stalls sell honey; the market plan on the wall says which pitches are next to the fountain.",
+          "de": "Die Beschwerde liegt auf dem Tischchen am Brunnen. Zwei Stände verkaufen Honig; der Marktplan an der Wand sagt, welche Plätze neben dem Brunnen liegen."
+        },
+        {
+          "en": "`stalls[stalls[\"product\"] == \"honey\"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the suspect is `\"S04\"`.",
+          "de": "`stalls[stalls[\"product\"] == \"honey\"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist `\"S04\"` verdächtig."
+        }
+      ],
+      "reveal": {
+        "en": "Suspect: **S04**, Imkerei Sommer, run by Lena Sommer. But a complaint isn't proof. Follow the money.",
+        "de": "Verdächtig: **S04**, die Imkerei Sommer von Lena Sommer. Eine Beschwerde ist aber kein Beweis. Folgt dem Geld."
+      }
+    },
+    {
+      "id": "price-tags",
+      "title": {
+        "en": "Price tags",
+        "de": "Preisschilder"
+      },
+      "text": {
+        "en": "All stalls typed their sales into one sheet, `sales.csv`: one row per sale, with the quantity `qty` and the unit `price`. But `price` is text, written a different way at every stall, so pandas can't calculate with it.\n\nTurn `price` into numbers, add a column `revenue` (quantity × price), and store the day's total sales, cash and card together, in `total`.",
+        "de": "Alle Stände haben ihre Verkäufe in eine Liste getippt, `sales.csv`: eine Zeile pro Verkauf, mit der Menge `qty` und dem Stückpreis `price`. Aber `price` ist Text, und jeder Stand schreibt ihn anders, also kann pandas damit nicht rechnen.\n\nMacht aus `price` Zahlen, fügt eine Spalte `revenue` hinzu (Menge × Preis) und speichert den Gesamtumsatz des Tages, bar und Karte zusammen, in `total`."
+      },
+      "workspace": "python",
+      "data": "market.py",
+      "starter": {
+        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nprint(sales.head(10))\nprint(sales[\"price\"].unique()[:12])\n\n# make sales[\"price\"] a column of numbers\n# sales[\"revenue\"] = ...\n\ntotal = None   # all sales of the day, in euros\n",
+        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nprint(sales.head(10))\nprint(sales[\"price\"].unique()[:12])\n\n# macht aus sales[\"price\"] eine Spalte mit Zahlen\n# sales[\"revenue\"] = ...\n\ntotal = None   # alle Verkäufe des Tages, in Euro\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "round(float(total), 2)",
+        "hash": "a9ce82788a796a3a45b453fa29c951cb6a9daaaad2ba8444dc60afecd1374686"
+      },
+      "practises": {
+        "en": "Cleaning a text column with `.str.replace` and `.str.strip`, converting it with `astype(float)`, computing a new column, `sum`",
+        "de": "Eine Textspalte mit `.str.replace` und `.str.strip` bereinigen, mit `astype(float)` umwandeln, eine neue Spalte berechnen, `sum`"
+      },
+      "clues": [
+        "price-board"
+      ],
+      "hints": [
+        {
+          "en": "`sales[\"price\"].unique()` shows every spelling. Text columns have `.str` methods, such as `.str.replace(\"€\", \"\")` and `.str.strip()`.",
+          "de": "`sales[\"price\"].unique()` zeigt alle Schreibweisen. Textspalten haben `.str`-Methoden, zum Beispiel `.str.replace(\"€\", \"\")` und `.str.strip()`."
+        },
+        {
+          "en": "Remove the euro sign, turn the decimal comma into a point, strip the spaces, then convert with `.astype(float)`. The price board explains the spellings.",
+          "de": "Entfernt das Euro-Zeichen, macht aus dem Dezimalkomma einen Punkt, entfernt die Leerzeichen und wandelt dann mit `.astype(float)` um. Die Preistafel erklärt die Schreibweisen."
+        },
+        {
+          "en": "`sales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)`, then `sales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]` and `total = sales[\"revenue\"].sum()`.",
+          "de": "`sales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)`, dann `sales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]` und `total = sales[\"revenue\"].sum()`."
+        }
+      ],
+      "reveal": {
+        "en": "The market sold goods worth **€1,889.00** today, cash and card together.",
+        "de": "Der Markt hat heute Waren für **1.889,00 €** verkauft, bar und mit Karte zusammen."
+      }
+    },
+    {
+      "id": "card-terminal",
+      "title": {
+        "en": "The card terminal",
+        "de": "Das Kartenterminal"
+      },
+      "text": {
+        "en": "Cash or card? The `payment` column of `sales.csv` should only say `cash` or `card`, but the stall holders typed whatever they liked. The `stall_id` column is just as messy, so the same stall turns up under several spellings.\n\nClean both columns in place. Then count the cash sales as `n_cash` and the card sales as `n_card`.",
+        "de": "Bar oder Karte? In der Spalte `payment` von `sales.csv` sollte nur `cash` oder `card` stehen, aber die Standbetreiber haben getippt, was sie wollten. Die Spalte `stall_id` ist genauso unordentlich, also taucht derselbe Stand unter mehreren Schreibweisen auf.\n\nBereinigt beide Spalten direkt in `sales`. Zählt dann die Barverkäufe als `n_cash` und die Kartenverkäufe als `n_card`."
+      },
+      "workspace": "python",
+      "data": "market.py",
+      "starter": {
+        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nprint(sales[\"payment\"].value_counts())\nprint(sales[\"stall_id\"].nunique(), \"different stall ids\")\n\n# clean sales[\"payment\"] and sales[\"stall_id\"]\n\nn_cash = None\nn_card = None\n",
+        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nprint(sales[\"payment\"].value_counts())\nprint(sales[\"stall_id\"].nunique(), \"verschiedene stall_ids\")\n\n# bereinigt sales[\"payment\"] und sales[\"stall_id\"]\n\nn_cash = None\nn_card = None\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[int(n_cash), int(n_card), int(sales[\"stall_id\"].nunique())]",
+        "hash": "7edc6122374f832b8d2575b0007de1ab1fb4cea4856d949fea21ac3499894c67"
+      },
+      "practises": {
+        "en": "Finding inconsistent labels with `value_counts` and `nunique`, normalising text (`.str.strip`, `.str.lower`, `.str.upper`), renaming values with `replace`, counting with a condition",
+        "de": "Uneinheitliche Bezeichnungen mit `value_counts` und `nunique` finden, Text vereinheitlichen (`.str.strip`, `.str.lower`, `.str.upper`), Werte mit `replace` umbenennen, mit einer Bedingung zählen"
+      },
+      "clues": [
+        "market-rules"
+      ],
+      "hints": [
+        {
+          "en": "`sales[\"payment\"].value_counts()` lists every spelling with its count. There are 12 stalls, but `sales[\"stall_id\"].nunique()` says more: print `sales[\"stall_id\"].unique()` to see why.",
+          "de": "`sales[\"payment\"].value_counts()` zeigt jede Schreibweise mit ihrer Anzahl. Es gibt 12 Stände, aber `sales[\"stall_id\"].nunique()` sagt mehr: Gebt `sales[\"stall_id\"].unique()` aus, um zu sehen, warum."
+        },
+        {
+          "en": "`.str.strip()` removes spaces, `.str.lower()` and `.str.upper()` fix the case. The market rules explain what `EC` means; `.replace({\"ec\": \"card\"})` renames a value.",
+          "de": "`.str.strip()` entfernt Leerzeichen, `.str.lower()` und `.str.upper()` vereinheitlichen die Groß- und Kleinschreibung. Die Marktordnung erklärt, was `EC` bedeutet; `.replace({\"ec\": \"card\"})` benennt einen Wert um."
+        },
+        {
+          "en": "`sales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})`, `sales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()`, then `n_cash = (sales[\"payment\"] == \"cash\").sum()` and the same for `\"card\"`.",
+          "de": "`sales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})`, `sales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()`, dann `n_cash = (sales[\"payment\"] == \"cash\").sum()` und dasselbe für `\"card\"`."
+        }
+      ],
+      "reveal": {
+        "en": "**128** cash sales and **90** card sales, from **12** stalls. Only the cash went into the envelopes.",
+        "de": "**128** Barverkäufe und **90** Kartenverkäufe von **12** Ständen. Nur das Bargeld kam in die Umschläge."
+      }
+    },
+    {
+      "id": "ledger",
+      "title": {
+        "en": "The cash ledger",
+        "de": "Das Kassenbuch"
+      },
+      "text": {
+        "en": "Greta wants to know how much cash each stall should have put in its envelope. The cleaning from the price tags and the card terminal is already in the editor.\n\nKeep only the cash sales and add up their `revenue` per stall with `groupby`. Store the result in `cash_by_stall` (a Series with one total per `stall_id`), and the stall that took the most cash in `top_stall`.",
+        "de": "Greta will wissen, wie viel Bargeld jeder Stand in seinen Umschlag hätte stecken müssen. Die Bereinigung von den Preisschildern und vom Kartenterminal steht schon im Editor.\n\nBehaltet nur die Barverkäufe und addiert ihren `revenue` pro Stand mit `groupby`. Speichert das Ergebnis in `cash_by_stall` (eine Series mit einer Summe pro `stall_id`) und den Stand mit dem meisten Bargeld in `top_stall`."
+      },
+      "workspace": "python",
+      "data": "market.py",
+      "starter": {
+        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n# cleaned at the price tags and the card terminal:\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\n\ncash_by_stall = None   # cash revenue per stall_id\ntop_stall = None       # stall_id with the most cash\n",
+        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n# bereinigt an den Preisschildern und am Kartenterminal:\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\n\ncash_by_stall = None   # Bareinnahmen pro stall_id\ntop_stall = None       # stall_id mit dem meisten Bargeld\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[round(float(cash_by_stall.sum()), 2), str(top_stall).strip().upper()]",
+        "hash": "87ca850b79b6434886ab7e3c4f7a2b0eb811a5944eb986c8cfa2d65ef55eda81"
+      },
+      "requires": [
+        "price-tags",
+        "card-terminal"
+      ],
+      "practises": {
+        "en": "Filtering before aggregating, `groupby` with `sum`, `idxmax`",
+        "de": "Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax`"
+      },
+      "clues": [
+        "market-rules"
+      ],
+      "hints": [
+        {
+          "en": "Filter first: `cash = sales[sales[\"payment\"] == \"cash\"]`. Card payments go straight to the bank, not into the envelopes.",
+          "de": "Erst filtern: `cash = sales[sales[\"payment\"] == \"cash\"]`. Kartenzahlungen gehen direkt an die Bank, nicht in die Umschläge."
+        },
+        {
+          "en": "`df.groupby(\"stall_id\")[\"revenue\"].sum()` gives one sum per stall. `.idxmax()` returns the index label (here the stall id) of the largest value.",
+          "de": "`df.groupby(\"stall_id\")[\"revenue\"].sum()` ergibt eine Summe pro Stand. `.idxmax()` liefert das Index-Label (hier die stall_id) des größten Werts."
+        },
+        {
+          "en": "`cash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()` and `top_stall = cash_by_stall.idxmax()`.",
+          "de": "`cash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()` und `top_stall = cash_by_stall.idxmax()`."
+        }
+      ],
+      "reveal": {
+        "en": "The envelopes should hold **€1,110.00** in cash. The most cash went to **S04**, Imkerei Sommer: €161.20. The honey stall again…",
+        "de": "In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €. Schon wieder der Honigstand …"
+      }
+    },
+    {
+      "id": "envelopes",
+      "title": {
+        "en": "The envelope table",
+        "de": "Der Umschlagtisch"
+      },
+      "text": {
+        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to your cash totals.\n\nMerge the tables, work out how much each envelope is short (cash taken minus cash in the envelope), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.",
+        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit euren Bareinnahmen zu verbinden.\n\nVerbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Bareinnahmen minus Geld im Umschlag), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`."
+      },
+      "workspace": "python",
+      "data": "market.py",
+      "starter": {
+        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\ncash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and cash_by_stall, then compare\n\nbadge = None     # badge number with the largest total shortfall\nmissing = None   # that badge's total shortfall in euros\n",
+        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\ncash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und cash_by_stall und vergleicht dann\n\nbadge = None     # Ausweisnummer mit dem größten Fehlbetrag\nmissing = None   # dessen Fehlbetrag insgesamt, in Euro\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[int(badge), round(float(missing), 2)]",
+        "hash": "45c967c02ef48cd760d973873ba7a79d3307a2630e3669535e0b07e82361258c"
+      },
+      "requires": [
+        "ledger"
+      ],
+      "practises": {
+        "en": "Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern",
+        "de": "Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden"
+      },
+      "clues": [],
+      "hints": [
+        {
+          "en": "`pd.merge(handover, stalls, on=\"stall\")` adds the `stall_id` to each envelope. `cash_by_stall.reset_index(name=\"cash\")` turns the Series into a table you can merge `on=\"stall_id\"`.",
+          "de": "`pd.merge(handover, stalls, on=\"stall\")` ergänzt jeden Umschlag um die `stall_id`. `cash_by_stall.reset_index(name=\"cash\")` macht aus der Series eine Tabelle, die ihr `on=\"stall_id\"` verbinden könnt."
+        },
+        {
+          "en": "Then `df[\"short\"] = df[\"cash\"] - df[\"envelope_eur\"]` and `df.groupby(\"badge\")[\"short\"].sum()`. A few cents either way are coins; look for the badge where it really adds up.",
+          "de": "Dann `df[\"short\"] = df[\"cash\"] - df[\"envelope_eur\"]` und `df.groupby(\"badge\")[\"short\"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt."
+        },
+        {
+          "en": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, then `badge = by_badge.idxmax()` and `missing = by_badge.max()`.",
+          "de": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, dann `badge = by_badge.idxmax()` und `missing = by_badge.max()`."
+        }
+      ],
+      "reveal": {
+        "en": "Badge **7** carried four envelopes, and every one of them is short: **€145.00** in total. Badge 12 is 50 cents short and badge 3 a euro over: coins, not theft. Imkerei Sommer's envelope matches to the cent.",
+        "de": "Ausweis **7** hat vier Umschläge getragen, und in jedem fehlt Geld: **145,00 €** insgesamt. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 ist ein Euro zu viel: Münzen, kein Diebstahl. Der Umschlag der Imkerei Sommer stimmt auf den Cent."
+      }
+    },
+    {
+      "id": "report",
+      "title": {
+        "en": "Greta's report",
+        "de": "Gretas Bericht"
+      },
+      "text": {
+        "en": "Greta is ready to unlock the hall, but her report needs one name first.\n\nWho took the money? Enter their first name.",
+        "de": "Greta will die Halle aufschließen, aber in ihren Bericht gehört erst ein Name.\n\nWer hat das Geld genommen? Gebt den Vornamen ein."
+      },
+      "workspace": "none",
+      "check": {
+        "type": "answer",
+        "mode": "caseless",
+        "hash": "181997beccfce69a4b243d6c1b9916f5b8392bd8a348bd36dda0e5afa4340011"
+      },
+      "requires": [
+        "register",
+        "envelopes"
+      ],
+      "final": true,
+      "practises": {
+        "en": "Combining the results of several analyses, and checking a suspicion against the data",
+        "de": "Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen"
+      },
+      "clues": [
+        "rota"
+      ],
+      "hints": [
+        {
+          "en": "The complaint pointed at the honey stall. Do the envelopes agree?",
+          "de": "Die Beschwerde zeigte auf den Honigstand. Sagen die Umschläge dasselbe?"
+        },
+        {
+          "en": "Lena Sommer's envelope matches to the cent. The money went missing on the way from the stalls to the office, so look at who carried the short envelopes.",
+          "de": "Der Umschlag von Lena Sommer stimmt auf den Cent. Das Geld ist auf dem Weg von den Ständen ins Büro verschwunden, also schaut, wer die Umschläge getragen hat, in denen etwas fehlt."
+        },
+        {
+          "en": "Badge 7 carried all four short envelopes. The helper rota on the wall says who wears badge 7.",
+          "de": "Ausweis 7 hat alle vier Umschläge getragen, in denen etwas fehlt. Der Helferplan an der Wand sagt, wer Ausweis 7 trägt."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "market-plan",
+      "title": {
+        "en": "Market plan",
+        "de": "Marktplan"
+      },
+      "text": {
+        "en": "KLEEBERG SATURDAY MARKET · plan of pitches\n\nNorth row: pitches 1 to 6. South row: pitches 7 to 12.\n\nThe fountain stands in the middle of the north row, **between pitch 4 and pitch 5**.\n\nMarket office: south-east corner.",
+        "de": "KLEEBERGER SAMSTAGSMARKT · Platzplan\n\nNordreihe: Plätze 1 bis 6. Südreihe: Plätze 7 bis 12.\n\nDer Brunnen steht mitten in der Nordreihe, **zwischen Platz 4 und Platz 5**.\n\nMarktbüro: Südostecke."
+      }
+    },
+    {
+      "id": "complaint",
+      "title": {
+        "en": "A complaint",
+        "de": "Eine Beschwerde"
+      },
+      "text": {
+        "en": "To the market office!\n\nThe woman at the **honey stall right next to the fountain** gave me change for a twenty, but I paid with a fifty! I want my thirty euros back.\n\nH. Albers",
+        "de": "An das Marktbüro!\n\nDie Frau am **Honigstand direkt neben dem Brunnen** hat mir auf einen Zwanziger herausgegeben, aber ich habe mit einem Fünfziger bezahlt! Ich will meine dreißig Euro zurück.\n\nH. Albers"
+      }
+    },
+    {
+      "id": "price-board",
+      "title": {
+        "en": "Price board",
+        "de": "Preistafel"
+      },
+      "text": {
+        "en": "PRICES\n\nEvery stall writes its prices its own way: `2,50 €`, `€2.50`, `2.50` and `2,5` all mean two euros fifty.\n\nThe office computer only understands `2.50`: a decimal **point**, no euro sign, no spaces.",
+        "de": "PREISE\n\nJeder Stand schreibt seine Preise anders: `2,50 €`, `€2.50`, `2.50` und `2,5` heißen alle zwei Euro fünfzig.\n\nDer Bürocomputer versteht nur `2.50`: ein Dezimal**punkt**, kein Euro-Zeichen, keine Leerzeichen."
+      }
+    },
+    {
+      "id": "market-rules",
+      "title": {
+        "en": "Market rules",
+        "de": "Marktordnung"
+      },
+      "text": {
+        "en": "MARKET RULES (excerpt)\n\n§4 Customers pay in cash or by card. The card terminals print `EC` for a Girocard: that is a **card** payment too.\n\n§5 Card payments go straight to the bank. At 14:00 a market helper collects each stall's **cash** in a sealed envelope, writes their badge number on it and carries it to the office.\n\n§6 Stall holders record every sale, cash and card, in the sales sheet.",
+        "de": "MARKTORDNUNG (Auszug)\n\n§4 Kundinnen und Kunden zahlen bar oder mit Karte. Die Kartenterminals drucken `EC` für eine Girocard: Auch das ist eine **Kartenzahlung**.\n\n§5 Kartenzahlungen gehen direkt an die Bank. Um 14:00 Uhr holt eine Markthilfe das **Bargeld** jedes Stands in einem versiegelten Umschlag ab, schreibt ihre Ausweisnummer darauf und bringt ihn ins Büro.\n\n§6 Die Standbetreiber tragen jeden Verkauf, bar und mit Karte, in die Verkaufsliste ein."
+      }
+    },
+    {
+      "id": "rota",
+      "title": {
+        "en": "Helper rota",
+        "de": "Helferplan"
+      },
+      "text": {
+        "en": "HELPERS · Saturday\n\nBadge 3: Greta Vogel (market manager)\n\nBadge 5: Jule Arslan\n\nBadge 7: Tobi Wendt\n\nBadge 9: Ben Schuster\n\nBadge 12: Mia Roth\n\nEach badge collects the cash envelopes of its stalls at 14:00.",
+        "de": "MARKTHILFEN · Samstag\n\nAusweis 3: Greta Vogel (Marktleitung)\n\nAusweis 5: Jule Arslan\n\nAusweis 7: Tobi Wendt\n\nAusweis 9: Ben Schuster\n\nAusweis 12: Mia Roth\n\nJeder Ausweis holt um 14:00 Uhr die Bargeldumschläge seiner Stände ab."
+      }
+    }
+  ]
+}
