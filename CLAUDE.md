@@ -23,7 +23,7 @@ Puzzles should combine the room with the code: **clues** (photos, posters, manua
 ## Stack
 
 - Vite + TypeScript + React (UI overlays) around a **Phaser 4** canvas (`import Phaser from 'phaser'`; most Phaser 3 examples still apply) (world rendering)
-- Maps authored in the **Tiled** editor (JSON export). The art is a placeholder for now: `scripts/generate-placeholder-art.mjs` writes `content/tilesets/placeholder.png` and `content/sprites/avatars.png`, to be replaced by a CC0 tileset (e.g. Kenney) in plan step 9
+- Maps authored in the **Tiled** editor (JSON export). All art is drawn by `scripts/generate-art.mjs`, which writes `content/tilesets/tiles.png` (8×8 tiles of 32 px; maps refer to tiles by index, so append new tiles, never reorder) and `content/sprites/avatars.png`. Kenney's CC0 packs were considered and dropped: they have no lab, hotel or station props and no 4-direction walking characters
 - **Trystero** for P2P networking (WebRTC data and media) over public, account-free signaling relays
 - **Pyodide** (Python) and **sql.js** (SQLite), both WASM, both run in Web Workers
 - CodeMirror 6 for code editing, i18next for DE/EN, Vitest for tests
@@ -41,7 +41,7 @@ npm run typecheck
 npm test             # Vitest, all tests
 npx vitest run path/to/file.test.ts   # single test file
 npx vitest run -t "test name"         # single test by name
-node scripts/generate-placeholder-art.mjs   # regenerate placeholder tileset and avatar sheet
+node scripts/generate-art.mjs               # regenerate the tileset and the avatar sheet
 npm run validate-rooms                # room tests: manifests, map placement, data files, reference solutions
 npm run hash-answer -- <roomId>       # re-derive answer hashes from solutions.json (add --write to update the manifest)
 npm run walkthrough [-- <roomId>]     # regenerate the instructor walkthroughs in docs/walkthroughs/
@@ -97,7 +97,7 @@ Author shortcut (dev server, or a `VITE_AUTHOR=1` build): open `#/room/<roomId>`
 - Maps and images are bundled through Vite imports (`import url from '…png'`, `import map from '…json'`) rather than `public/`. This keeps them hashed and base-path-safe.
 - Keyboard input: the scenes register keys with `enableCapture = false` and ignore movement while an HTML field has focus (`isTypingInUi`). Keep it this way, or chat and form inputs break. Keys: E uses doors and objects; Enter opens chat, Enter again sends and returns to walking, Esc leaves the chat.
 - The game and React share one `Session`. The scene reads it from the Phaser registry (`src/game/registry.ts`); components subscribe with `useEmitterValue` (`src/ui/useStore.ts`). Presence's `roster` event fires only on join/leave, so React doesn't re-render at position-update rate.
-- Each avatar sprite sheet row is one avatar; its columns are 4 directions × 2 walk frames. `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
+- Each avatar sprite sheet row is one avatar; its columns are 4 directions × 3 frames (idle, step, other step; the walk cycle is `WALK_FRAMES`). `src/game/avatars.ts` owns this layout, and Phaser and the React avatar preview both use it.
 - The camera may scroll past the map edges by the height of the React top bar and status bar (`UI_INSET_*` in `WorldScene`), so the overlays never hide parts of the map.
 - Chat messages also appear as speech bubbles over the sender, if they are on the same map: `ChatBubbles` forwards new ones as `chat:bubble` on the bus, and `Avatar.say` shows them for a few seconds.
 - The chat panel can be collapsed to a bar with an unread count; Enter reopens it. Clicking the map blurs any focused field, so walking works again; text fields also leave on Esc (chat, notes) and on Enter after sending.

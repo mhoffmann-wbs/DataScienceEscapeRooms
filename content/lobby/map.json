@@ -1550,12 +1550,12 @@
  "tilesets": [
   {
    "firstgid": 1,
-   "name": "placeholder",
-   "image": "../tilesets/placeholder.png",
+   "name": "tiles",
+   "image": "../tilesets/tiles.png",
    "imagewidth": 256,
-   "imageheight": 192,
+   "imageheight": 256,
    "columns": 8,
-   "tilecount": 48,
+   "tilecount": 64,
    "tilewidth": 32,
    "tileheight": 32,
    "margin": 0,

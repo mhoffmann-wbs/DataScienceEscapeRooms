@@ -90,7 +90,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series, since built). Move an entry from `upcoming` into a room manifest when it gets built.
 
 ### 9. Polish
-- Replace the placeholder art with a CC0 tileset (e.g. Kenney) and proper character sprites.
+- **Art:** ✅ redrawn in our own generator (`scripts/generate-art.mjs`): outlined, shaded tiles with drop shadows and texture, doors that pair into double doors, and 12 characters (hair styles, skin tones, glasses, a cap) with idle and two walking frames per direction. Kenney's CC0 packs were checked and dropped: no lab, hotel or station props, and characters that only face forward. Players on an older build drop hellos from the new avatars 7–12 until they reload.
 - Accessibility pass: keyboard-only play, readable contrast, chat usable with a screen reader.
 - Optional TURN server setting for networks that block peer-to-peer.
 - **pandas support** for future intermediate rooms: serve the pandas and numpy wheels from our own site, as is already done for Pyodide, and load them only in rooms that declare them. (Pulled forward into step 10.)

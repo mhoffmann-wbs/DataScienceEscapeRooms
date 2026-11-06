@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import tilesetUrl from '../../../content/tilesets/placeholder.png';
+import tilesetUrl from '../../../content/tilesets/tiles.png';
 import { MAPS } from '../maps';
-import { AVATAR_COUNT, AVATAR_FRAME_SIZE, AVATAR_SHEET_URL, DIRECTIONS, frameIndex, walkAnimKey } from '../avatars';
+import { AVATAR_COUNT, AVATAR_FRAME_SIZE, AVATAR_SHEET_URL, DIRECTIONS, WALK_FRAMES, frameIndex, walkAnimKey } from '../avatars';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -9,7 +9,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image('tiles-placeholder', tilesetUrl);
+    this.load.image('tiles', tilesetUrl);
     this.load.spritesheet('avatars', AVATAR_SHEET_URL, { frameWidth: AVATAR_FRAME_SIZE, frameHeight: AVATAR_FRAME_SIZE });
     for (const [key, map] of Object.entries(MAPS)) this.load.tilemapTiledJSON(key, map as object);
   }
@@ -19,8 +19,8 @@ export class BootScene extends Phaser.Scene {
       for (const dir of DIRECTIONS) {
         this.anims.create({
           key: walkAnimKey(a, dir),
-          frames: this.anims.generateFrameNumbers('avatars', { frames: [frameIndex(a, dir, 0), frameIndex(a, dir, 1)] }),
-          frameRate: 6,
+          frames: this.anims.generateFrameNumbers('avatars', { frames: WALK_FRAMES.map((f) => frameIndex(a, dir, f)) }),
+          frameRate: 8,
           repeat: -1,
         });
       }

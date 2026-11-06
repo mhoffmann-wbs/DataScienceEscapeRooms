@@ -81,7 +81,7 @@ export class WorldScene extends Phaser.Scene {
     this.solvedMarks.clear();
 
     const map = this.make.tilemap({ key: mapKey });
-    const tileset = map.addTilesetImage('placeholder', 'tiles-placeholder');
+    const tileset = map.addTilesetImage('tiles', 'tiles');
     if (!tileset) throw new Error(`Tileset missing for map ${mapKey}`);
     map.createLayer('floor', tileset);
     const walls = map.createLayer('walls', tileset);
