@@ -40,8 +40,8 @@
 # Idas Login-Helfer. Ist in der Nacht des Lockdowns abgestürzt.
 # Passwort-Regel (mein Gedächtnis ist furchtbar):
 #   Name meiner Katze in GROSSBUCHSTABEN + Jahr meiner Promotion + Anzahl der Buchstaben meines Nachnamens
-cat = "???"         # der Name steht auf dem Foto auf meinem Schreibtisch
-doctorate = "???"   # steht auf meiner Urkunde
+cat = "???"
+doctorate = "???"
 last_name = "Kranich"
 
 password = cat + doctorate + len(last_name)

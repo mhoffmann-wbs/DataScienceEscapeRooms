@@ -40,8 +40,8 @@
 # Ida's login helper. It crashed the night of the lockdown.
 # Password rule (my memory is terrible):
 #   my cat's name in CAPITALS + the year of my doctorate + the number of letters in my last name
-cat = "???"         # the name is on the photo on my desk
-doctorate = "???"   # it's on my diploma
+cat = "???"
+doctorate = "???"
 last_name = "Kranich"
 
 password = cat + doctorate + len(last_name)

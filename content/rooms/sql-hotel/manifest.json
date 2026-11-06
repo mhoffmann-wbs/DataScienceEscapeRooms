@@ -32,8 +32,8 @@
         "de": "Der Rezeptionscomputer"
       },
       "text": {
-        "en": "The reception computer is connected to the hotel database. Start with the obvious question: who slept on the 4th floor on the night of the theft?\n\nList the guest name and room of everyone staying on the 4th floor that night, ordered by room. Some guests left that morning or arrived the next day; they don't count.",
-        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Beginnt mit der naheliegenden Frage: Wer hat in der Nacht des Diebstahls im 4. Stock geschlafen?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht im 4. Stock wohnten, sortiert nach Zimmer. Manche Gäste sind an dem Morgen abgereist oder erst am nächsten Tag angekommen; die zählen nicht."
+        "en": "The reception computer is connected to the hotel database. Start with the obvious question: who slept on the 4th floor on the night of the theft?\n\nList the guest name and room of everyone staying on the 4th floor that night, ordered by room.",
+        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Beginnt mit der naheliegenden Frage: Wer hat in der Nacht des Diebstahls im 4. Stock geschlafen?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht im 4. Stock wohnten, sortiert nach Zimmer."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -177,8 +177,8 @@
         "de": "Der Sicherheits-PC"
       },
       "text": {
-        "en": "The security PC can report on any single card. Look at the master card `M-02`.\n\nFor the time since it went missing, count how often `M-02` **opened** each room. Show `room` and the count, the room with the most openings first.",
-        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Generalkarte `M-02` an.\n\nZählt für die Zeit, seit sie verschwunden ist, wie oft `M-02` jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
+        "en": "The security PC can report on any single card. Look at the card that opened room 404 in the night.\n\nFor the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.",
+        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Karte an, die in der Nacht Zimmer 404 geöffnet hat.\n\nZählt für die Zeit, seit diese Karte verschwunden ist, wie oft sie jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -191,6 +191,9 @@
         "ordered": false,
         "hash": "a14b22b5fdb4f6f25dcca10bad3653438d47f06af2dacadd08833f9cc99405b7"
       },
+      "requires": [
+        "door-log"
+      ],
       "reveal": {
         "en": "Since 21:00 the master card opened room 404 once, and room **406** twice.",
         "de": "Seit 21:00 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal."

@@ -15,7 +15,7 @@
 | 1 | Der Rezeptionscomputer | `SELECT` und `WHERE` mit mehreren Bedingungen (`AND`, `BETWEEN`), Datumsvergleiche, `ORDER BY` | 🔎 Eine Zeitung, 🔎 Der Grundriss |
 | 2 | Der Türschloss-Server | `WHERE` mit einem Zeitraum über Mitternacht, Textvergleich von Zeitstempeln, `ORDER BY` | 🔎 Victor Hales Aussage |
 | 3 | Das Kartencodiergerät | Zwei Tabellen über eine gemeinsame Spalte verbinden (`JOIN`), Tabellen-Aliasse | 2. Der Türschloss-Server, 🔎 Victor Hales Aussage |
-| 4 | Der Sicherheits-PC | `GROUP BY` mit `COUNT(*)`, vor dem Gruppieren filtern, nach einer Anzahl sortieren | 🔎 Das Logbuch der Rezeption |
+| 4 | Der Sicherheits-PC | `GROUP BY` mit `COUNT(*)`, vor dem Gruppieren filtern, nach einer Anzahl sortieren | 2. Der Türschloss-Server, 🔎 Das Logbuch der Rezeption |
 | 5 | Die Barkasse | `JOIN` kombiniert mit `WHERE` und `ORDER BY` | von Anfang an offen |
 | 6 | Das Telefon des Managers (Abschluss-Schloss) | Hinweise aus mehreren Abfragen kombinieren | 1. Der Rezeptionscomputer, 2. Der Türschloss-Server, 3. Das Kartencodiergerät, 4. Der Sicherheits-PC, 5. Die Barkasse, 🔎 Notizen des Nachtwächters |
 
@@ -33,7 +33,7 @@
 
 > Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Beginnt mit der naheliegenden Frage: Wer hat in der Nacht des Diebstahls im 4. Stock geschlafen?
 >
-> Listet Gastname und Zimmer aller Gäste, die in dieser Nacht im 4. Stock wohnten, sortiert nach Zimmer. Manche Gäste sind an dem Morgen abgereist oder erst am nächsten Tag angekommen; die zählen nicht.
+> Listet Gastname und Zimmer aller Gäste, die in dieser Nacht im 4. Stock wohnten, sortiert nach Zimmer.
 
 <details><summary>Startcode</summary>
 
@@ -175,14 +175,14 @@ ORDER BY d.time;
 ### 4. Der Sicherheits-PC
 
 **Übt:** `GROUP BY` mit `COUNT(*)`, vor dem Gruppieren filtern, nach einer Anzahl sortieren  
-**Braucht:** 🔎 Das Logbuch der Rezeption  
+**Braucht:** 2. Der Türschloss-Server, 🔎 Das Logbuch der Rezeption  
 **Daten:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Aufgabe:**
 
-> Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Generalkarte `M-02` an.
+> Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Karte an, die in der Nacht Zimmer 404 geöffnet hat.
 >
-> Zählt für die Zeit, seit sie verschwunden ist, wie oft `M-02` jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst.
+> Zählt für die Zeit, seit diese Karte verschwunden ist, wie oft sie jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst.
 
 <details><summary>Startcode</summary>
 

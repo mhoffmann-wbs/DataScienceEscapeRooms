@@ -15,7 +15,7 @@
 | 1 | The reception computer | `SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY` | 🔎 A newspaper, 🔎 The floor plan |
 | 2 | The door-lock server | `WHERE` on a time range that crosses midnight, text comparison of timestamps, `ORDER BY` | 🔎 Victor Hale's statement |
 | 3 | The key-card encoder | `JOIN` two tables on a shared column, table aliases | 2. The door-lock server, 🔎 Victor Hale's statement |
-| 4 | The security PC | `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count | 🔎 The front-desk logbook |
+| 4 | The security PC | `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count | 2. The door-lock server, 🔎 The front-desk logbook |
 | 5 | The bar till | `JOIN` combined with `WHERE` and `ORDER BY` | open from the start |
 | 6 | The manager's phone (Final lock) | Combining evidence from several queries | 1. The reception computer, 2. The door-lock server, 3. The key-card encoder, 4. The security PC, 5. The bar till, 🔎 The night guard's notes |
 
@@ -33,7 +33,7 @@
 
 > The reception computer is connected to the hotel database. Start with the obvious question: who slept on the 4th floor on the night of the theft?
 >
-> List the guest name and room of everyone staying on the 4th floor that night, ordered by room. Some guests left that morning or arrived the next day; they don't count.
+> List the guest name and room of everyone staying on the 4th floor that night, ordered by room.
 
 <details><summary>Starter code</summary>
 
@@ -175,14 +175,14 @@ ORDER BY d.time;
 ### 4. The security PC
 
 **Practises:** `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count  
-**Needs:** 🔎 The front-desk logbook  
+**Needs:** 2. The door-lock server, 🔎 The front-desk logbook  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
 
-> The security PC can report on any single card. Look at the master card `M-02`.
+> The security PC can report on any single card. Look at the card that opened room 404 in the night.
 >
-> For the time since it went missing, count how often `M-02` **opened** each room. Show `room` and the count, the room with the most openings first.
+> For the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.
 
 <details><summary>Starter code</summary>
 

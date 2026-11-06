@@ -37,8 +37,8 @@
       },
       "workspace": "python",
       "starter": {
-        "en": "# Ida's login helper. It crashed the night of the lockdown.\n# Password rule (my memory is terrible):\n#   my cat's name in CAPITALS + the year of my doctorate + the number of letters in my last name\ncat = \"???\"         # the name is on the photo on my desk\ndoctorate = \"???\"   # it's on my diploma\nlast_name = \"Kranich\"\n\npassword = cat + doctorate + len(last_name)\nprint(\"Logging in with:\", password)\n",
-        "de": "# Idas Login-Helfer. Ist in der Nacht des Lockdowns abgestürzt.\n# Passwort-Regel (mein Gedächtnis ist furchtbar):\n#   Name meiner Katze in GROSSBUCHSTABEN + Jahr meiner Promotion + Anzahl der Buchstaben meines Nachnamens\ncat = \"???\"         # der Name steht auf dem Foto auf meinem Schreibtisch\ndoctorate = \"???\"   # steht auf meiner Urkunde\nlast_name = \"Kranich\"\n\npassword = cat + doctorate + len(last_name)\nprint(\"Login mit:\", password)\n"
+        "en": "# Ida's login helper. It crashed the night of the lockdown.\n# Password rule (my memory is terrible):\n#   my cat's name in CAPITALS + the year of my doctorate + the number of letters in my last name\ncat = \"???\"\ndoctorate = \"???\"\nlast_name = \"Kranich\"\n\npassword = cat + doctorate + len(last_name)\nprint(\"Logging in with:\", password)\n",
+        "de": "# Idas Login-Helfer. Ist in der Nacht des Lockdowns abgestürzt.\n# Passwort-Regel (mein Gedächtnis ist furchtbar):\n#   Name meiner Katze in GROSSBUCHSTABEN + Jahr meiner Promotion + Anzahl der Buchstaben meines Nachnamens\ncat = \"???\"\ndoctorate = \"???\"\nlast_name = \"Kranich\"\n\npassword = cat + doctorate + len(last_name)\nprint(\"Login mit:\", password)\n"
       },
       "check": {
         "type": "python",
