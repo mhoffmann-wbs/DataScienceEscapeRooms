@@ -21,6 +21,8 @@ const noteSchema = z.object({
   deleted: register(z.boolean()),
   /** Sort key; moving a note picks a value between its new neighbours. */
   pos: register(z.number().finite()),
+  /** Set once when pinned from a clue or reveal (`clue:<id>`, `reveal:<puzzleId>`); never changes. */
+  source: z.string().max(64).optional(),
 });
 
 export const notesSchema = z
@@ -47,7 +49,13 @@ export function mergeNotes(a: Notes, b: Notes): Notes {
   for (const [id, nb] of Object.entries(b)) {
     const na = out[id];
     out[id] = na
-      ? { text: newer(na.text, nb.text), crossed: newer(na.crossed, nb.crossed), deleted: newer(na.deleted, nb.deleted), pos: newer(na.pos, nb.pos) }
+      ? {
+          text: newer(na.text, nb.text),
+          crossed: newer(na.crossed, nb.crossed),
+          deleted: newer(na.deleted, nb.deleted),
+          pos: newer(na.pos, nb.pos),
+          ...((na.source ?? nb.source) !== undefined && { source: na.source ?? nb.source }),
+        }
       : nb;
   }
   return out;
@@ -61,7 +69,7 @@ export function sameNotes(a: Notes, b: Notes): boolean {
   return ids.every((id) => {
     const x = a[id]!;
     const y = b[id];
-    return !!y && sameRegister(x.text, y.text) && sameRegister(x.crossed, y.crossed) && sameRegister(x.deleted, y.deleted) && sameRegister(x.pos, y.pos);
+    return !!y && x.source === y.source && sameRegister(x.text, y.text) && sameRegister(x.crossed, y.crossed) && sameRegister(x.deleted, y.deleted) && sameRegister(x.pos, y.pos);
   });
 }
 
@@ -81,6 +89,13 @@ export function viewTrash(notes: Notes): NoteView[] {
     .filter(([, n]) => n.deleted.v && n.text.v)
     .sort(([ia, a], [ib, b]) => b.deleted.t - a.deleted.t || (ia < ib ? -1 : 1))
     .map(([id, n]) => ({ id, text: n.text.v, crossed: n.crossed.v }));
+}
+
+/** Whether something pinned from `source` is in the notes, in the trash, or neither. */
+export function pinState(notes: Notes, source: string): 'pinned' | 'trashed' | null {
+  const pins = Object.values(notes).filter((n) => n.source === source && n.text.v);
+  if (pins.some((n) => !n.deleted.v)) return 'pinned';
+  return pins.length ? 'trashed' : null;
 }
 
 const newId = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => (b % 36).toString(36)).join('');
@@ -128,14 +143,29 @@ export class Notebook {
   }
 
   /** Adds a note at the end. Returns false if it is empty or the notebook is full. */
-  add(text: string): boolean {
+  add(text: string, source?: string): boolean {
     const clean = text.trim().slice(0, NOTE_MAX_LENGTH);
     if (!clean || Object.keys(this.current).length >= MAX_NOTES) return false;
     const last = this.view.at(-1);
     const pos = last ? this.current[last.id]!.pos.v + 1 : 0;
     const r = <T>(v: T) => this.reg(v);
-    this.apply({ [newId()]: { text: r(clean), crossed: r(false), deleted: r(false), pos: r(pos) } }, true);
+    this.apply({ [newId()]: { text: r(clean), crossed: r(false), deleted: r(false), pos: r(pos), ...(source && { source }) } }, true);
     return true;
+  }
+
+  /**
+   * Pins a clue or reveal once: a note from the same source that is already there stays as it
+   * is, one in the trash comes back. (Two players pinning at the same moment can still both add it.)
+   */
+  pin(text: string, source: string): boolean {
+    const state = pinState(this.current, source);
+    if (state === 'pinned') return true;
+    if (state === 'trashed') {
+      const [id] = Object.entries(this.current).find(([, n]) => n.source === source && n.text.v)!;
+      this.restore(id);
+      return true;
+    }
+    return this.add(text, source);
   }
 
   edit(id: string, text: string): void {

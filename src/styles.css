@@ -627,16 +627,14 @@ code {
   white-space: nowrap;
 }
 
-/* Voice and video, bottom right */
+/* Voice and video, at the bottom of the side column */
 .av-dock {
-  position: absolute;
-  right: 12px;
-  bottom: 64px;
+  margin-top: auto;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
-  max-width: min(360px, calc(100% - 24px));
   pointer-events: none;
 }
 
@@ -649,7 +647,7 @@ code {
   flex-wrap: wrap-reverse;
   justify-content: flex-end;
   gap: 6px;
-  max-height: 50vh;
+  max-height: 40vh;
   overflow-y: auto;
 }
 
@@ -720,15 +718,26 @@ code {
 }
 
 /* Right column in rooms: team list, then the team's notes */
+/* Right side: people, the room's notes, and voice/video at the bottom. Notes shrink (and
+   scroll) to leave room for the video tiles; the empty middle lets clicks through to the map. */
 .side-column {
   position: absolute;
   top: 68px;
   right: 12px;
+  bottom: 64px;
   width: 260px;
-  max-height: calc(100% - 68px - 200px);
   display: flex;
   flex-direction: column;
   gap: 8px;
+  pointer-events: none;
+}
+
+.side-column > :not(.av-dock) {
+  pointer-events: auto;
+}
+
+.side-column > .people-panel {
+  flex-shrink: 0;
 }
 
 .side-column > .overlay {

@@ -167,8 +167,10 @@ function LobbyOverlays({ session, profile, instructorKey, onEnterRoom, onRejoin,
       )}
       <ChatPanel chat={session.chat} />
       <ChatBubbles chat={session.chat} />
-      <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('people.title', { count: n })} aloneText={t('people.alone')} />
-      <AvDock media={session.media} presence={session.presence} scope="proximity" />
+      <div className="side-column">
+        <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('people.title', { count: n })} aloneText={t('people.alone')} />
+        <AvDock media={session.media} presence={session.presence} scope="proximity" />
+      </div>
     </>
   );
 }
@@ -250,15 +252,14 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeave
   const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'clue' || d?.kind === 'leave' ? null : d)), []);
   const close = useCallback(() => setDialog(null), []);
   const openDebrief = useCallback(() => setDialog({ kind: 'escaped' }), []);
-  const pin = useCallback((text: string) => session.notebook.add(text), [session]);
   const puzzle = dialog?.kind === 'puzzle' ? getPuzzle(roomId, dialog.puzzleId) : undefined;
 
   return (
     <>
       <RoomHud roomId={roomId} run={run} solo={solo} observer={observer} help={help} onDebrief={openDebrief} />
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
-      {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} onPin={pin} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
-      {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} onPin={pin} onClose={close} />}
+      {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} notebook={session.notebook} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
+      {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} notebook={session.notebook} onClose={close} />}
       {dialog?.kind === 'leave' && <LeaveRoomDialog finished={escaped} onLeave={() => onLeaveRoom(escaped)} onStay={close} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={() => onLeaveRoom(true)} onClose={close} />}
@@ -267,8 +268,8 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeave
       <div className="side-column">
         <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('room.team', { count: n })} aloneText={t('room.alone')} />
         <NotesPanel notebook={session.notebook} />
+        {!author && !solo && <AvDock media={session.media} presence={session.presence} scope="team" />}
       </div>
-      {!author && !solo && <AvDock media={session.media} presence={session.presence} scope="team" />}
     </>
   );
 }

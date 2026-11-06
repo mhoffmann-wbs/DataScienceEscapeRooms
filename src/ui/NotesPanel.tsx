@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NOTE_MAX_LENGTH, type Notebook, type NoteView } from '../net/notebook';
+import { NOTE_MAX_LENGTH, pinState, type Notebook, type NoteView } from '../net/notebook';
 import { useEmitterValue } from './useStore';
 
 const COLLAPSED_KEY = 'dser.notes.collapsed';
@@ -248,12 +248,16 @@ export function plainNote(title: string, text: string): string {
   return `${title}: ${body}`.slice(0, NOTE_MAX_LENGTH);
 }
 
-/** "📌 Pin to notes" for clue cards and reveals; shows a short confirmation. */
-export function PinButton({ text, onPin }: { text: string; onPin: (text: string) => boolean }) {
+/**
+ * "📌 Pin to notes" for clue cards and reveals (`source`: `clue:<id>` or `reveal:<puzzleId>`).
+ * Shows "Pinned" while the team's notes hold it, so it isn't pinned twice.
+ */
+export function PinButton({ text, source, notebook }: { text: string; source: string; notebook: Notebook }) {
   const { t } = useTranslation();
-  const [pinned, setPinned] = useState(false);
+  const notes = useEmitterValue(notebook.events, 'notes', () => notebook.state);
+  const pinned = pinState(notes, source) === 'pinned';
   return (
-    <button type="button" className="pin-button" disabled={pinned} onClick={() => setPinned(onPin(text))}>
+    <button type="button" className="pin-button" disabled={pinned} onClick={() => notebook.pin(text, source)}>
       {pinned ? t('notes.pinned') : t('notes.pin')}
     </button>
   );

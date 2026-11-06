@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Notebook } from '../net/notebook';
 import type { RunState } from '../net/run';
 import { finalPuzzleId, getClue, loadSolutions, loc, ROOMS } from '../rooms';
 import type { ReferenceSolution } from '../rooms/solutions';
@@ -25,7 +26,7 @@ export function IntroDialog({ roomId, onClose }: { roomId: string; onClose: () =
 }
 
 /** A clue object up close: read-only text from the manifest. */
-export function ClueDialog({ roomId, clueId, onPin, onClose }: { roomId: string; clueId: string; onPin: (text: string) => boolean; onClose: () => void }) {
+export function ClueDialog({ roomId, clueId, notebook, onClose }: { roomId: string; clueId: string; notebook: Notebook; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const clue = getClue(roomId, clueId);
   if (!clue) return null;
@@ -35,7 +36,7 @@ export function ClueDialog({ roomId, clueId, onPin, onClose }: { roomId: string;
         <RichText text={loc(clue.text, i18n.language)} />
       </div>
       <div className="modal-actions">
-        <PinButton text={plainNote(loc(clue.title, i18n.language), loc(clue.text, i18n.language))} onPin={onPin} />
+        <PinButton text={plainNote(loc(clue.title, i18n.language), loc(clue.text, i18n.language))} source={`clue:${clueId}`} notebook={notebook} />
         <button type="button" onClick={onClose}>
           {t('puzzle.close')}
         </button>

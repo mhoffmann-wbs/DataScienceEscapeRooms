@@ -8,6 +8,7 @@ import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
 import type { Plot, SqlTable } from '../runners/protocol';
 import { Chart } from './Chart';
 import type { CodeShare } from '../net/codeShare';
+import type { Notebook } from '../net/notebook';
 import type { Presence } from '../net/presence';
 import { CodeEditor, CodeViewer } from './CodeEditor';
 import { Modal } from './Modal';
@@ -35,15 +36,15 @@ interface Props {
   run: RunSync;
   /** Author mode ignores locks. */
   author: boolean;
-  /** Adds a note to the team notebook (for pinning the reveal). */
-  onPin: (text: string) => boolean;
+  /** The team notebook, for pinning the reveal. */
+  notebook: Notebook;
   /** Live view of teammates' editors on the same puzzle. */
   codeShare: CodeShare;
   presence: Presence;
   onClose: () => void;
 }
 
-export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, presence, onClose }: Props) {
+export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare, presence, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const { salt, packages } = ROOMS[roomId]!;
@@ -191,7 +192,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, onPin, codeShare, pr
             <section className="reveal" aria-label={t('puzzle.reveal')}>
               <RichText text={loc(puzzle.reveal, lang)} />
               <p>
-                <PinButton text={plainNote(loc(puzzle.title, lang), loc(puzzle.reveal, lang))} onPin={onPin} />
+                <PinButton text={plainNote(loc(puzzle.title, lang), loc(puzzle.reveal, lang))} source={`reveal:${puzzle.id}`} notebook={notebook} />
               </p>
             </section>
           )}

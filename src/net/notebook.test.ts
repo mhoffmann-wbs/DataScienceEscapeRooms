@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createMemoryTransport, MemoryHub } from './memoryTransport';
-import { mergeNotes, Notebook, viewNotes, type Notes } from './notebook';
+import { mergeNotes, Notebook, pinState, viewNotes, type Notes } from './notebook';
 
 function pair() {
   const hub = new MemoryHub();
@@ -75,6 +75,28 @@ describe('Notebook', () => {
     // Only notes in the trash can be deleted for good.
     bob.purge(one!.id);
     expect(texts(ada)).toEqual(['one', 'three']);
+  });
+
+  it('pins a clue once, and brings it back from the trash instead of copying it', () => {
+    const { ada, bob, clock } = pair();
+    ada.pin('Photo: Pixel', 'clue:photo');
+    clock.t++;
+    expect(pinState(bob.state, 'clue:photo')).toBe('pinned');
+    bob.pin('Photo: Pixel', 'clue:photo');
+    expect(texts(ada)).toEqual(['Photo: Pixel']);
+    const [note] = bob.list();
+    bob.remove(note!.id);
+    expect(pinState(ada.state, 'clue:photo')).toBe('trashed');
+    clock.t++;
+    ada.pin('Photo: Pixel', 'clue:photo');
+    expect(texts(bob)).toEqual(['Photo: Pixel']);
+    expect(bob.trash()).toEqual([]);
+    // Deleted for good: pinning adds it again.
+    bob.remove(note!.id);
+    bob.purge(note!.id);
+    expect(pinState(ada.state, 'clue:photo')).toBe(null);
+    ada.pin('Photo: Pixel', 'clue:photo');
+    expect(texts(bob)).toEqual(['Photo: Pixel']);
   });
 
   it('a note deleted for good stays gone, even after a concurrent restore', () => {
