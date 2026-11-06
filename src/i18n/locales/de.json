@@ -62,7 +62,7 @@
   },
   "lobby": {
     "controls": "Bewegen: WASD oder Pfeiltasten · Türen und Objekte benutzen: E · Chat: Enter, Esc zum Verlassen",
-    "doorPrompt": "Drücke E, um ein Szenario zu wählen und ein Team zu bilden",
+    "doorPrompt": "Drücke E, um die Szenarioliste wieder zu öffnen",
     "profile": "Profil"
   },
   "settings": {

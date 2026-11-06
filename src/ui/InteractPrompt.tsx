@@ -10,11 +10,13 @@ interface Props {
   roomId?: string;
   solved?: Record<string, number>;
   onUse: (target: Interactable) => void;
+  /** Called on stepping onto an interactable, before any E press. */
+  onEnter?: (target: Interactable) => void;
   onLeave: () => void;
 }
 
 /** Shows the controls, or what the door or object under the player is. */
-export function InteractPrompt({ roomId, solved, onUse, onLeave }: Props) {
+export function InteractPrompt({ roomId, solved, onUse, onEnter, onLeave }: Props) {
   const { t, i18n } = useTranslation();
   const [target, setTarget] = useState<Interactable | null>(null);
 
@@ -22,12 +24,13 @@ export function InteractPrompt({ roomId, solved, onUse, onLeave }: Props) {
     const offs = [
       bus.on('interact:changed', ({ target }) => {
         setTarget(target);
-        if (!target) onLeave();
+        if (target) onEnter?.(target);
+        else onLeave();
       }),
       bus.on('interact:use', ({ target }) => onUse(target)),
     ];
     return () => offs.forEach((off) => off());
-  }, [onUse, onLeave]);
+  }, [onUse, onEnter, onLeave]);
 
   if (!target) return <div className="overlay status">{t('lobby.controls')}</div>;
 

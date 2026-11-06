@@ -62,7 +62,7 @@
   },
   "lobby": {
     "controls": "Move: WASD or arrow keys · Use doors and objects: E · Chat: Enter, Esc to leave",
-    "doorPrompt": "Press E to choose a scenario and form a team",
+    "doorPrompt": "Press E to reopen the scenario list",
     "profile": "Profile"
   },
   "settings": {

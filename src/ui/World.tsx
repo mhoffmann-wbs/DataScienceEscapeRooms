@@ -139,12 +139,13 @@ function LobbyOverlays({ session, profile, instructorKey, onGoTo, onEnterRoom, o
     () => session.teams.events.on('started', (started) => onEnterRoom(started, nameOf(started.team.leader, session.presence, profile))),
     [session, onEnterRoom, profile],
   );
+  // Stepping onto a lobby door opens its dialog; E reopens it after closing it there.
   const use = useCallback((target: Interactable) => target.kind === 'door' && setDialogDoor(target.doorTo), []);
   const leave = useCallback(() => setDialogDoor(null), []);
 
   return (
     <>
-      <InteractPrompt onUse={use} onLeave={leave} />
+      <InteractPrompt onUse={use} onEnter={use} onLeave={leave} />
       <div className="overlay lobby-actions">
         <button type="button" onClick={() => setScoreboard(true)}>
           🏆 {t('scores.title')}
