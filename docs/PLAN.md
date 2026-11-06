@@ -125,6 +125,33 @@ Model families: AR in station 2, ARMA/ARIMA candidates and SARIMA in stations 5�
 
 **TS2 (Prophet):** Prophet can't run in the browser (it needs the Stan C++ toolchain, which Pyodide doesn't ship). Decided: a small Prophet-style model with Prophet's API names, clearly labelled as not the real library. Its scope, what it covers and what not, is in [docs/prophet-lite.md](prophet-lite.md); keep that page in sync when building it.
 
+### 11. Playtest fixes (November 2026)
+Observations from the first playthroughs, grouped by area.
+
+**Room content**
+- **Ida's terminal gives too much away** (`python-lab`, `terminal`): drop the comments that say where each value is (`# the name is on the photo on my desk`, `# it's on my diploma`) in EN and DE; keep the `???` placeholders and the password rule. The task text already says the values are in the lab. Regenerate the walkthrough.
+- **Reception task text** (`sql-hotel`, `reception`): remove "Some guests left that morning or arrived the next day; they don't count." (and the DE sentence). Check that the task still defines "that night" clearly enough without it, since the data does contain guests who check out on the 14th or check in on the 15th; if not, the check-in/check-out rule belongs in a hint, not the task.
+- **Security PC solvable too early** (`sql-hotel`, `master-card`): it has no `requires` and needs only the logbook clue, so a team can solve it in the first minutes. Make it need a result from the door log (add `requires: ["door-log"]`, or better, let it use a value the door-log reveal hands out, such as the time of the 404 opening), so it lands mid-room. Keep reception, door log and bar till open at the start for parallel play. Rehash, regenerate walkthrough, `validate-rooms`.
+
+**Code editor**
+- **Show helpers as imports:** helpers that a data file provides (`unshift` in `python-lab`'s laptop; look for others in every room, but not the hidden `_` graders) should appear in the starter code as an import, e.g. `from lab import unshift`, so students see the function comes from somewhere. Needs the runner to register the data file's public names as a module (`sys.modules["lab"]`, name per room or a fixed name) before the student's code runs, in `pythonCore.ts`, so the import works in the game, tests and `hash-answer` alike.
+- **Tab indents:** add CodeMirror's `indentWithTab` to the editor keymap and set `indentUnit` to 4 spaces for Python (SQL: 4 as well, for consistency). Keep keyboard users able to leave the editor: CodeMirror's Esc-then-Tab escape works with `indentWithTab`; mention it in the help page.
+
+**Notes**
+- **Don't pin twice:** pinned notes remember their source (`clue:<id>` or `reveal:<puzzleId>`) as a new note field (a last-write-wins register like the others, so the merge still converges). The pin button shows "Pinned ✓" and is disabled while a non-deleted note with that source exists; if that note is in the trash, the button restores it instead of making a copy.
+- **Notes box overlaps the A/V tiles:** cap the notes panel's height (to the space above the A/V dock, scrolling inside) or move the dock's tiles so the two never overlap. Check both lobby and room, with 1–5 video tiles and on a small window.
+
+**Voice**
+- **Background noise:** request `echoCancellation`, `noiseSuppression` and `autoGainControl` explicitly in `LocalMedia.acquire` (now it passes `audio: true` or only a `deviceId`, which leaves processing to browser defaults). If that is not enough, add a push-to-talk key or a noise-gate option later; RNNoise-style WASM suppression is a bigger step.
+
+**Instructor**
+- **Bug: the instructor panel shows no running rooms.** Reproduce first: instructor in the lobby, a team (public and private, with and without a group) in a room; check that `World.tsx` publishes the summary (`reporter.runs.publish`), that `runs.ts` accepts it (its zod schema, e.g. the new room ids/categories), and that the panel's group filter isn't hiding it. Add a two-session test (`LobbySession` member in a room + instructor `LobbySession`) that would have caught it. Suspect the last few commits (room types, solo mode).
+- **Teleport to a player:** clicking a player's name (lobby roster, avatar name label, and the instructor panel's member list) opens a small menu; for now its only entry, shown only to an unlocked instructor, is "Go to <name>". In the lobby it moves the instructor's avatar next to that player (a new bus event the scene handles, then a normal position update). If the player is in a room, it reuses the visit flow (signed `visit`, invite back) and spawns the instructor next to that player instead of at the room's spawn.
+
+**Scoreboard**
+- **Players who left early:** today a result lists only the members present at the end. Record everyone who played in the run state, as `members: { <peerId>: { name, joinedAt } }` with earliest-timestamp merge, and at the escape mark those no longer present as left. The scoreboard lists them greyed out with a "left early" marker (a `leftEarly` list in the result, both languages).
+- **Scoreboard survival (answering the question):** it is *not* lost when the lobby empties. Every browser keeps the results in `localStorage` (newest 300, 60 days) and hands them to each newcomer. It is only lost if no returning browser has them, e.g. everyone cleared site data, or a first-time visitor alone in an empty lobby, who sees an empty board until someone with stored results joins. Possible fix, if this matters for classes: let the instructor export and import the scoreboard as JSON from the panel.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
