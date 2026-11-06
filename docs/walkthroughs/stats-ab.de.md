@@ -16,7 +16,7 @@
 | 2 | Die Waage an der Verpackungslinie | Konfidenzintervalle für einen Mittelwert (t-Verteilung, Standardfehler), der Einstichproben-t-Test, wie Intervalle und Tests zusammenpassen | 🔎 Das Qualitätshandbuch |
 | 3 | Anas Laptop: Bestellwerte | Der zentrale Grenzwertsatz, Stichprobenverteilungen und der Standardfehler, Schiefe, Simulation mit numpy | 🔎 Eine Notiz von Ana |
 | 4 | Der Verkostungsraum | Der Zweistichproben-t-Test (Welch), ein- vs. zweiseitige Tests, Entscheiden mit einem vorab registrierten Signifikanzniveau | 1. Die Planungstafel (sein Ergebnis), 🔒 1. Die Planungstafel, 🔎 Das Verkostungsprotokoll |
-| 5 | Das Webshop-Dashboard | Chi-Quadrat-Tests: Anpassung (Sample Ratio Mismatch) und Unabhängigkeit (Konversion je Variante), Kontingenztafeln, Konversionsraten | 1. Die Planungstafel (sein Ergebnis) |
+| 5 | Das Webshop-Dashboard | Chi-Quadrat-Tests: Anpassung (Sample Ratio Mismatch) und Unabhängigkeit (Konversion je Variante), Kontingenztafeln, Konversionsraten | 🔒 3. Anas Laptop: Bestellwerte |
 | 6 | Die Freigabekonsole (Abschluss-Schloss) | Testergebnisse in Entscheidungen übersetzen | 2. Die Waage an der Verpackungslinie (sein Ergebnis), 3. Anas Laptop: Bestellwerte (sein Ergebnis), 4. Der Verkostungsraum (sein Ergebnis), 5. Das Webshop-Dashboard (sein Ergebnis), 🔎 Die Tagesordnung für morgen |
 
 **Abschluss-Code:** `5294`
@@ -86,7 +86,7 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Zeigt nach dem Lösen:**
 
-> Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für jedes Experiment des Relaunchs zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr.
+> Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für beide Experimente des Relaunchs, die Verkostung und den Checkout-Test, zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr. (Die Verpackungslinie ist kein Experiment: Für sie gilt ihr Qualitätshandbuch.)
 
 **Hinweise:**
 
@@ -102,9 +102,9 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Aufgabe:**
 
-> Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Das Qualitätshandbuch sagt, wann die Linie neu kalibriert werden muss.
+> Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Das Qualitätshandbuch legt das Konfidenzniveau fest und sagt, wann die Linie neu kalibriert werden muss.
 >
-> 1. Ein 95-%-Konfidenzintervall für das mittlere Gewicht der Linie, mit der t-Verteilung: `ci_low` und `ci_high`.
+> 1. Ein Konfidenzintervall für das mittlere Gewicht der Linie, auf dem Niveau des Handbuchs, mit der t-Verteilung: `ci_low` und `ci_high`.
 > 2. Ein Einstichproben-t-Test der Gewichte gegen 100 g, zweiseitig: `p_value`.
 > 3. `recalibrate`: True oder False, wie es das Handbuch sagt.
 
@@ -116,7 +116,7 @@ from scipy import stats
 # weights ist geladen: 30 Tafeln, in Gramm.
 print(weights.describe())
 
-ci_low, ci_high = None, None   # 95-%-Konfidenzintervall für das mittlere Gewicht
+ci_low, ci_high = None, None   # Konfidenzintervall für das mittlere Gewicht (Niveau: siehe Qualitätshandbuch)
 p_value = None                 # Einstichproben-t-Test gegen 100 g
 recalibrate = None             # True oder False (siehe Qualitätshandbuch)
 ```
@@ -150,9 +150,9 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Hinweise:**
 
-1. Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(0.95, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29.
+1. Das Qualitätshandbuch an der Wand legt das Niveau fest. Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(niveau, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29.
 2. `stats.ttest_1samp(weights, 100)` testet, ob der Mittelwert von 100 g abweicht; sein `.pvalue` ist zweiseitig.
-3. Das Intervall ist etwa [100,33; 101,27] und p ≈ 0,0017. 100 g liegt außerhalb des Intervalls, also `recalibrate = True`.
+3. Das Handbuch verlangt ein 95-%-Intervall: `stats.t.interval(0.95, 29, loc=weights.mean(), scale=stats.sem(weights))`, etwa [100,33; 101,27], und p ≈ 0,0017. 100 g liegt außerhalb des Intervalls, also `recalibrate = True`.
 
 ### 3. Anas Laptop: Bestellwerte
 
@@ -162,11 +162,11 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Aufgabe:**
 
-> Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben von 50.
+> Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben so groß wie in den Umsatzberichten des Vorstands: Anas Notiz sagt, wie groß.
 >
 > 1. Wie schief sind einzelne Bestellungen? `skew_orders`, mit `scipy.stats.skew`.
-> 2. Zieht mindestens 1.000 Zufallsstichproben von 50 Bestellungen und speichert ihre Mittelwerte in `means`.
-> 3. Laut Theorie schwanken solche Mittelwerte um den Standardfehler σ/√n: `se_theory`. Vergleicht ihn mit der Streuung eurer Mittelwerte.
+> 2. Zieht mindestens 1.000 Zufallsstichproben dieser Größe und speichert ihre Mittelwerte in `means`.
+> 3. Die Theorie sagt, wie stark solche Mittelwerte schwanken: der Standardfehler, `se_theory` (die Formel steht in Anas Notiz). Vergleicht ihn mit der Streuung eurer Mittelwerte.
 > 4. Wie schief sind die Mittelwerte? `skew_means`.
 
 <details><summary>Startcode</summary>
@@ -181,11 +181,12 @@ show_hist(orders, bins=40, title="Einzelne Bestellungen")
 
 skew_orders = None
 rng = np.random.default_rng()
-means = []          # Mittelwerte von Zufallsstichproben von 50 Bestellungen, z. B. rng.choice(orders, 50).mean()
-se_theory = None    # Standardabweichung der Bestellungen / Wurzel aus 50
+n = None            # Stichprobengröße der Vorstandsberichte (siehe Anas Notiz)
+means = []          # Mittelwerte von Zufallsstichproben von n Bestellungen, z. B. rng.choice(orders, n).mean()
+se_theory = None    # wie stark solche Mittelwerte laut Theorie schwanken (siehe Anas Notiz)
 skew_means = None
 
-# show_hist(means, bins=40, title="Mittelwerte von 50 Bestellungen")
+# show_hist(means, bins=40, title="Stichprobenmittel")
 ```
 
 </details>
@@ -198,8 +199,9 @@ from helpers import show_hist
 
 skew_orders = stats.skew(orders)
 rng = np.random.default_rng(1)
-means = [rng.choice(orders, 50).mean() for i in range(2000)]
-se_theory = orders.std() / np.sqrt(50)
+n = 50   # the board's reports average 50 orders (Ana's note)
+means = [rng.choice(orders, n).mean() for i in range(2000)]
+se_theory = orders.std() / np.sqrt(n)
 skew_means = stats.skew(means)
 print(round(skew_orders, 2), round(se_theory, 2), round(np.std(means), 2), round(skew_means, 2))
 show_hist(orders, bins=40, title="Single orders")
@@ -214,13 +216,13 @@ show_hist(means, bins=40, title="Means of 50 orders")
 
 **Zeigt nach dem Lösen:**
 
-> Einzelne Bestellungen sind stark schief (Schiefe 3,3), aber Mittelwerte von 50 Bestellungen sind fast normalverteilt (Schiefe etwa 0,5), und sie streuen um 4,99 €, genau wie σ/√50 vorhersagt. Der Vorstand darf mittlere Bestellwerte mit t-Tests vergleichen.
+> Einzelne Bestellungen sind stark schief (Schiefe 3,3), aber Mittelwerte von 50 Bestellungen sind fast normalverteilt (Schiefe etwa 0,5), und sie streuen um **4,99 €**, genau wie σ/√50 vorhersagt. Der Vorstand darf mittlere Bestellwerte mit t-Tests vergleichen.
 >
 > Entscheidungskarte „Umsatzberichte“: **4**
 
 **Hinweise:**
 
-1. `stats.skew(orders)` misst die Schiefe. `rng.choice(orders, 50).mean()` ist der Mittelwert einer Zufallsstichprobe von 50 Bestellungen; wiederholt das in einer Schleife.
+1. Anas Notiz an der Wand: Die Berichte mitteln jeweils 50 Bestellungen, und Mittelwerte aus n Werten streuen um σ/√n. `stats.skew(orders)` misst die Schiefe; `rng.choice(orders, 50).mean()` ist der Mittelwert einer Zufallsstichprobe von 50 Bestellungen, also wiederholt das in einer Schleife.
 2. `means = [rng.choice(orders, 50).mean() for i in range(2000)]`. Der Standardfehler ist `orders.std() / np.sqrt(50)`; vergleicht ihn mit `np.std(means)`.
 3. skew_orders ≈ 3,35 und se_theory ≈ 4,99; `np.std(means)` landet nah dran, und `skew_means = stats.skew(means)` ist etwa 0,5.
 
@@ -239,7 +241,7 @@ show_hist(means, bins=40, title="Means of 50 orders")
 > Die Blindverkostung lief genau wie registriert. Die Bewertungen sind als `ratings` geladen: Spalten `taster`, `recipe` ("old" oder "new") und `rating` (1 bis 10).
 >
 > 1. `diff`: die mittlere Bewertung des neuen Rezepts minus die des alten.
-> 2. Ein Zweistichproben-t-Test für unabhängige Gruppen (die Welch-Variante, die keine gleichen Streuungen annimmt): `p_value`.
+> 2. Der t-Test, der dazu passt, wie die Verkostung lief (das Verkostungsprotokoll an der Tür verrät es), ohne gleiche Streuungen anzunehmen: `p_value`.
 > 3. `ship_recipe`: True oder False. Entscheidet so, wie es auf der Planungstafel registriert ist.
 
 <details><summary>Startcode</summary>
@@ -251,7 +253,7 @@ from scipy import stats
 print(ratings.groupby("recipe").rating.describe())
 
 diff = None          # mittlere Bewertung neu minus alt
-p_value = None       # Zweistichproben-t-Test
+p_value = None       # t-Test (welcher? siehe Verkostungsprotokoll)
 ship_recipe = None   # True oder False, wie registriert
 ```
 
@@ -286,15 +288,19 @@ print(round(diff, 2), round(result.statistic, 2), round(p_value, 4), ship_recipe
 
 **Hinweise:**
 
-1. `new = ratings[ratings.recipe == "new"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`.
+1. Das Verkostungsprotokoll: Jede Testperson hat eine Tafel bewertet, die beiden Gruppen sind also unabhängig, nicht gepaart. `new = ratings[ratings.recipe == "new"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`.
 2. `stats.ttest_ind(new, old, equal_var=False)` ist der Welch-t-Test; sein `.pvalue` ist zweiseitig. Das Signifikanzniveau kommt aus der Präregistrierung an der Planungstafel.
 3. diff ≈ 0,60 und p ≈ 0,025. Das liegt über α = 0,01, also `ship_recipe = False`.
 
 ### 5. Das Webshop-Dashboard
 
 **Übt:** Chi-Quadrat-Tests: Anpassung (Sample Ratio Mismatch) und Unabhängigkeit (Konversion je Variante), Kontingenztafeln, Konversionsraten  
-**Braucht:** 1. Die Planungstafel (sein Ergebnis)  
+**Braucht:** 🔒 3. Anas Laptop: Bestellwerte  
 **Daten:** [shop.py](../../content/rooms/stats-ab/data/shop.py)
+
+**Zahlenschloss** (öffnet mit `499`):
+
+> Der Dashboard-Bildschirm ist gesperrt. Anas Klebezettel am Monitor: „PIN = der Standardfehler eines mittleren Bestellwerts in den Vorstandsberichten, in Cent.“
 
 **Aufgabe:**
 
@@ -396,6 +402,8 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 > Schiefe lesen (von Ana angepinnt):
 >
 > 0 heißt symmetrisch, wie eine Normalverteilung. Über 1 heißt stark schief: ein langer Ausläufer großer Werte.
+>
+> Die Umsatzberichte des Vorstands mitteln immer **50 Bestellungen** auf einmal.
 >
 > Der ZGWS in einer Zeile: Mittelwerte aus n Werten streuen um σ/√n, und ihre Schiefe schrumpft ungefähr um √n. t-Tests auf Mittelwerten sind also in Ordnung, sobald die Mittelwerte normal aussehen, auch wenn einzelne Werte es nicht tun.
 

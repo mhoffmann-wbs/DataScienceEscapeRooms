@@ -16,7 +16,7 @@
 | 2 | The packing line scale | Confidence intervals for a mean (t distribution, standard error), the one-sample t-test, how intervals and tests agree | 🔎 The quality manual |
 | 3 | Ana's laptop: order values | The central limit theorem, sampling distributions and the standard error, skewness, simulation with numpy | 🔎 A note from Ana |
 | 4 | The tasting room | The two-sample t-test (Welch), one- vs. two-sided tests, deciding at a pre-registered significance level | 1. The planning board (its result), 🔒 1. The planning board, 🔎 The tasting protocol |
-| 5 | The web shop dashboard | Chi-squared tests: goodness of fit (sample ratio mismatch) and independence (conversion by variant), contingency tables, conversion rates | 1. The planning board (its result) |
+| 5 | The web shop dashboard | Chi-squared tests: goodness of fit (sample ratio mismatch) and independence (conversion by variant), contingency tables, conversion rates | 🔒 3. Ana's laptop: order values |
 | 6 | The release console (Final lock) | Turning test results into decisions | 2. The packing line scale (its result), 3. Ana's laptop: order values (its result), 4. The tasting room (its result), 5. The web shop dashboard (its result), 🔎 Tomorrow's agenda |
 
 **Final code:** `5294`
@@ -86,7 +86,7 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Reveals when solved:**
 
-> Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for every experiment of the relaunch two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in.
+> Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for both experiments of the relaunch, the recipe tasting and the checkout test, two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in. (The packing line isn't an experiment: it follows its quality manual.)
 
 **Hints:**
 
@@ -102,9 +102,9 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Task:**
 
-> The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. The quality manual says when the line must be recalibrated.
+> The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. The quality manual sets the confidence level and says when the line must be recalibrated.
 >
-> 1. A 95 % confidence interval for the line's mean weight, from the t distribution: `ci_low` and `ci_high`.
+> 1. A confidence interval for the line's mean weight, at the manual's level, from the t distribution: `ci_low` and `ci_high`.
 > 2. A one-sample t-test of the weights against 100 g, two-sided: `p_value`.
 > 3. `recalibrate`: True or False, as the manual says.
 
@@ -116,7 +116,7 @@ from scipy import stats
 # weights is loaded: 30 bars, in grams.
 print(weights.describe())
 
-ci_low, ci_high = None, None   # 95 % confidence interval for the mean weight
+ci_low, ci_high = None, None   # confidence interval for the mean weight (level: see the quality manual)
 p_value = None                 # one-sample t-test against 100 g
 recalibrate = None             # True or False (see the quality manual)
 ```
@@ -150,9 +150,9 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Hints:**
 
-1. The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(0.95, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.
+1. The quality manual on the wall sets the level. The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(level, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.
 2. `stats.ttest_1samp(weights, 100)` tests whether the mean differs from 100 g; its `.pvalue` is two-sided.
-3. The interval is about [100.33, 101.27] and p ≈ 0.0017. 100 g lies outside the interval, so `recalibrate = True`.
+3. The manual asks for a 95 % interval: `stats.t.interval(0.95, 29, loc=weights.mean(), scale=stats.sem(weights))`, about [100.33, 101.27], and p ≈ 0.0017. 100 g lies outside the interval, so `recalibrate = True`.
 
 ### 3. Ana's laptop: order values
 
@@ -162,11 +162,11 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Task:**
 
-> The board wants average order values compared with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples of 50.
+> The board wants average order values compared with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples as large as the ones in the board's revenue reports: Ana's note says how large.
 >
 > 1. How skewed are single orders? `skew_orders`, with `scipy.stats.skew`.
-> 2. Draw at least 1,000 random samples of 50 orders and keep their means in `means`.
-> 3. Theory says such means vary by the standard error σ/√n: `se_theory`. Compare it with the spread of your means.
+> 2. Draw at least 1,000 random samples of that size and keep their means in `means`.
+> 3. Theory says how much such means vary: the standard error, `se_theory` (Ana's note has the formula). Compare it with the spread of your means.
 > 4. How skewed are the means? `skew_means`.
 
 <details><summary>Starter code</summary>
@@ -181,11 +181,12 @@ show_hist(orders, bins=40, title="Single orders")
 
 skew_orders = None
 rng = np.random.default_rng()
-means = []          # means of random samples of 50 orders, e.g. rng.choice(orders, 50).mean()
-se_theory = None    # standard deviation of the orders / square root of 50
+n = None            # sample size of the board's reports (see Ana's note)
+means = []          # means of random samples of n orders, e.g. rng.choice(orders, n).mean()
+se_theory = None    # how much such means vary, in theory (see Ana's note)
 skew_means = None
 
-# show_hist(means, bins=40, title="Means of 50 orders")
+# show_hist(means, bins=40, title="Sample means")
 ```
 
 </details>
@@ -198,8 +199,9 @@ from helpers import show_hist
 
 skew_orders = stats.skew(orders)
 rng = np.random.default_rng(1)
-means = [rng.choice(orders, 50).mean() for i in range(2000)]
-se_theory = orders.std() / np.sqrt(50)
+n = 50   # the board's reports average 50 orders (Ana's note)
+means = [rng.choice(orders, n).mean() for i in range(2000)]
+se_theory = orders.std() / np.sqrt(n)
 skew_means = stats.skew(means)
 print(round(skew_orders, 2), round(se_theory, 2), round(np.std(means), 2), round(skew_means, 2))
 show_hist(orders, bins=40, title="Single orders")
@@ -214,13 +216,13 @@ show_hist(means, bins=40, title="Means of 50 orders")
 
 **Reveals when solved:**
 
-> Single orders are badly skewed (skewness 3.3), but means of 50 orders are close to normal (skewness about 0.5), and they spread by €4.99, just as σ/√50 predicts. The board may compare average order values with t-tests.
+> Single orders are badly skewed (skewness 3.3), but means of 50 orders are close to normal (skewness about 0.5), and they spread by **€4.99**, just as σ/√50 predicts. The board may compare average order values with t-tests.
 >
 > Decision card "Revenue reporting": **4**
 
 **Hints:**
 
-1. `stats.skew(orders)` measures the skew. `rng.choice(orders, 50).mean()` is the mean of one random sample of 50 orders; repeat it in a loop.
+1. Ana's note on the wall: the reports average 50 orders at a time, and means of n values spread by σ/√n. `stats.skew(orders)` measures the skew; `rng.choice(orders, 50).mean()` is the mean of one random sample of 50 orders, so repeat it in a loop.
 2. `means = [rng.choice(orders, 50).mean() for i in range(2000)]`. The standard error is `orders.std() / np.sqrt(50)`; compare it with `np.std(means)`.
 3. skew_orders ≈ 3.35 and se_theory ≈ 4.99; `np.std(means)` lands close to it, and `skew_means = stats.skew(means)` is about 0.5.
 
@@ -239,7 +241,7 @@ show_hist(means, bins=40, title="Means of 50 orders")
 > The blind tasting ran exactly as registered. The ratings are loaded as `ratings`: columns `taster`, `recipe` ("old" or "new") and `rating` (1 to 10).
 >
 > 1. `diff`: the mean rating of the new recipe minus that of the old one.
-> 2. A two-sample t-test for independent groups (Welch's version, which doesn't assume equal spreads): `p_value`.
+> 2. The t-test that fits how the tasting was run (the tasting protocol by the door tells you), without assuming equal spreads: `p_value`.
 > 3. `ship_recipe`: True or False. Decide as registered on the planning board.
 
 <details><summary>Starter code</summary>
@@ -251,7 +253,7 @@ from scipy import stats
 print(ratings.groupby("recipe").rating.describe())
 
 diff = None          # mean rating of new minus old
-p_value = None       # two-sample t-test
+p_value = None       # t-test (which one? see the tasting protocol)
 ship_recipe = None   # True or False, as registered
 ```
 
@@ -286,15 +288,19 @@ print(round(diff, 2), round(result.statistic, 2), round(p_value, 4), ship_recipe
 
 **Hints:**
 
-1. `new = ratings[ratings.recipe == "new"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.
+1. The tasting protocol: every taster rated one bar, so the two groups are independent, not paired. `new = ratings[ratings.recipe == "new"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.
 2. `stats.ttest_ind(new, old, equal_var=False)` is Welch's t-test; its `.pvalue` is two-sided. The significance level comes from the pre-registration on the planning board.
 3. diff ≈ 0.60 and p ≈ 0.025. That's above α = 0.01, so `ship_recipe = False`.
 
 ### 5. The web shop dashboard
 
 **Practises:** Chi-squared tests: goodness of fit (sample ratio mismatch) and independence (conversion by variant), contingency tables, conversion rates  
-**Needs:** 1. The planning board (its result)  
+**Needs:** 🔒 3. Ana's laptop: order values  
 **Data:** [shop.py](../../content/rooms/stats-ab/data/shop.py)
+
+**Code lock** (opens with `499`):
+
+> The dashboard screen is locked. Ana's sticky note on the monitor: "PIN = the standard error of a mean order value in the board's reports, in cents."
 
 **Task:**
 
@@ -396,6 +402,8 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 > Reading skewness (pinned up by Ana):
 >
 > 0 means symmetric, like a normal distribution. Above 1 means strongly skewed: a long tail of big values.
+>
+> The board's revenue reports always average **50 orders** at a time.
 >
 > The CLT in one line: means of n values spread by σ/√n, and their skewness shrinks roughly by √n. So t-tests on means are fine once the means look normal, even if single values don't.
 

@@ -52,8 +52,8 @@
         "hash": "611f1970886acc6c6fe621a3681a0d1f0a1c86c2fc77f10754879bf0e073b3f5"
       },
       "reveal": {
-        "en": "Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for every experiment of the relaunch two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in.",
-        "de": "Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für jedes Experiment des Relaunchs zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr."
+        "en": "Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for both experiments of the relaunch, the recipe tasting and the checkout test, two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in. (The packing line isn't an experiment: it follows its quality manual.)",
+        "de": "Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für beide Experimente des Relaunchs, die Verkostung und den Checkout-Test, zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr. (Die Verpackungslinie ist kein Experiment: Für sie gilt ihr Qualitätshandbuch.)"
       },
       "practises": {
         "en": "Experimental design (randomisation, control group, blinding, confounders), significance level and power, sample size for comparing two means",
@@ -81,14 +81,14 @@
         "de": "Die Waage an der Verpackungslinie"
       },
       "text": {
-        "en": "The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. The quality manual says when the line must be recalibrated.\n\n1. A 95 % confidence interval for the line's mean weight, from the t distribution: `ci_low` and `ci_high`.\n2. A one-sample t-test of the weights against 100 g, two-sided: `p_value`.\n3. `recalibrate`: True or False, as the manual says.",
-        "de": "Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Das Qualitätshandbuch sagt, wann die Linie neu kalibriert werden muss.\n\n1. Ein 95-%-Konfidenzintervall für das mittlere Gewicht der Linie, mit der t-Verteilung: `ci_low` und `ci_high`.\n2. Ein Einstichproben-t-Test der Gewichte gegen 100 g, zweiseitig: `p_value`.\n3. `recalibrate`: True oder False, wie es das Handbuch sagt."
+        "en": "The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. The quality manual sets the confidence level and says when the line must be recalibrated.\n\n1. A confidence interval for the line's mean weight, at the manual's level, from the t distribution: `ci_low` and `ci_high`.\n2. A one-sample t-test of the weights against 100 g, two-sided: `p_value`.\n3. `recalibrate`: True or False, as the manual says.",
+        "de": "Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Das Qualitätshandbuch legt das Konfidenzniveau fest und sagt, wann die Linie neu kalibriert werden muss.\n\n1. Ein Konfidenzintervall für das mittlere Gewicht der Linie, auf dem Niveau des Handbuchs, mit der t-Verteilung: `ci_low` und `ci_high`.\n2. Ein Einstichproben-t-Test der Gewichte gegen 100 g, zweiseitig: `p_value`.\n3. `recalibrate`: True oder False, wie es das Handbuch sagt."
       },
       "workspace": "python",
       "data": "scale.py",
       "starter": {
-        "en": "from scipy import stats\n\n# weights is loaded: 30 bars, in grams.\nprint(weights.describe())\n\nci_low, ci_high = None, None   # 95 % confidence interval for the mean weight\np_value = None                 # one-sample t-test against 100 g\nrecalibrate = None             # True or False (see the quality manual)\n",
-        "de": "from scipy import stats\n\n# weights ist geladen: 30 Tafeln, in Gramm.\nprint(weights.describe())\n\nci_low, ci_high = None, None   # 95-%-Konfidenzintervall für das mittlere Gewicht\np_value = None                 # Einstichproben-t-Test gegen 100 g\nrecalibrate = None             # True oder False (siehe Qualitätshandbuch)\n"
+        "en": "from scipy import stats\n\n# weights is loaded: 30 bars, in grams.\nprint(weights.describe())\n\nci_low, ci_high = None, None   # confidence interval for the mean weight (level: see the quality manual)\np_value = None                 # one-sample t-test against 100 g\nrecalibrate = None             # True or False (see the quality manual)\n",
+        "de": "from scipy import stats\n\n# weights ist geladen: 30 Tafeln, in Gramm.\nprint(weights.describe())\n\nci_low, ci_high = None, None   # Konfidenzintervall für das mittlere Gewicht (Niveau: siehe Qualitätshandbuch)\np_value = None                 # Einstichproben-t-Test gegen 100 g\nrecalibrate = None             # True oder False (siehe Qualitätshandbuch)\n"
       },
       "check": {
         "type": "python",
@@ -108,16 +108,16 @@
       ],
       "hints": [
         {
-          "en": "The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(0.95, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.",
-          "de": "Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(0.95, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29."
+          "en": "The quality manual on the wall sets the level. The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(level, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.",
+          "de": "Das Qualitätshandbuch an der Wand legt das Niveau fest. Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(niveau, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29."
         },
         {
           "en": "`stats.ttest_1samp(weights, 100)` tests whether the mean differs from 100 g; its `.pvalue` is two-sided.",
           "de": "`stats.ttest_1samp(weights, 100)` testet, ob der Mittelwert von 100 g abweicht; sein `.pvalue` ist zweiseitig."
         },
         {
-          "en": "The interval is about [100.33, 101.27] and p ≈ 0.0017. 100 g lies outside the interval, so `recalibrate = True`.",
-          "de": "Das Intervall ist etwa [100,33; 101,27] und p ≈ 0,0017. 100 g liegt außerhalb des Intervalls, also `recalibrate = True`."
+          "en": "The manual asks for a 95 % interval: `stats.t.interval(0.95, 29, loc=weights.mean(), scale=stats.sem(weights))`, about [100.33, 101.27], and p ≈ 0.0017. 100 g lies outside the interval, so `recalibrate = True`.",
+          "de": "Das Handbuch verlangt ein 95-%-Intervall: `stats.t.interval(0.95, 29, loc=weights.mean(), scale=stats.sem(weights))`, etwa [100,33; 101,27], und p ≈ 0,0017. 100 g liegt außerhalb des Intervalls, also `recalibrate = True`."
         }
       ]
     },
@@ -128,14 +128,14 @@
         "de": "Anas Laptop: Bestellwerte"
       },
       "text": {
-        "en": "The board wants average order values compared with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples of 50.\n\n1. How skewed are single orders? `skew_orders`, with `scipy.stats.skew`.\n2. Draw at least 1,000 random samples of 50 orders and keep their means in `means`.\n3. Theory says such means vary by the standard error σ/√n: `se_theory`. Compare it with the spread of your means.\n4. How skewed are the means? `skew_means`.",
-        "de": "Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben von 50.\n\n1. Wie schief sind einzelne Bestellungen? `skew_orders`, mit `scipy.stats.skew`.\n2. Zieht mindestens 1.000 Zufallsstichproben von 50 Bestellungen und speichert ihre Mittelwerte in `means`.\n3. Laut Theorie schwanken solche Mittelwerte um den Standardfehler σ/√n: `se_theory`. Vergleicht ihn mit der Streuung eurer Mittelwerte.\n4. Wie schief sind die Mittelwerte? `skew_means`."
+        "en": "The board wants average order values compared with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples as large as the ones in the board's revenue reports: Ana's note says how large.\n\n1. How skewed are single orders? `skew_orders`, with `scipy.stats.skew`.\n2. Draw at least 1,000 random samples of that size and keep their means in `means`.\n3. Theory says how much such means vary: the standard error, `se_theory` (Ana's note has the formula). Compare it with the spread of your means.\n4. How skewed are the means? `skew_means`.",
+        "de": "Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben so groß wie in den Umsatzberichten des Vorstands: Anas Notiz sagt, wie groß.\n\n1. Wie schief sind einzelne Bestellungen? `skew_orders`, mit `scipy.stats.skew`.\n2. Zieht mindestens 1.000 Zufallsstichproben dieser Größe und speichert ihre Mittelwerte in `means`.\n3. Die Theorie sagt, wie stark solche Mittelwerte schwanken: der Standardfehler, `se_theory` (die Formel steht in Anas Notiz). Vergleicht ihn mit der Streuung eurer Mittelwerte.\n4. Wie schief sind die Mittelwerte? `skew_means`."
       },
       "workspace": "python",
       "data": "orders.py",
       "starter": {
-        "en": "import numpy as np\nfrom scipy import stats\nfrom helpers import show_hist\n\n# orders is loaded: the value of every order in 2025, in euros.\nshow_hist(orders, bins=40, title=\"Single orders\")\n\nskew_orders = None\nrng = np.random.default_rng()\nmeans = []          # means of random samples of 50 orders, e.g. rng.choice(orders, 50).mean()\nse_theory = None    # standard deviation of the orders / square root of 50\nskew_means = None\n\n# show_hist(means, bins=40, title=\"Means of 50 orders\")\n",
-        "de": "import numpy as np\nfrom scipy import stats\nfrom helpers import show_hist\n\n# orders ist geladen: der Wert jeder Bestellung 2025, in Euro.\nshow_hist(orders, bins=40, title=\"Einzelne Bestellungen\")\n\nskew_orders = None\nrng = np.random.default_rng()\nmeans = []          # Mittelwerte von Zufallsstichproben von 50 Bestellungen, z. B. rng.choice(orders, 50).mean()\nse_theory = None    # Standardabweichung der Bestellungen / Wurzel aus 50\nskew_means = None\n\n# show_hist(means, bins=40, title=\"Mittelwerte von 50 Bestellungen\")\n"
+        "en": "import numpy as np\nfrom scipy import stats\nfrom helpers import show_hist\n\n# orders is loaded: the value of every order in 2025, in euros.\nshow_hist(orders, bins=40, title=\"Single orders\")\n\nskew_orders = None\nrng = np.random.default_rng()\nn = None            # sample size of the board's reports (see Ana's note)\nmeans = []          # means of random samples of n orders, e.g. rng.choice(orders, n).mean()\nse_theory = None    # how much such means vary, in theory (see Ana's note)\nskew_means = None\n\n# show_hist(means, bins=40, title=\"Sample means\")\n",
+        "de": "import numpy as np\nfrom scipy import stats\nfrom helpers import show_hist\n\n# orders ist geladen: der Wert jeder Bestellung 2025, in Euro.\nshow_hist(orders, bins=40, title=\"Einzelne Bestellungen\")\n\nskew_orders = None\nrng = np.random.default_rng()\nn = None            # Stichprobengröße der Vorstandsberichte (siehe Anas Notiz)\nmeans = []          # Mittelwerte von Zufallsstichproben von n Bestellungen, z. B. rng.choice(orders, n).mean()\nse_theory = None    # wie stark solche Mittelwerte laut Theorie schwanken (siehe Anas Notiz)\nskew_means = None\n\n# show_hist(means, bins=40, title=\"Stichprobenmittel\")\n"
       },
       "check": {
         "type": "python",
@@ -143,8 +143,8 @@
         "hash": "c9d9cd3ebbce2f07bd993475c61231627eab00f75d82ace5f1b420236b6bb067"
       },
       "reveal": {
-        "en": "Single orders are badly skewed (skewness 3.3), but means of 50 orders are close to normal (skewness about 0.5), and they spread by €4.99, just as σ/√50 predicts. The board may compare average order values with t-tests.\n\nDecision card \"Revenue reporting\": **4**",
-        "de": "Einzelne Bestellungen sind stark schief (Schiefe 3,3), aber Mittelwerte von 50 Bestellungen sind fast normalverteilt (Schiefe etwa 0,5), und sie streuen um 4,99 €, genau wie σ/√50 vorhersagt. Der Vorstand darf mittlere Bestellwerte mit t-Tests vergleichen.\n\nEntscheidungskarte „Umsatzberichte“: **4**"
+        "en": "Single orders are badly skewed (skewness 3.3), but means of 50 orders are close to normal (skewness about 0.5), and they spread by **€4.99**, just as σ/√50 predicts. The board may compare average order values with t-tests.\n\nDecision card \"Revenue reporting\": **4**",
+        "de": "Einzelne Bestellungen sind stark schief (Schiefe 3,3), aber Mittelwerte von 50 Bestellungen sind fast normalverteilt (Schiefe etwa 0,5), und sie streuen um **4,99 €**, genau wie σ/√50 vorhersagt. Der Vorstand darf mittlere Bestellwerte mit t-Tests vergleichen.\n\nEntscheidungskarte „Umsatzberichte“: **4**"
       },
       "practises": {
         "en": "The central limit theorem, sampling distributions and the standard error, skewness, simulation with numpy",
@@ -155,8 +155,8 @@
       ],
       "hints": [
         {
-          "en": "`stats.skew(orders)` measures the skew. `rng.choice(orders, 50).mean()` is the mean of one random sample of 50 orders; repeat it in a loop.",
-          "de": "`stats.skew(orders)` misst die Schiefe. `rng.choice(orders, 50).mean()` ist der Mittelwert einer Zufallsstichprobe von 50 Bestellungen; wiederholt das in einer Schleife."
+          "en": "Ana's note on the wall: the reports average 50 orders at a time, and means of n values spread by σ/√n. `stats.skew(orders)` measures the skew; `rng.choice(orders, 50).mean()` is the mean of one random sample of 50 orders, so repeat it in a loop.",
+          "de": "Anas Notiz an der Wand: Die Berichte mitteln jeweils 50 Bestellungen, und Mittelwerte aus n Werten streuen um σ/√n. `stats.skew(orders)` misst die Schiefe; `rng.choice(orders, 50).mean()` ist der Mittelwert einer Zufallsstichprobe von 50 Bestellungen, also wiederholt das in einer Schleife."
         },
         {
           "en": "`means = [rng.choice(orders, 50).mean() for i in range(2000)]`. The standard error is `orders.std() / np.sqrt(50)`; compare it with `np.std(means)`.",
@@ -175,14 +175,14 @@
         "de": "Der Verkostungsraum"
       },
       "text": {
-        "en": "The blind tasting ran exactly as registered. The ratings are loaded as `ratings`: columns `taster`, `recipe` (\"old\" or \"new\") and `rating` (1 to 10).\n\n1. `diff`: the mean rating of the new recipe minus that of the old one.\n2. A two-sample t-test for independent groups (Welch's version, which doesn't assume equal spreads): `p_value`.\n3. `ship_recipe`: True or False. Decide as registered on the planning board.",
-        "de": "Die Blindverkostung lief genau wie registriert. Die Bewertungen sind als `ratings` geladen: Spalten `taster`, `recipe` (\"old\" oder \"new\") und `rating` (1 bis 10).\n\n1. `diff`: die mittlere Bewertung des neuen Rezepts minus die des alten.\n2. Ein Zweistichproben-t-Test für unabhängige Gruppen (die Welch-Variante, die keine gleichen Streuungen annimmt): `p_value`.\n3. `ship_recipe`: True oder False. Entscheidet so, wie es auf der Planungstafel registriert ist."
+        "en": "The blind tasting ran exactly as registered. The ratings are loaded as `ratings`: columns `taster`, `recipe` (\"old\" or \"new\") and `rating` (1 to 10).\n\n1. `diff`: the mean rating of the new recipe minus that of the old one.\n2. The t-test that fits how the tasting was run (the tasting protocol by the door tells you), without assuming equal spreads: `p_value`.\n3. `ship_recipe`: True or False. Decide as registered on the planning board.",
+        "de": "Die Blindverkostung lief genau wie registriert. Die Bewertungen sind als `ratings` geladen: Spalten `taster`, `recipe` (\"old\" oder \"new\") und `rating` (1 bis 10).\n\n1. `diff`: die mittlere Bewertung des neuen Rezepts minus die des alten.\n2. Der t-Test, der dazu passt, wie die Verkostung lief (das Verkostungsprotokoll an der Tür verrät es), ohne gleiche Streuungen anzunehmen: `p_value`.\n3. `ship_recipe`: True oder False. Entscheidet so, wie es auf der Planungstafel registriert ist."
       },
       "workspace": "python",
       "data": "tasting.py",
       "starter": {
-        "en": "from scipy import stats\n\n# ratings is loaded: one row per taster.\nprint(ratings.groupby(\"recipe\").rating.describe())\n\ndiff = None          # mean rating of new minus old\np_value = None       # two-sample t-test\nship_recipe = None   # True or False, as registered\n",
-        "de": "from scipy import stats\n\n# ratings ist geladen: eine Zeile pro Testperson.\nprint(ratings.groupby(\"recipe\").rating.describe())\n\ndiff = None          # mittlere Bewertung neu minus alt\np_value = None       # Zweistichproben-t-Test\nship_recipe = None   # True oder False, wie registriert\n"
+        "en": "from scipy import stats\n\n# ratings is loaded: one row per taster.\nprint(ratings.groupby(\"recipe\").rating.describe())\n\ndiff = None          # mean rating of new minus old\np_value = None       # t-test (which one? see the tasting protocol)\nship_recipe = None   # True or False, as registered\n",
+        "de": "from scipy import stats\n\n# ratings ist geladen: eine Zeile pro Testperson.\nprint(ratings.groupby(\"recipe\").rating.describe())\n\ndiff = None          # mittlere Bewertung neu minus alt\np_value = None       # t-Test (welcher? siehe Verkostungsprotokoll)\nship_recipe = None   # True oder False, wie registriert\n"
       },
       "check": {
         "type": "python",
@@ -214,8 +214,8 @@
       ],
       "hints": [
         {
-          "en": "`new = ratings[ratings.recipe == \"new\"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.",
-          "de": "`new = ratings[ratings.recipe == \"new\"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`."
+          "en": "The tasting protocol: every taster rated one bar, so the two groups are independent, not paired. `new = ratings[ratings.recipe == \"new\"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.",
+          "de": "Das Verkostungsprotokoll: Jede Testperson hat eine Tafel bewertet, die beiden Gruppen sind also unabhängig, nicht gepaart. `new = ratings[ratings.recipe == \"new\"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`."
         },
         {
           "en": "`stats.ttest_ind(new, old, equal_var=False)` is Welch's t-test; its `.pvalue` is two-sided. The significance level comes from the pre-registration on the planning board.",
@@ -248,9 +248,15 @@
         "expr": "_checkout_check(srm_p, chi2, p_value, winner)",
         "hash": "de9d7ac949cc95b3bd6ebd06a65edddd8fb86cf57e4ecf59ac4aa16db9c6bd88"
       },
-      "uses": [
-        "plan"
-      ],
+      "lock": {
+        "text": {
+          "en": "The dashboard screen is locked. Ana's sticky note on the monitor: \"PIN = the standard error of a mean order value in the board's reports, in cents.\"",
+          "de": "Der Dashboard-Bildschirm ist gesperrt. Anas Klebezettel am Monitor: „PIN = der Standardfehler eines mittleren Bestellwerts in den Vorstandsberichten, in Cent.“"
+        },
+        "from": "orders",
+        "mode": "number",
+        "hash": "f244b95a0f19630a58d20208c54c015a4f108e2c45bcc3b4a5860e93a9bde5e5"
+      },
       "reveal": {
         "en": "The split is fine (p = 0.22). Conversion: A 3.0 %, B 3.2 %, C 4.0 %; χ² = 16.7 with p = 0.0002, well below α = 0.01. The one-page checkout ships.\n\nDecision card \"Web shop checkout\": **5**",
         "de": "Die Aufteilung passt (p = 0,22). Konversion: A 3,0 %, B 3,2 %, C 4,0 %; χ² = 16,7 mit p = 0,0002, weit unter α = 0,01. Der einseitige Checkout geht live.\n\nEntscheidungskarte „Webshop-Checkout“: **5**"
@@ -343,8 +349,8 @@
         "de": "Eine Notiz von Ana"
       },
       "text": {
-        "en": "Reading skewness (pinned up by Ana):\n\n0 means symmetric, like a normal distribution. Above 1 means strongly skewed: a long tail of big values.\n\nThe CLT in one line: means of n values spread by σ/√n, and their skewness shrinks roughly by √n. So t-tests on means are fine once the means look normal, even if single values don't.",
-        "de": "Schiefe lesen (von Ana angepinnt):\n\n0 heißt symmetrisch, wie eine Normalverteilung. Über 1 heißt stark schief: ein langer Ausläufer großer Werte.\n\nDer ZGWS in einer Zeile: Mittelwerte aus n Werten streuen um σ/√n, und ihre Schiefe schrumpft ungefähr um √n. t-Tests auf Mittelwerten sind also in Ordnung, sobald die Mittelwerte normal aussehen, auch wenn einzelne Werte es nicht tun."
+        "en": "Reading skewness (pinned up by Ana):\n\n0 means symmetric, like a normal distribution. Above 1 means strongly skewed: a long tail of big values.\n\nThe board's revenue reports always average **50 orders** at a time.\n\nThe CLT in one line: means of n values spread by σ/√n, and their skewness shrinks roughly by √n. So t-tests on means are fine once the means look normal, even if single values don't.",
+        "de": "Schiefe lesen (von Ana angepinnt):\n\n0 heißt symmetrisch, wie eine Normalverteilung. Über 1 heißt stark schief: ein langer Ausläufer großer Werte.\n\nDie Umsatzberichte des Vorstands mitteln immer **50 Bestellungen** auf einmal.\n\nDer ZGWS in einer Zeile: Mittelwerte aus n Werten streuen um σ/√n, und ihre Schiefe schrumpft ungefähr um √n. t-Tests auf Mittelwerten sind also in Ordnung, sobald die Mittelwerte normal aussehen, auch wenn einzelne Werte es nicht tun."
       }
     },
     {

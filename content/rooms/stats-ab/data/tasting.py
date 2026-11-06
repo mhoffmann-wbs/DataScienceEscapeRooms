@@ -31,6 +31,8 @@ def _tasting_check(diff, p_value, ship_recipe):
     if not isinstance(p_value, Real) or abs(p_value - 0.0252) > 0.0005:
         if isinstance(p_value, Real) and abs(p_value - 0.0126) < 0.0005:
             problems.append("That's a one-sided p-value. The pre-registration says two-sided. / Das ist ein einseitiger p-Wert. Die Präregistrierung sagt zweiseitig.")
+        elif isinstance(p_value, Real) and abs(p_value - 0.0295) < 0.0005:
+            problems.append("That's a paired t-test, but nobody tasted both recipes: the groups are independent (see the tasting protocol). / Das ist ein gepaarter t-Test, aber niemand hat beide Rezepte probiert: Die Gruppen sind unabhängig (siehe Verkostungsprotokoll).")
         else:
             problems.append("The p-value is off: a two-sample t-test of the new against the old ratings. / Der p-Wert stimmt nicht: ein Zweistichproben-t-Test der neuen gegen die alten Bewertungen.")
     if not isinstance(ship_recipe, (bool, np.bool_)) or ship_recipe:
