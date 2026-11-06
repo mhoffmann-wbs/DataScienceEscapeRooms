@@ -1,0 +1,49 @@
+# Rooms, code execution, hints and debrief
+
+Part of the architecture notes; the rules that apply everywhere are in [CLAUDE.md](../../CLAUDE.md).
+
+## The rooms
+
+First milestone: lobby skeleton (movement, presence, chat, proximity A/V, team formation) plus two beginner rooms:
+- **Python room: "Quarantine" (abandoned research lab).** A mycologist's lab sealed itself; fix her broken scripts (variables, lists, loops, string decoding, dict lookups, debugging) to collect the 4 digits of the override code.
+- **SQL room: "The Blue Index" (hotel mystery).** A diamond vanished from room 404 on a storm night; query bookings, key cards, the door log and receipts to name the thief (SELECT/WHERE, ORDER BY, GROUP BY, simple JOIN).
+
+Later rooms: **pandas, "Market Day"** (`pandas-market`, beginner: `read_csv`, filtering, cleaning text and number columns, `groupby`, `merge`; plan step 12), **Time series 1, "Station Nordlys"** (`ts-nordlys`: interpolation, detrending vs differencing, log transform, baselines, AR and SARIMA with statsmodels) and **Time series 2, "Festival Season"** (`ts-festival`: Prophet's data format, changepoints, multiplicative seasonality, holidays, baselines) with a Prophet-style model (scope in [docs/prophet-lite.md](docs/prophet-lite.md)). Plan step 10 has the design, including which processing step fits which model family.
+
+Target play time is **about 30 minutes per room** for a beginner team. In practice this means 5–6 puzzles of roughly 4–6 minutes each, ordered from easy to hard, ending in a final lock that combines earlier results. Size new puzzles and datasets to this budget. A puzzle that takes one line of code is too small: each station should need several lines, a clue from elsewhere in the room, or both.
+
+Puzzles should combine the room with the code: **clues** (photos, posters, manuals) hold values that the scripts need, and solved stations hand out **reveals** (code digits, decoded messages) that other stations or the final lock need. This makes teams split up and talk. Keep several stations open from the start so a team of 3–5 can work in parallel.
+
+## Rooms are data, not code
+- Each room is a folder `content/rooms/<roomId>/`; the folder name is the roomId. It contains:
+  - `map.json`: the Tiled export, with one `puzzle` object per manifest puzzle and one `clue` object per manifest clue.
+  - `manifest.json`: title and intro text, its lobby door (`category`), `difficulty` and `about` (tools, what it practises and a one-sentence story, for the scenario picker), the puzzles and the clues. Each puzzle has DE/EN title, text and hints, a `workspace` (`none`/`python`/`sql`), starter code (a string, or DE/EN when its comments need translating), an optional data file, an optional `reveal` (shown to the team once solved), `practises` (what it teaches), `clues` (the clue ids it needs), `requires`, `final`, and a `check`. Each clue has DE/EN title and text and is read-only. Text supports blank-line paragraphs, `` `code` `` and `**bold**`. The format is defined in `src/rooms/manifest.ts`, which is the source of truth.
+  - `data/`: `.py` files, run before the student's code (after the room's `modules`), and `.sql` files, which build the database. They load lazily, so a room's data is only downloaded when needed.
+  - `solutions.json`: reference solutions, `{ puzzleId: answer | Python code | SQL query }`. An `answer` check worked out in a code workspace takes `{ "answer": …, "code": … }`: the answer is hashed, the code is the model solution in the walkthrough and debrief, and the tooling fails unless running it shows the answer (in its output or result rows). Solutions are public on purpose, like the walkthroughs.
+- Data files are shared by both languages, so checks stay language-independent. When students must read text from the data (like encrypted notes), provide both languages in it (e.g. `notes["en"]`, `notes["de"]`) and make the check cover both.
+- Rooms are discovered with `import.meta.glob` (`src/rooms/index.ts`). Adding a room means adding a folder, with no engine changes. Room titles and all in-room text come from manifests, never from the locale files.
+- Check types (`check.type`); every one compares a salted PBKDF2 hash, so plaintext answers never go in the bundle:
+  - `answer`: typed text, normalized per `mode` (`caseless`/`exact`/`number`).
+  - `python`: after the student's code runs, `expr` is evaluated in its namespace and compared as canonical JSON.
+  - `sql`: the last statement's rows, with column names ignored and floats rounded; sorted unless `ordered`.
+  - Results that aren't exact (forecasts) use a `python` check whose `expr` calls a grader function defined in the puzzle's data file, e.g. `_supply_check(pin, jan_2026, mae_sarima)` in `ts-nordlys`: it prints what is wrong (in both languages) and returns a fixed string such as `"approved"`, which is what gets hashed.
+- Authoring loop: write the reference solution into `solutions.json`, run `npm run hash-answer -- <roomId> --write` (it runs the solution through the same runner code as the game), then `npm run walkthrough -- <roomId>` and `npm run validate-rooms`. Every puzzle needs a reference solution.
+- **Instructor walkthroughs** (`docs/walkthroughs/<roomId>.<en|de>.md`) are generated from the manifest and solutions by `src/rooms/walkthrough.ts`: overview, final code, and per station the task, starter code, model solution, checked result, reveal, hints and clues. A room test fails when a committed walkthrough is out of date, so regenerate after every content change.
+- Hashes only keep answers out of the running game's code: the solutions and walkthroughs are public in the repo anyway. Treat answers as a game mechanic, not a secret.
+
+## Code execution
+- Pyodide loads **lazily, only when a Python puzzle opens**, because it is about 12 MB. Its runtime files are served from our own site, not a CDN: the `pyodide-files` plugin in `vite.config.ts` serves them from `node_modules` in dev and copies them to `dist/pyodide/` in builds. sql.js's wasm is bundled as a Vite asset.
+- **Packages:** a room's manifest can list Pyodide packages (`"packages": ["statsmodels"]`). `npm run fetch-packages` downloads them and their dependencies (sha256-checked against `pyodide-lock.json`) into the gitignored `vendor/pyodide/`, which the same plugin serves and copies; CI fetches and caches them. The worker loads a room's packages during warm-up and pre-imports heavy modules (`PRELOAD` in `pythonCore.ts`; `import statsmodels` alone takes seconds), so neither counts against the run timeout. Node tests and scripts get the same setup from `nodePyodide(packages)` (`src/runners/nodePython.ts`). statsmodels with numpy, pandas and scipy is about 30 MB.
+- **Room modules:** Python libraries we write ourselves live in `content/python/<name>.py`; a room lists the ones its puzzles import in its manifest (`"modules": ["prophet"]`). `moduleSetup` (`pythonCore.ts`) registers them in `sys.modules` before the data file runs, so starter code says `from prophet import Prophet`, and tracebacks name the module's file. `loadSetup` (`src/rooms/index.ts`) builds a puzzle's setup in the browser; Node tooling passes the same code as `Engines.modules`. `prophet.py` is the Prophet-style model (tests: `src/runners/prophet.test.ts`).
+- **Charts:** every Python run has `show_plot(*series, labels=, title=)` (lines; pandas indexes become the x axis and are aligned across series), `plot_acf` and `plot_pacf` (bars with the 95 % band; need statsmodels). They collect chart data in the run's namespace; `runPython` returns it as `plots`, and `Chart` (`src/ui/Chart.tsx`) draws it as SVG with a hover readout and a data table.
+- **Helpers module:** after the data files run, the public functions of the prelude and the data files (e.g. `unshift`, `show_plot`) also form the module `helpers`. Starter code imports them (`from helpers import unshift`), so students see where a helper comes from; they stay global too. Name data-file functions that students shouldn't call with a leading `_` (graders).
+- Both runtimes run in Web Workers (`src/runners/*.worker.ts`), driven by `runners` in `src/runners/index.ts`. A run longer than `RUN_TIMEOUT_MS` (10 s) terminates the worker, and the next run starts a fresh one. This doesn't need SharedArrayBuffer, which matters because GitHub Pages can't send COOP/COEP headers.
+- `pythonCore.ts`, `sqlCore.ts`, `rooms/answers.ts`, `rooms/manifest.ts` and `rooms/solutions.ts` also run under plain Node (the tests and `scripts/hash-answer.ts`). Keep them free of browser APIs and Vite-only imports, and use explicit `.ts` extensions for relative imports between them. Every Python run gets a fresh namespace, and every SQL run a fresh database built from the setup script, so one attempt can't break the next.
+- Each player has their own sandbox. Only the *outcome* (solved/not solved) is shared with the team, plus the live read-only code view. Editor drafts are kept per puzzle in `localStorage` (`dser.draft.<roomId>.<puzzleId>`).
+
+## Hints
+- Each puzzle has 1–3 tiered hints in its manifest, from a gentle nudge up to near-solution, revealed in order. A reveal applies to the whole team and is recorded in the run state's `hints` map (`<puzzleId>#<tier>`), which merges the same way `solved` does.
+- Hint usage is part of the result: the scoreboard shows escape time *and* hints used, and the instructor view shows hints per puzzle per team. This shows instructors which puzzles are too hard.
+
+## Debrief
+- Solving the final puzzle opens the debrief (`DebriefDialog` in `src/ui/RoomDialogs.tsx`): escape time, total hints, and per puzzle its `practises`, solve time, hints used and the model solution. A HUD button reopens it. The numbers come from `debriefRows` (`src/rooms/debrief.ts`); solutions load lazily from `solutions.json` only when the debrief opens.
