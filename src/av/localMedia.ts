@@ -141,7 +141,8 @@ export class LocalMedia {
   private acquire(audio: boolean, video: boolean): Promise<MediaStream> {
     const { micId, camId } = this.prefs;
     return navigator.mediaDevices.getUserMedia({
-      audio: audio ? (micId ? { deviceId: { exact: micId } } : true) : false,
+      // Ask for the browser's voice processing explicitly; some leave it off for a chosen device.
+      audio: audio ? { echoCancellation: true, noiseSuppression: true, autoGainControl: true, ...(micId ? { deviceId: { exact: micId } } : {}) } : false,
       video: video ? { width: { ideal: 320 }, height: { ideal: 240 }, ...(camId ? { deviceId: { exact: camId } } : {}) } : false,
     });
   }
