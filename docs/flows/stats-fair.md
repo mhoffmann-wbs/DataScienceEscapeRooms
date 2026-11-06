@@ -17,11 +17,11 @@ flowchart LR
   d_lemonade[("lemonade.py<br/>cups")]
   d_dice[("dice.py<br/>games: die1, die2")]
   d_ducks[("ducks.py<br/>stars")]
-  d_tickets[("tickets.py<br/>wristbands, vip_survey")]
+  d_tickets[("tickets.py<br/>wristbands, surveys")]
 
   subgraph p1["Open from the start"]
     lemonade["1 · The lemonade stand's cup log<br/>mean vs median, outliers, sd"]
-    dice["2 · Lucky Seven<br/>classical probability, binom.cdf"]
+    dice["2 · Lucky Seven<br/>classical probability, binom.cdf, verdict"]
     ducks["3 · The duck pond<br/>binom pmf/sf, expected value"]
   end
 
@@ -40,11 +40,11 @@ flowchart LR
   d_tickets --> tickets
 
   cupnote -->|"🔎 0 ml = spilled, > 400 ml = typo"| lemonade
-  dicesign -.->|"🔎 claim: 2 in 9; 7 or 11 wins"| dice
-  handbook -.->|"🔎 suspicious below 1 in 100"| dice
+  dicesign -->|"🔎 a 7 or an 11 wins; claim 2 in 9"| dice
+  handbook -->|"🔎 threshold 0.01 = 1 in 100"| dice
   ducksign -->|"🔎 6 ducks, every 4th starred, 3+ stars win;<br/>€2 a game, teddy costs €5"| ducks
-  filllaw -.->|"🔎 at most 2 % below 285 ml"| filler
-  flyer -.->|"🔎 the €65 claim, VIP tent survey"| tickets
+  filllaw -->|"🔎 limit 285 ml, allowed share 2 %"| filler
+  flyer -->|"🔎 source: VIP tent, Saturday, 40 guests"| tickets
   fairmap -->|"🔎 stall order: 1 tickets, 2 ducks,<br/>3 Lucky Seven, 4 lemonade"| gate
   intro -.->|"📜 every stall gives a seal digit"| gate
 
@@ -79,7 +79,7 @@ flowchart LR
 ## Phases
 
 - **Start:** 3 stations open at once (lemonade, Lucky Seven, duck pond). Enough for a team of 3; a team of 5 pairs up.
-- **Second wave:** the filling machine has no data of its own and needs the cup log's μ and σ; the ticket office laptop needs the PIN from the duck pond's reveal. Both open as soon as the first wave's stations are done, so a team that splits well finishes the first wave and the second wave in two parallel lanes.
+- **Second wave:** the filling machine has no data of its own and needs the cup log's μ and σ plus the fill regulation's limit and share; the ticket office laptop needs the PIN from the duck pond's reveal. Both open as soon as the first wave's stations are done, so a team that splits well finishes the first wave and the second wave in two parallel lanes.
 - **Final:** the gate needs all four seals and the fair map.
 
 ## Chains
@@ -91,16 +91,24 @@ flowchart LR
 ## Hand-offs
 
 - Between stations: 2 (μ/σ, the PIN), plus 4 seal digits into the gate.
-- From clues: 7 clues; 3 hard (Kai's note, the duck pond sign, the fair map), 4 soft.
+- From clues: 7 clues, all hard. Only the intro's "every stall gives a seal digit" is context (the gate's task repeats it).
 
 ## Where things are
 
 - Next to their station: Kai's note (lemonade), the duck pond sign, the Lucky Seven sign, Bruno's flyer (ticket office).
-- On the north wall, away from their stations: the inspection handbook, the fill regulation and the fair map (the map hangs at the opposite end from the gate). The filling machine stands in the south row, the fill regulation on the north wall.
+- On the north wall, away from their stations: the inspection handbook, the fill regulation and the fair map (the map hangs at the opposite end from the gate). The filling machine stands in the south row, the fill regulation on the north wall. So Lucky Seven, the filling machine and the gate each need a walk to the north wall.
 
 ## Findings
 
-- **Three of the four soft clues carry nothing the check needs.** The Lucky Seven task text names "7 or 11", the filling machine's task names 285 ml and 2 %, and the ticket office task already says the VIP survey is the flyer's source. The fill regulation and the flyer could become hard by taking 285 ml / 2 % (or the €65 figure) out of the task text.
-- **The handbook's 1-in-100 rule is never checked.** The dice check takes `p_value` but not a verdict. A `rigged = True/False` variable in the check would make the handbook needed.
-- **Lucky Seven needs nothing from elsewhere in the room** (all its clues are soft). With several lines of code it still meets the rooms.md rule, but it's the one station a solo player can finish without walking.
-- **The lemonade station gives no seal itself;** its seal comes from the filling machine. The fair map calls stall 4 "Lemonade stand", which matches, but teams may look for a seal in the cup log's reveal first. Hint 1 of the gate lists which stations give seals.
+Fixed (the earlier findings):
+
+- **Soft clues made hard.** Lucky Seven's task no longer names the winning sums (the sign does); the filling machine's task and starter no longer name 285 ml or 2 % (new `limit` and `allowed` variables, values only on the fill regulation); the check's error messages no longer leak them either.
+- **The flyer is needed.** The laptop now holds four surveys (`surveys` with `place`, `day`, `spent`: VIP tent Saturday and Friday, main entrance, beer garden); only the flyer's small print (VIP tent, Saturday, 40 guests) says which one to average as `flyer_mean`. The check names it when a team picks a wrong survey or averages them all.
+- **The handbook's rule is checked.** Lucky Seven now asks for `threshold` (0.01, from the handbook) and the verdict `rigged`.
+- **Lucky Seven needs something from elsewhere:** the handbook on the north wall.
+- **The cup log's reveal says** its seal comes from the filling machine.
+
+Left as they are:
+
+- **The Lucky Seven sign's "2 in 9" is p_theory.** A team can copy it instead of counting outcomes; the check can't tell. It's the stall's claim the inspection tests, and the count of wins and the p-value still need the winning sums, so it stays.
+- **Lucky Seven and the duck pond get nothing from other stations,** only from clues. With two lanes of three stations already chained, a third chain would push the room past 30 minutes.

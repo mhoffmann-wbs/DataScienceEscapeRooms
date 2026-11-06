@@ -1,5 +1,5 @@
 # Ticket office: what each of tonight's 6,000 visitors spent on their cashless wristband, in euros
-# (wristbands), and the answers of Bruno's survey in the VIP tent (vip_survey, 40 guests).
+# (wristbands), and Bruno's surveys: one row per guest asked, with where and when (surveys).
 # Loaded before your code runs.
 import numpy as np
 import pandas as pd
@@ -247,22 +247,76 @@ wristbands = pd.Series([
     26, 32, 45, 24, 9, 6, 21, 55, 31, 86, 24, 59, 33, 60, 21, 22, 65, 16, 42, 61, 22, 45, 30, 34, 58,
 ], name="spent")
 
-vip_survey = pd.Series([
-    46, 45, 81, 57, 62, 76, 91, 105, 47, 99, 75, 74, 43, 67, 54, 69, 24, 50, 64, 73,
-    55, 46, 56, 72, 78, 49, 67, 49, 82, 91, 67, 70, 65, 101, 43, 68, 67, 51, 38, 90,
-], name="spent")
+surveys = pd.DataFrame({
+    "place": [
+        'Beer garden', 'Main entrance', 'VIP tent', 'VIP tent', 'Main entrance', 'Main entrance',
+        'Beer garden', 'VIP tent', 'VIP tent', 'Beer garden', 'VIP tent', 'Beer garden',
+        'VIP tent', 'Beer garden', 'VIP tent', 'VIP tent', 'VIP tent', 'Beer garden',
+        'Main entrance', 'Main entrance', 'VIP tent', 'VIP tent', 'VIP tent', 'VIP tent',
+        'Main entrance', 'VIP tent', 'VIP tent', 'VIP tent', 'Main entrance', 'VIP tent',
+        'VIP tent', 'Main entrance', 'Beer garden', 'Main entrance', 'Beer garden', 'Beer garden',
+        'Main entrance', 'VIP tent', 'VIP tent', 'VIP tent', 'VIP tent', 'VIP tent',
+        'VIP tent', 'VIP tent', 'Beer garden', 'Main entrance', 'Main entrance', 'VIP tent',
+        'Beer garden', 'Main entrance', 'Beer garden', 'VIP tent', 'VIP tent', 'Beer garden',
+        'VIP tent', 'Main entrance', 'VIP tent', 'Beer garden', 'Main entrance', 'Beer garden',
+        'VIP tent', 'VIP tent', 'Main entrance', 'VIP tent', 'Main entrance', 'Beer garden',
+        'VIP tent', 'VIP tent', 'VIP tent', 'Main entrance', 'VIP tent', 'VIP tent',
+        'Main entrance', 'Main entrance', 'Main entrance', 'VIP tent', 'Main entrance', 'VIP tent',
+        'VIP tent', 'VIP tent', 'Main entrance', 'VIP tent', 'Main entrance', 'VIP tent',
+        'VIP tent', 'Beer garden', 'Beer garden', 'VIP tent', 'VIP tent', 'VIP tent',
+        'VIP tent', 'Main entrance', 'Main entrance', 'VIP tent', 'VIP tent', 'VIP tent',
+        'VIP tent', 'Beer garden', 'Beer garden', 'VIP tent', 'Main entrance', 'Main entrance',
+        'VIP tent', 'Main entrance', 'Beer garden', 'VIP tent', 'Main entrance', 'VIP tent',
+        'Main entrance', 'Main entrance', 'Main entrance', 'VIP tent', 'VIP tent', 'VIP tent',
+        'VIP tent', 'VIP tent', 'Beer garden', 'Main entrance', 'VIP tent', 'VIP tent',
+        'VIP tent', 'Beer garden', 'Main entrance', 'Beer garden', 'VIP tent', 'Main entrance',
+        'VIP tent', 'Main entrance', 'Main entrance', 'Main entrance', 'Beer garden', 'VIP tent',
+        'VIP tent', 'VIP tent', 'Main entrance',
+    ],
+    "day": [
+        'Friday', 'Saturday', 'Friday', 'Friday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
+        'Friday', 'Friday', 'Friday', 'Friday', 'Saturday', 'Friday', 'Friday', 'Saturday',
+        'Saturday', 'Friday', 'Saturday', 'Saturday', 'Friday', 'Friday', 'Friday', 'Saturday',
+        'Saturday', 'Friday', 'Friday', 'Saturday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
+        'Friday', 'Saturday', 'Friday', 'Friday', 'Saturday', 'Friday', 'Saturday', 'Saturday',
+        'Saturday', 'Saturday', 'Friday', 'Saturday', 'Friday', 'Saturday', 'Saturday', 'Saturday',
+        'Friday', 'Saturday', 'Friday', 'Saturday', 'Friday', 'Friday', 'Friday', 'Saturday',
+        'Friday', 'Friday', 'Saturday', 'Friday', 'Friday', 'Saturday', 'Saturday', 'Saturday',
+        'Saturday', 'Friday', 'Friday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Saturday',
+        'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
+        'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Friday', 'Friday', 'Saturday',
+        'Friday', 'Saturday', 'Friday', 'Saturday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
+        'Saturday', 'Friday', 'Friday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Saturday',
+        'Friday', 'Friday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Saturday', 'Friday',
+        'Friday', 'Saturday', 'Friday', 'Saturday', 'Friday', 'Saturday', 'Friday', 'Saturday',
+        'Friday', 'Friday', 'Saturday', 'Friday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
+        'Saturday', 'Saturday', 'Friday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
+    ],
+    "spent": [
+        15, 24, 39, 71, 26, 50, 42, 24, 50, 57, 64, 34, 67, 27, 21, 43, 101, 34, 9, 36,
+        56, 46, 30, 55, 11, 74, 36, 69, 43, 75, 76, 26, 18, 47, 33, 20, 17, 35, 56, 99,
+        73, 50, 32, 91, 24, 25, 65, 64, 58, 57, 30, 43, 59, 57, 72, 46, 14, 25, 91, 61,
+        63, 45, 26, 38, 50, 48, 58, 46, 78, 23, 51, 68, 15, 14, 57, 67, 19, 72, 69, 46,
+        19, 70, 90, 65, 82, 36, 23, 47, 36, 54, 36, 35, 21, 91, 38, 90, 105, 21, 29, 76,
+        13, 65, 67, 22, 35, 61, 59, 49, 23, 43, 39, 23, 57, 81, 75, 49, 69, 12, 29, 62,
+        82, 31, 65, 19, 67, 37, 58, 17, 42, 25, 51, 74, 57, 44, 29,
+    ],
+})
 
 
-def _ticket_check(mu, sample_mean, vip_mean, means):
-    '''The ticket office's check: parameter, statistic, survey, and the spread of sample means.'''
+def _ticket_check(mu, sample_mean, flyer_mean, means):
+    '''The ticket office's check: parameter, statistic, the flyer's survey, and the spread of sample means.'''
     from numbers import Real
     problems = []
     if not isinstance(mu, Real) or abs(mu - 33.509) > 0.001:
         problems.append("mu is off: the mean of all wristbands. / mu stimmt nicht: der Mittelwert aller Armbänder.")
     if not isinstance(sample_mean, Real) or abs(sample_mean - 34.225) > 0.001:
         problems.append("sample_mean is off: the mean of wristbands.sample(40, random_state=7). / sample_mean stimmt nicht: der Mittelwert von wristbands.sample(40, random_state=7).")
-    if not isinstance(vip_mean, Real) or abs(vip_mean - 65.175) > 0.001:
-        problems.append("vip_mean is off: the mean of the VIP tent survey. / vip_mean stimmt nicht: der Mittelwert der Umfrage im VIP-Zelt.")
+    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65.175) > 0.001:
+        if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in [35.825, 50.133, 35.88, 47.711]):
+            problems.append("flyer_mean comes from the wrong survey: the flyer's small print says which one. / flyer_mean kommt aus der falschen Umfrage: Das Kleingedruckte auf dem Flyer sagt, welche.")
+        else:
+            problems.append("flyer_mean is off: the mean of the one survey behind the flyer (filter surveys by place and day). / flyer_mean stimmt nicht: der Mittelwert der einen Umfrage hinter dem Flyer (filtert surveys nach place und day).")
     try:
         m = np.asarray(means, dtype=float)
     except (TypeError, ValueError):

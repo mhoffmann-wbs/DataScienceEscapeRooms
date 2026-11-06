@@ -53,8 +53,8 @@
         "hash": "ca96918a539186725aa8f3d76ac3fd0b07ab8ae4a4a9399afe1ef4d0fd65b18e"
       },
       "reveal": {
-        "en": "Calibration values for the filling machine: tonight's cups hold **296.4 ml** on average, with a standard deviation of **7.9 ml**.\n\nThe median stayed at 296 ml while you cleaned the log; the mean dropped by 15 ml. One typo was enough to move it.",
-        "de": "Kalibrierwerte für die Abfüllmaschine: Die Becher von heute Abend enthalten im Mittel **296,4 ml**, mit einer Standardabweichung von **7,9 ml**.\n\nDer Median blieb beim Bereinigen bei 296 ml; der Mittelwert fiel um 15 ml. Ein einziger Tippfehler hat ihn verschoben."
+        "en": "Calibration values for the filling machine: tonight's cups hold **296.4 ml** on average, with a standard deviation of **7.9 ml**.\n\nThe median stayed at 296 ml while you cleaned the log; the mean dropped by 15 ml. One typo was enough to move it.\n\nThe stand's inspection seal comes from the filling machine, once it is calibrated.",
+        "de": "Kalibrierwerte für die Abfüllmaschine: Die Becher von heute Abend enthalten im Mittel **296,4 ml**, mit einer Standardabweichung von **7,9 ml**.\n\nDer Median blieb beim Bereinigen bei 296 ml; der Mittelwert fiel um 15 ml. Ein einziger Tippfehler hat ihn verschoben.\n\nDas Prüfsiegel des Stands gibt es an der Abfüllmaschine, sobald sie kalibriert ist."
       },
       "practises": {
         "en": "Mean vs. median, outliers and data errors, the sample standard deviation, histograms",
@@ -85,18 +85,18 @@
         "de": "Glückssieben"
       },
       "text": {
-        "en": "At Lucky Seven you roll two dice and win with a sum of 7 or 11. The sign promises a chance of 2 in 9. The log of tonight's 900 games is loaded as `games` (columns `die1` and `die2`).\n\n1. Work out the theoretical chance of winning, `p_theory`, from all 36 equally likely outcomes of two fair dice.\n2. Count tonight's wins: `wins`.\n3. With fair dice, how likely is a night with at most this many wins? The number of wins in 900 games follows a binomial distribution. Store that probability as `p_value`.\n\nIs the game fair? The inspection handbook says when a result counts as suspicious.",
-        "de": "Bei der Glückssieben würfelt man mit zwei Würfeln und gewinnt mit einer Summe von 7 oder 11. Das Schild verspricht eine Chance von 2 zu 9. Das Protokoll der 900 Spiele von heute Abend ist als `games` geladen (Spalten `die1` und `die2`).\n\n1. Bestimmt die theoretische Gewinnchance `p_theory` aus allen 36 gleich wahrscheinlichen Ergebnissen zweier fairer Würfel.\n2. Zählt die heutigen Gewinne: `wins`.\n3. Wie wahrscheinlich ist mit fairen Würfeln ein Abend mit höchstens so vielen Gewinnen? Die Zahl der Gewinne in 900 Spielen folgt einer Binomialverteilung. Speichert diese Wahrscheinlichkeit als `p_value`.\n\nIst das Spiel fair? Das Prüfhandbuch sagt, wann ein Ergebnis als verdächtig gilt."
+        "en": "At Lucky Seven you roll two dice and win with certain sums: the sign at the stall says which ones, and what chance it promises. The log of tonight's 900 games is loaded as `games` (columns `die1` and `die2`).\n\n1. Work out the theoretical chance of winning, `p_theory`, from all 36 equally likely outcomes of two fair dice.\n2. Count tonight's wins: `wins`.\n3. With fair dice, how likely is a night with at most this many wins? The number of wins in 900 games follows a binomial distribution. Store that probability as `p_value`.\n4. The inspection handbook says when a result counts as suspicious. Store its limit as a probability, `threshold`, and your verdict as `rigged` (`True` or `False`).",
+        "de": "Bei der Glückssieben würfelt man mit zwei Würfeln und gewinnt mit bestimmten Summen: Das Schild am Stand sagt, mit welchen, und welche Chance es verspricht. Das Protokoll der 900 Spiele von heute Abend ist als `games` geladen (Spalten `die1` und `die2`).\n\n1. Bestimmt die theoretische Gewinnchance `p_theory` aus allen 36 gleich wahrscheinlichen Ergebnissen zweier fairer Würfel.\n2. Zählt die heutigen Gewinne: `wins`.\n3. Wie wahrscheinlich ist mit fairen Würfeln ein Abend mit höchstens so vielen Gewinnen? Die Zahl der Gewinne in 900 Spielen folgt einer Binomialverteilung. Speichert diese Wahrscheinlichkeit als `p_value`.\n4. Das Prüfhandbuch sagt, wann ein Ergebnis als verdächtig gilt. Speichert seine Grenze als Wahrscheinlichkeit, `threshold`, und euer Urteil als `rigged` (`True` oder `False`)."
       },
       "workspace": "python",
       "data": "dice.py",
       "starter": {
-        "en": "from itertools import product\nfrom scipy import stats\n\n# games is loaded: one row per game, columns die1 and die2.\nprint(games.head())\n\noutcomes = list(product(range(1, 7), repeat=2))   # all 36 (die1, die2) pairs\np_theory = None    # share of outcomes that win (sum 7 or 11)\n\nwins = None        # games won tonight\np_value = None     # P(at most `wins` wins in 900 games) with fair dice\n",
-        "de": "from itertools import product\nfrom scipy import stats\n\n# games ist geladen: eine Zeile pro Spiel, Spalten die1 und die2.\nprint(games.head())\n\noutcomes = list(product(range(1, 7), repeat=2))   # alle 36 Paare (die1, die2)\np_theory = None    # Anteil der Ergebnisse, die gewinnen (Summe 7 oder 11)\n\nwins = None        # heute gewonnene Spiele\np_value = None     # P(höchstens `wins` Gewinne in 900 Spielen) mit fairen Würfeln\n"
+        "en": "from itertools import product\nfrom scipy import stats\n\n# games is loaded: one row per game, columns die1 and die2.\nprint(games.head())\n\noutcomes = list(product(range(1, 7), repeat=2))   # all 36 (die1, die2) pairs\np_theory = None    # share of outcomes that win (see the sign)\n\nwins = None        # games won tonight\np_value = None     # P(at most `wins` wins in 900 games) with fair dice\n\nthreshold = None   # the inspection handbook's limit, as a probability\nrigged = None      # True or False\n",
+        "de": "from itertools import product\nfrom scipy import stats\n\n# games ist geladen: eine Zeile pro Spiel, Spalten die1 und die2.\nprint(games.head())\n\noutcomes = list(product(range(1, 7), repeat=2))   # alle 36 Paare (die1, die2)\np_theory = None    # Anteil der Ergebnisse, die gewinnen (siehe Schild)\n\nwins = None        # heute gewonnene Spiele\np_value = None     # P(höchstens `wins` Gewinne in 900 Spielen) mit fairen Würfeln\n\nthreshold = None   # die Grenze des Prüfhandbuchs, als Wahrscheinlichkeit\nrigged = None      # True oder False\n"
       },
       "check": {
         "type": "python",
-        "expr": "_dice_check(p_theory, wins, p_value)",
+        "expr": "_dice_check(p_theory, wins, p_value, threshold, rigged)",
         "hash": "cc22797d26de5cd461ea873da78bb81f5f9c8e49d6398d8b02eca269357a05a2"
       },
       "reveal": {
@@ -113,16 +113,16 @@
       ],
       "hints": [
         {
-          "en": "`sum(1 for a, b in outcomes if a + b in (7, 11))` counts the winning outcomes; divide by 36. In the log, `(games.die1 + games.die2).isin([7, 11])` marks the wins.",
-          "de": "`sum(1 for a, b in outcomes if a + b in (7, 11))` zählt die Gewinn-Ergebnisse; teilt durch 36. Im Protokoll markiert `(games.die1 + games.die2).isin([7, 11])` die Gewinne."
+          "en": "The sign at the stall says which sums win. `sum(1 for a, b in outcomes if a + b in (...))` counts the winning outcomes; divide by 36. In the log, `(games.die1 + games.die2).isin([...])` marks the wins.",
+          "de": "Das Schild am Stand sagt, welche Summen gewinnen. `sum(1 for a, b in outcomes if a + b in (...))` zählt die Gewinn-Ergebnisse; teilt durch 36. Im Protokoll markiert `(games.die1 + games.die2).isin([...])` die Gewinne."
         },
         {
-          "en": "With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`.",
-          "de": "Mit fairen Würfeln sind die Gewinne in 900 Spielen binomialverteilt mit n = 900 und p = `p_theory`. Die Wahrscheinlichkeit für höchstens k Erfolge ist die Verteilungsfunktion: `stats.binom.cdf(k, n, p)`."
+          "en": "With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`. The inspection handbook gives the limit; then `rigged = p_value < threshold`.",
+          "de": "Mit fairen Würfeln sind die Gewinne in 900 Spielen binomialverteilt mit n = 900 und p = `p_theory`. Die Wahrscheinlichkeit für höchstens k Erfolge ist die Verteilungsfunktion: `stats.binom.cdf(k, n, p)`. Das Prüfhandbuch nennt die Grenze; dann `rigged = p_value < threshold`."
         },
         {
-          "en": "`p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). `games.stack().value_counts()` shows which faces are missing.",
-          "de": "`p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) und `p_value = stats.binom.cdf(wins, 900, p_theory)` (etwa 0,0014). `games.stack().value_counts()` zeigt, welche Augenzahlen fehlen."
+          "en": "A 7 or an 11 wins: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). The handbook says 1 in 100: `threshold = 0.01`, so `rigged = p_value < threshold` is `True`. `games.stack().value_counts()` shows which faces are missing.",
+          "de": "Eine 7 oder eine 11 gewinnt: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) und `p_value = stats.binom.cdf(wins, 900, p_theory)` (etwa 0,0014). Das Handbuch sagt 1 von 100: `threshold = 0.01`, also ist `rigged = p_value < threshold` gleich `True`. `games.stack().value_counts()` zeigt, welche Augenzahlen fehlen."
         }
       ]
     },
@@ -180,14 +180,14 @@
         "de": "Die Abfüllmaschine"
       },
       "text": {
-        "en": "Kai's lemonade machine fills cups normally distributed around the volume it is set to. Its calibration sticker is still blank: it needs the mean and standard deviation of tonight's real cups, from the cup log.\n\nThe law allows only a few cups to fall short (see the regulation). With a normal distribution and those two values:\n\n1. How many standard deviations from the mean is 285 ml? Store it as `z`.\n2. What share of cups holds less than 285 ml? Store it as `share_below` (between 0 and 1).\n3. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly 2 % of cups hold less than 285 ml?",
-        "de": "Kais Limonadenmaschine füllt die Becher normalverteilt um die eingestellte Menge. Ihr Kalibrieraufkleber ist noch leer: Er braucht Mittelwert und Standardabweichung der echten Becher von heute Abend, aus dem Becherprotokoll.\n\nDas Gesetz erlaubt nur wenige zu knapp gefüllte Becher (siehe Verordnung). Mit einer Normalverteilung und diesen beiden Werten:\n\n1. Wie viele Standardabweichungen vom Mittelwert liegt 285 ml? Speichert es als `z`.\n2. Welcher Anteil der Becher enthält weniger als 285 ml? Speichert ihn als `share_below` (zwischen 0 und 1).\n3. Auf welchen Mittelwert (`target`, in ml) muss Kai die Maschine bei gleicher Streuung einstellen, damit genau 2 % der Becher weniger als 285 ml enthalten?"
+        "en": "Kai's lemonade machine fills cups normally distributed around the volume it is set to. Its calibration sticker is still blank: it needs the mean and standard deviation of tonight's real cups, from the cup log.\n\nThe law allows only a few cups to fall short: the fill regulation says how far below 300 ml counts as short, and what share of cups may be. With a normal distribution and those values:\n\n1. How many standard deviations from the mean is the regulation's limit? Store it as `z`.\n2. What share of cups holds less than the limit? Store it as `share_below` (between 0 and 1).\n3. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly the allowed share of cups holds less than the limit?",
+        "de": "Kais Limonadenmaschine füllt die Becher normalverteilt um die eingestellte Menge. Ihr Kalibrieraufkleber ist noch leer: Er braucht Mittelwert und Standardabweichung der echten Becher von heute Abend, aus dem Becherprotokoll.\n\nDas Gesetz erlaubt nur wenige zu knapp gefüllte Becher: Die Füllmengenverordnung sagt, ab wie viel unter 300 ml ein Becher zu knapp ist und welcher Anteil der Becher das sein darf. Mit einer Normalverteilung und diesen Werten:\n\n1. Wie viele Standardabweichungen vom Mittelwert liegt die Grenze der Verordnung? Speichert es als `z`.\n2. Welcher Anteil der Becher enthält weniger als die Grenze? Speichert ihn als `share_below` (zwischen 0 und 1).\n3. Auf welchen Mittelwert (`target`, in ml) muss Kai die Maschine bei gleicher Streuung einstellen, damit genau der erlaubte Anteil der Becher unter der Grenze liegt?"
       },
       "workspace": "python",
       "data": "filler.py",
       "starter": {
-        "en": "from scipy import stats\n\nmu = None       # mean of tonight's real cups (cup log)\nsigma = None    # their standard deviation\n\nz = None             # how many standard deviations 285 ml is from mu\nshare_below = None   # P(cup < 285 ml)\ntarget = None        # the mean that leaves exactly 2 % below 285 ml\n",
-        "de": "from scipy import stats\n\nmu = None       # Mittelwert der echten Becher von heute (Becherprotokoll)\nsigma = None    # ihre Standardabweichung\n\nz = None             # wie viele Standardabweichungen 285 ml von mu entfernt liegt\nshare_below = None   # P(Becher < 285 ml)\ntarget = None        # der Mittelwert, bei dem genau 2 % unter 285 ml liegen\n"
+        "en": "from scipy import stats\n\nmu = None       # mean of tonight's real cups (cup log)\nsigma = None    # their standard deviation\n\nlimit = None    # ml: below this, a 300 ml cup counts as short (fill regulation)\nallowed = None  # the share of cups that may be short (between 0 and 1)\n\nz = None             # how many standard deviations limit is from mu\nshare_below = None   # P(cup < limit)\ntarget = None        # the mean that leaves exactly the allowed share below limit\n",
+        "de": "from scipy import stats\n\nmu = None       # Mittelwert der echten Becher von heute (Becherprotokoll)\nsigma = None    # ihre Standardabweichung\n\nlimit = None    # ml: darunter ist ein 300-ml-Becher zu knapp (Füllmengenverordnung)\nallowed = None  # der Anteil der Becher, der zu knapp sein darf (zwischen 0 und 1)\n\nz = None             # wie viele Standardabweichungen limit von mu entfernt liegt\nshare_below = None   # P(Becher < limit)\ntarget = None        # der Mittelwert, bei dem genau der erlaubte Anteil unter limit liegt\n"
       },
       "check": {
         "type": "python",
@@ -210,16 +210,16 @@
       ],
       "hints": [
         {
-          "en": "mu and sigma are the clean mean and standard deviation from the cup log at the lemonade stand. Solve that one first, or work them out there.",
-          "de": "mu und sigma sind der bereinigte Mittelwert und die Standardabweichung aus dem Becherprotokoll am Limonadenstand. Löst das zuerst, oder rechnet sie dort aus."
+          "en": "mu and sigma are the clean mean and standard deviation from the cup log at the lemonade stand. The limit and the allowed share are on the fill regulation the commission pinned up.",
+          "de": "mu und sigma sind der bereinigte Mittelwert und die Standardabweichung aus dem Becherprotokoll am Limonadenstand. Grenze und erlaubter Anteil stehen in der Füllmengenverordnung, die die Kommission ausgehängt hat."
         },
         {
-          "en": "`z = (285 - mu) / sigma`. `stats.norm.cdf(285, mu, sigma)` is the share below 285 ml (the same as `stats.norm.cdf(z)`). For the target, the z with 2 % below it is `stats.norm.ppf(0.02)`.",
-          "de": "`z = (285 - mu) / sigma`. `stats.norm.cdf(285, mu, sigma)` ist der Anteil unter 285 ml (dasselbe wie `stats.norm.cdf(z)`). Für den Zielwert ist der z-Wert mit 2 % darunter `stats.norm.ppf(0.02)`."
+          "en": "`z = (limit - mu) / sigma`. `stats.norm.cdf(limit, mu, sigma)` is the share below the limit (the same as `stats.norm.cdf(z)`). For the target, the z with the allowed share below it is `stats.norm.ppf(allowed)`.",
+          "de": "`z = (limit - mu) / sigma`. `stats.norm.cdf(limit, mu, sigma)` ist der Anteil unter der Grenze (dasselbe wie `stats.norm.cdf(z)`). Für den Zielwert ist der z-Wert mit dem erlaubten Anteil darunter `stats.norm.ppf(allowed)`."
         },
         {
-          "en": "With mu = 296.4 and sigma = 7.9: z ≈ −1.44, share_below ≈ 0.075, and `target = 285 - stats.norm.ppf(0.02) * sigma` ≈ 301.2 ml.",
-          "de": "Mit mu = 296,4 und sigma = 7,9: z ≈ −1,44, share_below ≈ 0,075 und `target = 285 - stats.norm.ppf(0.02) * sigma` ≈ 301,2 ml."
+          "en": "With mu = 296.4, sigma = 7.9, limit = 285 (15 ml short) and allowed = 0.02: z ≈ −1.44, share_below ≈ 0.075, and `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301.2 ml.",
+          "de": "Mit mu = 296,4, sigma = 7,9, limit = 285 (15 ml zu wenig) und allowed = 0,02: z ≈ −1,44, share_below ≈ 0,075 und `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301,2 ml."
         }
       ]
     },
@@ -230,18 +230,18 @@
         "de": "Das Kassenhäuschen"
       },
       "text": {
-        "en": "Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his survey from the VIP tent, `vip_survey`, the source of his flyer for sponsors.\n\n1. The mean of all visitors is a parameter of the population: `mu`.\n2. A random sample of 40 visitors, `wristbands.sample(40, random_state=7)`, gives an estimate of it: `sample_mean`.\n3. The survey's mean: `vip_mean`.\n4. Could the survey's figure be bad luck? Draw 1,000 random samples of 40 visitors and keep their means in `means`. Does any of them come close to the survey?",
-        "de": "Brunos Laptop weiß, was jeder Besucher heute Abend mit seinem bargeldlosen Armband ausgegeben hat: `wristbands`, alle 6.000 Besucher. Außerdem liegt dort seine Umfrage aus dem VIP-Zelt, `vip_survey`, die Quelle seines Flyers für Sponsoren.\n\n1. Der Mittelwert aller Besucher ist ein Parameter der Grundgesamtheit: `mu`.\n2. Eine Zufallsstichprobe von 40 Besuchern, `wristbands.sample(40, random_state=7)`, liefert eine Schätzung dafür: `sample_mean`.\n3. Der Mittelwert der Umfrage: `vip_mean`.\n4. Kann die Zahl der Umfrage Pech sein? Zieht 1.000 Zufallsstichproben von 40 Besuchern und speichert ihre Mittelwerte in `means`. Kommt irgendeine davon an die Umfrage heran?"
+        "en": "Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his surveys, `surveys`: one row per guest asked, with `place`, `day` and `spent`. One of them is the source of his flyer for sponsors.\n\n1. The mean of all visitors is a parameter of the population: `mu`.\n2. A random sample of 40 visitors, `wristbands.sample(40, random_state=7)`, gives an estimate of it: `sample_mean`.\n3. The mean of the survey behind the flyer: `flyer_mean`.\n4. Could the flyer's figure be bad luck? Draw 1,000 random samples of 40 visitors and keep their means in `means`. Does any of them come close to the flyer?",
+        "de": "Brunos Laptop weiß, was jeder Besucher heute Abend mit seinem bargeldlosen Armband ausgegeben hat: `wristbands`, alle 6.000 Besucher. Außerdem liegen dort seine Umfragen, `surveys`: eine Zeile pro befragtem Gast, mit `place` (Ort), `day` (Tag) und `spent`. Eine davon ist die Quelle seines Flyers für Sponsoren.\n\n1. Der Mittelwert aller Besucher ist ein Parameter der Grundgesamtheit: `mu`.\n2. Eine Zufallsstichprobe von 40 Besuchern, `wristbands.sample(40, random_state=7)`, liefert eine Schätzung dafür: `sample_mean`.\n3. Der Mittelwert der Umfrage hinter dem Flyer: `flyer_mean`.\n4. Kann die Zahl des Flyers Pech sein? Zieht 1.000 Zufallsstichproben von 40 Besuchern und speichert ihre Mittelwerte in `means`. Kommt irgendeine davon an den Flyer heran?"
       },
       "workspace": "python",
       "data": "tickets.py",
       "starter": {
-        "en": "from helpers import show_hist\n\n# wristbands: euros spent by each of tonight's 6,000 visitors (the whole population)\n# vip_survey: euros spent by the 40 guests Bruno asked in the VIP tent\nmu = None\nsample_mean = None   # mean of wristbands.sample(40, random_state=7)\nvip_mean = None\n\nmeans = []           # means of 1,000 random samples of 40 visitors\n\n# show_hist(means, title=\"Means of random samples of 40\")\n",
-        "de": "from helpers import show_hist\n\n# wristbands: Euro, die jeder der 6.000 Besucher heute ausgegeben hat (die ganze Grundgesamtheit)\n# vip_survey: Euro der 40 Gäste, die Bruno im VIP-Zelt gefragt hat\nmu = None\nsample_mean = None   # Mittelwert von wristbands.sample(40, random_state=7)\nvip_mean = None\n\nmeans = []           # Mittelwerte von 1.000 Zufallsstichproben von 40 Besuchern\n\n# show_hist(means, title=\"Mittelwerte von Zufallsstichproben von 40\")\n"
+        "en": "from helpers import show_hist\n\n# wristbands: euros spent by each of tonight's 6,000 visitors (the whole population)\n# surveys: Bruno's surveys, one row per guest asked (place, day, spent)\nprint(surveys.groupby([\"place\", \"day\"]).size())\n\nmu = None\nsample_mean = None   # mean of wristbands.sample(40, random_state=7)\nflyer_mean = None    # mean of the one survey behind the flyer\n\nmeans = []           # means of 1,000 random samples of 40 visitors\n\n# show_hist(means, title=\"Means of random samples of 40\")\n",
+        "de": "from helpers import show_hist\n\n# wristbands: Euro, die jeder der 6.000 Besucher heute ausgegeben hat (die ganze Grundgesamtheit)\n# surveys: Brunos Umfragen, eine Zeile pro befragtem Gast (place = Ort, day = Wochentag, spent)\nprint(surveys.groupby([\"place\", \"day\"]).size())\n\nmu = None\nsample_mean = None   # Mittelwert von wristbands.sample(40, random_state=7)\nflyer_mean = None    # Mittelwert der einen Umfrage hinter dem Flyer\n\nmeans = []           # Mittelwerte von 1.000 Zufallsstichproben von 40 Besuchern\n\n# show_hist(means, title=\"Mittelwerte von Zufallsstichproben von 40\")\n"
       },
       "check": {
         "type": "python",
-        "expr": "_ticket_check(mu, sample_mean, vip_mean, means)",
+        "expr": "_ticket_check(mu, sample_mean, flyer_mean, means)",
         "hash": "d39ea5afbf13f6a8e49e786f0baca2692788bd4fdceabab36b492744ca0feba1"
       },
       "lock": {
@@ -254,8 +254,8 @@
         "hash": "e9b995b18a4a2ea855890a765213f61ce8beabbecf9d6dd50833670837ebff0e"
       },
       "reveal": {
-        "en": "Tonight's visitors spent **€33.51** on average. A random sample of 40 lands close (€34.23), and 1,000 random samples stay between about €25 and €45. The VIP tent says €65.18: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.\n\nInspection seal for the ticket office: **1**",
-        "de": "Die Besucher von heute Abend haben im Schnitt **33,51 €** ausgegeben. Eine Zufallsstichprobe von 40 landet nah dran (34,23 €), und 1.000 Zufallsstichproben bleiben zwischen etwa 25 € und 45 €. Das VIP-Zelt sagt 65,18 €: Das ist kein Pech, sondern eine verzerrte Stichprobe. Gefragt wurden nur Vielausgeber. Der Flyer täuscht die Sponsoren.\n\nPrüfsiegel für das Kassenhäuschen: **1**"
+        "en": "Tonight's visitors spent **€33.51** on average. A random sample of 40 lands close (€34.23), and 1,000 random samples stay between about €25 and €45. The flyer's survey in the VIP tent says €65.18: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.\n\nInspection seal for the ticket office: **1**",
+        "de": "Die Besucher von heute Abend haben im Schnitt **33,51 €** ausgegeben. Eine Zufallsstichprobe von 40 landet nah dran (34,23 €), und 1.000 Zufallsstichproben bleiben zwischen etwa 25 € und 45 €. Die Umfrage des Flyers im VIP-Zelt sagt 65,18 €: Das ist kein Pech, sondern eine verzerrte Stichprobe. Gefragt wurden nur Vielausgeber. Der Flyer täuscht die Sponsoren.\n\nPrüfsiegel für das Kassenhäuschen: **1**"
       },
       "practises": {
         "en": "Population vs. sample, parameter vs. statistic, random vs. biased samples, how much a sample mean varies",
@@ -266,16 +266,16 @@
       ],
       "hints": [
         {
-          "en": "`wristbands.mean()` is the population mean. `wristbands.sample(40, random_state=7).mean()` is one random sample's mean, and `vip_survey.mean()` the survey's.",
-          "de": "`wristbands.mean()` ist der Mittelwert der Grundgesamtheit. `wristbands.sample(40, random_state=7).mean()` ist der Mittelwert einer Zufallsstichprobe, `vip_survey.mean()` der der Umfrage."
+          "en": "`wristbands.mean()` is the population mean, and `wristbands.sample(40, random_state=7).mean()` one random sample's mean. The flyer names its source in the small print: filter `surveys` by place and day, as in `surveys[(surveys.place == ...) & (surveys.day == ...)]`.",
+          "de": "`wristbands.mean()` ist der Mittelwert der Grundgesamtheit, `wristbands.sample(40, random_state=7).mean()` der Mittelwert einer Zufallsstichprobe. Der Flyer nennt seine Quelle im Kleingedruckten: Filtert `surveys` nach Ort und Tag, etwa `surveys[(surveys.place == ...) & (surveys.day == ...)]`."
         },
         {
           "en": "In a loop, `wristbands.sample(40).mean()` draws a new random sample each time; append each mean to `means`. `show_hist(means)` shows how much a sample mean of 40 can vary by chance.",
           "de": "In einer Schleife zieht `wristbands.sample(40).mean()` jedes Mal eine neue Zufallsstichprobe; hängt jeden Mittelwert an `means` an. `show_hist(means)` zeigt, wie stark ein Stichprobenmittel von 40 zufällig schwanken kann."
         },
         {
-          "en": "`means = [wristbands.sample(40).mean() for i in range(1000)]`. They stay between about €25 and €45, nowhere near €65: the survey isn't unlucky, it only asked VIP guests.",
-          "de": "`means = [wristbands.sample(40).mean() for i in range(1000)]`. Sie bleiben zwischen etwa 25 € und 45 €, weit weg von 65 €: Die Umfrage hatte kein Pech, sie hat nur VIP-Gäste gefragt."
+          "en": "`flyer_mean = surveys[(surveys.place == \"VIP tent\") & (surveys.day == \"Saturday\")].spent.mean()` (€65.18) and `means = [wristbands.sample(40).mean() for i in range(1000)]`. They stay between about €25 and €45, nowhere near €65: the survey isn't unlucky, it only asked VIP guests.",
+          "de": "`flyer_mean = surveys[(surveys.place == \"VIP tent\") & (surveys.day == \"Saturday\")].spent.mean()` (65,18 €) und `means = [wristbands.sample(40).mean() for i in range(1000)]`. Sie bleiben zwischen etwa 25 € und 45 €, weit weg von 65 €: Die Umfrage hatte kein Pech, sie hat nur VIP-Gäste gefragt."
         }
       ]
     },

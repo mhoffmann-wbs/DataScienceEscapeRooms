@@ -12,6 +12,12 @@ def ints(values, per_line=20):
     return "[\n    " + ",\n    ".join(lines) + ",\n]"
 
 
+def strs(values, per_line=6):
+    """A Python list literal of strings, wrapped."""
+    lines = [", ".join(repr(v) for v in values[i:i + per_line]) for i in range(0, len(values), per_line)]
+    return "[\n        " + ",\n        ".join(lines) + ",\n    ]"
+
+
 def digits(values, per_line=75):
     """A string of single digits, wrapped (compact for long logs)."""
     s = "".join(str(int(v)) for v in values)
@@ -72,19 +78,28 @@ _die2 = {digits(die2)}
 games = pd.DataFrame({{"die1": [int(c) for c in _die1], "die2": [int(c) for c in _die2]}})
 
 
-def _dice_check(p_theory, wins, p_value):
-    '''Lucky Seven's check: the theoretical chance, the wins and how unlikely they are.'''
+def _dice_check(p_theory, wins, p_value, threshold, rigged):
+    '''Lucky Seven's check: the theoretical chance, the wins, how unlikely they are, and the verdict.'''
     from numbers import Real
     problems = []
     if not isinstance(p_theory, Real) or abs(p_theory - 8 / 36) > 0.0005:
         if isinstance(p_theory, Real) and abs(p_theory - 6 / 36) < 0.0005:
-            problems.append("p_theory only counts the 7s. An 11 wins too. / p_theory zählt nur die 7en. Eine 11 gewinnt auch.")
+            problems.append("p_theory only counts one of the winning sums. The sign says which win. / p_theory zählt nur eine der Gewinnsummen. Das Schild sagt, welche gewinnen.")
         else:
-            problems.append("p_theory is off: winning outcomes divided by all 36 outcomes. / p_theory stimmt nicht: Gewinn-Ergebnisse geteilt durch alle 36 Ergebnisse.")
+            problems.append("p_theory is off: winning outcomes (see the sign) divided by all 36 outcomes. / p_theory stimmt nicht: Gewinn-Ergebnisse (siehe Schild) geteilt durch alle 36 Ergebnisse.")
     if not isinstance(wins, Real) or wins != 163:
-        problems.append("wins is off: count the games whose two dice add up to 7 or 11. / wins stimmt nicht: Zählt die Spiele, deren zwei Würfel zusammen 7 oder 11 ergeben.")
+        problems.append("wins is off: count the games whose two dice add up to a winning sum (see the sign). / wins stimmt nicht: Zählt die Spiele, deren zwei Würfel zusammen eine Gewinnsumme ergeben (siehe Schild).")
     if not isinstance(p_value, Real) or abs(p_value - 0.00140) > 0.0002:
         problems.append("p_value is off: the probability of at most that many wins in 900 games with fair dice (binomial). / p_value stimmt nicht: die Wahrscheinlichkeit für höchstens so viele Gewinne in 900 Spielen mit fairen Würfeln (binomial).")
+    if not isinstance(threshold, Real) or abs(threshold - 0.01) > 1e-9:
+        if isinstance(threshold, Real) and threshold in (1, 100):
+            problems.append("threshold should be a probability between 0 and 1. / threshold soll eine Wahrscheinlichkeit zwischen 0 und 1 sein.")
+        else:
+            problems.append("threshold is off: the probability below which the inspection handbook calls a game suspicious. / threshold stimmt nicht: die Wahrscheinlichkeit, unter der das Prüfhandbuch ein Spiel verdächtig nennt.")
+    if not isinstance(rigged, (bool, np.bool_)):
+        problems.append("rigged should be True or False: compare p_value with the threshold. / rigged soll True oder False sein: Vergleicht p_value mit dem Schwellenwert.")
+    elif not rigged:
+        problems.append("rigged is off: is p_value below the handbook's threshold? / rigged stimmt nicht: Liegt p_value unter dem Schwellenwert des Handbuchs?")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"
@@ -119,32 +134,52 @@ def _duck_check(p_win, profit, observed):
 """)
 
 # Ticket office: every visitor's spending on their cashless wristband (the population), and
-# Bruno's survey of 40 guests in the VIP tent, who spend far more than the average visitor.
+# Bruno's surveys. The flyer's source is the VIP tent on Saturday (40 guests), who spend far more
+# than the average visitor; the other surveys are there so that the team has to read the flyer.
 rng = np.random.default_rng(23)
 spent = np.round(rng.gamma(2.2, 14.0, 6000)).astype(int) + 3
 vip = np.round(rng.gamma(6.0, 9.5, 40)).astype(int) + 4
+groups = [
+    ("Main entrance", "Saturday", np.round(rng.gamma(2.2, 14.0, 40)).astype(int) + 3),
+    ("VIP tent", "Friday", np.round(rng.gamma(6.0, 8.0, 30)).astype(int) + 4),
+    ("VIP tent", "Saturday", vip),
+    ("Beer garden", "Friday", np.round(rng.gamma(3.0, 13.0, 25)).astype(int) + 3),
+]
+rows = [(place, day, int(v)) for place, day, values in groups for v in values]
+rows = [rows[i] for i in rng.permutation(len(rows))]
+# Means a team gets from the wrong survey (or from all of them); the check names those.
+others = [round(float(np.mean(values)), 3) for place, day, values in groups if values is not vip]
+others.append(round(float(np.mean([r[2] for r in rows])), 3))
+print("survey means:", [(place, day, len(values), round(float(np.mean(values)), 3)) for place, day, values in groups])
 with open("data/tickets.py", "w") as f:
     f.write(f"""# Ticket office: what each of tonight's 6,000 visitors spent on their cashless wristband, in euros
-# (wristbands), and the answers of Bruno's survey in the VIP tent (vip_survey, 40 guests).
+# (wristbands), and Bruno's surveys: one row per guest asked, with where and when (surveys).
 # Loaded before your code runs.
 import numpy as np
 import pandas as pd
 
 wristbands = pd.Series({ints(spent, 25)}, name="spent")
 
-vip_survey = pd.Series({ints(vip, 20)}, name="spent")
+surveys = pd.DataFrame({{
+    "place": {strs([r[0] for r in rows], 6)},
+    "day": {strs([r[1] for r in rows], 8)},
+    "spent": {ints([r[2] for r in rows], 20).replace(chr(10) + "    ", chr(10) + "        ").replace(chr(10) + "]", chr(10) + "    ]")},
+}})
 
 
-def _ticket_check(mu, sample_mean, vip_mean, means):
-    '''The ticket office's check: parameter, statistic, survey, and the spread of sample means.'''
+def _ticket_check(mu, sample_mean, flyer_mean, means):
+    '''The ticket office's check: parameter, statistic, the flyer's survey, and the spread of sample means.'''
     from numbers import Real
     problems = []
     if not isinstance(mu, Real) or abs(mu - 33.509) > 0.001:
         problems.append("mu is off: the mean of all wristbands. / mu stimmt nicht: der Mittelwert aller Armbänder.")
     if not isinstance(sample_mean, Real) or abs(sample_mean - 34.225) > 0.001:
         problems.append("sample_mean is off: the mean of wristbands.sample(40, random_state=7). / sample_mean stimmt nicht: der Mittelwert von wristbands.sample(40, random_state=7).")
-    if not isinstance(vip_mean, Real) or abs(vip_mean - 65.175) > 0.001:
-        problems.append("vip_mean is off: the mean of the VIP tent survey. / vip_mean stimmt nicht: der Mittelwert der Umfrage im VIP-Zelt.")
+    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65.175) > 0.001:
+        if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in {others!r}):
+            problems.append("flyer_mean comes from the wrong survey: the flyer's small print says which one. / flyer_mean kommt aus der falschen Umfrage: Das Kleingedruckte auf dem Flyer sagt, welche.")
+        else:
+            problems.append("flyer_mean is off: the mean of the one survey behind the flyer (filter surveys by place and day). / flyer_mean stimmt nicht: der Mittelwert der einen Umfrage hinter dem Flyer (filtert surveys nach place und day).")
     try:
         m = np.asarray(means, dtype=float)
     except (TypeError, ValueError):

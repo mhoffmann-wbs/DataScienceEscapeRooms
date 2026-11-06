@@ -86,6 +86,8 @@ show_hist(clean, title="Clean cups")
 > Calibration values for the filling machine: tonight's cups hold **296.4 ml** on average, with a standard deviation of **7.9 ml**.
 >
 > The median stayed at 296 ml while you cleaned the log; the mean dropped by 15 ml. One typo was enough to move it.
+>
+> The stand's inspection seal comes from the filling machine, once it is calibrated.
 
 **Hints:**
 
@@ -101,13 +103,12 @@ show_hist(clean, title="Clean cups")
 
 **Task:**
 
-> At Lucky Seven you roll two dice and win with a sum of 7 or 11. The sign promises a chance of 2 in 9. The log of tonight's 900 games is loaded as `games` (columns `die1` and `die2`).
+> At Lucky Seven you roll two dice and win with certain sums: the sign at the stall says which ones, and what chance it promises. The log of tonight's 900 games is loaded as `games` (columns `die1` and `die2`).
 >
 > 1. Work out the theoretical chance of winning, `p_theory`, from all 36 equally likely outcomes of two fair dice.
 > 2. Count tonight's wins: `wins`.
 > 3. With fair dice, how likely is a night with at most this many wins? The number of wins in 900 games follows a binomial distribution. Store that probability as `p_value`.
->
-> Is the game fair? The inspection handbook says when a result counts as suspicious.
+> 4. The inspection handbook says when a result counts as suspicious. Store its limit as a probability, `threshold`, and your verdict as `rigged` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -119,10 +120,13 @@ from scipy import stats
 print(games.head())
 
 outcomes = list(product(range(1, 7), repeat=2))   # all 36 (die1, die2) pairs
-p_theory = None    # share of outcomes that win (sum 7 or 11)
+p_theory = None    # share of outcomes that win (see the sign)
 
 wins = None        # games won tonight
 p_value = None     # P(at most `wins` wins in 900 games) with fair dice
+
+threshold = None   # the inspection handbook's limit, as a probability
+rigged = None      # True or False
 ```
 
 </details>
@@ -137,11 +141,13 @@ outcomes = list(product(range(1, 7), repeat=2))
 p_theory = sum(1 for a, b in outcomes if a + b in (7, 11)) / len(outcomes)
 wins = int((games.die1 + games.die2).isin([7, 11]).sum())
 p_value = stats.binom.cdf(wins, len(games), p_theory)
-print(round(p_theory, 4), wins, round(len(games) * p_theory), round(p_value, 4))
+threshold = 0.01
+rigged = p_value < threshold
+print(round(p_theory, 4), wins, round(len(games) * p_theory), round(p_value, 4), rigged)
 print(games.stack().value_counts().sort_index())
 ```
 
-**Checked result** (`_dice_check(p_theory, wins, p_value)`):
+**Checked result** (`_dice_check(p_theory, wins, p_value, threshold, rigged)`):
 
 ```json
 "sealed"
@@ -155,9 +161,9 @@ print(games.stack().value_counts().sort_index())
 
 **Hints:**
 
-1. `sum(1 for a, b in outcomes if a + b in (7, 11))` counts the winning outcomes; divide by 36. In the log, `(games.die1 + games.die2).isin([7, 11])` marks the wins.
-2. With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`.
-3. `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). `games.stack().value_counts()` shows which faces are missing.
+1. The sign at the stall says which sums win. `sum(1 for a, b in outcomes if a + b in (...))` counts the winning outcomes; divide by 36. In the log, `(games.die1 + games.die2).isin([...])` marks the wins.
+2. With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`. The inspection handbook gives the limit; then `rigged = p_value < threshold`.
+3. A 7 or an 11 wins: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). The handbook says 1 in 100: `threshold = 0.01`, so `rigged = p_value < threshold` is `True`. `games.stack().value_counts()` shows which faces are missing.
 
 ### 3. The duck pond
 
@@ -241,11 +247,11 @@ print(round(p_win, 4), round(profit, 2), observed)
 
 > Kai's lemonade machine fills cups normally distributed around the volume it is set to. Its calibration sticker is still blank: it needs the mean and standard deviation of tonight's real cups, from the cup log.
 >
-> The law allows only a few cups to fall short (see the regulation). With a normal distribution and those two values:
+> The law allows only a few cups to fall short: the fill regulation says how far below 300 ml counts as short, and what share of cups may be. With a normal distribution and those values:
 >
-> 1. How many standard deviations from the mean is 285 ml? Store it as `z`.
-> 2. What share of cups holds less than 285 ml? Store it as `share_below` (between 0 and 1).
-> 3. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly 2 % of cups hold less than 285 ml?
+> 1. How many standard deviations from the mean is the regulation's limit? Store it as `z`.
+> 2. What share of cups holds less than the limit? Store it as `share_below` (between 0 and 1).
+> 3. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly the allowed share of cups holds less than the limit?
 
 <details><summary>Starter code</summary>
 
@@ -255,9 +261,12 @@ from scipy import stats
 mu = None       # mean of tonight's real cups (cup log)
 sigma = None    # their standard deviation
 
-z = None             # how many standard deviations 285 ml is from mu
-share_below = None   # P(cup < 285 ml)
-target = None        # the mean that leaves exactly 2 % below 285 ml
+limit = None    # ml: below this, a 300 ml cup counts as short (fill regulation)
+allowed = None  # the share of cups that may be short (between 0 and 1)
+
+z = None             # how many standard deviations limit is from mu
+share_below = None   # P(cup < limit)
+target = None        # the mean that leaves exactly the allowed share below limit
 ```
 
 </details>
@@ -268,9 +277,10 @@ target = None        # the mean that leaves exactly 2 % below 285 ml
 from scipy import stats
 
 mu, sigma = 296.4, 7.9
-z = (285 - mu) / sigma
-share_below = stats.norm.cdf(285, mu, sigma)
-target = 285 - stats.norm.ppf(0.02) * sigma
+limit, allowed = 285, 0.02
+z = (limit - mu) / sigma
+share_below = stats.norm.cdf(limit, mu, sigma)
+target = limit - stats.norm.ppf(allowed) * sigma
 print(round(z, 2), round(share_below, 4), round(target, 1))
 ```
 
@@ -288,9 +298,9 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 
 **Hints:**
 
-1. mu and sigma are the clean mean and standard deviation from the cup log at the lemonade stand. Solve that one first, or work them out there.
-2. `z = (285 - mu) / sigma`. `stats.norm.cdf(285, mu, sigma)` is the share below 285 ml (the same as `stats.norm.cdf(z)`). For the target, the z with 2 % below it is `stats.norm.ppf(0.02)`.
-3. With mu = 296.4 and sigma = 7.9: z ≈ −1.44, share_below ≈ 0.075, and `target = 285 - stats.norm.ppf(0.02) * sigma` ≈ 301.2 ml.
+1. mu and sigma are the clean mean and standard deviation from the cup log at the lemonade stand. The limit and the allowed share are on the fill regulation the commission pinned up.
+2. `z = (limit - mu) / sigma`. `stats.norm.cdf(limit, mu, sigma)` is the share below the limit (the same as `stats.norm.cdf(z)`). For the target, the z with the allowed share below it is `stats.norm.ppf(allowed)`.
+3. With mu = 296.4, sigma = 7.9, limit = 285 (15 ml short) and allowed = 0.02: z ≈ −1.44, share_below ≈ 0.075, and `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301.2 ml.
 
 ### 5. The ticket office
 
@@ -304,12 +314,12 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 
 **Task:**
 
-> Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his survey from the VIP tent, `vip_survey`, the source of his flyer for sponsors.
+> Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his surveys, `surveys`: one row per guest asked, with `place`, `day` and `spent`. One of them is the source of his flyer for sponsors.
 >
 > 1. The mean of all visitors is a parameter of the population: `mu`.
 > 2. A random sample of 40 visitors, `wristbands.sample(40, random_state=7)`, gives an estimate of it: `sample_mean`.
-> 3. The survey's mean: `vip_mean`.
-> 4. Could the survey's figure be bad luck? Draw 1,000 random samples of 40 visitors and keep their means in `means`. Does any of them come close to the survey?
+> 3. The mean of the survey behind the flyer: `flyer_mean`.
+> 4. Could the flyer's figure be bad luck? Draw 1,000 random samples of 40 visitors and keep their means in `means`. Does any of them come close to the flyer?
 
 <details><summary>Starter code</summary>
 
@@ -317,10 +327,12 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 from helpers import show_hist
 
 # wristbands: euros spent by each of tonight's 6,000 visitors (the whole population)
-# vip_survey: euros spent by the 40 guests Bruno asked in the VIP tent
+# surveys: Bruno's surveys, one row per guest asked (place, day, spent)
+print(surveys.groupby(["place", "day"]).size())
+
 mu = None
 sample_mean = None   # mean of wristbands.sample(40, random_state=7)
-vip_mean = None
+flyer_mean = None    # mean of the one survey behind the flyer
 
 means = []           # means of 1,000 random samples of 40 visitors
 
@@ -336,13 +348,14 @@ from helpers import show_hist
 
 mu = wristbands.mean()
 sample_mean = wristbands.sample(40, random_state=7).mean()
-vip_mean = vip_survey.mean()
+flyer = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")]
+flyer_mean = flyer.spent.mean()
 means = [wristbands.sample(40).mean() for i in range(1000)]
-print(round(mu, 2), round(sample_mean, 2), round(vip_mean, 2), round(min(means), 2), round(max(means), 2))
+print(len(flyer), round(mu, 2), round(sample_mean, 2), round(flyer_mean, 2), round(min(means), 2), round(max(means), 2))
 show_hist(means, title="Means of 1,000 random samples of 40")
 ```
 
-**Checked result** (`_ticket_check(mu, sample_mean, vip_mean, means)`):
+**Checked result** (`_ticket_check(mu, sample_mean, flyer_mean, means)`):
 
 ```json
 "sealed"
@@ -350,15 +363,15 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Reveals when solved:**
 
-> Tonight's visitors spent **€33.51** on average. A random sample of 40 lands close (€34.23), and 1,000 random samples stay between about €25 and €45. The VIP tent says €65.18: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.
+> Tonight's visitors spent **€33.51** on average. A random sample of 40 lands close (€34.23), and 1,000 random samples stay between about €25 and €45. The flyer's survey in the VIP tent says €65.18: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.
 >
 > Inspection seal for the ticket office: **1**
 
 **Hints:**
 
-1. `wristbands.mean()` is the population mean. `wristbands.sample(40, random_state=7).mean()` is one random sample's mean, and `vip_survey.mean()` the survey's.
+1. `wristbands.mean()` is the population mean, and `wristbands.sample(40, random_state=7).mean()` one random sample's mean. The flyer names its source in the small print: filter `surveys` by place and day, as in `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
 2. In a loop, `wristbands.sample(40).mean()` draws a new random sample each time; append each mean to `means`. `show_hist(means)` shows how much a sample mean of 40 can vary by chance.
-3. `means = [wristbands.sample(40).mean() for i in range(1000)]`. They stay between about €25 and €45, nowhere near €65: the survey isn't unlucky, it only asked VIP guests.
+3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (€65.18) and `means = [wristbands.sample(40).mean() for i in range(1000)]`. They stay between about €25 and €45, nowhere near €65: the survey isn't unlucky, it only asked VIP guests.
 
 ### 6. The fairground gate (Final lock)
 
