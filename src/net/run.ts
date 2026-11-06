@@ -31,10 +31,12 @@ export const runStateSchema = z.object({
     .record(nickname, z.number().finite())
     .refine((r) => Object.keys(r).length <= 30)
     .default({}),
+  /** When the team's creator ended the run early (earliest wins); null while it is open. */
+  endedAt: z.number().finite().nullable().default(null),
 });
 export type RunState = z.infer<typeof runStateSchema>;
 
-export const emptyRun = (startedAt: number | null = null, epoch = 0): RunState => ({ epoch, startedAt, solved: {}, hints: {}, attempts: {}, players: {} });
+export const emptyRun = (startedAt: number | null = null, epoch = 0): RunState => ({ epoch, startedAt, solved: {}, hints: {}, attempts: {}, players: {}, endedAt: null });
 
 const minOf = (a: number | null, b: number | null) => (a === null ? b : b === null ? a : Math.min(a, b));
 
@@ -60,13 +62,14 @@ export function mergeRun(a: RunState, b: RunState): RunState {
     hints: mergeTimes(a.hints, b.hints),
     attempts: mergeCounts(a.attempts, b.attempts),
     players: mergeTimes(a.players, b.players),
+    endedAt: minOf(a.endedAt, b.endedAt),
   };
 }
 
 export function sameRun(a: RunState, b: RunState): boolean {
   const same = (x: Record<string, number>, y: Record<string, number>) =>
     Object.keys(x).length === Object.keys(y).length && Object.entries(x).every(([k, t]) => y[k] === t);
-  return a.epoch === b.epoch && a.startedAt === b.startedAt && same(a.solved, b.solved) && same(a.hints, b.hints) && same(a.attempts, b.attempts) && same(a.players, b.players);
+  return a.epoch === b.epoch && a.startedAt === b.startedAt && a.endedAt === b.endedAt && same(a.solved, b.solved) && same(a.hints, b.hints) && same(a.attempts, b.attempts) && same(a.players, b.players);
 }
 
 export const hintKey = (puzzleId: string, tier: number) => `${puzzleId}#${tier}`;
@@ -127,6 +130,11 @@ export class RunSync {
   join(nickname: string): void {
     if (nickname in this.current.players) return;
     this.apply({ ...emptyRun(), epoch: this.current.epoch, players: { [nickname]: this.now() } }, true);
+  }
+
+  /** Ends the run for the whole team (its creator leaving for good). */
+  end(): void {
+    this.apply({ ...emptyRun(), epoch: this.current.epoch, endedAt: this.now() }, true);
   }
 
   /** Starts the run over (instructor reset): a new, higher epoch replaces all progress. */

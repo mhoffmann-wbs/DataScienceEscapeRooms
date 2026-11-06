@@ -12,6 +12,8 @@ const doorSchema = z.object({
   /** Shown above the door on the map. */
   icon: z.string().min(1),
   title: localized,
+  /** Room ids in the order to list them among scenarios of the same difficulty (unlisted ones go last). */
+  order: z.array(z.string()).default([]),
   /** Planned scenarios, shown greyed out. */
   upcoming: z.array(z.object({ title: localized, difficulty: z.enum(difficulties), about: aboutSchema })).default([]),
 });
@@ -33,11 +35,13 @@ export interface Scenario {
 
 const rank = (d: Difficulty) => difficulties.indexOf(d);
 
-/** The scenarios behind a door, playable ones first, each group from easiest to hardest. */
+/** The scenarios behind a door, playable ones first, each group from easiest to hardest (ties as in the door's `order`). */
 export function scenariosAt(doorId: string): Scenario[] {
   const playable = Object.entries(ROOMS)
     .filter(([, m]) => m.category === doorId)
     .map(([roomId, m]) => ({ roomId, title: m.title, difficulty: m.difficulty, about: m.about }));
   const byDifficulty = (a: Scenario, b: Scenario) => rank(a.difficulty) - rank(b.difficulty);
-  return [...playable.sort(byDifficulty), ...(getDoor(doorId)?.upcoming ?? []).slice().sort(byDifficulty)];
+  const order = getDoor(doorId)?.order ?? [];
+  const pos = (s: Scenario) => (order.includes(s.roomId!) ? order.indexOf(s.roomId!) : order.length);
+  return [...playable.sort((a, b) => byDifficulty(a, b) || pos(a) - pos(b)), ...(getDoor(doorId)?.upcoming ?? []).slice().sort(byDifficulty)];
 }

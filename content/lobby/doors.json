@@ -3,7 +3,8 @@
     {
       "id": "python",
       "icon": "🐍",
-      "title": { "en": "Python", "de": "Python" }
+      "title": { "en": "Python", "de": "Python" },
+      "order": ["python-lab", "pandas-market"]
     },
     {
       "id": "sql",

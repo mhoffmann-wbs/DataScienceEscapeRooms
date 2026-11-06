@@ -94,6 +94,8 @@ export interface RunInfo {
   solo?: boolean;
   /** The leader's nickname, for "<leader>'s team" on the scoreboard and for instructors. */
   leader?: string;
+  /** This player created the team (or is practising alone), so they may end the run for everyone. */
+  creator?: boolean;
   group?: string | null;
 }
 

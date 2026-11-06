@@ -19,7 +19,7 @@ import { ChatBubbles } from './ChatBubbles';
 import { ChatPanel } from './ChatPanel';
 import { ClueDialog, DebriefDialog, IntroDialog } from './RoomDialogs';
 import { InteractPrompt } from './InteractPrompt';
-import { LeaveRoomDialog } from './LeaveRoomDialog';
+import { LeaveRoomDialog, RunEndedDialog } from './LeaveRoomDialog';
 import { NotesPanel } from './NotesPanel';
 import { PeoplePanel } from './PeoplePanel';
 import { PuzzleDialog } from './PuzzleDialog';
@@ -181,6 +181,8 @@ function LobbyOverlays({ session, profile, instructorKey, onGoTo, onEnterRoom, o
   );
 }
 
+const END_SEND_MS = 400;
+
 type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string } | { kind: 'leave' } | { kind: 'intro' } | { kind: 'escaped' } | null;
 
 interface RoomOverlaysProps {
@@ -212,7 +214,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
   const reporter = observer ? null : lobby;
   const roster = useEmitterValue(session.presence.events, 'roster', () => session.presence.list());
   useEffect(() => {
-    if (!reporter) return;
+    if (!reporter || state.endedAt !== null) return;
     const members = roster.filter((p) => !reporter.help.isVisitor(p.id));
     const names = [profile.nickname, ...members.map((p) => p.nickname)];
     reporter.runs.publish(summarize(session, state, names, [reporter.selfId, ...members.map((p) => p.id)], profile.nickname));
@@ -255,6 +257,20 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
     setDialog({ kind: 'escaped' });
   }
 
+  // The creator can end the run for everyone; it then can't be rejoined.
+  const ended = state.endedAt !== null && !escaped;
+  useEffect(() => {
+    if (ended) reporter?.runs.withdraw();
+  }, [ended, reporter]);
+  const canEnd = !!session.info.creator && !author && !observer;
+  const [ending, setEnding] = useState(false);
+  const endRun = () => {
+    setEnding(true);
+    run.end();
+    // Leaving closes the connections at once; give the message a moment to reach the team.
+    setTimeout(() => onLeaveRoom(true), END_SEND_MS);
+  };
+
   const use = useCallback((target: Interactable) => {
     if (target.kind === 'door') setDialog({ kind: 'leave' });
     else if (target.kind === 'clue') setDialog({ kind: 'clue', clueId: target.clueId });
@@ -272,7 +288,8 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
       {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} notebook={session.notebook} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
       {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} notebook={session.notebook} onClose={close} />}
-      {dialog?.kind === 'leave' && <LeaveRoomDialog finished={escaped} onLeave={() => onLeaveRoom(escaped)} onStay={close} />}
+      {dialog?.kind === 'leave' && !ending && <LeaveRoomDialog finished={escaped} solo={solo} onEnd={canEnd ? endRun : undefined} onLeave={() => onLeaveRoom(escaped)} onStay={close} />}
+      {ended && !ending && <RunEndedDialog onLobby={() => onLeaveRoom(true)} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={() => onLeaveRoom(true)} onClose={close} />}
       {!solo && <ChatPanel chat={session.chat} />}

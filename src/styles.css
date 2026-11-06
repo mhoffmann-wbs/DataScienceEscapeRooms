@@ -81,6 +81,13 @@ button.primary {
   padding: 8px 14px;
 }
 
+/* Ends something for everyone (e.g. the creator ending a team's run). */
+button.danger {
+  border-color: #f87171;
+  color: #fca5a5;
+  padding: 8px 14px;
+}
+
 button:disabled {
   opacity: 0.45;
   cursor: not-allowed;

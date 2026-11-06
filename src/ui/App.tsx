@@ -104,7 +104,7 @@ export function App() {
 
   const enterRoom = ({ team, password }: StartedTeam, leader: string) => {
     if (!profile) return;
-    const run: SavedRun = { roomId: team.roomId, teamId: team.id, password, leader, group: team.group, state: emptyRun(team.startedAt) };
+    const run: SavedRun = { roomId: team.roomId, teamId: team.id, password, leader, creator: team.leader === lobby?.selfId, group: team.group, state: emptyRun(team.startedAt) };
     saveRun(run);
     setPlace({ kind: 'room', run });
   };
@@ -119,7 +119,7 @@ export function App() {
   /** Solo practice: an offline copy of the room, saved like a team run. */
   const practise = (roomId: string) => {
     if (!profile) return;
-    const run: SavedRun = { roomId, teamId: `solo-${Date.now().toString(36)}`, solo: true, leader: profile.nickname, state: emptyRun(Date.now()) };
+    const run: SavedRun = { roomId, teamId: `solo-${Date.now().toString(36)}`, solo: true, leader: profile.nickname, creator: true, state: emptyRun(Date.now()) };
     saveRun(run);
     setPlace({ kind: 'room', run });
   };
