@@ -88,7 +88,15 @@ export function ScoreboardDialog({ scores, instructor = null, onClose }: Props) 
                 <td>{i + 1}</td>
                 <td>
                   <strong>{t('team.teamOf', { name: r.leader })}</strong>
-                  <div className="muted">{r.members.join(', ')}</div>
+                  <div className="muted">
+                    {r.members.join(', ')}
+                    {r.left?.map((name) => (
+                      <span key={name} className="left-early" title={t('scores.leftEarly')}>
+                        {', '}
+                        <s>{name}</s> ({t('scores.leftEarly')})
+                      </span>
+                    ))}
+                  </div>
                 </td>
                 <td>{r.group ?? '–'}</td>
                 <td>{formatDuration(r.escapedAt - r.startedAt)}</td>

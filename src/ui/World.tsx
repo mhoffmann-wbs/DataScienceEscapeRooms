@@ -215,6 +215,10 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
     reporter.runs.publish(summarize(session, state, names, [reporter.selfId, ...members.map((p) => p.id)], profile.nickname));
   }, [reporter, session, state, roster, profile.nickname]);
   useEffect(() => () => reporter?.runs.withdraw(), [reporter]);
+  // Members record themselves in the run (again after a reset), so the result names everyone who played.
+  useEffect(() => {
+    if (!author && !observer) run.join(profile.nickname);
+  }, [run, state, author, observer, profile.nickname]);
 
   // Players can call the instructor, and answer the instructor's visit (see HelpDesk).
   const help = reporter && INSTRUCTOR_CONFIG ? reporter.help : null;
@@ -293,6 +297,7 @@ function summarize(session: RoomSession, state: RunState, members: string[], pee
     leader: leader ?? self,
     group: group ?? null,
     members,
+    left: Object.keys(state.players).filter((name) => !members.includes(name)),
     peers,
     epoch: state.epoch,
     startedAt: state.startedAt,

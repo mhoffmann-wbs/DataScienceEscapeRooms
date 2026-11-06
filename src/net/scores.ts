@@ -23,6 +23,8 @@ export const resultSchema = z.object({
   leader: z.string().max(20),
   group: z.string().max(24).nullable(),
   members: z.array(z.string().max(20)).max(10),
+  /** Players who left before the escape (older results omit it). */
+  left: z.array(z.string().max(20)).max(20).optional(),
   startedAt: z.number().finite(),
   escapedAt: z.number().finite(),
   hints: z.number().int().min(0).max(1000),
@@ -39,7 +41,7 @@ const plausible = (r: Result) => r.escapedAt - r.startedAt > 30_000 && r.escaped
 export function resultOf(s: RunSummary): Result | null {
   if (s.escapedAt === null || s.startedAt === null) return null;
   const hints = Object.values(s.hints).reduce((a, b) => a + b, 0);
-  return { teamId: s.teamId, epoch: s.epoch, roomId: s.roomId, leader: s.leader, group: s.group, members: s.members, startedAt: s.startedAt, escapedAt: s.escapedAt, hints };
+  return { teamId: s.teamId, epoch: s.epoch, roomId: s.roomId, leader: s.leader, group: s.group, members: s.members, ...(s.left?.length && { left: s.left }), startedAt: s.startedAt, escapedAt: s.escapedAt, hints };
 }
 
 export class Scores {

@@ -32,6 +32,17 @@ beforeEach(() => localStorage.clear());
 const settle = () => new Promise((r) => setTimeout(r, 30));
 
 describe('Scores', () => {
+  it('keeps players who left before the escape in the result', () => {
+    const hub = new MemoryHub();
+    const ada = peer(hub, 'ada');
+    ada.runs.publish(finished('t1', 30, { members: ['Ada'], left: ['Bob'] }));
+    ada.runs.publish(finished('t2', 31));
+    expect(ada.scores.list().map((r) => [r.teamId, r.left])).toEqual([
+      ['t1', ['Bob']],
+      ['t2', undefined],
+    ]);
+  });
+
   it('records finished runs from the live summaries, fastest first', () => {
     const hub = new MemoryHub();
     const ada = peer(hub, 'ada');

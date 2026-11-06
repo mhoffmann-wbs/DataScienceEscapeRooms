@@ -11,6 +11,7 @@ const key = z.string().min(1).max(64);
 const timestamps = z.record(key, z.number().finite()).refine((r) => Object.keys(r).length <= 200);
 
 const attemptKeySchema = z.string().min(1).max(120);
+const nickname = z.string().min(1).max(20);
 
 export const runStateSchema = z.object({
   /** 0 until an instructor resets the run; the reset's timestamp afterwards. */
@@ -25,10 +26,15 @@ export const runStateSchema = z.object({
     .record(attemptKeySchema, z.number().int().min(0).max(100_000))
     .refine((r) => Object.keys(r).length <= 500)
     .default({}),
+  /** nickname -> when they first joined, so a result can list players who left before the escape */
+  players: z
+    .record(nickname, z.number().finite())
+    .refine((r) => Object.keys(r).length <= 30)
+    .default({}),
 });
 export type RunState = z.infer<typeof runStateSchema>;
 
-export const emptyRun = (startedAt: number | null = null, epoch = 0): RunState => ({ epoch, startedAt, solved: {}, hints: {}, attempts: {} });
+export const emptyRun = (startedAt: number | null = null, epoch = 0): RunState => ({ epoch, startedAt, solved: {}, hints: {}, attempts: {}, players: {} });
 
 const minOf = (a: number | null, b: number | null) => (a === null ? b : b === null ? a : Math.min(a, b));
 
@@ -53,13 +59,14 @@ export function mergeRun(a: RunState, b: RunState): RunState {
     solved: mergeTimes(a.solved, b.solved),
     hints: mergeTimes(a.hints, b.hints),
     attempts: mergeCounts(a.attempts, b.attempts),
+    players: mergeTimes(a.players, b.players),
   };
 }
 
 export function sameRun(a: RunState, b: RunState): boolean {
   const same = (x: Record<string, number>, y: Record<string, number>) =>
     Object.keys(x).length === Object.keys(y).length && Object.entries(x).every(([k, t]) => y[k] === t);
-  return a.epoch === b.epoch && a.startedAt === b.startedAt && same(a.solved, b.solved) && same(a.hints, b.hints) && same(a.attempts, b.attempts);
+  return a.epoch === b.epoch && a.startedAt === b.startedAt && same(a.solved, b.solved) && same(a.hints, b.hints) && same(a.attempts, b.attempts) && same(a.players, b.players);
 }
 
 export const hintKey = (puzzleId: string, tier: number) => `${puzzleId}#${tier}`;
@@ -114,6 +121,12 @@ export class RunSync {
   recordAttempt(puzzleId: string): void {
     const key = attemptKey(puzzleId, this.room.selfId);
     this.apply({ ...emptyRun(), epoch: this.current.epoch, attempts: { [key]: (this.current.attempts[key] ?? 0) + 1 } }, true);
+  }
+
+  /** Records that this player plays the run (once; the earliest time wins). */
+  join(nickname: string): void {
+    if (nickname in this.current.players) return;
+    this.apply({ ...emptyRun(), epoch: this.current.epoch, players: { [nickname]: this.now() } }, true);
   }
 
   /** Starts the run over (instructor reset): a new, higher epoch replaces all progress. */

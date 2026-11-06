@@ -241,7 +241,8 @@
     "empty": "Für diese Auswahl gibt es noch keine Fluchten.",
     "notCheatProof": "Die Ergebnisse werden ohne Server zwischen den Browsern der Spielenden geteilt und lassen sich deshalb nicht überprüfen. Nehmt die Rangliste als Spaß, nicht als Note.",
     "remove": "Entfernen",
-    "removeConfirm": "Das Ergebnis von {{team}} von der Bestenliste entfernen? Es verschwindet für alle."
+    "removeConfirm": "Das Ergebnis von {{team}} von der Bestenliste entfernen? Es verschwindet für alle.",
+    "leftEarly": "vorzeitig gegangen"
   },
   "instructor": {
     "title": "Lehrkraft",

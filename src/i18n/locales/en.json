@@ -241,7 +241,8 @@
     "empty": "No escapes yet for this selection.",
     "notCheatProof": "Results are shared between players' browsers, without a server, so they can't be verified. Take the ranking as a bit of fun, not as grades.",
     "remove": "Remove",
-    "removeConfirm": "Remove {{team}}'s result from the scoreboard? It disappears for everyone."
+    "removeConfirm": "Remove {{team}}'s result from the scoreboard? It disappears for everyone.",
+    "leftEarly": "left early"
   },
   "instructor": {
     "title": "Instructor",
