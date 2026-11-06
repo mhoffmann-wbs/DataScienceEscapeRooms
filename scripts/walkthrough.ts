@@ -8,6 +8,7 @@ import { dirname } from 'node:path';
 import initSqlJs from 'sql.js';
 import { manifestSchema } from '../src/rooms/manifest.ts';
 import { nodePyodide } from '../src/runners/nodePython.ts';
+import { moduleSetup } from '../src/runners/pythonCore.ts';
 import { canonicalSolution, type ReferenceSolution } from '../src/rooms/solutions.ts';
 import { LANGUAGES, renderWalkthrough, walkthroughPath, type SolvedPuzzle } from '../src/rooms/walkthrough.ts';
 
@@ -20,7 +21,7 @@ for (const roomId of roomIds) {
   const manifest = manifestSchema.parse(JSON.parse(await readFile(`${dir}/manifest.json`, 'utf8')));
   const solutions: Record<string, ReferenceSolution> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
   const py = await nodePyodide(manifest.packages);
-  const engines = { SQL, py, readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8') };
+  const engines = { SQL, py, readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8'), modules: await readModules(manifest.modules) };
 
   const solved: Record<string, SolvedPuzzle> = {};
   for (const puzzle of manifest.puzzles) {
@@ -34,4 +35,9 @@ for (const roomId of roomIds) {
     await writeFile(path, renderWalkthrough(roomId, manifest, lang, solved));
     console.log(`wrote ${path}`);
   }
+}
+
+/** Setup code for a room's Python modules, read from content/python/. */
+async function readModules(names: readonly string[]): Promise<string> {
+  return moduleSetup(Object.fromEntries(await Promise.all(names.map(async (n) => [n, await readFile(`content/python/${n}.py`, 'utf8')] as const))));
 }

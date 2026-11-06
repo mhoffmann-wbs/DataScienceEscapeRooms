@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next';
 import { hintKey, type RunSync } from '../net/run';
 import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
-import { getPuzzle, isUnlocked, loadDataFile, loc, ROOMS } from '../rooms';
+import { getPuzzle, isUnlocked, loadSetup, loc, ROOMS } from '../rooms';
 import type { Puzzle } from '../rooms/manifest';
 import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
 import type { Plot, SqlTable } from '../runners/protocol';
@@ -47,14 +47,16 @@ interface Props {
 export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare, presence, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const { salt, packages } = ROOMS[roomId]!;
+  const { salt, packages, modules } = ROOMS[roomId]!;
   const state = useEmitterValue(run.events, 'state', () => run.state);
   const solved = puzzle.id in state.solved;
   const locked = !author && !isUnlocked(puzzle, state.solved);
   const workspace = puzzle.workspace === 'none' ? null : puzzle.workspace;
+  // Code that runs before the student's: the data file, plus the room's modules for Python.
+  const hasSetup = !!puzzle.data || (workspace === 'python' && modules.length > 0);
 
   const [code, setCode] = useState(() => loadDraft(roomId, puzzle, lang));
-  const [setup, setSetup] = useState<string | null>(puzzle.data ? null : '');
+  const [setup, setSetup] = useState<string | null>(hasSetup ? null : '');
   const [schema, setSchema] = useState<{ name: string; columns: string[] }[]>([]);
   const [runtimeReady, setRuntimeReady] = useState(workspace === null);
   const [output, setOutput] = useState<Output | null>(null);
@@ -85,8 +87,8 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
       .warmUp(workspace, ROOMS[roomId]!.packages)
       .then(() => !cancelled && setRuntimeReady(true))
       .catch((e: unknown) => !cancelled && setOutput({ kind: 'error', error: String(e) }));
-    if (puzzle.data)
-      void loadDataFile(roomId, puzzle.data).then(async (data) => {
+    if (hasSetup)
+      void loadSetup(roomId, puzzle).then(async (data) => {
         if (cancelled) return;
         setSetup(data);
         if (workspace === 'sql') {
@@ -97,7 +99,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
     return () => {
       cancelled = true;
     };
-  }, [roomId, puzzle.data, workspace]);
+  }, [roomId, puzzle, workspace, hasSetup]);
 
   const changeCode = useCallback(
     (value: string) => {

@@ -15,7 +15,7 @@ export interface Plot {
 export type PythonOutcome = { ok: true; stdout: string; check: string | null; plots: Plot[] } | { ok: false; stdout: string; error: string; plots: Plot[] };
 
 /** Modules imported once after loading a package, so the first student run doesn't pay for it (statsmodels takes seconds). */
-const PRELOAD: Record<string, string[]> = { statsmodels: ['statsmodels.api'] };
+const PRELOAD: Record<string, string[]> = { statsmodels: ['statsmodels.api'], scipy: ['scipy.optimize'] };
 
 /** Loads Pyodide packages (wheels from pyodide-lock.json) and pre-imports their heavy modules. Idempotent. */
 export async function loadPackages(py: PyodideAPI, packages: readonly string[]): Promise<void> {
@@ -109,6 +109,26 @@ for __name, __value in list(globals().items()):
         setattr(__sys.modules["helpers"], __name, __value)
 del __sys, __types, __name, __value
 `;
+
+/**
+ * Setup code that makes the given modules (name → Python source, from content/python/)
+ * importable, e.g. `from prophet import Prophet`. Goes before a puzzle's data file.
+ * Tracebacks name the module's file, so errors raised inside it read like a library's.
+ */
+export function moduleSetup(modules: Record<string, string>): string {
+  return Object.entries(modules)
+    .map(
+      ([name, source]) => `
+import sys as __sys, types as __types
+__module = __types.ModuleType(${JSON.stringify(name)})
+__module.__file__ = ${JSON.stringify(`${name}.py`)}
+__sys.modules[${JSON.stringify(name)}] = __module
+exec(compile(${JSON.stringify(source)}, ${JSON.stringify(`${name}.py`)}, "exec"), __module.__dict__)
+del __sys, __types, __module
+`,
+    )
+    .join('');
+}
 
 /**
  * Runs `setup` then the student's `code` in a fresh namespace and, if given, evaluates

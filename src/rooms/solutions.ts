@@ -10,6 +10,8 @@ export interface Engines {
   SQL: SqlJsStatic;
   py: PyodideAPI;
   readData: (file: string) => Promise<string>;
+  /** Setup code for the room's Python modules (`moduleSetup`), run before python puzzles' data files. */
+  modules?: string;
 }
 
 /**
@@ -27,7 +29,7 @@ export const solutionText = (solution: ReferenceSolution) => (typeof solution ==
  * For answers with code, the code must run and show the answer (in its output or result rows).
  */
 export async function canonicalSolution(puzzle: Puzzle, solution: ReferenceSolution, engines: Engines): Promise<string> {
-  const data = puzzle.data ? await engines.readData(puzzle.data) : '';
+  const data = (puzzle.workspace === 'python' ? (engines.modules ?? '') : '') + (puzzle.data ? await engines.readData(puzzle.data) : '');
   if (typeof solution !== 'string') await checkWorkedAnswer(puzzle, solution, data, engines);
   solution = solutionText(solution);
   switch (puzzle.check.type) {

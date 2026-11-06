@@ -10,6 +10,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
 import { manifestSchema } from '../src/rooms/manifest.ts';
 import { nodePyodide } from '../src/runners/nodePython.ts';
+import { moduleSetup } from '../src/runners/pythonCore.ts';
 import { solutionHash, type ReferenceSolution } from '../src/rooms/solutions.ts';
 
 const [roomId, flag] = process.argv.slice(2);
@@ -22,7 +23,7 @@ const raw = JSON.parse(await readFile(`${dir}/manifest.json`, 'utf8'));
 const manifest = manifestSchema.parse(raw);
 const solutions: Record<string, ReferenceSolution> = JSON.parse(await readFile(`${dir}/solutions.json`, 'utf8'));
 
-const engines = { SQL: await initSqlJs(), py: await nodePyodide(manifest.packages), readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8') };
+const engines = { SQL: await initSqlJs(), py: await nodePyodide(manifest.packages), readData: (f: string) => readFile(`${dir}/data/${f}`, 'utf8'), modules: await readModules(manifest.modules) };
 
 let mismatches = 0;
 for (const [i, puzzle] of manifest.puzzles.entries()) {
@@ -45,4 +46,9 @@ if (flag === '--write') {
 } else if (mismatches) {
   console.log(`${mismatches} hash(es) differ from the manifest; rerun with --write to update.`);
   process.exitCode = 1;
+}
+
+/** Setup code for a room's Python modules, read from content/python/. */
+async function readModules(names: readonly string[]): Promise<string> {
+  return moduleSetup(Object.fromEntries(await Promise.all(names.map(async (n) => [n, await readFile(`content/python/${n}.py`, 'utf8')] as const))));
 }

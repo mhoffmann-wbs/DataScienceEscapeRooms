@@ -47,24 +47,7 @@
     {
       "id": "timeseries",
       "icon": "📈",
-      "title": { "en": "Time series", "de": "Zeitreihen" },
-      "upcoming": [
-        {
-          "title": { "en": "Festival Season", "de": "Festivalsaison" },
-          "difficulty": "expert",
-          "about": {
-            "tools": ["Python", "pandas", "Prophet-style model"],
-            "practises": {
-              "en": "Trend changepoints, yearly and weekly seasonality, holiday effects, multiplicative seasonality, beating a baseline.",
-              "de": "Trend-Changepoints, jährliche und wöchentliche Saisonalität, Feiertagseffekte, multiplikative Saisonalität, eine Baseline schlagen."
-            },
-            "story": {
-              "en": "A city's festival planners lost their visitor forecast days before the season; rebuild it from daily ticket sales so the stages open in time.",
-              "de": "Das Planungsteam eines Stadtfestivals hat kurz vor der Saison seine Besucherprognose verloren; baut sie aus den täglichen Ticketverkäufen neu auf, damit die Bühnen rechtzeitig öffnen."
-            }
-          }
-        }
-      ]
+      "title": { "en": "Time series", "de": "Zeitreihen" }
     }
   ]
 }

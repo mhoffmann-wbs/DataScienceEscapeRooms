@@ -87,7 +87,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 
 ### 8b. Doors as room types ✅
 - Lobby doors stand for room types (🐍 Python, 🗄️ SQL, 📈 time series), with an icon sign above each.
-- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series). Move an entry from `upcoming` into a room manifest when it gets built.
+- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series, since built). Move an entry from `upcoming` into a room manifest when it gets built.
 
 ### 9. Polish
 - Replace the placeholder art with a CC0 tileset (e.g. Kenney) and proper character sprites.
@@ -123,7 +123,17 @@ Two intermediate rooms that share the classic preprocessing steps (missing-value
 
 Model families: AR in station 2, ARMA/ARIMA candidates and SARIMA in stations 5–6.
 
-**TS2 (Prophet):** Prophet can't run in the browser (it needs the Stan C++ toolchain, which Pyodide doesn't ship). Decided: a small Prophet-style model with Prophet's API names, clearly labelled as not the real library. Its scope, what it covers and what not, is in [docs/prophet-lite.md](prophet-lite.md); keep that page in sync when building it.
+**TS2 (Prophet):** Prophet can't run in the browser (it needs the Stan C++ toolchain, which Pyodide doesn't ship). Decided: a small Prophet-style model with Prophet's API names, clearly labelled as not the real library. Its scope, what it covers and what not, is in [docs/prophet-lite.md](prophet-lite.md); keep that page in sync. ✅ built as `content/python/prophet.py`, which rooms import through the manifest's `modules`.
+
+**TS2 "Festival Season"** ✅ content built (`ts-festival`, expert), playtest pending. (Festival grounds "Lindenwiese"; daily gate scans 2021 to September 2025.) The office's forecasting server died the week the stages for the Summer Festival 2026 must be ordered. Data are generated in the form of a multiplicative Prophet model (`generate_data.py`): a trend that bends when tram line 7 opens (2023-04-01), yearly and weekly seasonality, two events. Numbers below are from the reference solutions.
+1. **Gate scanner log** (Prophet format, missing values): build `df` with `ds`/`y`; the 14 outage days (recorded as 0) and 6 test bookings (exactly 9999) become empty, not interpolated. A threshold like `y > 5000` would also remove real festival days. Clue: IT note.
+2. **Tram counter** (changepoints; own dataset, open from the start): with automatic changepoints the largest `delta` sits next to the opening; refit with `changepoints=["2023-04-01"]` and read the trend growth per year before and after (≈ 70 vs 579 passengers a day). Clue: newspaper.
+3. **The planner's rule** (baselines; needs 1): holdout June to September 2025; naive 753, last week repeated 422, same day last year (`shift(364)`) 614. Clue: planning notebook.
+4. **Lighting desk** (seasonality mode, log; needs 1): holdout MAE additive 516, multiplicative 293, log 433. Clue: whiteboard quick reference.
+5. **Events desk** (holidays; needs 1): holidays table from the calendar, with windows (opening Fri to Sun: 0..2; Lantern Night with its rehearsal: -1..0) and 2026 dates; the opening Saturday's effect ≈ +204 % of the trend. Clue: event calendar.
+6. **Stage order** (final; needs 2 to 5): multiplicative + holidays + changepoint beats 422 on the holdout (204) and forecasts 19,078 visitors for the 2026 opening weekend (±5 % accepted; automatic changepoints give 19,364). Mistakes land far off: no 2026 dates 10,712, no holidays 12,365, additive 13,345, log 22,141.
+
+Model fit: the Prophet-style model fits by Gauss-Newton with exact non-negative least squares steps instead of L-BFGS, which stalled on the collinear changepoint ramps and gave platform-dependent results; now CPython and Pyodide agree.
 
 ### 11. Playtest fixes (November 2026) ✅
 Observations from the first playthroughs.
