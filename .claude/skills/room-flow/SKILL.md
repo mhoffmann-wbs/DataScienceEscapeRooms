@@ -57,6 +57,7 @@ Use a Mermaid `flowchart LR` (GitHub renders it; in VS Code the preview needs a 
 
 - Nodes: station `["n · Title<br/>practises, short"]`; locked station title ends in 🔒; clue `[/"🔎 Title"/]`; data `[("file.py<br/>variables")]`; final lock `{{"n · Title<br/>final code …"}}`; intro `(["Intro · …"])`. Node ids are the manifest ids (clue ids without dashes); data nodes `d_<puzzleId>`.
 - Edges: `==>` a result, lock code or final digit moving between stations; `-->` a hard clue or data file; `-.->` a soft one. Prefix each label with the kind's emoji. Quote labels: `A ==>|"📤 …"| B`.
+- `requires`: when it sits on an edge where knowledge already travels, keep that edge's style and add ` ⛓` to the end of its label. When it moves no knowledge, draw it as `A --o|"⛓ requires"| B`. A station that `requires` waits on is styled `locked` like a code-locked one. Add both to the legend.
 - Group stations in `subgraph`s by phase: open from the start, open once an earlier result or code is in hand, final. Leave clues and data outside the subgraphs.
 - Style with `classDef` for station, locked, clue, data, final and intro, using mid-tone fills with dark text so it reads on light and dark GitHub themes (copy the classDefs from the stats-fair example).
 

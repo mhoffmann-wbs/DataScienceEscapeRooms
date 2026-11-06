@@ -199,5 +199,5 @@ Add new ideas here before they move into a step.
 - **Scoreboard export:** let the instructor export and import the scoreboard as JSON from the panel, as a backup that doesn't depend on returning browsers.
 - **Retrofit older rooms:** replace `requires` in the first five rooms with result dependencies (`uses`) or code locks, as the statistics rooms do.
 - **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
-- **Room flows for the other rooms:** run the `room-flow` skill for the six rooms besides `stats-fair`, and act on the findings in [flows/stats-fair.md](flows/stats-fair.md) (soft clues, the unchecked handbook rule).
+- **Act on the room flows' findings:** every page in [flows/](flows/) ends with findings: soft clues whose values are already in the task text, `requires` that move no knowledge (starters that already contain the earlier station's code), unused clues, and too few open stations at the start (`ts-nordlys`: 2). Merges with "Retrofit older rooms" below.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.
