@@ -1,20 +1,28 @@
 import { z } from 'zod';
-import { AVATAR_COUNT } from '../game/avatars';
+import { legacyLook, lookSchema } from '../game/avatars';
 
 export const profileSchema = z.object({
   nickname: z.string().trim().min(1).max(20),
-  avatar: z.number().int().min(0).max(AVATAR_COUNT - 1),
+  look: lookSchema,
 });
 
 export type Profile = z.infer<typeof profileSchema>;
 
 const STORAGE_KEY = 'dser.profile';
 
+/** Profiles saved before looks could be customized name one of twelve fixed avatars. */
+const storedSchema = z.preprocess((raw) => {
+  if (raw && typeof raw === 'object' && !('look' in raw) && 'avatar' in raw && typeof raw.avatar === 'number') {
+    return { ...raw, look: legacyLook(raw.avatar) };
+  }
+  return raw;
+}, profileSchema);
+
 export function loadProfile(): Profile | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = profileSchema.safeParse(JSON.parse(raw));
+    const parsed = storedSchema.safeParse(JSON.parse(raw));
     return parsed.success ? parsed.data : null;
   } catch {
     return null;

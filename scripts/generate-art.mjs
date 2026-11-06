@@ -1,4 +1,4 @@
-// Generates the game's pixel art: the tileset and the avatar sprite sheet. All of it is drawn
+// Generates the game's pixel art: the tileset and the avatar parts sheet. All of it is drawn
 // here, so it is ours to license (CC0, like the rest of the repo's art).
 // Usage: node scripts/generate-art.mjs
 // The avatar layout here must match src/game/avatars.ts. Tile indices are referenced by the
@@ -943,30 +943,34 @@ drawTile(53, (g, { obj, shadow }) => {
   });
 });
 
-// --- Avatars: rows = avatars, columns = direction x 3 frames (idle, step, step) ---
-// Directions in order: down, left, right, up (see src/game/avatars.ts).
-const SKIN = [[250, 218, 186], [236, 190, 150], [204, 150, 108], [160, 106, 70], [118, 76, 50]];
-const AVATARS = [
-  { skin: 0, hair: [70, 46, 32], style: 'short', shirt: [46, 170, 150], pants: [52, 56, 82] },
-  { skin: 1, hair: [214, 162, 70], style: 'long', shirt: [232, 110, 92], pants: [64, 80, 130] },
-  { skin: 3, hair: [30, 28, 36], style: 'curly', shirt: [140, 100, 212], pants: [48, 48, 60] },
-  { skin: 1, hair: [150, 62, 40], style: 'ponytail', shirt: [234, 192, 62], pants: [70, 90, 150] },
-  { skin: 4, hair: [24, 22, 28], style: 'short', shirt: [70, 150, 232], pants: [120, 96, 70], glasses: true },
-  { skin: 0, hair: [220, 220, 226], style: 'bun', shirt: [130, 200, 82], pants: [60, 60, 76] },
-  { skin: 2, hair: [40, 30, 28], style: 'long', shirt: [220, 80, 140], pants: [44, 46, 64] },
-  { skin: 2, hair: [88, 58, 36], style: 'cap', shirt: [96, 110, 128], pants: [52, 70, 110], cap: [210, 60, 60] },
-  { skin: 3, hair: [52, 36, 30], style: 'bun', shirt: [250, 150, 60], pants: [70, 64, 60], glasses: true },
-  { skin: 1, hair: [110, 70, 40], style: 'curly', shirt: [60, 120, 90], pants: [180, 160, 120] },
-  { skin: 4, hair: [36, 28, 30], style: 'ponytail', shirt: [240, 240, 236], pants: [60, 80, 130] },
-  { skin: 0, hair: [200, 90, 40], style: 'short', shirt: [180, 60, 70], pants: [50, 50, 66], glasses: true },
-];
+// --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
+// Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
+// Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:
+// hair [v, 0, 0], shirt [0, v, 0], trousers [0, 0, v], skin [v, 0, v]. The game swaps them for the
+// player's colours (recolorParts in src/game/avatars.ts). Every fixed colour has all three channels
+// above zero, so it can't be taken for a marker. The order of the styles must match avatars.ts.
+const HAIR_STYLES = ['short', 'long', 'curly', 'ponytail', 'bun'];
+const SHIRT_STYLES = ['tshirt', 'longsleeve', 'striped', 'hoodie', 'jacket'];
+/** Overlays drawn over the body; 'none' needs no row. */
+const ACCESSORIES = ['glasses', 'cap', 'headphones', 'goggles'];
+const marker = (channels) => (f = 1) => channels.map((c) => c * Math.round(f * 100));
+const hair = marker([1, 0, 0]);
+const shirt = marker([0, 1, 0]);
+const pants = marker([0, 0, 1]);
+const skin = marker([1, 0, 1]);
 const DIRS = ['down', 'left', 'right', 'up'];
 const GLASSES = [90, 130, 200];
+const WHITE = [236, 236, 230];
+const STRAP = [62, 62, 74];
+const BAND = [128, 132, 148];
+const CUP = [214, 72, 84];
+const LENS = [170, 220, 236];
+const GOGGLE_FRAME = [226, 232, 238];
+const EYE = [34, 30, 40];
 const FRAMES = 3;
 
 /** Draws one avatar frame facing down, left or up (right is left mirrored). */
 function drawAvatar(o, a, dir, frame) {
-  const skin = SKIN[a.skin];
   const bob = frame === 0 ? 0 : -1;
   const step = frame === 0 ? 0 : frame === 1 ? 1 : -1;
   const shoe = [44, 38, 40];
@@ -975,114 +979,135 @@ function drawAvatar(o, a, dir, frame) {
 
   // legs and shoes
   if (side) {
-    o.rect(14 - step * 2, 23 + y0, 3, 6, sh(a.pants, 0.85));
-    o.rect(15 + step * 2, 23 + y0, 3, 6, a.pants);
+    o.rect(14 - step * 2, 23 + y0, 3, 6, pants(0.85));
+    o.rect(15 + step * 2, 23 + y0, 3, 6, pants());
     o.rect(13 - step * 2, 28 + y0, 4, 2, shoe);
     o.rect(14 + step * 2, 28 + y0, 4, 2, shoe);
   } else {
     const lift = (l) => (step === l ? 1 : 0);
-    o.rect(12, 23 + y0, 3, 6 - lift(1), a.pants);
-    o.rect(17, 23 + y0, 3, 6 - lift(-1), sh(a.pants, 0.9));
+    o.rect(12, 23 + y0, 3, 6 - lift(1), pants());
+    o.rect(17, 23 + y0, 3, 6 - lift(-1), pants(0.9));
     o.rect(12, 28 + y0 - lift(1), 3, 2, shoe);
     o.rect(17, 28 + y0 - lift(-1), 3, 2, shoe);
   }
   // torso
   const tx = side ? 12 : 10;
   const tw = side ? 9 : 12;
-  o.rect(tx, 15 + y0, tw, 9, a.shirt);
-  o.rect(tx, 15 + y0, tw, 1, sh(a.shirt, 1.2));
-  o.rect(tx + tw - 2, 16 + y0, 2, 8, sh(a.shirt, 0.82));
-  o.rect(tx, 23 + y0, tw, 1, sh(a.shirt, 0.75));
-  if (dir === 'down') o.rect(15, 15 + y0, 2, 2, skin);
-  // arms
+  o.rect(tx, 15 + y0, tw, 9, shirt());
+  o.rect(tx, 15 + y0, tw, 1, shirt(1.2));
+  o.rect(tx + tw - 2, 16 + y0, 2, 8, shirt(0.82));
+  o.rect(tx, 23 + y0, tw, 1, shirt(0.75));
+  if (a.shirt === 'striped') for (const y of [17, 19, 21]) o.rect(tx, y + y0, tw, 1, WHITE);
+  if (a.shirt === 'hoodie') {
+    if (dir === 'down') {
+      o.rect(13, 20 + y0, 6, 3, shirt(0.8));
+      o.set(14, 16 + y0, WHITE);
+      o.set(14, 17 + y0, WHITE);
+      o.set(17, 16 + y0, WHITE);
+      o.set(17, 17 + y0, WHITE);
+    } else if (side) o.rect(tx + 1, 20 + y0, 4, 3, shirt(0.8));
+  }
+  if (a.shirt === 'jacket') {
+    if (dir === 'down') {
+      o.rect(14, 15 + y0, 4, 8, WHITE);
+      o.rect(13, 15 + y0, 1, 5, shirt(0.7));
+      o.rect(18, 15 + y0, 1, 5, shirt(0.7));
+    } else if (side) o.rect(tx, 15 + y0, 2, 8, WHITE);
+  }
+  if (dir === 'down') o.rect(15, 15 + y0, 2, 2, skin());
+  // arms: short sleeves show the skin below them
+  const sleeve = a.shirt === 'tshirt' ? 2 : 6;
+  const arm = (x, y, w, f) => {
+    o.rect(x, y, w, 6, skin(f));
+    o.rect(x, y, w, sleeve, shirt(0.9 * f));
+    if (a.shirt === 'striped') o.rect(x, y + 2, w, 1, WHITE);
+  };
   if (side) {
-    o.rect(15 + step * 2, 16 + y0, 3, 6, sh(a.shirt, 0.9));
-    o.rect(15 + step * 2, 22 + y0, 3, 2, skin);
+    arm(15 + step * 2, 16 + y0, 3, 1);
+    o.rect(15 + step * 2, 22 + y0, 3, 2, skin());
   } else {
-    o.rect(8, 16 + y0 + (step === 1 ? 1 : 0), 2, 6, sh(a.shirt, 0.9));
-    o.rect(22, 16 + y0 + (step === -1 ? 1 : 0), 2, 6, sh(a.shirt, 0.8));
-    o.rect(8, 22 + y0 + (step === 1 ? 1 : 0), 2, 2, skin);
-    o.rect(22, 22 + y0 + (step === -1 ? 1 : 0), 2, 2, sh(skin, 0.9));
+    arm(8, 16 + y0 + (step === 1 ? 1 : 0), 2, 1);
+    arm(22, 16 + y0 + (step === -1 ? 1 : 0), 2, 0.9);
+    o.rect(8, 22 + y0 + (step === 1 ? 1 : 0), 2, 2, skin());
+    o.rect(22, 22 + y0 + (step === -1 ? 1 : 0), 2, 2, skin(0.9));
   }
 
   // head
   const hx = side ? 15 : 16;
   const hy = 9 + y0;
-  o.ellipse(hx, hy, 7.5, 7, skin);
-  for (let j = -4; j < 6; j++) o.set(hx + (side ? -7 : 6), hy + j, sh(skin, 0.88));
-  const hair = a.hair;
-  const hairHi = sh(hair, 1.35);
+  o.ellipse(hx, hy, 7.5, 7, skin());
+  // shade the far edge (seen from the side, that edge is hair)
+  if (!side) for (let j = -4; j < 6; j++) o.set(hx + 6, hy + j, skin(0.88));
+  // a hoodie's hood lies on the back of the neck
+  if (a.shirt === 'hoodie' && dir === 'up') o.ellipse(hx, hy + 6, 6.5, 2.5, shirt(0.85));
+  if (a.shirt === 'hoodie' && side) o.ellipse(hx + 6, hy + 6, 3, 2.5, shirt(0.85));
 
-  if (a.style === 'long' || a.style === 'ponytail' || a.style === 'bun' || a.style === 'curly') {
-    if (dir === 'up' && a.style === 'long') o.rect(hx - 7, hy, 15, 9, hair);
-    if (dir !== 'up' && a.style === 'long') {
-      if (side) o.rect(hx + 1, hy - 2, 7, 11, hair);
-      else {
-        o.rect(hx - 8, hy - 2, 3, 11, hair);
-        o.rect(hx + 5, hy - 2, 3, 11, hair);
-      }
+  if (a.hair === 'long') {
+    if (dir === 'up') o.rect(hx - 7, hy, 15, 9, hair());
+    else if (side) o.rect(hx + 1, hy - 2, 7, 11, hair());
+    else {
+      o.rect(hx - 8, hy - 2, 3, 11, hair());
+      o.rect(hx + 5, hy - 2, 3, 11, hair());
     }
   }
   // hair cap over the head
   if (dir === 'up') {
-    o.ellipse(hx, hy - 0.5, 7.5, 7.5, hair);
-    o.ellipse(hx - 2, hy - 4, 3, 1.5, hairHi);
+    o.ellipse(hx, hy - 0.5, 7.5, 7.5, hair());
+    o.ellipse(hx - 2, hy - 4, 3, 1.5, hair(1.35));
   } else if (side) {
-    o.ellipse(hx + 1, hy - 4, 7, 4, hair);
-    o.rect(hx + 1, hy - 4, 7, 7, hair);
-    o.rect(hx - 6, hy - 4, 4, 2, hair);
-    o.rect(hx - 1, hy - 6, 4, 1, hairHi);
+    o.ellipse(hx + 1, hy - 4, 7, 4, hair());
+    o.rect(hx + 1, hy - 4, 7, 7, hair());
+    o.rect(hx - 6, hy - 4, 4, 2, hair());
+    o.rect(hx - 1, hy - 6, 4, 1, hair(1.35));
   } else {
-    o.ellipse(hx, hy - 4, 7.5, 4, hair);
-    o.rect(hx - 7, hy - 4, 2, 5, hair);
-    o.rect(hx + 5, hy - 4, 2, 5, hair);
-    o.rect(hx - 3, hy - 3, 5, 1, hair);
-    o.rect(hx - 3, hy - 6, 4, 1, hairHi);
+    o.ellipse(hx, hy - 4, 7.5, 4, hair());
+    o.rect(hx - 7, hy - 4, 2, 5, hair());
+    o.rect(hx + 5, hy - 4, 2, 5, hair());
+    o.rect(hx - 3, hy - 3, 5, 1, hair());
+    o.rect(hx - 3, hy - 6, 4, 1, hair(1.35));
   }
-  if (a.style === 'curly') {
+  if (a.hair === 'curly') {
     const pts = dir === 'up' ? [[-7, 2], [6, 2], [-5, 5], [4, 5], [-1, 6]] : side ? [[6, 2], [5, 5], [-6, -4]] : [[-8, 0], [7, 0], [-8, 3], [7, 3]];
-    for (const [dx, dy] of pts) o.ellipse(hx + dx + 0.5, hy + dy, 2.2, 2.2, hair);
-    o.ellipse(hx, hy - 6, 6, 2.5, hair);
+    for (const [dx, dy] of pts) o.ellipse(hx + dx + 0.5, hy + dy, 2.2, 2.2, hair());
+    o.ellipse(hx, hy - 6, 6, 2.5, hair());
   }
-  if (a.style === 'ponytail') {
-    if (dir === 'up') o.rect(hx - 1, hy + 3, 3, 8, sh(hair, 0.85));
-    else if (side) o.rect(hx + 7, hy - 1, 3, 8, hair);
+  if (a.hair === 'ponytail') {
+    if (dir === 'up') o.rect(hx - 1, hy + 3, 3, 8, hair(0.85));
+    else if (side) o.rect(hx + 7, hy - 1, 3, 8, hair());
   }
-  if (a.style === 'bun') {
-    if (dir === 'down') o.ellipse(hx, hy - 7, 3, 2.5, hair);
-    else if (dir === 'up') o.ellipse(hx, hy - 5, 3.5, 3, sh(hair, 0.85));
-    else o.ellipse(hx + 6, hy - 5, 3, 3, hair);
-  }
-  if (a.style === 'cap') {
-    if (dir === 'up') o.ellipse(hx, hy - 2, 7.5, 5.5, a.cap);
-    else if (side) {
-      o.ellipse(hx + 1, hy - 3, 7, 4.5, a.cap);
-      o.rect(hx - 9, hy - 2, 6, 2, sh(a.cap, 0.8));
-    } else {
-      o.ellipse(hx, hy - 3, 7.5, 4.5, a.cap);
-      o.rect(hx - 6, hy - 1, 12, 2, sh(a.cap, 0.8));
-    }
-    o.set(hx - 2, hy - 6, sh(a.cap, 1.3));
+  if (a.hair === 'bun') {
+    if (dir === 'down') o.ellipse(hx, hy - 7, 3, 2.5, hair());
+    else if (dir === 'up') o.ellipse(hx, hy - 5, 3.5, 3, hair(0.85));
+    else o.ellipse(hx + 6, hy - 5, 3, 3, hair());
   }
 
   // face
   if (dir === 'up') return;
-  const eye = [34, 30, 40];
   if (side) {
-    o.rect(hx - 4, hy + 1, 1, 2, eye);
-    o.set(hx - 6, hy + 4, sh(skin, 0.8));
+    o.rect(hx - 4, hy + 1, 1, 2, EYE);
+    o.set(hx - 6, hy + 4, skin(0.8));
     o.set(hx - 3, hy + 4, [236, 140, 140]);
-    if (a.glasses) {
-      o.rect(hx - 6, hy, 4, 1, GLASSES);
-      o.rect(hx - 2, hy, 4, 1, GLASSES);
-    }
   } else {
-    o.rect(hx - 3, hy + 1, 1, 2, eye);
-    o.rect(hx + 2, hy + 1, 1, 2, eye);
+    o.rect(hx - 3, hy + 1, 1, 2, EYE);
+    o.rect(hx + 2, hy + 1, 1, 2, EYE);
     o.set(hx - 5, hy + 3, [240, 150, 150]);
     o.set(hx + 4, hy + 3, [240, 150, 150]);
-    o.rect(hx - 1, hy + 4, 2, 1, sh(skin, 0.7));
-    if (a.glasses) {
+    o.rect(hx - 1, hy + 4, 2, 1, skin(0.7));
+  }
+}
+
+
+/** Draws an accessory for one frame, positioned like drawAvatar's head. The cap takes the top's colour. */
+function drawAccessory(o, kind, dir, frame) {
+  const side = dir === 'left';
+  const hx = side ? 15 : 16;
+  const hy = 9 + (frame === 0 ? 0 : -1);
+  if (kind === 'glasses') {
+    if (dir === 'up') return;
+    if (side) {
+      o.rect(hx - 6, hy, 4, 1, GLASSES);
+      o.rect(hx - 2, hy, 4, 1, GLASSES);
+    } else {
       o.rect(hx - 5, hy, 4, 1, GLASSES);
       o.rect(hx + 1, hy, 4, 1, GLASSES);
       o.rect(hx - 1, hy, 2, 1, GLASSES);
@@ -1090,25 +1115,73 @@ function drawAvatar(o, a, dir, frame) {
       o.set(hx + 4, hy + 1, GLASSES);
     }
   }
+  if (kind === 'cap') {
+    if (dir === 'up') o.ellipse(hx, hy - 2, 7.5, 5.5, shirt());
+    else if (side) {
+      o.ellipse(hx + 1, hy - 3, 7, 4.5, shirt());
+      o.rect(hx - 9, hy - 2, 6, 2, shirt(0.8));
+    } else {
+      o.ellipse(hx, hy - 3, 7.5, 4.5, shirt());
+      o.rect(hx - 6, hy - 1, 12, 2, shirt(0.8));
+    }
+    o.set(hx - 2, hy - 6, shirt(1.3));
+  }
+  if (kind === 'headphones') {
+    if (side) {
+      o.rect(hx, hy - 9, 2, 8, BAND);
+      o.ellipse(hx + 1, hy + 1, 2.5, 3, CUP);
+      o.set(hx, hy, sh(CUP, 1.3));
+    } else {
+      // the band arcs over the head from ear to ear: the top half of a ring
+      for (let y = hy - 10; y < hy; y++)
+        for (let x = hx - 9; x <= hx + 9; x++) {
+          const d = Math.hypot(x + 0.5 - hx, y + 0.5 - (hy - 0.5));
+          if (d > 7.6 && d <= 8.8) o.set(x, y, BAND);
+        }
+      o.rect(hx - 10, hy - 1, 3, 5, CUP);
+      o.rect(hx + 8, hy - 1, 3, 5, sh(CUP, 0.85));
+    }
+  }
+  if (kind === 'goggles') {
+    if (dir === 'up') o.rect(hx - 7, hy + 1, 15, 2, STRAP);
+    else if (side) {
+      o.rect(hx - 2, hy + 1, 9, 1, STRAP);
+      o.rect(hx - 7, hy - 1, 5, 5, GOGGLE_FRAME);
+      o.rect(hx - 6, hy, 3, 3, LENS);
+      o.rect(hx - 4, hy + 1, 1, 2, EYE);
+    } else {
+      o.rect(hx - 8, hy + 1, 16, 1, STRAP);
+      o.rect(hx - 6, hy - 1, 13, 5, GOGGLE_FRAME);
+      o.rect(hx - 5, hy, 11, 3, LENS);
+      o.rect(hx - 4, hy, 3, 1, sh(LENS, 1.4));
+      o.rect(hx - 3, hy + 1, 1, 2, EYE);
+      o.rect(hx + 2, hy + 1, 1, 2, EYE);
+    }
+  }
 }
 
-const sheet = canvas(DIRS.length * FRAMES * T, AVATARS.length * T);
-AVATARS.forEach((a, row) => {
+const BODIES = HAIR_STYLES.flatMap((hair) => SHIRT_STYLES.map((shirt) => ({ hair, shirt })));
+const sheet = canvas(DIRS.length * FRAMES * T, (BODIES.length + ACCESSORIES.length) * T);
+/** Fills one sheet row; `draw(o, dir, frame)` draws a frame facing down, left or up. */
+function sheetRow(row, draw, { shadow = false, outline = true } = {}) {
   DIRS.forEach((dir, d) => {
     for (let f = 0; f < FRAMES; f++) {
       const frame = canvas(T, T);
-      const body = canvas(T, T);
-      drawAvatar(body, a, dir === 'right' ? 'left' : dir, f);
-      body.outline();
-      frame.ellipse(16, 29.5, 7, 2, [0, 0, 0, 70]);
-      frame.paste(body, 0, 0, dir === 'right');
+      const part = canvas(T, T);
+      draw(part, dir === 'right' ? 'left' : dir, f);
+      if (outline) part.outline();
+      if (shadow) frame.ellipse(16, 29.5, 7, 2, [0, 0, 0, 70]);
+      frame.paste(part, 0, 0, dir === 'right');
       sheet.paste(frame, (d * FRAMES + f) * T, row * T);
     }
   });
-});
+}
+BODIES.forEach((a, row) => sheetRow(row, (o, dir, f) => drawAvatar(o, a, dir, f), { shadow: true }));
+// glasses and goggles sit on the face, where an outline would smudge it
+ACCESSORIES.forEach((kind, i) => sheetRow(BODIES.length + i, (o, dir, f) => drawAccessory(o, kind, dir, f), { outline: kind === 'cap' || kind === 'headphones' }));
 
 mkdirSync('content/tilesets', { recursive: true });
 mkdirSync('content/sprites', { recursive: true });
 writeFileSync('content/tilesets/tiles.png', png(tiles));
-writeFileSync('content/sprites/avatars.png', png(sheet));
-console.log('wrote content/tilesets/tiles.png and content/sprites/avatars.png');
+writeFileSync('content/sprites/avatar-parts.png', png(sheet));
+console.log('wrote content/tilesets/tiles.png and content/sprites/avatar-parts.png');

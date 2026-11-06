@@ -1,3 +1,4 @@
+import type { Look } from '../game/avatars';
 import { Emitter } from '../lib/emitter';
 import type { Proximity } from './proximity';
 import { CHANNELS, helloSchema, posSchema, type Hello, type Pos } from './protocol';
@@ -6,7 +7,7 @@ import type { NetRoom } from './transport';
 export interface PeerInfo extends Pos {
   id: string;
   nickname: string;
-  avatar: number;
+  look: Look;
   /** The roomId they are playing in, if not on this map (lobby only). */
   away: string | null;
 }
@@ -24,7 +25,7 @@ export const POS_INTERVAL_MS = 100;
 
 /**
  * Who is in a NetRoom and where. A peer only appears after its hello arrives,
- * so every PeerInfo has a name, avatar and position.
+ * so every PeerInfo has a name, look and position.
  */
 export class Presence {
   readonly events = new Emitter<PresenceEvents>();
@@ -40,7 +41,7 @@ export class Presence {
 
   constructor(
     private readonly room: NetRoom,
-    private readonly me: { nickname: string; avatar: number },
+    private readonly me: { nickname: string; look: Look },
   ) {
     this.hello = room.channel<Hello>(CHANNELS.hello);
     this.pos = room.channel<Pos>(CHANNELS.pos);
@@ -135,7 +136,7 @@ export class Presence {
   }
 
   private helloPayload(pos: Pos): Hello {
-    return { ...pos, nickname: this.me.nickname, avatar: this.me.avatar, away: this.away };
+    return { ...pos, nickname: this.me.nickname, look: this.me.look, away: this.away };
   }
 
   private markSent(state: Pos, now: number): void {

@@ -41,12 +41,12 @@ export function PeoplePanel({ presence, self, heading, aloneText, onGoTo }: Prop
       {open && (
         <ul>
           <li>
-            <AvatarPreview avatar={self.avatar} scale={1} />
+            <AvatarPreview look={self.look} scale={1} />
             {self.nickname} <span className="muted">{t('people.you')}</span>
           </li>
           {peers.map((p) => (
             <li key={p.id} className={menu === p.id ? 'menu-open' : undefined}>
-              <AvatarPreview avatar={p.avatar} scale={1} />
+              <AvatarPreview look={p.look} scale={1} />
               {onGoTo ? (
                 <button type="button" className="link-button" aria-expanded={menu === p.id} onClick={() => setMenu(menu === p.id ? null : p.id)}>
                   {p.nickname}

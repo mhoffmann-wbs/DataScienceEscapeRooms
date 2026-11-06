@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { legacyLook } from '../game/avatars';
 import { bus } from '../game/events';
 import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
@@ -21,7 +22,7 @@ import { LanguageSwitch } from './LanguageSwitch';
 import { useEmitterValue } from './useStore';
 import { World, type Place } from './World';
 
-const AUTHOR_PROFILE: Profile = { nickname: 'Author', avatar: 0 };
+const AUTHOR_PROFILE: Profile = { nickname: 'Author', look: legacyLook(0)! };
 const LOBBY_AREAS = parseMapObjects(tiledMapSchema.parse(MAPS[LOBBY])).areas;
 
 /**
@@ -190,7 +191,7 @@ export function App() {
           {lobby && INSTRUCTOR_CONFIG && <InstructorButton lobby={lobby} unlocked={!!instructorKey} onOpen={() => setInstructorOpen(true)} />}
           {place && (
             <button type="button" onClick={() => setPlace(null)}>
-              {t('lobby.changeProfile')}
+              {t('lobby.profile')}
             </button>
           )}
           <LanguageSwitch />

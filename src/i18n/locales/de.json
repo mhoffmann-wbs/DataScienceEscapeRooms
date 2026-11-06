@@ -9,7 +9,52 @@
     "title": "Lobby betreten",
     "nickname": "Spitzname",
     "avatar": "Avatar",
-    "avatarOption": "Avatar {{n}}",
+    "look": {
+      "skin": "Haut",
+      "hairStyle": "Frisur",
+      "hairColor": "Haarfarbe",
+      "shirtStyle": "Oberteil",
+      "shirtColor": "Farbe Oberteil",
+      "pantsColor": "Hose",
+      "accessory": "Accessoire",
+      "random": "Zufällig",
+      "options": {
+        "skin1": "Hautton 1",
+        "skin2": "Hautton 2",
+        "skin3": "Hautton 3",
+        "skin4": "Hautton 4",
+        "skin5": "Hautton 5",
+        "short": "Kurz",
+        "long": "Lang",
+        "curly": "Lockig",
+        "ponytail": "Pferdeschwanz",
+        "bun": "Dutt",
+        "black": "Schwarz",
+        "brown": "Braun",
+        "ginger": "Rot",
+        "blonde": "Blond",
+        "silver": "Silber",
+        "tshirt": "T-Shirt",
+        "longsleeve": "Langarm",
+        "striped": "Gestreift",
+        "hoodie": "Kapuzenpulli",
+        "jacket": "Jacke",
+        "teal": "Petrol",
+        "coral": "Koralle",
+        "purple": "Lila",
+        "yellow": "Gelb",
+        "blue": "Blau",
+        "denim": "Jeans",
+        "charcoal": "Anthrazit",
+        "khaki": "Khaki",
+        "olive": "Oliv",
+        "none": "Keins",
+        "glasses": "Brille",
+        "cap": "Kappe",
+        "headphones": "Kopfhörer",
+        "goggles": "Schutzbrille"
+      }
+    },
     "submit": "Lobby betreten",
     "errors": {
       "nickname": "Gib einen Spitznamen mit 1–20 Zeichen ein."
@@ -18,7 +63,7 @@
   "lobby": {
     "controls": "Bewegen: WASD oder Pfeiltasten · Türen und Objekte benutzen: E · Chat: Enter, Esc zum Verlassen",
     "doorPrompt": "Drücke E, um ein Szenario zu wählen und ein Team zu bilden",
-    "changeProfile": "Profil ändern"
+    "profile": "Profil"
   },
   "settings": {
     "language": "Sprache"

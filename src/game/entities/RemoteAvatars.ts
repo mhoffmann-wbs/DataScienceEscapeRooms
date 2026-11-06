@@ -74,7 +74,7 @@ export class RemoteAvatars {
   /** Players away in a room stay connected but aren't drawn on the map. */
   private add(peer: PeerInfo): void {
     if (this.remotes.has(peer.id) || peer.away) return;
-    const avatar = new Avatar(this.scene, peer.x, peer.y, peer.avatar, peer.nickname);
+    const avatar = new Avatar(this.scene, peer.x, peer.y, peer.look, peer.nickname);
     avatar.setInstructor(this.instructors.has(peer.id));
     this.remotes.set(peer.id, { avatar, peer });
   }

@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
+import { legacyLook } from '../game/avatars';
 import { createMemoryTransport, MemoryHub } from './memoryTransport';
 import { POS_INTERVAL_MS } from './presence';
 import type { Area } from './proximity';
 import { NEARBY_RADIUS, Session } from './session';
 
+const LOOK = legacyLook(1)!;
+
 function player(hub: MemoryHub, id: string, x = 0, y = 0, areas: readonly Area[] = []) {
-  const s = new Session(createMemoryTransport(hub, id), 'lobby', { nickname: id, avatar: 0 }, areas);
+  const s = new Session(createMemoryTransport(hub, id), 'lobby', { nickname: id, look: LOOK }, areas);
   s.presence.updateSelf({ x, y, dir: 'down', moving: false }, 0);
   return s;
 }
@@ -21,16 +24,16 @@ describe('presence', () => {
 
   it('greets a peer that joined before our position was known', () => {
     const hub = new MemoryHub();
-    const ada = new Session(createMemoryTransport(hub, 'ada'), 'lobby', { nickname: 'ada', avatar: 1 });
+    const ada = new Session(createMemoryTransport(hub, 'ada'), 'lobby', { nickname: 'ada', look: LOOK });
     const bob = player(hub, 'bob');
     expect(bob.presence.list()).toEqual([]);
     ada.presence.updateSelf({ x: 5, y: 5, dir: 'up', moving: false }, 0);
-    expect(bob.presence.get('ada')).toMatchObject({ nickname: 'ada', avatar: 1, dir: 'up' });
+    expect(bob.presence.get('ada')).toMatchObject({ nickname: 'ada', look: LOOK, dir: 'up' });
   });
 
   it('keeps password-protected rooms apart from anyone without the password', () => {
     const hub = new MemoryHub();
-    const join = (id: string, password?: string) => new Session(createMemoryTransport(hub, id), 'room:x:t', { nickname: id, avatar: 0 }, [], 'team', password);
+    const join = (id: string, password?: string) => new Session(createMemoryTransport(hub, id), 'room:x:t', { nickname: id, look: LOOK }, [], 'team', password);
     const ada = join('ada', 'secret');
     const bob = join('bob', 'secret');
     const eve = join('eve', 'guess');
@@ -57,7 +60,7 @@ describe('presence', () => {
     const ada = player(hub, 'ada');
     const bob = player(hub, 'bob');
     const evil = createMemoryTransport(hub, 'evil', 'DS-01').join('lobby');
-    evil.channel('hello').send({ nickname: '', avatar: 99, x: 'a' });
+    evil.channel('hello').send({ nickname: '', look: { skin: 99 }, x: 'a' });
     evil.channel('pos').send({ x: Infinity });
     expect(ada.presence.list().map((p) => p.id)).toEqual(['bob']);
     bob.leave();

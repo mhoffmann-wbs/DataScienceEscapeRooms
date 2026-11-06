@@ -9,7 +9,52 @@
     "title": "Join the lobby",
     "nickname": "Nickname",
     "avatar": "Avatar",
-    "avatarOption": "Avatar {{n}}",
+    "look": {
+      "skin": "Skin",
+      "hairStyle": "Hair",
+      "hairColor": "Hair colour",
+      "shirtStyle": "Top",
+      "shirtColor": "Top colour",
+      "pantsColor": "Trousers",
+      "accessory": "Accessory",
+      "random": "Random",
+      "options": {
+        "skin1": "Skin tone 1",
+        "skin2": "Skin tone 2",
+        "skin3": "Skin tone 3",
+        "skin4": "Skin tone 4",
+        "skin5": "Skin tone 5",
+        "short": "Short",
+        "long": "Long",
+        "curly": "Curly",
+        "ponytail": "Ponytail",
+        "bun": "Bun",
+        "black": "Black",
+        "brown": "Brown",
+        "ginger": "Ginger",
+        "blonde": "Blonde",
+        "silver": "Silver",
+        "tshirt": "T-shirt",
+        "longsleeve": "Long sleeves",
+        "striped": "Striped",
+        "hoodie": "Hoodie",
+        "jacket": "Jacket",
+        "teal": "Teal",
+        "coral": "Coral",
+        "purple": "Purple",
+        "yellow": "Yellow",
+        "blue": "Blue",
+        "denim": "Denim",
+        "charcoal": "Charcoal",
+        "khaki": "Khaki",
+        "olive": "Olive",
+        "none": "None",
+        "glasses": "Glasses",
+        "cap": "Cap",
+        "headphones": "Headphones",
+        "goggles": "Lab goggles"
+      }
+    },
     "submit": "Enter lobby",
     "errors": {
       "nickname": "Enter a nickname of 1–20 characters."
@@ -18,7 +63,7 @@
   "lobby": {
     "controls": "Move: WASD or arrow keys · Use doors and objects: E · Chat: Enter, Esc to leave",
     "doorPrompt": "Press E to choose a scenario and form a team",
-    "changeProfile": "Change profile"
+    "profile": "Profile"
   },
   "settings": {
     "language": "Language"

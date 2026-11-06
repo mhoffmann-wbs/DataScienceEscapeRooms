@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { frameIndex, walkAnimKey, type Direction } from '../avatars';
+import { AVATAR_FRAME_SIZE, AVATAR_SHEET_COLUMNS, DIRECTIONS, WALK_FRAMES, frameIndex, lookKey, renderLook, walkAnimKey, type Direction, type Look } from '../avatars';
 
 /** How long a speech bubble stays, plus a little per character so longer messages can be read. */
 const BUBBLE_MS = 4000;
@@ -7,6 +7,22 @@ const BUBBLE_MS_PER_CHAR = 40;
 const BUBBLE_MAX_CHARS = 80;
 /** Marks instructors' names; nobody else may show it, so it's removed from nicknames. */
 export const INSTRUCTOR_MARK = '🎓';
+/** Texture key of the avatar parts sheet, loaded by the Boot scene. */
+export const AVATAR_PARTS_KEY = 'avatar-parts';
+
+/** The texture of a look, with its walk animations; made from the parts sheet the first time it is needed. */
+function lookTexture(scene: Phaser.Scene, look: Look): string {
+  const key = `avatar-${lookKey(look)}`;
+  if (scene.textures.exists(key)) return key;
+  const parts = scene.textures.get(AVATAR_PARTS_KEY).getSourceImage() as HTMLImageElement;
+  const texture = scene.textures.addCanvas(key, renderLook(parts, look))!;
+  for (let i = 0; i < AVATAR_SHEET_COLUMNS; i++) texture.add(i, 0, i * AVATAR_FRAME_SIZE, 0, AVATAR_FRAME_SIZE, AVATAR_FRAME_SIZE);
+  for (const dir of DIRECTIONS) {
+    if (scene.anims.exists(walkAnimKey(key, dir))) continue;
+    scene.anims.create({ key: walkAnimKey(key, dir), frames: WALK_FRAMES.map((f) => ({ key, frame: frameIndex(dir, f) })), frameRate: 8, repeat: -1 });
+  }
+  return key;
+}
 
 /** A character sprite with a name label and an optional speech bubble. Used for the local player and remote peers. */
 export class Avatar {
@@ -17,16 +33,18 @@ export class Avatar {
   private facing: Direction = 'down';
   private readonly name: string;
   private instructor = false;
+  private readonly texture: string;
 
   constructor(
     private readonly scene: Phaser.Scene,
     x: number,
     y: number,
-    private readonly avatar: number,
+    look: Look,
     name: string,
   ) {
     this.name = name.replaceAll(INSTRUCTOR_MARK, '').trim();
-    this.sprite = scene.add.sprite(x, y, 'avatars', frameIndex(avatar, 'down'));
+    this.texture = lookTexture(scene, look);
+    this.sprite = scene.add.sprite(x, y, this.texture, frameIndex('down'));
     this.label = scene.add
       .text(x, y, this.name, { fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#ffffff', backgroundColor: '#00000088', padding: { x: 3, y: 1 } })
       .setOrigin(0.5, 1)
@@ -37,10 +55,10 @@ export class Avatar {
   /** Plays the walk animation, or shows the idle frame when `moving` is false. */
   setMotion(dir: Direction, moving: boolean): void {
     this.facing = dir;
-    if (moving) this.sprite.anims.play(walkAnimKey(this.avatar, dir), true);
+    if (moving) this.sprite.anims.play(walkAnimKey(this.texture, dir), true);
     else {
       this.sprite.anims.stop();
-      this.sprite.setFrame(frameIndex(this.avatar, this.facing));
+      this.sprite.setFrame(frameIndex(this.facing));
     }
   }
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AVATAR_COUNT, DIRECTIONS } from '../game/avatars';
+import { DIRECTIONS, lookSchema } from '../game/avatars';
 
 // Wire formats. Everything received from peers is parsed with these schemas first.
 
@@ -14,7 +14,7 @@ export type Pos = z.infer<typeof posSchema>;
 /** Sent to each new peer (and to everyone once we know our position): who we are and where. */
 export const helloSchema = posSchema.extend({
   nickname: z.string().trim().min(1).max(20),
-  avatar: z.number().int().min(0).max(AVATAR_COUNT - 1),
+  look: lookSchema,
   /** In the lobby: the roomId a player is currently playing in (not on the lobby map), or null. */
   away: z.string().max(64).nullable().default(null),
 });

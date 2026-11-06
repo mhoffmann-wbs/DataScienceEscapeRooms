@@ -97,7 +97,7 @@ export class WorldScene extends Phaser.Scene {
 
     const arriveDoor = doors.find((d) => d.doorTo === getArriveAt(this));
     const start = pickSpawnPoint(arriveDoor ? inFrontOf(arriveDoor, map.tileHeight) : spawn);
-    this.player = new Avatar(this, start.x, start.y, profile.avatar, profile.nickname);
+    this.player = new Avatar(this, start.x, start.y, profile.look, profile.nickname);
     this.physics.add.existing(this.player.sprite);
     this.body = this.player.sprite.body as Phaser.Physics.Arcade.Body;
     // Collide with the feet, not the whole sprite, so avatars can walk up close to walls.
