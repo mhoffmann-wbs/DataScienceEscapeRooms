@@ -13,11 +13,11 @@
 | # | Station | Practises | Needs |
 |---|---|---|---|
 | 1 | The gate scanner log | Prophet's `ds`/`y` format, telling real values from recording errors, leaving gaps empty instead of interpolating | 🔎 A note from IT |
-| 2 | The tram counter | Trend changepoints: automatic candidates and their slope changes (`delta`), setting a known changepoint by hand, reading the trend component | 🔎 The City Courier |
-| 3 | The planner's rule | Train/test split in time, naive and seasonal naive baselines (weekly and yearly), mean absolute error with gaps | 1. The gate scanner log, 🔎 The planning notebook |
-| 4 | The lighting desk | Additive vs. multiplicative seasonality, the log transform as an alternative and back-transforming with `exp`, comparing models on a holdout | 1. The gate scanner log, 🔎 The whiteboard |
-| 5 | The events desk | Holiday effects: building a holidays table with windows, including future dates, reading a holiday's component in multiplicative mode | 1. The gate scanner log, 🔎 The event calendar |
-| 6 | The stage order (Final lock) | Combining trend changepoints, multiplicative seasonality and holidays, proving a model against a baseline, forecasting future events | 2. The tram counter, 3. The planner's rule, 4. The lighting desk, 5. The events desk, 🔎 The stage order form |
+| 2 | The tram counter | Trend changepoints: automatic candidates and their slope changes (`delta`), setting a known changepoint by hand, reading the trend component | 🔎 The City Courier, 🔎 The whiteboard |
+| 3 | The planner's rule | Train/test split in time, naive and seasonal naive baselines (weekly and yearly), mean absolute error with gaps | 1. The gate scanner log (its result), 🔎 The planning notebook |
+| 4 | The lighting desk | Additive vs. multiplicative seasonality, the log transform as an alternative and back-transforming with `exp`, comparing models on a holdout | 1. The gate scanner log (its result), 🔎 The whiteboard |
+| 5 | The events desk | Holiday effects: building a holidays table with windows, including future dates, reading a holiday's component in multiplicative mode | 1. The gate scanner log (its result), 4. The lighting desk (its result), 🔎 The event calendar, 🔎 The whiteboard |
+| 6 | The stage order (Final lock) | Combining trend changepoints, multiplicative seasonality and holidays, proving a model against a baseline, forecasting future events | 1. The gate scanner log (its result), 2. The tram counter (its result), 3. The planner's rule (its result), 4. The lighting desk (its result), 5. The events desk (its result), 🔎 The stage order form, 🔎 The whiteboard |
 
 ## Stations
 
@@ -31,7 +31,7 @@
 
 > Every forecast here starts from the gate scans: how many visitors came through the gates each day. But the log has days that aren't visitors at all.
 >
-> Put the log into the format a Prophet-style model expects, a DataFrame `df` with the columns `ds` (date) and `y` (visitors). Every day that wasn't really counted must end up empty, as the IT note says.
+> Put the log into the format a Prophet-style model expects, a DataFrame `df` with the columns `ds` (date) and `y` (visitors), one row for every day. Every day that wasn't really counted keeps its row but must end up empty, as the IT note says. The other desks all start from your `df`.
 
 <details><summary>Starter code</summary>
 
@@ -61,26 +61,26 @@ print(int(df["y"].isna().sum()), "days without a real count")
 show_plot(df.set_index("ds")["y"], title="Visitors per day")
 ```
 
-**Checked result** (`[sorted(df.columns.tolist()), int(df["y"].notna().sum()), round(float(df["y"].sum()))]`):
+**Checked result** (`[sorted(df.columns.tolist()), len(df), int(df["y"].notna().sum()), round(float(df["y"].sum()))]`):
 
 ```json
-[["ds", "y"], 1714, 1836733]
+[["ds", "y"], 1734, 1714, 1836733]
 ```
 
 **Reveals when solved:**
 
-> The log is clean: 1714 counted days. The 14 outage days and 6 test bookings stay empty; the model simply skips them.
+> The log is clean: 1734 days, 1714 of them counted. The 14 outage days and 6 test bookings stay empty; the model simply skips them. Every other desk starts from this `df`, so take your code along.
 
 **Hints:**
 
 1. `scans.reset_index()` turns the dates into a column. Then name the two columns: `df.columns = ["ds", "y"]`.
 2. The IT note names two kinds of bad days: the outage (recorded as 0) and the test bookings (exactly 9999). Don't use a threshold like `y > 5000`: real festival days are that busy too.
-3. `df.loc[df["y"] == 9999, "y"] = None`, and the same for the outage dates 4 to 17 March 2024. Keep those rows or drop them, but don't fill in numbers.
+3. `df.loc[df["y"] == 9999, "y"] = None`, and the same for the outage dates 4 to 17 March 2024. Keep those rows (the other desks need a row for every day), but don't fill in numbers.
 
 ### 2. The tram counter
 
 **Practises:** Trend changepoints: automatic candidates and their slope changes (`delta`), setting a known changepoint by hand, reading the trend component  
-**Needs:** 🔎 The City Courier  
+**Needs:** 🔎 The City Courier, 🔎 The whiteboard  
 **Data:** [tram.py](../../content/rooms/ts-festival/data/tram.py)
 
 **Task:**
@@ -149,25 +149,22 @@ show_plot(tram.set_index("ds")["y"], trend, labels=["passengers", "trend"])
 ### 3. The planner's rule
 
 **Practises:** Train/test split in time, naive and seasonal naive baselines (weekly and yearly), mean absolute error with gaps  
-**Needs:** 1. The gate scanner log, 🔎 The planning notebook  
+**Needs:** 1. The gate scanner log (its result), 🔎 The planning notebook  
 **Data:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Task:**
 
 > Before anyone trusts a model, it has to beat the simple rules people already use. Test them the way the planning notebook says: train until the end of May 2025, test on June to September 2025.
 >
-> Forecast the test days three ways using only the training data, and compute each one's mean absolute error in visitors per day: `mae_naive` (every day equals the last training day), `mae_last_week` (the last training week, repeated) and `mae_last_year` (Marta's rule).
+> Start from your cleaned `df` from the gate scanner log. Forecast the test days three ways using only the training data, and compute each one's mean absolute error in visitors per day: `mae_naive` (every day equals the last training day), `mae_last_week` (the last training week, repeated) and `mae_last_year` (Marta's rule).
 
 <details><summary>Starter code</summary>
 
 ```python
 from helpers import show_plot
 
-# The cleaned gate log from the scanner terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: the cleaned gate log. Copy your code from the gate scanner log here.
+df = None
 
 y = df.set_index("ds")["y"]
 train = y[:"2025-05-31"]
@@ -207,10 +204,10 @@ print(round(mae_naive), round(mae_last_week), round(mae_last_year))
 show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"])
 ```
 
-**Checked result** (`[round(float(mae_naive)), round(float(mae_last_week)), round(float(mae_last_year))]`):
+**Checked result** (`[_clean_df(df), round(float(mae_naive)), round(float(mae_last_week)), round(float(mae_last_year))]`):
 
 ```json
-[753, 422, 614]
+["clean", 753, 422, 614]
 ```
 
 **Reveals when solved:**
@@ -226,14 +223,14 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 ### 4. The lighting desk
 
 **Practises:** Additive vs. multiplicative seasonality, the log transform as an alternative and back-transforming with `exp`, comparing models on a holdout  
-**Needs:** 1. The gate scanner log, 🔎 The whiteboard  
+**Needs:** 1. The gate scanner log (its result), 🔎 The whiteboard  
 **Data:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Task:**
 
 > The lighting desk has three faders for how the seasons act on the crowd: added on top, multiplied, or on the log scale. Since the tram came, summer weekends swing much wider than they used to.
 >
-> Fit three models on the training data (until May 2025) and compute their mean absolute errors on June to September 2025, in visitors: `mae_additive` (the default), `mae_multiplicative` (multiplicative seasonality) and `mae_log` (additive, fitted on the log of the visitors).
+> Start from your cleaned `df` from the gate scanner log. Fit three models on the training data (until May 2025) and compute their mean absolute errors on June to September 2025, in visitors: `mae_additive` (the default), `mae_multiplicative` (multiplicative seasonality) and `mae_log` (additive, fitted on the log of the visitors).
 
 <details><summary>Starter code</summary>
 
@@ -241,11 +238,8 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 from prophet import Prophet
 from helpers import show_plot
 
-# The cleaned gate log from the scanner terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: the cleaned gate log. Copy your code from the gate scanner log here.
+df = None
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]   # summer 2025: June to September
 
@@ -296,7 +290,7 @@ print(round(mae_additive), round(mae_multiplicative), round(mae_log))
 show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["actual", "multiplicative"])
 ```
 
-**Checked result** (`_mode_check(mae_additive, mae_multiplicative, mae_log)`):
+**Checked result** (`_mode_check(df, mae_additive, mae_multiplicative, mae_log)`):
 
 ```json
 "ok"
@@ -315,14 +309,14 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 ### 5. The events desk
 
 **Practises:** Holiday effects: building a holidays table with windows, including future dates, reading a holiday's component in multiplicative mode  
-**Needs:** 1. The gate scanner log, 🔎 The event calendar  
+**Needs:** 1. The gate scanner log (its result), 4. The lighting desk (its result), 🔎 The event calendar, 🔎 The whiteboard  
 **Data:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Task:**
 
 > Two events break every pattern: the Summer Festival's opening weekend and Lantern Night. A Prophet-style model learns them from a holidays table.
 >
-> Build `events` from the event calendar on the noticeboard: one row per event date, with the columns `holiday`, `ds`, `lower_window` and `upper_window`, including next year's dates. Fit a multiplicative model with it on all of `df`, and store the opening weekend's effect on Saturday 22 June 2024 in `saturday_effect` (as the model reports it: a share of the trend).
+> Build `events` from the event calendar on the noticeboard: one row per event date, with the columns `holiday`, `ds`, `lower_window` and `upper_window`, including next year's dates. Fit a model with it on all of your cleaned `df` from the gate scanner log, with the seasonality mode that won at the lighting desk, and store the opening weekend's effect on Saturday 22 June 2024 in `saturday_effect` (as the model reports it in the event's column).
 
 <details><summary>Starter code</summary>
 
@@ -330,11 +324,8 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 from prophet import Prophet
 from helpers import show_plot
 
-# The cleaned gate log from the scanner terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: the cleaned gate log. Copy your code from the gate scanner log here.
+df = None
 
 # One row per event date. The window says which days around ds belong to the event:
 # lower_window=-1 adds the day before, upper_window=1 the day after.
@@ -345,7 +336,7 @@ events = pd.DataFrame({
     "upper_window": [],
 })
 
-m = Prophet(seasonality_mode="multiplicative", holidays=events)
+m = Prophet(holidays=events)   # plus the seasonality mode that won at the lighting desk
 m.fit(df)
 forecast = m.predict(df).set_index("ds")
 print(forecast.columns.tolist())   # one column per holiday name
@@ -385,7 +376,7 @@ print(round(saturday_effect, 2))
 show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["2024-05":"2024-09", "lantern_night"], labels=["opening weekend", "Lantern Night"])
 ```
 
-**Checked result** (`_events_check(events, saturday_effect)`):
+**Checked result** (`_events_check(df, events, saturday_effect)`):
 
 ```json
 "ok"
@@ -399,19 +390,19 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 
 1. Make one DataFrame per event and join them with `pd.concat([...], ignore_index=True)`. The opening weekend is listed by its Friday and lasts until Sunday: `lower_window=0`, `upper_window=2`.
 2. Lantern Night counts its dress rehearsal on the evening before: `lower_window=-1`, `upper_window=0`. Take all six years of both events, 2021 to 2026.
-3. With the holiday named `"opening_weekend"`: `saturday_effect = forecast.loc["2024-06-22", "opening_weekend"]`. It should come out around 2, i.e. +200 %.
+3. The lighting desk's winner: `Prophet(seasonality_mode="multiplicative", holidays=events)`. With the holiday named `"opening_weekend"`: `saturday_effect = forecast.loc["2024-06-22", "opening_weekend"]`. It should come out around 2, i.e. +200 % of the trend.
 
 ### 6. The stage order (Final lock)
 
 **Practises:** Combining trend changepoints, multiplicative seasonality and holidays, proving a model against a baseline, forecasting future events  
-**Needs:** 2. The tram counter, 3. The planner's rule, 4. The lighting desk, 5. The events desk, 🔎 The stage order form  
+**Needs:** 1. The gate scanner log (its result), 2. The tram counter (its result), 3. The planner's rule (its result), 4. The lighting desk (its result), 5. The events desk (its result), 🔎 The stage order form, 🔎 The whiteboard  
 **Data:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Task:**
 
-> The office door unlocks once the stage order for the Summer Festival 2026 is sent. The order system only accepts a forecast from a model that beats the best baseline on summer 2025.
+> The office door unlocks once the stage order for the Summer Festival 2026 is sent. The order system only accepts a forecast from a model that beats the best simple rule on summer 2025.
 >
-> Build the full model from everything the room taught you. Set `mae_model` (its error on June to September 2025, trained until May 2025) and `opening_2026` (the visitors it expects over the 2026 opening weekend, all three days added up, from a model fitted on all of `df`). The order system tells you what it doesn't like.
+> Build the full model from everything the room taught you, on your cleaned `df` from the gate scanner log. Set `best_baseline` (the best simple rule's error, from the planner's rule), `mae_model` (your model's error on June to September 2025, trained until May 2025) and `opening_2026` (the figure the stage order form asks for, from a model fitted on all of `df`). The order system tells you what it doesn't like.
 
 <details><summary>Starter code</summary>
 
@@ -419,13 +410,11 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 from prophet import Prophet
 from helpers import show_plot
 
-# The cleaned gate log from the scanner terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: the cleaned gate log. Copy your code from the gate scanner log here.
+df = None
 
-events = None   # the holidays table from the events desk
+events = None          # the holidays table from the events desk
+best_baseline = None   # the best simple rule's error on June to September 2025, visitors per day
 
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]   # summer 2025: June to September
@@ -439,7 +428,7 @@ def model():
 # 1. Prove the model on summer 2025: fit on train, predict test, mean absolute error in visitors.
 mae_model = None
 
-# 2. Fit model() on all of df, forecast until 21 June 2026, add up the opening weekend.
+# 2. Fit model() on all of df, forecast far enough ahead, and work out what the stage order form asks for.
 opening_2026 = None
 ```
 
@@ -468,6 +457,7 @@ lantern = pd.DataFrame({
     "upper_window": 0,
 })
 events = pd.concat([opening, lantern], ignore_index=True)
+best_baseline = 422   # the planner's rule: repeating the last week
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]
 
@@ -485,7 +475,7 @@ print(round(mae_model), round(opening_2026))
 show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["visitors", "forecast"])
 ```
 
-**Checked result** (`_order_check(mae_model, opening_2026)`):
+**Checked result** (`_order_check(df, best_baseline, mae_model, opening_2026)`):
 
 ```json
 "ok"
@@ -493,9 +483,9 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 
 **Hints:**
 
-1. Combine all the reveals: `Prophet(seasonality_mode="multiplicative", holidays=events, changepoints=["2023-04-01"])`, with `events` copied from the events desk, 2026 dates included.
-2. A model can only be fitted once, so call `model()` twice: once for `train` (then `predict(test)` and compare with `test["y"]`), once for all of `df`. `make_future_dataframe(periods=270)` reaches past 21 June 2026.
-3. `opening_2026 = forecast.set_index("ds").loc["2026-06-19":"2026-06-21", "yhat"].sum()`, where `forecast` is the full model's prediction for that future.
+1. Each desk's reveal adds one setting to `model()`: the changepoint from the tram counter, the seasonality mode from the lighting desk, and `events` from the events desk, 2026 dates included. `best_baseline` comes from the planner's rule, and the stage order form says which days to add up.
+2. A model can only be fitted once, so call `model()` twice: once for `train` (then `predict(test)` and compare with `test["y"]`), once for all of `df`. For the future, use `make_future_dataframe(periods=...)` from the whiteboard: 270 days reach past the 2026 opening weekend.
+3. `model()` returns `Prophet(seasonality_mode="multiplicative", holidays=events, changepoints=["2023-04-01"])`, `best_baseline = 422`, and `opening_2026 = forecast.set_index("ds").loc["2026-06-19":"2026-06-21", "yhat"].sum()`, where `forecast` is the full model's prediction for that future.
 
 ## Clues in the room
 
@@ -533,7 +523,7 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 
 ### 🔎 The whiteboard
 
-*Used by: 4. The lighting desk*
+*Used by: 2. The tram counter, 4. The lighting desk, 5. The events desk, 6. The stage order*
 
 > PROPHET-STYLE MODEL · quick reference
 >

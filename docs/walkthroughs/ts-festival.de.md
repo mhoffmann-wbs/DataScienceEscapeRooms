@@ -13,11 +13,11 @@
 | # | Station | Übt | Braucht |
 |---|---|---|---|
 | 1 | Das Einlass-Log | Das `ds`/`y`-Format von Prophet, echte Werte von Aufzeichnungsfehlern unterscheiden, Lücken leer lassen statt interpolieren | 🔎 Eine Notiz von der IT |
-| 2 | Der Straßenbahnzähler | Trend-Changepoints: automatische Kandidaten und ihre Steigungsänderungen (`delta`), einen bekannten Changepoint von Hand setzen, die Trendkomponente ablesen | 🔎 Der Stadtkurier |
-| 3 | Martas Faustregel | Zeitliche Aufteilung in Training und Test, naive und saisonal naive Baselines (wöchentlich und jährlich), mittlerer absoluter Fehler mit Lücken | 1. Das Einlass-Log, 🔎 Das Planungsheft |
-| 4 | Das Lichtpult | Additive vs. multiplikative Saisonalität, die Log-Transformation als Alternative und das Zurücktransformieren mit `exp`, Modelle auf einem Holdout vergleichen | 1. Das Einlass-Log, 🔎 Das Whiteboard |
-| 5 | Der Veranstaltungstisch | Feiertagseffekte: eine Feiertagstabelle mit Fenstern bauen, zukünftige Termine aufnehmen, die Komponente eines Feiertags im multiplikativen Modus ablesen | 1. Das Einlass-Log, 🔎 Der Veranstaltungskalender |
-| 6 | Die Bühnenbestellung (Abschluss-Schloss) | Trend-Changepoints, multiplikative Saisonalität und Feiertage kombinieren, ein Modell gegen eine Baseline prüfen, zukünftige Ereignisse prognostizieren | 2. Der Straßenbahnzähler, 3. Martas Faustregel, 4. Das Lichtpult, 5. Der Veranstaltungstisch, 🔎 Das Bestellformular für Bühnen |
+| 2 | Der Straßenbahnzähler | Trend-Changepoints: automatische Kandidaten und ihre Steigungsänderungen (`delta`), einen bekannten Changepoint von Hand setzen, die Trendkomponente ablesen | 🔎 Der Stadtkurier, 🔎 Das Whiteboard |
+| 3 | Martas Faustregel | Zeitliche Aufteilung in Training und Test, naive und saisonal naive Baselines (wöchentlich und jährlich), mittlerer absoluter Fehler mit Lücken | 1. Das Einlass-Log (sein Ergebnis), 🔎 Das Planungsheft |
+| 4 | Das Lichtpult | Additive vs. multiplikative Saisonalität, die Log-Transformation als Alternative und das Zurücktransformieren mit `exp`, Modelle auf einem Holdout vergleichen | 1. Das Einlass-Log (sein Ergebnis), 🔎 Das Whiteboard |
+| 5 | Der Veranstaltungstisch | Feiertagseffekte: eine Feiertagstabelle mit Fenstern bauen, zukünftige Termine aufnehmen, die Komponente eines Feiertags im multiplikativen Modus ablesen | 1. Das Einlass-Log (sein Ergebnis), 4. Das Lichtpult (sein Ergebnis), 🔎 Der Veranstaltungskalender, 🔎 Das Whiteboard |
+| 6 | Die Bühnenbestellung (Abschluss-Schloss) | Trend-Changepoints, multiplikative Saisonalität und Feiertage kombinieren, ein Modell gegen eine Baseline prüfen, zukünftige Ereignisse prognostizieren | 1. Das Einlass-Log (sein Ergebnis), 2. Der Straßenbahnzähler (sein Ergebnis), 3. Martas Faustregel (sein Ergebnis), 4. Das Lichtpult (sein Ergebnis), 5. Der Veranstaltungstisch (sein Ergebnis), 🔎 Das Bestellformular für Bühnen, 🔎 Das Whiteboard |
 
 ## Stationen
 
@@ -31,7 +31,7 @@
 
 > Jede Prognose hier beginnt mit den Einlass-Scans: wie viele Besucher jeden Tag durch die Tore kamen. Aber das Log enthält Tage, die gar keine Besucher sind.
 >
-> Bringt das Log in das Format, das ein Prophet-artiges Modell erwartet: ein DataFrame `df` mit den Spalten `ds` (Datum) und `y` (Besucher). Jeder Tag, der nicht wirklich gezählt wurde, muss leer sein, so wie es die IT-Notiz sagt.
+> Bringt das Log in das Format, das ein Prophet-artiges Modell erwartet: ein DataFrame `df` mit den Spalten `ds` (Datum) und `y` (Besucher), eine Zeile pro Tag. Jeder Tag, der nicht wirklich gezählt wurde, behält seine Zeile, muss aber leer sein, so wie es die IT-Notiz sagt. Alle anderen Tische gehen von eurem `df` aus.
 
 <details><summary>Startcode</summary>
 
@@ -61,26 +61,26 @@ print(int(df["y"].isna().sum()), "days without a real count")
 show_plot(df.set_index("ds")["y"], title="Visitors per day")
 ```
 
-**Geprüftes Ergebnis** (`[sorted(df.columns.tolist()), int(df["y"].notna().sum()), round(float(df["y"].sum()))]`):
+**Geprüftes Ergebnis** (`[sorted(df.columns.tolist()), len(df), int(df["y"].notna().sum()), round(float(df["y"].sum()))]`):
 
 ```json
-[["ds", "y"], 1714, 1836733]
+[["ds", "y"], 1734, 1714, 1836733]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Das Log ist sauber: 1714 gezählte Tage. Die 14 Ausfalltage und 6 Testbuchungen bleiben leer; das Modell überspringt sie einfach.
+> Das Log ist sauber: 1734 Tage, davon 1714 gezählt. Die 14 Ausfalltage und 6 Testbuchungen bleiben leer; das Modell überspringt sie einfach. Alle anderen Tische gehen von diesem `df` aus, also nehmt euren Code mit.
 
 **Hinweise:**
 
 1. `scans.reset_index()` macht aus den Daten eine Spalte. Dann benennt ihr die zwei Spalten: `df.columns = ["ds", "y"]`.
 2. Die IT-Notiz nennt zwei Arten falscher Tage: den Ausfall (als 0 erfasst) und die Testbuchungen (genau 9999). Nehmt keine Schwelle wie `y > 5000`: Echte Festivaltage sind genauso voll.
-3. `df.loc[df["y"] == 9999, "y"] = None`, und dasselbe für die Ausfalltage 4. bis 17. März 2024. Die Zeilen könnt ihr behalten oder löschen, aber füllt keine Zahlen ein.
+3. `df.loc[df["y"] == 9999, "y"] = None`, und dasselbe für die Ausfalltage 4. bis 17. März 2024. Behaltet die Zeilen (die anderen Tische brauchen eine Zeile pro Tag), aber füllt keine Zahlen ein.
 
 ### 2. Der Straßenbahnzähler
 
 **Übt:** Trend-Changepoints: automatische Kandidaten und ihre Steigungsänderungen (`delta`), einen bekannten Changepoint von Hand setzen, die Trendkomponente ablesen  
-**Braucht:** 🔎 Der Stadtkurier  
+**Braucht:** 🔎 Der Stadtkurier, 🔎 Das Whiteboard  
 **Daten:** [tram.py](../../content/rooms/ts-festival/data/tram.py)
 
 **Aufgabe:**
@@ -149,25 +149,22 @@ show_plot(tram.set_index("ds")["y"], trend, labels=["passengers", "trend"])
 ### 3. Martas Faustregel
 
 **Übt:** Zeitliche Aufteilung in Training und Test, naive und saisonal naive Baselines (wöchentlich und jährlich), mittlerer absoluter Fehler mit Lücken  
-**Braucht:** 1. Das Einlass-Log, 🔎 Das Planungsheft  
+**Braucht:** 1. Das Einlass-Log (sein Ergebnis), 🔎 Das Planungsheft  
 **Daten:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Aufgabe:**
 
 > Bevor man einem Modell traut, muss es die einfachen Regeln schlagen, die schon benutzt werden. Testet sie so, wie es im Planungsheft steht: Training bis Ende Mai 2025, Test auf Juni bis September 2025.
 >
-> Prognostiziert die Testtage auf drei Arten, nur mit den Trainingsdaten, und berechnet jeweils den mittleren absoluten Fehler in Besuchern pro Tag: `mae_naive` (jeder Tag gleich dem letzten Trainingstag), `mae_last_week` (die letzte Trainingswoche, wiederholt) und `mae_last_year` (Martas Regel).
+> Geht von eurem bereinigten `df` vom Einlass-Log aus. Prognostiziert die Testtage auf drei Arten, nur mit den Trainingsdaten, und berechnet jeweils den mittleren absoluten Fehler in Besuchern pro Tag: `mae_naive` (jeder Tag gleich dem letzten Trainingstag), `mae_last_week` (die letzte Trainingswoche, wiederholt) und `mae_last_year` (Martas Regel).
 
 <details><summary>Startcode</summary>
 
 ```python
 from helpers import show_plot
 
-# Das bereinigte Einlass-Log vom Scanner-Terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+df = None
 
 y = df.set_index("ds")["y"]
 train = y[:"2025-05-31"]
@@ -207,10 +204,10 @@ print(round(mae_naive), round(mae_last_week), round(mae_last_year))
 show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"])
 ```
 
-**Geprüftes Ergebnis** (`[round(float(mae_naive)), round(float(mae_last_week)), round(float(mae_last_year))]`):
+**Geprüftes Ergebnis** (`[_clean_df(df), round(float(mae_naive)), round(float(mae_last_week)), round(float(mae_last_year))]`):
 
 ```json
-[753, 422, 614]
+["clean", 753, 422, 614]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -226,14 +223,14 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 ### 4. Das Lichtpult
 
 **Übt:** Additive vs. multiplikative Saisonalität, die Log-Transformation als Alternative und das Zurücktransformieren mit `exp`, Modelle auf einem Holdout vergleichen  
-**Braucht:** 1. Das Einlass-Log, 🔎 Das Whiteboard  
+**Braucht:** 1. Das Einlass-Log (sein Ergebnis), 🔎 Das Whiteboard  
 **Daten:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Aufgabe:**
 
 > Das Lichtpult hat drei Regler dafür, wie die Jahreszeiten auf die Besucher wirken: obendrauf addiert, multipliziert oder auf der Log-Skala. Seit die Straßenbahn fährt, schwanken die Sommerwochenenden viel stärker als früher.
 >
-> Passt drei Modelle auf die Trainingsdaten (bis Mai 2025) an und berechnet ihre mittleren absoluten Fehler auf Juni bis September 2025, in Besuchern: `mae_additive` (die Voreinstellung), `mae_multiplicative` (multiplikative Saisonalität) und `mae_log` (additiv, angepasst auf den Logarithmus der Besucher).
+> Geht von eurem bereinigten `df` vom Einlass-Log aus. Passt drei Modelle auf die Trainingsdaten (bis Mai 2025) an und berechnet ihre mittleren absoluten Fehler auf Juni bis September 2025, in Besuchern: `mae_additive` (die Voreinstellung), `mae_multiplicative` (multiplikative Saisonalität) und `mae_log` (additiv, angepasst auf den Logarithmus der Besucher).
 
 <details><summary>Startcode</summary>
 
@@ -241,11 +238,8 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 from prophet import Prophet
 from helpers import show_plot
 
-# Das bereinigte Einlass-Log vom Scanner-Terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+df = None
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]   # Sommer 2025: Juni bis September
 
@@ -296,7 +290,7 @@ print(round(mae_additive), round(mae_multiplicative), round(mae_log))
 show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["actual", "multiplicative"])
 ```
 
-**Geprüftes Ergebnis** (`_mode_check(mae_additive, mae_multiplicative, mae_log)`):
+**Geprüftes Ergebnis** (`_mode_check(df, mae_additive, mae_multiplicative, mae_log)`):
 
 ```json
 "ok"
@@ -315,14 +309,14 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 ### 5. Der Veranstaltungstisch
 
 **Übt:** Feiertagseffekte: eine Feiertagstabelle mit Fenstern bauen, zukünftige Termine aufnehmen, die Komponente eines Feiertags im multiplikativen Modus ablesen  
-**Braucht:** 1. Das Einlass-Log, 🔎 Der Veranstaltungskalender  
+**Braucht:** 1. Das Einlass-Log (sein Ergebnis), 4. Das Lichtpult (sein Ergebnis), 🔎 Der Veranstaltungskalender, 🔎 Das Whiteboard  
 **Daten:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Aufgabe:**
 
 > Zwei Ereignisse durchbrechen jedes Muster: das Eröffnungswochenende des Sommerfestivals und die Laternennacht. Ein Prophet-artiges Modell lernt sie aus einer Feiertagstabelle.
 >
-> Baut `events` nach dem Veranstaltungskalender am Schwarzen Brett: eine Zeile pro Termin, mit den Spalten `holiday`, `ds`, `lower_window` und `upper_window`, einschließlich der Termine im nächsten Jahr. Passt damit ein multiplikatives Modell auf ganz `df` an und speichert den Effekt des Eröffnungswochenendes am Samstag, 22. Juni 2024, in `saturday_effect` (so, wie das Modell ihn angibt: als Anteil am Trend).
+> Baut `events` nach dem Veranstaltungskalender am Schwarzen Brett: eine Zeile pro Termin, mit den Spalten `holiday`, `ds`, `lower_window` und `upper_window`, einschließlich der Termine im nächsten Jahr. Passt damit ein Modell auf euer ganzes bereinigtes `df` vom Einlass-Log an, mit der Saisonalität, die am Lichtpult gewonnen hat, und speichert den Effekt des Eröffnungswochenendes am Samstag, 22. Juni 2024, in `saturday_effect` (so, wie das Modell ihn in der Spalte des Ereignisses angibt).
 
 <details><summary>Startcode</summary>
 
@@ -330,11 +324,8 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 from prophet import Prophet
 from helpers import show_plot
 
-# Das bereinigte Einlass-Log vom Scanner-Terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+df = None
 
 # Eine Zeile pro Termin. Das Fenster sagt, welche Tage um ds zum Ereignis gehören:
 # lower_window=-1 nimmt den Tag davor dazu, upper_window=1 den Tag danach.
@@ -345,7 +336,7 @@ events = pd.DataFrame({
     "upper_window": [],
 })
 
-m = Prophet(seasonality_mode="multiplicative", holidays=events)
+m = Prophet(holidays=events)   # dazu die Saisonalität, die am Lichtpult gewonnen hat
 m.fit(df)
 forecast = m.predict(df).set_index("ds")
 print(forecast.columns.tolist())   # eine Spalte pro Feiertagsname
@@ -385,7 +376,7 @@ print(round(saturday_effect, 2))
 show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["2024-05":"2024-09", "lantern_night"], labels=["opening weekend", "Lantern Night"])
 ```
 
-**Geprüftes Ergebnis** (`_events_check(events, saturday_effect)`):
+**Geprüftes Ergebnis** (`_events_check(df, events, saturday_effect)`):
 
 ```json
 "ok"
@@ -399,19 +390,19 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 
 1. Baut ein DataFrame pro Ereignis und verbindet sie mit `pd.concat([...], ignore_index=True)`. Das Eröffnungswochenende steht mit seinem Freitag im Kalender und dauert bis Sonntag: `lower_window=0`, `upper_window=2`.
 2. Die Laternennacht zählt die Generalprobe am Vorabend mit: `lower_window=-1`, `upper_window=0`. Nehmt alle sechs Jahre beider Ereignisse, 2021 bis 2026.
-3. Mit dem Feiertagsnamen `"opening_weekend"`: `saturday_effect = forecast.loc["2024-06-22", "opening_weekend"]`. Es sollte etwa 2 herauskommen, also +200 %.
+3. Der Gewinner vom Lichtpult: `Prophet(seasonality_mode="multiplicative", holidays=events)`. Mit dem Feiertagsnamen `"opening_weekend"`: `saturday_effect = forecast.loc["2024-06-22", "opening_weekend"]`. Es sollte etwa 2 herauskommen, also +200 % des Trends.
 
 ### 6. Die Bühnenbestellung (Abschluss-Schloss)
 
 **Übt:** Trend-Changepoints, multiplikative Saisonalität und Feiertage kombinieren, ein Modell gegen eine Baseline prüfen, zukünftige Ereignisse prognostizieren  
-**Braucht:** 2. Der Straßenbahnzähler, 3. Martas Faustregel, 4. Das Lichtpult, 5. Der Veranstaltungstisch, 🔎 Das Bestellformular für Bühnen  
+**Braucht:** 1. Das Einlass-Log (sein Ergebnis), 2. Der Straßenbahnzähler (sein Ergebnis), 3. Martas Faustregel (sein Ergebnis), 4. Das Lichtpult (sein Ergebnis), 5. Der Veranstaltungstisch (sein Ergebnis), 🔎 Das Bestellformular für Bühnen, 🔎 Das Whiteboard  
 **Daten:** [scans.py](../../content/rooms/ts-festival/data/scans.py)
 
 **Aufgabe:**
 
-> Die Bürotür öffnet sich, sobald die Bühnenbestellung für das Sommerfestival 2026 abgeschickt ist. Das Bestellsystem nimmt nur eine Prognose von einem Modell an, das die beste Baseline auf Sommer 2025 schlägt.
+> Die Bürotür öffnet sich, sobald die Bühnenbestellung für das Sommerfestival 2026 abgeschickt ist. Das Bestellsystem nimmt nur eine Prognose von einem Modell an, das die beste einfache Regel auf Sommer 2025 schlägt.
 >
-> Baut das vollständige Modell aus allem, was der Raum euch gezeigt hat. Setzt `mae_model` (sein Fehler auf Juni bis September 2025, trainiert bis Mai 2025) und `opening_2026` (die Besucher, die es über das Eröffnungswochenende 2026 erwartet, alle drei Tage zusammen, aus einem Modell, das auf ganz `df` angepasst wurde). Das Bestellsystem sagt euch, was ihm nicht passt.
+> Baut das vollständige Modell aus allem, was der Raum euch gezeigt hat, auf eurem bereinigten `df` vom Einlass-Log. Setzt `best_baseline` (den Fehler der besten einfachen Regel, aus Martas Faustregel), `mae_model` (den Fehler eures Modells auf Juni bis September 2025, trainiert bis Mai 2025) und `opening_2026` (die Zahl, nach der das Bestellformular fragt, aus einem Modell, das auf ganz `df` angepasst wurde). Das Bestellsystem sagt euch, was ihm nicht passt.
 
 <details><summary>Startcode</summary>
 
@@ -419,13 +410,11 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 from prophet import Prophet
 from helpers import show_plot
 
-# Das bereinigte Einlass-Log vom Scanner-Terminal:
-df = scans.reset_index()
-df.columns = ["ds", "y"]
-df.loc[df["y"] == 9999, "y"] = None
-df.loc[(df["ds"] >= "2024-03-04") & (df["ds"] <= "2024-03-17"), "y"] = None
+# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+df = None
 
-events = None   # die Feiertagstabelle vom Veranstaltungstisch
+events = None          # die Feiertagstabelle vom Veranstaltungstisch
+best_baseline = None   # der Fehler der besten einfachen Regel auf Juni bis September 2025, Besucher pro Tag
 
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]   # Sommer 2025: Juni bis September
@@ -439,7 +428,7 @@ def model():
 # 1. Das Modell auf Sommer 2025 prüfen: auf train anpassen, test prognostizieren, mittlerer absoluter Fehler in Besuchern.
 mae_model = None
 
-# 2. model() auf ganz df anpassen, bis zum 21. Juni 2026 prognostizieren, das Eröffnungswochenende addieren.
+# 2. model() auf ganz df anpassen, weit genug vorausprognostizieren und ausrechnen, wonach das Bestellformular fragt.
 opening_2026 = None
 ```
 
@@ -468,6 +457,7 @@ lantern = pd.DataFrame({
     "upper_window": 0,
 })
 events = pd.concat([opening, lantern], ignore_index=True)
+best_baseline = 422   # the planner's rule: repeating the last week
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]
 
@@ -485,7 +475,7 @@ print(round(mae_model), round(opening_2026))
 show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["visitors", "forecast"])
 ```
 
-**Geprüftes Ergebnis** (`_order_check(mae_model, opening_2026)`):
+**Geprüftes Ergebnis** (`_order_check(df, best_baseline, mae_model, opening_2026)`):
 
 ```json
 "ok"
@@ -493,9 +483,9 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 
 **Hinweise:**
 
-1. Kombiniert alle Hinweise: `Prophet(seasonality_mode="multiplicative", holidays=events, changepoints=["2023-04-01"])`, mit `events` vom Veranstaltungstisch übernommen, inklusive der Termine 2026.
-2. Ein Modell lässt sich nur einmal anpassen, also ruft `model()` zweimal auf: einmal für `train` (dann `predict(test)` und mit `test["y"]` vergleichen), einmal für ganz `df`. `make_future_dataframe(periods=270)` reicht über den 21. Juni 2026 hinaus.
-3. `opening_2026 = forecast.set_index("ds").loc["2026-06-19":"2026-06-21", "yhat"].sum()`, wobei `forecast` die Vorhersage des vollständigen Modells für diese Zukunft ist.
+1. Jeder Hinweis eines Tisches fügt `model()` eine Einstellung hinzu: den Changepoint vom Straßenbahnzähler, die Saisonalität vom Lichtpult und `events` vom Veranstaltungstisch, inklusive der Termine 2026. `best_baseline` kommt aus Martas Faustregel, und das Bestellformular sagt, welche Tage ihr addiert.
+2. Ein Modell lässt sich nur einmal anpassen, also ruft `model()` zweimal auf: einmal für `train` (dann `predict(test)` und mit `test["y"]` vergleichen), einmal für ganz `df`. Für die Zukunft nehmt ihr `make_future_dataframe(periods=...)` vom Whiteboard: 270 Tage reichen über das Eröffnungswochenende 2026 hinaus.
+3. `model()` gibt `Prophet(seasonality_mode="multiplicative", holidays=events, changepoints=["2023-04-01"])` zurück, `best_baseline = 422`, und `opening_2026 = forecast.set_index("ds").loc["2026-06-19":"2026-06-21", "yhat"].sum()`, wobei `forecast` die Vorhersage des vollständigen Modells für diese Zukunft ist.
 
 ## Hinweise im Raum
 
@@ -533,7 +523,7 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 
 ### 🔎 Das Whiteboard
 
-*Gebraucht von: 4. Das Lichtpult*
+*Gebraucht von: 2. Der Straßenbahnzähler, 4. Das Lichtpult, 5. Der Veranstaltungstisch, 6. Die Bühnenbestellung*
 
 > PROPHET-ARTIGES MODELL · Kurzreferenz
 >

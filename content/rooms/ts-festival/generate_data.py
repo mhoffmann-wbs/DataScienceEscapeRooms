@@ -64,9 +64,29 @@ def _verdict(problems):
     return "ok" if not problems else "rejected"
 
 
-def _mode_check(mae_additive, mae_multiplicative, mae_log):
+def _gate_problems(df):
+    \"\"\"Every desk starts from the gate scanner log's df: a row for every day, the uncounted days empty.\"\"\"
+    try:
+        y = pd.to_numeric(df["y"], errors="coerce")
+        clean = len(df) == 1734 and int(y.notna().sum()) == 1714 and round(float(y.sum())) == 1836733
+    except Exception:
+        clean = False
+    if clean:
+        return []
+    return ["df isn't the cleaned gate log yet: copy your df from the gate scanner log (a row for every day, the uncounted days empty). / df ist noch nicht das bereinigte Einlass-Log: Übernehmt euer df vom Einlass-Log (eine Zeile pro Tag, die nicht gezählten Tage leer)."]
+
+
+def _clean_df(df):
+    \"\"\"The planner's rule: says whether df is the cleaned gate log (part of the checked result).\"\"\"
+    problems = _gate_problems(df)
+    for p in problems:
+        print(p)
+    return "clean" if not problems else "not clean"
+
+
+def _mode_check(df, mae_additive, mae_multiplicative, mae_log):
     \"\"\"The lighting desk: the three holdout errors, each within 10 % of a sound fit.\"\"\"
-    problems = []
+    problems = _gate_problems(df)
     for name, value, ref in (("mae_additive", mae_additive, 516), ("mae_multiplicative", mae_multiplicative, 293), ("mae_log", mae_log, 433)):
         v = _number(value)
         if v is None:
@@ -78,9 +98,9 @@ def _mode_check(mae_additive, mae_multiplicative, mae_log):
     return _verdict(problems)
 
 
-def _events_check(events, saturday_effect):
+def _events_check(df, events, saturday_effect):
     \"\"\"The events desk: the calendar as a holidays table, and the opening Saturday's effect.\"\"\"
-    problems = []
+    problems = _gate_problems(df)
     want = {
         frozenset(("2021-06-18", "2022-06-17", "2023-06-16", "2024-06-21", "2025-06-20", "2026-06-19")): (0, 2),
         frozenset(("2021-09-11", "2022-09-10", "2023-09-09", "2024-09-14", "2025-09-13", "2026-09-12")): (-1, 0),
@@ -108,26 +128,27 @@ def _events_check(events, saturday_effect):
     v = _number(saturday_effect)
     if v is None:
         problems.append("saturday_effect is not a number yet. / saturday_effect ist noch keine Zahl.")
-    elif v > 50:
-        problems.append("saturday_effect looks like visitors, not a share of the trend: fit with seasonality_mode=\\"multiplicative\\". / saturday_effect sieht nach Besuchern aus, nicht nach einem Anteil am Trend: mit seasonality_mode=\\"multiplicative\\" anpassen.")
     elif abs(v - 2.04) > 0.25:
-        problems.append("saturday_effect doesn't match: the opening weekend's column on Saturday 22 June 2024, from a model fitted on all of df. / saturday_effect passt nicht: die Spalte des Eröffnungswochenendes am Samstag, 22. Juni 2024, aus einem Modell, das auf ganz df angepasst wurde.")
+        problems.append("saturday_effect doesn't match: the opening weekend's column on Saturday 22 June 2024, from a model with the lighting desk's seasonality mode, fitted on all of df. / saturday_effect passt nicht: die Spalte des Eröffnungswochenendes am Samstag, 22. Juni 2024, aus einem Modell mit der Saisonalität vom Lichtpult, angepasst auf ganz df.")
     return _verdict(problems)
 
 
-def _order_check(mae_model, opening_2026):
-    \"\"\"The stage order: a model that beats the best baseline, and its opening weekend forecast.\"\"\"
-    problems = []
+def _order_check(df, best_baseline, mae_model, opening_2026):
+    \"\"\"The stage order: the best baseline's error, a model that beats it, and its opening weekend forecast.\"\"\"
+    problems = _gate_problems(df)
+    base = _number(best_baseline)
+    if base is None or abs(base - 422) > 1:
+        problems.append("Order refused: best_baseline must be the error of the best simple rule on June-September 2025, in visitors a day. / Bestellung abgelehnt: best_baseline muss der Fehler der besten einfachen Regel auf Juni-September 2025 sein, in Besuchern pro Tag.")
     mae = _number(mae_model)
     if mae is None or not 100 < mae < 422:
-        problems.append("Order refused: the model must beat the best baseline (422 visitors a day on June-September 2025; check mae_model). / Bestellung abgelehnt: Das Modell muss die beste Baseline schlagen (422 Besucher pro Tag auf Juni-September 2025; mae_model prüfen).")
+        problems.append("Order refused: the model doesn't beat the best simple rule (check mae_model). / Bestellung abgelehnt: Das Modell schlägt die beste einfache Regel nicht (mae_model prüfen).")
     total = _number(opening_2026)
     if total is None:
         problems.append("opening_2026 is not a number yet. / opening_2026 ist noch keine Zahl.")
     elif total < 0.62 * 19078:
-        problems.append("Order refused: far too few visitors for the opening weekend. All three days added up? Does the model know that the 2026 opening weekend is coming? / Bestellung abgelehnt: viel zu wenige Besucher für das Eröffnungswochenende. Alle drei Tage addiert? Weiß das Modell, dass 2026 ein Eröffnungswochenende kommt?")
+        problems.append("Order refused: far too few visitors for the opening weekend. Is it the figure the stage order form asks for? Does the model know that the 2026 opening weekend is coming? / Bestellung abgelehnt: viel zu wenige Besucher für das Eröffnungswochenende. Ist es die Zahl, nach der das Bestellformular fragt? Weiß das Modell, dass 2026 ein Eröffnungswochenende kommt?")
     elif abs(total - 19078) > 0.05 * 19078:
-        problems.append("Order refused: that forecast doesn't match a sound model (all three days? multiplicative? the right changepoint?). / Bestellung abgelehnt: Diese Prognose passt zu keinem stimmigen Modell (alle drei Tage? multiplikativ? der richtige Changepoint?).")
+        problems.append("Order refused: that forecast doesn't match a sound model. Check the settings from the tram counter, the lighting desk and the events desk. / Bestellung abgelehnt: Diese Prognose passt zu keinem stimmigen Modell. Prüft die Einstellungen vom Straßenbahnzähler, vom Lichtpult und vom Veranstaltungstisch.")
     return _verdict(problems)
 """
 

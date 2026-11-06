@@ -41,8 +41,8 @@
         "de": "Das Einlass-Log"
       },
       "text": {
-        "en": "Every forecast here starts from the gate scans: how many visitors came through the gates each day. But the log has days that aren't visitors at all.\n\nPut the log into the format a Prophet-style model expects, a DataFrame `df` with the columns `ds` (date) and `y` (visitors). Every day that wasn't really counted must end up empty, as the IT note says.",
-        "de": "Jede Prognose hier beginnt mit den Einlass-Scans: wie viele Besucher jeden Tag durch die Tore kamen. Aber das Log enthält Tage, die gar keine Besucher sind.\n\nBringt das Log in das Format, das ein Prophet-artiges Modell erwartet: ein DataFrame `df` mit den Spalten `ds` (Datum) und `y` (Besucher). Jeder Tag, der nicht wirklich gezählt wurde, muss leer sein, so wie es die IT-Notiz sagt."
+        "en": "Every forecast here starts from the gate scans: how many visitors came through the gates each day. But the log has days that aren't visitors at all.\n\nPut the log into the format a Prophet-style model expects, a DataFrame `df` with the columns `ds` (date) and `y` (visitors), one row for every day. Every day that wasn't really counted keeps its row but must end up empty, as the IT note says. The other desks all start from your `df`.",
+        "de": "Jede Prognose hier beginnt mit den Einlass-Scans: wie viele Besucher jeden Tag durch die Tore kamen. Aber das Log enthält Tage, die gar keine Besucher sind.\n\nBringt das Log in das Format, das ein Prophet-artiges Modell erwartet: ein DataFrame `df` mit den Spalten `ds` (Datum) und `y` (Besucher), eine Zeile pro Tag. Jeder Tag, der nicht wirklich gezählt wurde, behält seine Zeile, muss aber leer sein, so wie es die IT-Notiz sagt. Alle anderen Tische gehen von eurem `df` aus."
       },
       "workspace": "python",
       "data": "scans.py",
@@ -52,12 +52,12 @@
       },
       "check": {
         "type": "python",
-        "expr": "[sorted(df.columns.tolist()), int(df[\"y\"].notna().sum()), round(float(df[\"y\"].sum()))]",
-        "hash": "d8cade193b3f281e8dd391d7732c9dc9f8b2a45bdbfe84fbc348d7a6806f25f4"
+        "expr": "[sorted(df.columns.tolist()), len(df), int(df[\"y\"].notna().sum()), round(float(df[\"y\"].sum()))]",
+        "hash": "07375f83dc76f2dd70c5419d4a8366464ae4d70f2652933603db2362b6930d9a"
       },
       "reveal": {
-        "en": "The log is clean: 1714 counted days. The 14 outage days and 6 test bookings stay empty; the model simply skips them.",
-        "de": "Das Log ist sauber: 1714 gezählte Tage. Die 14 Ausfalltage und 6 Testbuchungen bleiben leer; das Modell überspringt sie einfach."
+        "en": "The log is clean: 1734 days, 1714 of them counted. The 14 outage days and 6 test bookings stay empty; the model simply skips them. Every other desk starts from this `df`, so take your code along.",
+        "de": "Das Log ist sauber: 1734 Tage, davon 1714 gezählt. Die 14 Ausfalltage und 6 Testbuchungen bleiben leer; das Modell überspringt sie einfach. Alle anderen Tische gehen von diesem `df` aus, also nehmt euren Code mit."
       },
       "practises": {
         "en": "Prophet's `ds`/`y` format, telling real values from recording errors, leaving gaps empty instead of interpolating",
@@ -76,8 +76,8 @@
           "de": "Die IT-Notiz nennt zwei Arten falscher Tage: den Ausfall (als 0 erfasst) und die Testbuchungen (genau 9999). Nehmt keine Schwelle wie `y > 5000`: Echte Festivaltage sind genauso voll."
         },
         {
-          "en": "`df.loc[df[\"y\"] == 9999, \"y\"] = None`, and the same for the outage dates 4 to 17 March 2024. Keep those rows or drop them, but don't fill in numbers.",
-          "de": "`df.loc[df[\"y\"] == 9999, \"y\"] = None`, und dasselbe für die Ausfalltage 4. bis 17. März 2024. Die Zeilen könnt ihr behalten oder löschen, aber füllt keine Zahlen ein."
+          "en": "`df.loc[df[\"y\"] == 9999, \"y\"] = None`, and the same for the outage dates 4 to 17 March 2024. Keep those rows (the other desks need a row for every day), but don't fill in numbers.",
+          "de": "`df.loc[df[\"y\"] == 9999, \"y\"] = None`, und dasselbe für die Ausfalltage 4. bis 17. März 2024. Behaltet die Zeilen (die anderen Tische brauchen eine Zeile pro Tag), aber füllt keine Zahlen ein."
         }
       ]
     },
@@ -111,7 +111,8 @@
         "de": "Trend-Changepoints: automatische Kandidaten und ihre Steigungsänderungen (`delta`), einen bekannten Changepoint von Hand setzen, die Trendkomponente ablesen"
       },
       "clues": [
-        "newspaper"
+        "newspaper",
+        "cheat-sheet"
       ],
       "hints": [
         {
@@ -135,23 +136,20 @@
         "de": "Martas Faustregel"
       },
       "text": {
-        "en": "Before anyone trusts a model, it has to beat the simple rules people already use. Test them the way the planning notebook says: train until the end of May 2025, test on June to September 2025.\n\nForecast the test days three ways using only the training data, and compute each one's mean absolute error in visitors per day: `mae_naive` (every day equals the last training day), `mae_last_week` (the last training week, repeated) and `mae_last_year` (Marta's rule).",
-        "de": "Bevor man einem Modell traut, muss es die einfachen Regeln schlagen, die schon benutzt werden. Testet sie so, wie es im Planungsheft steht: Training bis Ende Mai 2025, Test auf Juni bis September 2025.\n\nPrognostiziert die Testtage auf drei Arten, nur mit den Trainingsdaten, und berechnet jeweils den mittleren absoluten Fehler in Besuchern pro Tag: `mae_naive` (jeder Tag gleich dem letzten Trainingstag), `mae_last_week` (die letzte Trainingswoche, wiederholt) und `mae_last_year` (Martas Regel)."
+        "en": "Before anyone trusts a model, it has to beat the simple rules people already use. Test them the way the planning notebook says: train until the end of May 2025, test on June to September 2025.\n\nStart from your cleaned `df` from the gate scanner log. Forecast the test days three ways using only the training data, and compute each one's mean absolute error in visitors per day: `mae_naive` (every day equals the last training day), `mae_last_week` (the last training week, repeated) and `mae_last_year` (Marta's rule).",
+        "de": "Bevor man einem Modell traut, muss es die einfachen Regeln schlagen, die schon benutzt werden. Testet sie so, wie es im Planungsheft steht: Training bis Ende Mai 2025, Test auf Juni bis September 2025.\n\nGeht von eurem bereinigten `df` vom Einlass-Log aus. Prognostiziert die Testtage auf drei Arten, nur mit den Trainingsdaten, und berechnet jeweils den mittleren absoluten Fehler in Besuchern pro Tag: `mae_naive` (jeder Tag gleich dem letzten Trainingstag), `mae_last_week` (die letzte Trainingswoche, wiederholt) und `mae_last_year` (Martas Regel)."
       },
       "workspace": "python",
       "data": "scans.py",
       "starter": {
-        "en": "from helpers import show_plot\n\n# The cleaned gate log from the scanner terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\n\ny = df.set_index(\"ds\")[\"y\"]\ntrain = y[:\"2025-05-31\"]\ntest = y[\"2025-06-01\":]\n\n# Three forecasts for the test days, each a Series with test.index:\nnaive = None        # every day = the last training day\nlast_week = None    # the last 7 training days, repeated\nlast_year = None    # Marta's rule (see her notebook)\n\nmae_naive = None    # mean absolute errors against test, in visitors per day\nmae_last_week = None\nmae_last_year = None\n",
-        "de": "from helpers import show_plot\n\n# Das bereinigte Einlass-Log vom Scanner-Terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\n\ny = df.set_index(\"ds\")[\"y\"]\ntrain = y[:\"2025-05-31\"]\ntest = y[\"2025-06-01\":]\n\n# Drei Prognosen für die Testtage, jeweils eine Series mit test.index:\nnaive = None        # jeder Tag = der letzte Trainingstag\nlast_week = None    # die letzten 7 Trainingstage, wiederholt\nlast_year = None    # Martas Regel (siehe ihr Heft)\n\nmae_naive = None    # mittlere absolute Fehler gegenüber test, in Besuchern pro Tag\nmae_last_week = None\nmae_last_year = None\n"
+        "en": "from helpers import show_plot\n\n# df: the cleaned gate log. Copy your code from the gate scanner log here.\ndf = None\n\ny = df.set_index(\"ds\")[\"y\"]\ntrain = y[:\"2025-05-31\"]\ntest = y[\"2025-06-01\":]\n\n# Three forecasts for the test days, each a Series with test.index:\nnaive = None        # every day = the last training day\nlast_week = None    # the last 7 training days, repeated\nlast_year = None    # Marta's rule (see her notebook)\n\nmae_naive = None    # mean absolute errors against test, in visitors per day\nmae_last_week = None\nmae_last_year = None\n",
+        "de": "from helpers import show_plot\n\n# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.\ndf = None\n\ny = df.set_index(\"ds\")[\"y\"]\ntrain = y[:\"2025-05-31\"]\ntest = y[\"2025-06-01\":]\n\n# Drei Prognosen für die Testtage, jeweils eine Series mit test.index:\nnaive = None        # jeder Tag = der letzte Trainingstag\nlast_week = None    # die letzten 7 Trainingstage, wiederholt\nlast_year = None    # Martas Regel (siehe ihr Heft)\n\nmae_naive = None    # mittlere absolute Fehler gegenüber test, in Besuchern pro Tag\nmae_last_week = None\nmae_last_year = None\n"
       },
       "check": {
         "type": "python",
-        "expr": "[round(float(mae_naive)), round(float(mae_last_week)), round(float(mae_last_year))]",
-        "hash": "f03e19683aa703c8c599e7af5f98a02d1812402d1deeb4a7e4f09df30df4a9a3"
+        "expr": "[_clean_df(df), round(float(mae_naive)), round(float(mae_last_week)), round(float(mae_last_year))]",
+        "hash": "0da386322c366a73b5e00f98d54ee88aa65d27e2a3a8467d849405c0df34cdf6"
       },
-      "requires": [
-        "gate"
-      ],
       "reveal": {
         "en": "Repeating the last week misses by **422 visitors a day** in summer 2025; Marta's same-day-last-year rule by 614, the naive forecast by 753. Any model has to beat 422.",
         "de": "Die letzte Woche zu wiederholen liegt im Sommer 2025 im Schnitt **422 Besucher pro Tag** daneben, Martas Regel (gleicher Tag im Vorjahr) 614, die naive Prognose 753. Jedes Modell muss 422 schlagen."
@@ -176,6 +174,9 @@
           "en": "`last_year = y.shift(364)[\"2025-06-01\":]`. The MAE is `(forecast - test).abs().mean()`; pandas skips the empty test days.",
           "de": "`last_year = y.shift(364)[\"2025-06-01\":]`. Der MAE ist `(prognose - test).abs().mean()`; pandas überspringt die leeren Testtage."
         }
+      ],
+      "uses": [
+        "gate"
       ]
     },
     {
@@ -185,23 +186,20 @@
         "de": "Das Lichtpult"
       },
       "text": {
-        "en": "The lighting desk has three faders for how the seasons act on the crowd: added on top, multiplied, or on the log scale. Since the tram came, summer weekends swing much wider than they used to.\n\nFit three models on the training data (until May 2025) and compute their mean absolute errors on June to September 2025, in visitors: `mae_additive` (the default), `mae_multiplicative` (multiplicative seasonality) and `mae_log` (additive, fitted on the log of the visitors).",
-        "de": "Das Lichtpult hat drei Regler dafür, wie die Jahreszeiten auf die Besucher wirken: obendrauf addiert, multipliziert oder auf der Log-Skala. Seit die Straßenbahn fährt, schwanken die Sommerwochenenden viel stärker als früher.\n\nPasst drei Modelle auf die Trainingsdaten (bis Mai 2025) an und berechnet ihre mittleren absoluten Fehler auf Juni bis September 2025, in Besuchern: `mae_additive` (die Voreinstellung), `mae_multiplicative` (multiplikative Saisonalität) und `mae_log` (additiv, angepasst auf den Logarithmus der Besucher)."
+        "en": "The lighting desk has three faders for how the seasons act on the crowd: added on top, multiplied, or on the log scale. Since the tram came, summer weekends swing much wider than they used to.\n\nStart from your cleaned `df` from the gate scanner log. Fit three models on the training data (until May 2025) and compute their mean absolute errors on June to September 2025, in visitors: `mae_additive` (the default), `mae_multiplicative` (multiplicative seasonality) and `mae_log` (additive, fitted on the log of the visitors).",
+        "de": "Das Lichtpult hat drei Regler dafür, wie die Jahreszeiten auf die Besucher wirken: obendrauf addiert, multipliziert oder auf der Log-Skala. Seit die Straßenbahn fährt, schwanken die Sommerwochenenden viel stärker als früher.\n\nGeht von eurem bereinigten `df` vom Einlass-Log aus. Passt drei Modelle auf die Trainingsdaten (bis Mai 2025) an und berechnet ihre mittleren absoluten Fehler auf Juni bis September 2025, in Besuchern: `mae_additive` (die Voreinstellung), `mae_multiplicative` (multiplikative Saisonalität) und `mae_log` (additiv, angepasst auf den Logarithmus der Besucher)."
       },
       "workspace": "python",
       "data": "scans.py",
       "starter": {
-        "en": "from prophet import Prophet\nfrom helpers import show_plot\n\n# The cleaned gate log from the scanner terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # summer 2025: June to September\n\n\ndef holdout_mae(yhat):\n    \"\"\"Mean absolute error of a forecast for the test days, in visitors per day.\"\"\"\n    return (pd.Series(np.asarray(yhat), index=test.index) - test[\"y\"]).abs().mean()\n\n\nadditive = Prophet()\nadditive.fit(train)\nforecast = additive.predict(test)\nmae_additive = holdout_mae(forecast[\"yhat\"])\nshow_plot(test.set_index(\"ds\")[\"y\"], forecast.set_index(\"ds\")[\"yhat\"], labels=[\"actual\", \"additive\"])\n\nmae_multiplicative = None\nmae_log = None   # compare in visitors, not in log units\n",
-        "de": "from prophet import Prophet\nfrom helpers import show_plot\n\n# Das bereinigte Einlass-Log vom Scanner-Terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # Sommer 2025: Juni bis September\n\n\ndef holdout_mae(yhat):\n    \"\"\"Mittlerer absoluter Fehler einer Prognose für die Testtage, in Besuchern pro Tag.\"\"\"\n    return (pd.Series(np.asarray(yhat), index=test.index) - test[\"y\"]).abs().mean()\n\n\nadditive = Prophet()\nadditive.fit(train)\nforecast = additive.predict(test)\nmae_additive = holdout_mae(forecast[\"yhat\"])\nshow_plot(test.set_index(\"ds\")[\"y\"], forecast.set_index(\"ds\")[\"yhat\"], labels=[\"echt\", \"additiv\"])\n\nmae_multiplicative = None\nmae_log = None   # in Besuchern vergleichen, nicht in Log-Einheiten\n"
+        "en": "from prophet import Prophet\nfrom helpers import show_plot\n\n# df: the cleaned gate log. Copy your code from the gate scanner log here.\ndf = None\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # summer 2025: June to September\n\n\ndef holdout_mae(yhat):\n    \"\"\"Mean absolute error of a forecast for the test days, in visitors per day.\"\"\"\n    return (pd.Series(np.asarray(yhat), index=test.index) - test[\"y\"]).abs().mean()\n\n\nadditive = Prophet()\nadditive.fit(train)\nforecast = additive.predict(test)\nmae_additive = holdout_mae(forecast[\"yhat\"])\nshow_plot(test.set_index(\"ds\")[\"y\"], forecast.set_index(\"ds\")[\"yhat\"], labels=[\"actual\", \"additive\"])\n\nmae_multiplicative = None\nmae_log = None   # compare in visitors, not in log units\n",
+        "de": "from prophet import Prophet\nfrom helpers import show_plot\n\n# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.\ndf = None\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # Sommer 2025: Juni bis September\n\n\ndef holdout_mae(yhat):\n    \"\"\"Mittlerer absoluter Fehler einer Prognose für die Testtage, in Besuchern pro Tag.\"\"\"\n    return (pd.Series(np.asarray(yhat), index=test.index) - test[\"y\"]).abs().mean()\n\n\nadditive = Prophet()\nadditive.fit(train)\nforecast = additive.predict(test)\nmae_additive = holdout_mae(forecast[\"yhat\"])\nshow_plot(test.set_index(\"ds\")[\"y\"], forecast.set_index(\"ds\")[\"yhat\"], labels=[\"echt\", \"additiv\"])\n\nmae_multiplicative = None\nmae_log = None   # in Besuchern vergleichen, nicht in Log-Einheiten\n"
       },
       "check": {
         "type": "python",
-        "expr": "_mode_check(mae_additive, mae_multiplicative, mae_log)",
+        "expr": "_mode_check(df, mae_additive, mae_multiplicative, mae_log)",
         "hash": "9645a669d288b750ab9af844110994db3a7e14899419a0c627b99b4a62770d74"
       },
-      "requires": [
-        "gate"
-      ],
       "reveal": {
         "en": "Multiplicative wins: about **293** visitors a day off, against 516 additive and 433 on the log scale. Summers and weekends scale with the crowd, so use `seasonality_mode=\"multiplicative\"`.",
         "de": "Multiplikativ gewinnt: etwa **293** Besucher pro Tag daneben, gegenüber 516 additiv und 433 auf der Log-Skala. Sommer und Wochenenden wachsen mit der Menge, also `seasonality_mode=\"multiplicative\"`."
@@ -226,6 +224,9 @@
           "en": "`mae_log = holdout_mae(np.exp(logged.predict(test)[\"yhat\"]))`, where `logged` is the model fitted on the log values.",
           "de": "`mae_log = holdout_mae(np.exp(logged.predict(test)[\"yhat\"]))`, wobei `logged` das auf die Log-Werte angepasste Modell ist."
         }
+      ],
+      "uses": [
+        "gate"
       ]
     },
     {
@@ -235,23 +236,20 @@
         "de": "Der Veranstaltungstisch"
       },
       "text": {
-        "en": "Two events break every pattern: the Summer Festival's opening weekend and Lantern Night. A Prophet-style model learns them from a holidays table.\n\nBuild `events` from the event calendar on the noticeboard: one row per event date, with the columns `holiday`, `ds`, `lower_window` and `upper_window`, including next year's dates. Fit a multiplicative model with it on all of `df`, and store the opening weekend's effect on Saturday 22 June 2024 in `saturday_effect` (as the model reports it: a share of the trend).",
-        "de": "Zwei Ereignisse durchbrechen jedes Muster: das Eröffnungswochenende des Sommerfestivals und die Laternennacht. Ein Prophet-artiges Modell lernt sie aus einer Feiertagstabelle.\n\nBaut `events` nach dem Veranstaltungskalender am Schwarzen Brett: eine Zeile pro Termin, mit den Spalten `holiday`, `ds`, `lower_window` und `upper_window`, einschließlich der Termine im nächsten Jahr. Passt damit ein multiplikatives Modell auf ganz `df` an und speichert den Effekt des Eröffnungswochenendes am Samstag, 22. Juni 2024, in `saturday_effect` (so, wie das Modell ihn angibt: als Anteil am Trend)."
+        "en": "Two events break every pattern: the Summer Festival's opening weekend and Lantern Night. A Prophet-style model learns them from a holidays table.\n\nBuild `events` from the event calendar on the noticeboard: one row per event date, with the columns `holiday`, `ds`, `lower_window` and `upper_window`, including next year's dates. Fit a model with it on all of your cleaned `df` from the gate scanner log, with the seasonality mode that won at the lighting desk, and store the opening weekend's effect on Saturday 22 June 2024 in `saturday_effect` (as the model reports it in the event's column).",
+        "de": "Zwei Ereignisse durchbrechen jedes Muster: das Eröffnungswochenende des Sommerfestivals und die Laternennacht. Ein Prophet-artiges Modell lernt sie aus einer Feiertagstabelle.\n\nBaut `events` nach dem Veranstaltungskalender am Schwarzen Brett: eine Zeile pro Termin, mit den Spalten `holiday`, `ds`, `lower_window` und `upper_window`, einschließlich der Termine im nächsten Jahr. Passt damit ein Modell auf euer ganzes bereinigtes `df` vom Einlass-Log an, mit der Saisonalität, die am Lichtpult gewonnen hat, und speichert den Effekt des Eröffnungswochenendes am Samstag, 22. Juni 2024, in `saturday_effect` (so, wie das Modell ihn in der Spalte des Ereignisses angibt)."
       },
       "workspace": "python",
       "data": "scans.py",
       "starter": {
-        "en": "from prophet import Prophet\nfrom helpers import show_plot\n\n# The cleaned gate log from the scanner terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\n\n# One row per event date. The window says which days around ds belong to the event:\n# lower_window=-1 adds the day before, upper_window=1 the day after.\nevents = pd.DataFrame({\n    \"holiday\": [],\n    \"ds\": [],\n    \"lower_window\": [],\n    \"upper_window\": [],\n})\n\nm = Prophet(seasonality_mode=\"multiplicative\", holidays=events)\nm.fit(df)\nforecast = m.predict(df).set_index(\"ds\")\nprint(forecast.columns.tolist())   # one column per holiday name\n\nsaturday_effect = None   # the opening weekend's column on 2024-06-22\n",
-        "de": "from prophet import Prophet\nfrom helpers import show_plot\n\n# Das bereinigte Einlass-Log vom Scanner-Terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\n\n# Eine Zeile pro Termin. Das Fenster sagt, welche Tage um ds zum Ereignis gehören:\n# lower_window=-1 nimmt den Tag davor dazu, upper_window=1 den Tag danach.\nevents = pd.DataFrame({\n    \"holiday\": [],\n    \"ds\": [],\n    \"lower_window\": [],\n    \"upper_window\": [],\n})\n\nm = Prophet(seasonality_mode=\"multiplicative\", holidays=events)\nm.fit(df)\nforecast = m.predict(df).set_index(\"ds\")\nprint(forecast.columns.tolist())   # eine Spalte pro Feiertagsname\n\nsaturday_effect = None   # die Spalte des Eröffnungswochenendes am 2024-06-22\n"
+        "en": "from prophet import Prophet\nfrom helpers import show_plot\n\n# df: the cleaned gate log. Copy your code from the gate scanner log here.\ndf = None\n\n# One row per event date. The window says which days around ds belong to the event:\n# lower_window=-1 adds the day before, upper_window=1 the day after.\nevents = pd.DataFrame({\n    \"holiday\": [],\n    \"ds\": [],\n    \"lower_window\": [],\n    \"upper_window\": [],\n})\n\nm = Prophet(holidays=events)   # plus the seasonality mode that won at the lighting desk\nm.fit(df)\nforecast = m.predict(df).set_index(\"ds\")\nprint(forecast.columns.tolist())   # one column per holiday name\n\nsaturday_effect = None   # the opening weekend's column on 2024-06-22\n",
+        "de": "from prophet import Prophet\nfrom helpers import show_plot\n\n# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.\ndf = None\n\n# Eine Zeile pro Termin. Das Fenster sagt, welche Tage um ds zum Ereignis gehören:\n# lower_window=-1 nimmt den Tag davor dazu, upper_window=1 den Tag danach.\nevents = pd.DataFrame({\n    \"holiday\": [],\n    \"ds\": [],\n    \"lower_window\": [],\n    \"upper_window\": [],\n})\n\nm = Prophet(holidays=events)   # dazu die Saisonalität, die am Lichtpult gewonnen hat\nm.fit(df)\nforecast = m.predict(df).set_index(\"ds\")\nprint(forecast.columns.tolist())   # eine Spalte pro Feiertagsname\n\nsaturday_effect = None   # die Spalte des Eröffnungswochenendes am 2024-06-22\n"
       },
       "check": {
         "type": "python",
-        "expr": "_events_check(events, saturday_effect)",
+        "expr": "_events_check(df, events, saturday_effect)",
         "hash": "339891a2992afce1a3197b5f48c48928fe67bcd08f2d0cb05de5e406345cdf1b"
       },
-      "requires": [
-        "gate"
-      ],
       "reveal": {
         "en": "On the opening Saturday the festival adds about **204 % of the trend** to an ordinary summer Saturday, and Lantern Night even more. Keep the 2026 dates in the table: a model only expects the events it is told about.",
         "de": "Am Eröffnungssamstag legt das Festival etwa **204 % des Trends** auf einen gewöhnlichen Sommersamstag drauf, die Laternennacht sogar noch mehr. Behaltet die Termine für 2026 in der Tabelle: Ein Modell erwartet nur die Ereignisse, von denen es weiß."
@@ -261,7 +259,8 @@
         "de": "Feiertagseffekte: eine Feiertagstabelle mit Fenstern bauen, zukünftige Termine aufnehmen, die Komponente eines Feiertags im multiplikativen Modus ablesen"
       },
       "clues": [
-        "event-calendar"
+        "event-calendar",
+        "cheat-sheet"
       ],
       "hints": [
         {
@@ -273,9 +272,13 @@
           "de": "Die Laternennacht zählt die Generalprobe am Vorabend mit: `lower_window=-1`, `upper_window=0`. Nehmt alle sechs Jahre beider Ereignisse, 2021 bis 2026."
         },
         {
-          "en": "With the holiday named `\"opening_weekend\"`: `saturday_effect = forecast.loc[\"2024-06-22\", \"opening_weekend\"]`. It should come out around 2, i.e. +200 %.",
-          "de": "Mit dem Feiertagsnamen `\"opening_weekend\"`: `saturday_effect = forecast.loc[\"2024-06-22\", \"opening_weekend\"]`. Es sollte etwa 2 herauskommen, also +200 %."
+          "en": "The lighting desk's winner: `Prophet(seasonality_mode=\"multiplicative\", holidays=events)`. With the holiday named `\"opening_weekend\"`: `saturday_effect = forecast.loc[\"2024-06-22\", \"opening_weekend\"]`. It should come out around 2, i.e. +200 % of the trend.",
+          "de": "Der Gewinner vom Lichtpult: `Prophet(seasonality_mode=\"multiplicative\", holidays=events)`. Mit dem Feiertagsnamen `\"opening_weekend\"`: `saturday_effect = forecast.loc[\"2024-06-22\", \"opening_weekend\"]`. Es sollte etwa 2 herauskommen, also +200 % des Trends."
         }
+      ],
+      "uses": [
+        "gate",
+        "mode"
       ]
     },
     {
@@ -285,47 +288,49 @@
         "de": "Die Bühnenbestellung"
       },
       "text": {
-        "en": "The office door unlocks once the stage order for the Summer Festival 2026 is sent. The order system only accepts a forecast from a model that beats the best baseline on summer 2025.\n\nBuild the full model from everything the room taught you. Set `mae_model` (its error on June to September 2025, trained until May 2025) and `opening_2026` (the visitors it expects over the 2026 opening weekend, all three days added up, from a model fitted on all of `df`). The order system tells you what it doesn't like.",
-        "de": "Die Bürotür öffnet sich, sobald die Bühnenbestellung für das Sommerfestival 2026 abgeschickt ist. Das Bestellsystem nimmt nur eine Prognose von einem Modell an, das die beste Baseline auf Sommer 2025 schlägt.\n\nBaut das vollständige Modell aus allem, was der Raum euch gezeigt hat. Setzt `mae_model` (sein Fehler auf Juni bis September 2025, trainiert bis Mai 2025) und `opening_2026` (die Besucher, die es über das Eröffnungswochenende 2026 erwartet, alle drei Tage zusammen, aus einem Modell, das auf ganz `df` angepasst wurde). Das Bestellsystem sagt euch, was ihm nicht passt."
+        "en": "The office door unlocks once the stage order for the Summer Festival 2026 is sent. The order system only accepts a forecast from a model that beats the best simple rule on summer 2025.\n\nBuild the full model from everything the room taught you, on your cleaned `df` from the gate scanner log. Set `best_baseline` (the best simple rule's error, from the planner's rule), `mae_model` (your model's error on June to September 2025, trained until May 2025) and `opening_2026` (the figure the stage order form asks for, from a model fitted on all of `df`). The order system tells you what it doesn't like.",
+        "de": "Die Bürotür öffnet sich, sobald die Bühnenbestellung für das Sommerfestival 2026 abgeschickt ist. Das Bestellsystem nimmt nur eine Prognose von einem Modell an, das die beste einfache Regel auf Sommer 2025 schlägt.\n\nBaut das vollständige Modell aus allem, was der Raum euch gezeigt hat, auf eurem bereinigten `df` vom Einlass-Log. Setzt `best_baseline` (den Fehler der besten einfachen Regel, aus Martas Faustregel), `mae_model` (den Fehler eures Modells auf Juni bis September 2025, trainiert bis Mai 2025) und `opening_2026` (die Zahl, nach der das Bestellformular fragt, aus einem Modell, das auf ganz `df` angepasst wurde). Das Bestellsystem sagt euch, was ihm nicht passt."
       },
       "workspace": "python",
       "data": "scans.py",
       "starter": {
-        "en": "from prophet import Prophet\nfrom helpers import show_plot\n\n# The cleaned gate log from the scanner terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\n\nevents = None   # the holidays table from the events desk\n\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # summer 2025: June to September\n\n\ndef model():\n    \"\"\"A fresh, unfitted model with every setting the room taught you.\"\"\"\n    return Prophet()\n\n\n# 1. Prove the model on summer 2025: fit on train, predict test, mean absolute error in visitors.\nmae_model = None\n\n# 2. Fit model() on all of df, forecast until 21 June 2026, add up the opening weekend.\nopening_2026 = None\n",
-        "de": "from prophet import Prophet\nfrom helpers import show_plot\n\n# Das bereinigte Einlass-Log vom Scanner-Terminal:\ndf = scans.reset_index()\ndf.columns = [\"ds\", \"y\"]\ndf.loc[df[\"y\"] == 9999, \"y\"] = None\ndf.loc[(df[\"ds\"] >= \"2024-03-04\") & (df[\"ds\"] <= \"2024-03-17\"), \"y\"] = None\n\nevents = None   # die Feiertagstabelle vom Veranstaltungstisch\n\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # Sommer 2025: Juni bis September\n\n\ndef model():\n    \"\"\"Ein frisches, noch nicht angepasstes Modell mit allen Einstellungen, die der Raum euch gezeigt hat.\"\"\"\n    return Prophet()\n\n\n# 1. Das Modell auf Sommer 2025 prüfen: auf train anpassen, test prognostizieren, mittlerer absoluter Fehler in Besuchern.\nmae_model = None\n\n# 2. model() auf ganz df anpassen, bis zum 21. Juni 2026 prognostizieren, das Eröffnungswochenende addieren.\nopening_2026 = None\n"
+        "en": "from prophet import Prophet\nfrom helpers import show_plot\n\n# df: the cleaned gate log. Copy your code from the gate scanner log here.\ndf = None\n\nevents = None          # the holidays table from the events desk\nbest_baseline = None   # the best simple rule's error on June to September 2025, visitors per day\n\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # summer 2025: June to September\n\n\ndef model():\n    \"\"\"A fresh, unfitted model with every setting the room taught you.\"\"\"\n    return Prophet()\n\n\n# 1. Prove the model on summer 2025: fit on train, predict test, mean absolute error in visitors.\nmae_model = None\n\n# 2. Fit model() on all of df, forecast far enough ahead, and work out what the stage order form asks for.\nopening_2026 = None\n",
+        "de": "from prophet import Prophet\nfrom helpers import show_plot\n\n# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.\ndf = None\n\nevents = None          # die Feiertagstabelle vom Veranstaltungstisch\nbest_baseline = None   # der Fehler der besten einfachen Regel auf Juni bis September 2025, Besucher pro Tag\n\ntrain = df[df[\"ds\"] <= \"2025-05-31\"]\ntest = df[df[\"ds\"] >= \"2025-06-01\"]   # Sommer 2025: Juni bis September\n\n\ndef model():\n    \"\"\"Ein frisches, noch nicht angepasstes Modell mit allen Einstellungen, die der Raum euch gezeigt hat.\"\"\"\n    return Prophet()\n\n\n# 1. Das Modell auf Sommer 2025 prüfen: auf train anpassen, test prognostizieren, mittlerer absoluter Fehler in Besuchern.\nmae_model = None\n\n# 2. model() auf ganz df anpassen, weit genug vorausprognostizieren und ausrechnen, wonach das Bestellformular fragt.\nopening_2026 = None\n"
       },
       "check": {
         "type": "python",
-        "expr": "_order_check(mae_model, opening_2026)",
+        "expr": "_order_check(df, best_baseline, mae_model, opening_2026)",
         "hash": "a67fc07f6272b5803cb9a75e7f48c08d68ff233a8c6cd3e3d014dc7f05168b57"
       },
-      "requires": [
-        "tram",
-        "planner",
-        "mode",
-        "events"
-      ],
       "final": true,
       "practises": {
         "en": "Combining trend changepoints, multiplicative seasonality and holidays, proving a model against a baseline, forecasting future events",
         "de": "Trend-Changepoints, multiplikative Saisonalität und Feiertage kombinieren, ein Modell gegen eine Baseline prüfen, zukünftige Ereignisse prognostizieren"
       },
       "clues": [
-        "order-form"
+        "order-form",
+        "cheat-sheet"
       ],
       "hints": [
         {
-          "en": "Combine all the reveals: `Prophet(seasonality_mode=\"multiplicative\", holidays=events, changepoints=[\"2023-04-01\"])`, with `events` copied from the events desk, 2026 dates included.",
-          "de": "Kombiniert alle Hinweise: `Prophet(seasonality_mode=\"multiplicative\", holidays=events, changepoints=[\"2023-04-01\"])`, mit `events` vom Veranstaltungstisch übernommen, inklusive der Termine 2026."
+          "en": "Each desk's reveal adds one setting to `model()`: the changepoint from the tram counter, the seasonality mode from the lighting desk, and `events` from the events desk, 2026 dates included. `best_baseline` comes from the planner's rule, and the stage order form says which days to add up.",
+          "de": "Jeder Hinweis eines Tisches fügt `model()` eine Einstellung hinzu: den Changepoint vom Straßenbahnzähler, die Saisonalität vom Lichtpult und `events` vom Veranstaltungstisch, inklusive der Termine 2026. `best_baseline` kommt aus Martas Faustregel, und das Bestellformular sagt, welche Tage ihr addiert."
         },
         {
-          "en": "A model can only be fitted once, so call `model()` twice: once for `train` (then `predict(test)` and compare with `test[\"y\"]`), once for all of `df`. `make_future_dataframe(periods=270)` reaches past 21 June 2026.",
-          "de": "Ein Modell lässt sich nur einmal anpassen, also ruft `model()` zweimal auf: einmal für `train` (dann `predict(test)` und mit `test[\"y\"]` vergleichen), einmal für ganz `df`. `make_future_dataframe(periods=270)` reicht über den 21. Juni 2026 hinaus."
+          "en": "A model can only be fitted once, so call `model()` twice: once for `train` (then `predict(test)` and compare with `test[\"y\"]`), once for all of `df`. For the future, use `make_future_dataframe(periods=...)` from the whiteboard: 270 days reach past the 2026 opening weekend.",
+          "de": "Ein Modell lässt sich nur einmal anpassen, also ruft `model()` zweimal auf: einmal für `train` (dann `predict(test)` und mit `test[\"y\"]` vergleichen), einmal für ganz `df`. Für die Zukunft nehmt ihr `make_future_dataframe(periods=...)` vom Whiteboard: 270 Tage reichen über das Eröffnungswochenende 2026 hinaus."
         },
         {
-          "en": "`opening_2026 = forecast.set_index(\"ds\").loc[\"2026-06-19\":\"2026-06-21\", \"yhat\"].sum()`, where `forecast` is the full model's prediction for that future.",
-          "de": "`opening_2026 = forecast.set_index(\"ds\").loc[\"2026-06-19\":\"2026-06-21\", \"yhat\"].sum()`, wobei `forecast` die Vorhersage des vollständigen Modells für diese Zukunft ist."
+          "en": "`model()` returns `Prophet(seasonality_mode=\"multiplicative\", holidays=events, changepoints=[\"2023-04-01\"])`, `best_baseline = 422`, and `opening_2026 = forecast.set_index(\"ds\").loc[\"2026-06-19\":\"2026-06-21\", \"yhat\"].sum()`, where `forecast` is the full model's prediction for that future.",
+          "de": "`model()` gibt `Prophet(seasonality_mode=\"multiplicative\", holidays=events, changepoints=[\"2023-04-01\"])` zurück, `best_baseline = 422`, und `opening_2026 = forecast.set_index(\"ds\").loc[\"2026-06-19\":\"2026-06-21\", \"yhat\"].sum()`, wobei `forecast` die Vorhersage des vollständigen Modells für diese Zukunft ist."
         }
+      ],
+      "uses": [
+        "gate",
+        "tram",
+        "planner",
+        "mode",
+        "events"
       ]
     }
   ],
