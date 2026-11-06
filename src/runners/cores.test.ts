@@ -64,6 +64,13 @@ describe('python runner', () => {
     expect(await runPython(py, 'print(leak)')).toMatchObject({ ok: false, error: expect.stringContaining("NameError: name 'leak' is not defined") });
   });
 
+  it('offers the prelude and data-file functions as the helpers module', async () => {
+    const setup = 'def unshift(letter, n):\n    return letter\n\ndef _secret():\n    pass\n\nnotes = [1]';
+    const out = await runPython(py, 'from helpers import unshift, show_plot\nimport helpers\nprint(unshift("a", 1), hasattr(helpers, "_secret"), hasattr(helpers, "notes"), hasattr(helpers, "input"))', setup);
+    expect(out).toMatchObject({ ok: true, stdout: 'a False False False' });
+    expect(await runPython(py, 'from helpers import unshift')).toMatchObject({ ok: false, error: expect.stringContaining('ImportError') });
+  });
+
   it('shows only the student-facing traceback and blocks input()', async () => {
     const out = await runPython(py, 'x = 1\nx = x + "a"');
     expect(out).toMatchObject({ ok: false, error: expect.stringMatching(/^Traceback[\s\S]*line 2[\s\S]*TypeError/) });

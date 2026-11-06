@@ -98,6 +98,18 @@ def plot_pacf(series, lags=24, title=None):
     _correlogram(series, lags, title, True)
 `;
 
+// After the setup: the public functions of the prelude and the room's data files also become
+// the module \`helpers\`, so starter code can say where a helper comes from
+// (\`from helpers import unshift\`). They stay global too, for code written without the import.
+const HELPERS = `
+import sys as __sys, types as __types
+__sys.modules["helpers"] = __types.ModuleType("helpers", "Helper functions for this room.")
+for __name, __value in list(globals().items()):
+    if isinstance(__value, __types.FunctionType) and not __name.startswith("_") and __name != "input":
+        setattr(__sys.modules["helpers"], __name, __value)
+del __sys, __types, __name, __value
+`;
+
 /**
  * Runs `setup` then the student's `code` in a fresh namespace and, if given, evaluates
  * `checkExpr` there, returning it as canonical JSON (sorted keys) for answer hashing.
@@ -113,6 +125,7 @@ export async function runPython(py: PyodideAPI, code: string, setup = '', checkE
   try {
     py.runPython(PRELUDE, { globals: ns });
     if (setup) py.runPython(setup, { globals: ns });
+    py.runPython(HELPERS, { globals: ns });
     await py.runPythonAsync(code, { globals: ns });
     let check: string | null = null;
     if (checkExpr) {

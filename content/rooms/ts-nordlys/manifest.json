@@ -43,8 +43,8 @@
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "# fuel is loaded: litres per month, January 2010 to December 2025.\nprint(fuel.head(12))\nshow_plot(fuel, title=\"Fuel per month\")\n\nn_missing = 0          # how many months have no reading?\nfuel_filled = fuel     # the series with the gaps filled (see the logbook page)\n",
-        "de": "# fuel ist geladen: Liter pro Monat, Januar 2010 bis Dezember 2025.\nprint(fuel.head(12))\nshow_plot(fuel, title=\"Heizöl pro Monat\")\n\nn_missing = 0          # wie viele Monate haben keinen Messwert?\nfuel_filled = fuel     # die Reihe mit gefüllten Lücken (siehe Logbuchseite)\n"
+        "en": "from helpers import show_plot\n\n# fuel is loaded: litres per month, January 2010 to December 2025.\nprint(fuel.head(12))\nshow_plot(fuel, title=\"Fuel per month\")\n\nn_missing = 0          # how many months have no reading?\nfuel_filled = fuel     # the series with the gaps filled (see the logbook page)\n",
+        "de": "from helpers import show_plot\n\n# fuel ist geladen: Liter pro Monat, Januar 2010 bis Dezember 2025.\nprint(fuel.head(12))\nshow_plot(fuel, title=\"Heizöl pro Monat\")\n\nn_missing = 0          # wie viele Monate haben keinen Messwert?\nfuel_filled = fuel     # die Reihe mit gefüllten Lücken (siehe Logbuchseite)\n"
       },
       "check": {
         "type": "python",
@@ -90,8 +90,8 @@
       "workspace": "python",
       "data": "freezer.py",
       "starter": {
-        "en": "import statsmodels.api as sm\n\n# freezer is loaded: one temperature reading per hour.\nshow_plot(freezer, title=\"Freezer temperature\")\n\n# 1. Remove the sensor's drift (see the technician's note).\n# 2. Fit an AR(2) model to what is left, for example:\n#    sm.tsa.ARIMA(values, order=(2, 0, 0), trend=\"n\").fit().params\n",
-        "de": "import statsmodels.api as sm\n\n# freezer ist geladen: ein Temperaturwert pro Stunde.\nshow_plot(freezer, title=\"Temperatur im Gefrierschrank\")\n\n# 1. Entfernt die Drift des Sensors (siehe Notiz des Technikers).\n# 2. Passt ein AR(2)-Modell an das an, was übrig bleibt, zum Beispiel:\n#    sm.tsa.ARIMA(werte, order=(2, 0, 0), trend=\"n\").fit().params\n"
+        "en": "import statsmodels.api as sm\nfrom helpers import show_plot\n\n# freezer is loaded: one temperature reading per hour.\nshow_plot(freezer, title=\"Freezer temperature\")\n\n# 1. Remove the sensor's drift (see the technician's note).\n# 2. Fit an AR(2) model to what is left, for example:\n#    sm.tsa.ARIMA(values, order=(2, 0, 0), trend=\"n\").fit().params\n",
+        "de": "import statsmodels.api as sm\nfrom helpers import show_plot\n\n# freezer ist geladen: ein Temperaturwert pro Stunde.\nshow_plot(freezer, title=\"Temperatur im Gefrierschrank\")\n\n# 1. Entfernt die Drift des Sensors (siehe Notiz des Technikers).\n# 2. Passt ein AR(2)-Modell an das an, was übrig bleibt, zum Beispiel:\n#    sm.tsa.ARIMA(werte, order=(2, 0, 0), trend=\"n\").fit().params\n"
       },
       "check": {
         "type": "answer",
@@ -187,8 +187,8 @@
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "from statsmodels.tsa.stattools import adfuller\n\nfuel_filled = fuel.interpolate(method=\"time\")\nprint(\"ADF p-value, untouched:\", adfuller(fuel_filled)[1])\n\nstationary = fuel_filled   # transform step by step (see the gauge panel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF p-value:\", adf_p)\nshow_plot(stationary, title=\"What the gauge sees\")\n",
-        "de": "from statsmodels.tsa.stattools import adfuller\n\nfuel_filled = fuel.interpolate(method=\"time\")\nprint(\"ADF-p-Wert, unverändert:\", adfuller(fuel_filled)[1])\n\nstationary = fuel_filled   # Schritt für Schritt transformieren (siehe Anzeigetafel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF-p-Wert:\", adf_p)\nshow_plot(stationary, title=\"Was die Anzeige sieht\")\n"
+        "en": "from statsmodels.tsa.stattools import adfuller\nfrom helpers import show_plot\n\nfuel_filled = fuel.interpolate(method=\"time\")\nprint(\"ADF p-value, untouched:\", adfuller(fuel_filled)[1])\n\nstationary = fuel_filled   # transform step by step (see the gauge panel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF p-value:\", adf_p)\nshow_plot(stationary, title=\"What the gauge sees\")\n",
+        "de": "from statsmodels.tsa.stattools import adfuller\nfrom helpers import show_plot\n\nfuel_filled = fuel.interpolate(method=\"time\")\nprint(\"ADF-p-Wert, unverändert:\", adfuller(fuel_filled)[1])\n\nstationary = fuel_filled   # Schritt für Schritt transformieren (siehe Anzeigetafel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF-p-Wert:\", adf_p)\nshow_plot(stationary, title=\"Was die Anzeige sieht\")\n"
       },
       "check": {
         "type": "python",
@@ -237,8 +237,8 @@
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "import statsmodels.api as sm\n\nlog_fuel = np.log(fuel.interpolate(method=\"time\"))\nstationary = log_fuel.diff(12).diff(1).dropna()   # from the gauge\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\ncandidates = [\n    ((1, 1, 0), (1, 1, 0, 12)),\n    ((0, 1, 1), (0, 1, 1, 12)),\n    ((1, 1, 1), (0, 1, 1, 12)),\n    ((2, 1, 0), (0, 1, 1, 12)),\n    ((0, 1, 1), (1, 1, 0, 12)),\n]\n# Fit every candidate on train (d=1 and D=1 do the differencing inside the model):\n#   sm.tsa.SARIMAX(train, order=..., seasonal_order=...).fit(disp=False).aic\norder = None            # the winner, e.g. (p, d, q)\nseasonal_order = None   # e.g. (P, D, Q, 12)\n",
-        "de": "import statsmodels.api as sm\n\nlog_fuel = np.log(fuel.interpolate(method=\"time\"))\nstationary = log_fuel.diff(12).diff(1).dropna()   # von der Anzeigetafel\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\ncandidates = [\n    ((1, 1, 0), (1, 1, 0, 12)),\n    ((0, 1, 1), (0, 1, 1, 12)),\n    ((1, 1, 1), (0, 1, 1, 12)),\n    ((2, 1, 0), (0, 1, 1, 12)),\n    ((0, 1, 1), (1, 1, 0, 12)),\n]\n# Passt jeden Kandidaten auf train an (d=1 und D=1 differenzieren im Modell):\n#   sm.tsa.SARIMAX(train, order=..., seasonal_order=...).fit(disp=False).aic\norder = None            # der Gewinner, z. B. (p, d, q)\nseasonal_order = None   # z. B. (P, D, Q, 12)\n"
+        "en": "import statsmodels.api as sm\nfrom helpers import plot_acf, plot_pacf\n\nlog_fuel = np.log(fuel.interpolate(method=\"time\"))\nstationary = log_fuel.diff(12).diff(1).dropna()   # from the gauge\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\ncandidates = [\n    ((1, 1, 0), (1, 1, 0, 12)),\n    ((0, 1, 1), (0, 1, 1, 12)),\n    ((1, 1, 1), (0, 1, 1, 12)),\n    ((2, 1, 0), (0, 1, 1, 12)),\n    ((0, 1, 1), (1, 1, 0, 12)),\n]\n# Fit every candidate on train (d=1 and D=1 do the differencing inside the model):\n#   sm.tsa.SARIMAX(train, order=..., seasonal_order=...).fit(disp=False).aic\norder = None            # the winner, e.g. (p, d, q)\nseasonal_order = None   # e.g. (P, D, Q, 12)\n",
+        "de": "import statsmodels.api as sm\nfrom helpers import plot_acf, plot_pacf\n\nlog_fuel = np.log(fuel.interpolate(method=\"time\"))\nstationary = log_fuel.diff(12).diff(1).dropna()   # von der Anzeigetafel\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\ncandidates = [\n    ((1, 1, 0), (1, 1, 0, 12)),\n    ((0, 1, 1), (0, 1, 1, 12)),\n    ((1, 1, 1), (0, 1, 1, 12)),\n    ((2, 1, 0), (0, 1, 1, 12)),\n    ((0, 1, 1), (1, 1, 0, 12)),\n]\n# Passt jeden Kandidaten auf train an (d=1 und D=1 differenzieren im Modell):\n#   sm.tsa.SARIMAX(train, order=..., seasonal_order=...).fit(disp=False).aic\norder = None            # der Gewinner, z. B. (p, d, q)\nseasonal_order = None   # z. B. (P, D, Q, 12)\n"
       },
       "check": {
         "type": "python",

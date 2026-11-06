@@ -159,6 +159,8 @@ print(missing, alarms, first_alarm)
 <details><summary>Startcode</summary>
 
 ```python
+from helpers import unshift
+
 # Probiert: print(unshift("d", 3))
 KEY = 0  # der Schlüssel ist irgendwo im Labor
 
@@ -178,6 +180,8 @@ for line in notes["de"]:
 **Musterlösung:**
 
 ```python
+from helpers import unshift
+
 KEY = 7
 
 def decode(line):

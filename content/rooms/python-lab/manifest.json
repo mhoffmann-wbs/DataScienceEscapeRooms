@@ -132,8 +132,8 @@
       "workspace": "python",
       "data": "notebook.py",
       "starter": {
-        "en": "# Try: print(unshift(\"d\", 3))\nKEY = 0  # the key is somewhere in the lab\n\n\ndef decode(line):\n    result = \"\"\n    # your code here\n    return result\n\n\nfor line in notes[\"en\"]:\n    print(decode(line))\n",
-        "de": "# Probiert: print(unshift(\"d\", 3))\nKEY = 0  # der Schlüssel ist irgendwo im Labor\n\n\ndef decode(line):\n    result = \"\"\n    # euer Code hier\n    return result\n\n\nfor line in notes[\"de\"]:\n    print(decode(line))\n"
+        "en": "from helpers import unshift\n\n# Try: print(unshift(\"d\", 3))\nKEY = 0  # the key is somewhere in the lab\n\n\ndef decode(line):\n    result = \"\"\n    # your code here\n    return result\n\n\nfor line in notes[\"en\"]:\n    print(decode(line))\n",
+        "de": "from helpers import unshift\n\n# Probiert: print(unshift(\"d\", 3))\nKEY = 0  # der Schlüssel ist irgendwo im Labor\n\n\ndef decode(line):\n    result = \"\"\n    # euer Code hier\n    return result\n\n\nfor line in notes[\"de\"]:\n    print(decode(line))\n"
       },
       "check": {
         "type": "python",

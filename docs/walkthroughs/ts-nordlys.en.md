@@ -36,6 +36,8 @@
 <details><summary>Starter code</summary>
 
 ```python
+from helpers import show_plot
+
 # fuel is loaded: litres per month, January 2010 to December 2025.
 print(fuel.head(12))
 show_plot(fuel, title="Fuel per month")
@@ -49,6 +51,8 @@ fuel_filled = fuel     # the series with the gaps filled (see the logbook page)
 **Model solution:**
 
 ```python
+from helpers import show_plot
+
 print(fuel[fuel.isna()])
 n_missing = int(fuel.isna().sum())
 fuel_filled = fuel.interpolate(method="time")
@@ -87,6 +91,7 @@ show_plot(fuel, fuel_filled, labels=["with gaps", "filled"], title="Fuel per mon
 
 ```python
 import statsmodels.api as sm
+from helpers import show_plot
 
 # freezer is loaded: one temperature reading per hour.
 show_plot(freezer, title="Freezer temperature")
@@ -102,6 +107,7 @@ show_plot(freezer, title="Freezer temperature")
 
 ```python
 import statsmodels.api as sm
+from helpers import show_plot
 hours = np.arange(len(freezer))
 slope, intercept = np.polyfit(hours, freezer.values, 1)
 residuals = freezer.values - (slope * hours + intercept)
@@ -155,6 +161,8 @@ mae_snaive = None
 **Model solution:**
 
 ```python
+from helpers import show_plot
+
 fuel_filled = fuel.interpolate(method="time")
 train = fuel_filled[:"2023-12"]
 test = fuel_filled["2024-01":]
@@ -198,6 +206,7 @@ show_plot(train["2021":], test, seasonal_naive, labels=["train", "test", "season
 
 ```python
 from statsmodels.tsa.stattools import adfuller
+from helpers import show_plot
 
 fuel_filled = fuel.interpolate(method="time")
 print("ADF p-value, untouched:", adfuller(fuel_filled)[1])
@@ -214,6 +223,7 @@ show_plot(stationary, title="What the gauge sees")
 
 ```python
 from statsmodels.tsa.stattools import adfuller
+from helpers import show_plot
 fuel_filled = fuel.interpolate(method="time")
 log_fuel = np.log(fuel_filled)
 stationary = log_fuel.diff(12).diff(1).dropna()
@@ -254,6 +264,7 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 
 ```python
 import statsmodels.api as sm
+from helpers import plot_acf, plot_pacf
 
 log_fuel = np.log(fuel.interpolate(method="time"))
 stationary = log_fuel.diff(12).diff(1).dropna()   # from the gauge
@@ -280,6 +291,7 @@ seasonal_order = None   # e.g. (P, D, Q, 12)
 
 ```python
 import statsmodels.api as sm
+from helpers import plot_acf, plot_pacf
 log_fuel = np.log(fuel.interpolate(method="time"))
 stationary = log_fuel.diff(12).diff(1).dropna()
 plot_acf(stationary)
@@ -348,6 +360,7 @@ pin = None   # the supply terminal's PIN
 
 ```python
 import statsmodels.api as sm
+from helpers import show_plot
 fuel_filled = fuel.interpolate(method="time")
 log_fuel = np.log(fuel_filled)
 order, seasonal_order = (0, 1, 1), (0, 1, 1, 12)
