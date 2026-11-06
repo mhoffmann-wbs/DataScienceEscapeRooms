@@ -15,9 +15,9 @@
 | 1 | Ida's terminal | Variables, string methods (`.upper()`), turning numbers into text with `str()`, `len()` | 🔎 A framed photo, 🔎 A diploma |
 | 2 | The incubator | Lists, `for` loops with `enumerate`, `if`/`elif`, counting, skipping missing values (`None`) | 🔎 Incubator manual |
 | 3 | The encrypted notebook | Strings: reversing with `[::-1]`, looping over characters, building a string, writing a function | 🔎 The microscope |
-| 4 | The sample freezer | Dictionaries: nested lookups, looping over `.items()`, filtering with conditions | 3. The encrypted notebook |
+| 4 | The sample freezer | Dictionaries: nested lookups, looping over `.items()`, filtering with conditions | 3. The encrypted notebook (its result) |
 | 5 | The ventilation control | Debugging: reading error messages, syntax and indentation errors, `int()` conversion, `+=` versus `=` | 🔎 Air-quality poster |
-| 6 | The exit keypad (Final lock) | Combining results from the whole room | 1. Ida's terminal, 2. The incubator, 3. The encrypted notebook, 4. The sample freezer, 5. The ventilation control, 🔎 The whiteboard |
+| 6 | The exit keypad (Final lock) | Combining results from the whole room | 1. Ida's terminal (its result), 2. The incubator (its result), 3. The encrypted notebook (its result), 4. The sample freezer (its result), 5. The ventilation control (its result), 🔎 The whiteboard |
 
 **Final code:** `6348`
 
@@ -71,7 +71,7 @@ print("Logging in with:", password)
 
 > The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:
 >
-> "Note to self: never write the override order on the whiteboard again! It goes ☀ 🍄 ❄ 🌀."
+> "Note to self: never write the override order on the whiteboard again! It goes ● ▲ ◆ ■."
 
 **Hints:**
 
@@ -134,7 +134,7 @@ print(missing, alarms, first_alarm)
 
 **Reveals when solved:**
 
-> The incubator beeps and its display lights up: **☀ 6**
+> The incubator beeps and its display lights up: **6**
 
 **Hints:**
 
@@ -210,7 +210,7 @@ for line in notes["en"]:
 >
 > Freezer lock: add up the spore counts of the samples listed on its door.
 >
-> The mushroom digit for the override is three."
+> The override digit in these notes is three."
 
 **Hints:**
 
@@ -221,12 +221,12 @@ for line in notes["en"]:
 ### 4. The sample freezer
 
 **Practises:** Dictionaries: nested lookups, looping over `.items()`, filtering with conditions  
-**Needs:** 3. The encrypted notebook  
+**Needs:** 3. The encrypted notebook (its result)  
 **Data:** [catalog.py](../../content/rooms/python-lab/data/catalog.py)
 
 **Task:**
 
-> The freezer is locked with a number padlock. A label on its door reads:
+> The freezer is locked with a number padlock. How Ida set its code is not written anywhere on the freezer. A label on its door reads:
 >
 > `SAMPLES INSIDE: M-04 · M-09 · M-1▒`
 >
@@ -257,11 +257,11 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 **Reveals when solved:**
 
-> The padlock clicks open and cold mist pours out. Between the frosted sample tubes stands one vial with a label: **❄ 4**
+> The padlock clicks open and cold mist pours out. Between the frosted sample tubes stands one vial with a label: **4**
 
 **Hints:**
 
-1. Ida's decrypted notes say how the padlock code works. The label tells you which samples to use.
+1. The padlock code is not on the freezer. Ida explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.
 2. `catalog["M-04"]["spores"]` looks up one value. To find the smudged sample, loop with `for sample_id, info in catalog.items():` and check `sample_id.startswith("M-1")` and `info["glows"]`.
 3. The smudged sample is M-13. The code is the sum of the spore counts of M-04, M-09 and M-13.
 
@@ -338,7 +338,7 @@ print("Total:", total)
 
 **Reveals when solved:**
 
-> The vents rumble back to life. A display on the control panel shows: **🌀 8**
+> The vents rumble back to life. A display on the control panel shows: **8**
 
 **Hints:**
 
@@ -349,7 +349,7 @@ print("Total:", total)
 ### 6. The exit keypad (Final lock)
 
 **Practises:** Combining results from the whole room  
-**Needs:** 1. Ida's terminal, 2. The incubator, 3. The encrypted notebook, 4. The sample freezer, 5. The ventilation control, 🔎 The whiteboard
+**Needs:** 1. Ida's terminal (its result), 2. The incubator (its result), 3. The encrypted notebook (its result), 4. The sample freezer (its result), 5. The ventilation control (its result), 🔎 The whiteboard
 
 **Task:**
 
@@ -363,9 +363,9 @@ print("Total:", total)
 
 **Hints:**
 
-1. Every station you solved gives you a digit next to a symbol. Open a solved station again to read its digit.
-2. The whiteboard shows which symbol belongs to which station. Ida's draft message on her terminal gives the order.
-3. The order is ☀ 🍄 ❄ 🌀: incubator, notebook, freezer, ventilation.
+1. Four stations show a digit once solved: the incubator, the notebook, the freezer and the ventilation control. Open a solved station again to read its digit. The terminal gives no digit, it gives the order.
+2. Ida's draft message on her terminal gives the order as four shapes. The whiteboard shows which shape belongs to which station.
+3. The order is ● ▲ ◆ ■: incubator, notebook, freezer, ventilation.
 
 ## Clues in the room
 
@@ -427,9 +427,9 @@ print("Total:", total)
 
 > Most of the board has been wiped clean. In one corner you can still read:
 >
-> "OVERRIDE = one digit from each station"
+> "OVERRIDE = 4 digits, one per shape"
 >
-> Around it, four symbols with arrows: ☀ → incubator, 🍄 → notebook, ❄ → freezer, 🌀 → vents. The line that gave their order has been wiped away.
+> Around it, four shapes with arrows: ▲ → notebook, ■ → vents, ● → incubator, ◆ → freezer. The line that gave their order has been wiped away.
 
 ### 🔎 A shelf of jars
 

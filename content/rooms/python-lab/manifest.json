@@ -46,8 +46,8 @@
         "hash": "ba961a22c40d0a7f81bb4cc4b1a771c2581053b98420f8b066fc4f06632d4795"
       },
       "reveal": {
-        "en": "The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:\n\n\"Note to self: never write the override order on the whiteboard again! It goes ☀ 🍄 ❄ 🌀.\"",
-        "de": "Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:\n\n\"Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ☀ 🍄 ❄ 🌀.\""
+        "en": "The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:\n\n\"Note to self: never write the override order on the whiteboard again! It goes ● ▲ ◆ ■.\"",
+        "de": "Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:\n\n\"Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ● ▲ ◆ ■.\""
       },
       "practises": {
         "en": "Variables, string methods (`.upper()`), turning numbers into text with `str()`, `len()`",
@@ -94,8 +94,8 @@
         "hash": "8aa1b3603b0533e30d99a225da205fb2767ac0d7673c360c1b0fb31c98ff2582"
       },
       "reveal": {
-        "en": "The incubator beeps and its display lights up: **☀ 6**",
-        "de": "Der Inkubator piept und sein Display leuchtet auf: **☀ 6**"
+        "en": "The incubator beeps and its display lights up: **6**",
+        "de": "Der Inkubator piept und sein Display leuchtet auf: **6**"
       },
       "practises": {
         "en": "Lists, `for` loops with `enumerate`, `if`/`elif`, counting, skipping missing values (`None`)",
@@ -141,8 +141,8 @@
         "hash": "1bd8b76ebecee5d4d6dbabf367fc09fa699c9203a97261a8352b597b669bd3e0"
       },
       "reveal": {
-        "en": "The decrypted notes:\n\n\"Day 212: the caps only glow when it is cold.\n\nI moved all glowing samples into the freezer.\n\nFreezer lock: add up the spore counts of the samples listed on its door.\n\nThe mushroom digit for the override is three.\"",
-        "de": "Die entschlüsselten Notizen:\n\n\"Tag 212: Die Hüte leuchten nur, wenn es kalt ist.\n\nIch habe alle leuchtenden Proben in den Gefrierschrank gelegt.\n\nGefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.\n\nDie Pilz-Ziffer für den Override ist drei.\""
+        "en": "The decrypted notes:\n\n\"Day 212: the caps only glow when it is cold.\n\nI moved all glowing samples into the freezer.\n\nFreezer lock: add up the spore counts of the samples listed on its door.\n\nThe override digit in these notes is three.\"",
+        "de": "Die entschlüsselten Notizen:\n\n\"Tag 212: Die Hüte leuchten nur, wenn es kalt ist.\n\nIch habe alle leuchtenden Proben in den Gefrierschrank gelegt.\n\nGefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.\n\nDie Override-Ziffer in diesen Notizen ist drei.\""
       },
       "practises": {
         "en": "Strings: reversing with `[::-1]`, looping over characters, building a string, writing a function",
@@ -173,8 +173,8 @@
         "de": "Der Probengefrierschrank"
       },
       "text": {
-        "en": "The freezer is locked with a number padlock. A label on its door reads:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nThe last number is smudged. Underneath, in Ida's handwriting: \"the only M-1… sample that glows\".\n\nIda's specimen catalogue is loaded as the dictionary `catalog`.",
-        "de": "Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Auf einem Etikett an der Tür steht:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nDie letzte Nummer ist verschmiert. Darunter steht in Idas Handschrift: \"die einzige M-1…-Probe, die leuchtet\".\n\nIdas Probenkatalog ist als Dictionary `catalog` geladen."
+        "en": "The freezer is locked with a number padlock. How Ida set its code is not written anywhere on the freezer. A label on its door reads:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nThe last number is smudged. Underneath, in Ida's handwriting: \"the only M-1… sample that glows\".\n\nIda's specimen catalogue is loaded as the dictionary `catalog`.",
+        "de": "Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Wie Ida den Code gewählt hat, steht nirgends am Gefrierschrank. Auf einem Etikett an der Tür steht:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nDie letzte Nummer ist verschmiert. Darunter steht in Idas Handschrift: \"die einzige M-1…-Probe, die leuchtet\".\n\nIdas Probenkatalog ist als Dictionary `catalog` geladen."
       },
       "workspace": "python",
       "data": "catalog.py",
@@ -187,12 +187,12 @@
         "mode": "number",
         "hash": "0643e807123de0f22da9db18793b86e396e7b84ef2c43a929d7f8eb118c4486a"
       },
-      "requires": [
+      "uses": [
         "notebook"
       ],
       "reveal": {
-        "en": "The padlock clicks open and cold mist pours out. Between the frosted sample tubes stands one vial with a label: **❄ 4**",
-        "de": "Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **❄ 4**"
+        "en": "The padlock clicks open and cold mist pours out. Between the frosted sample tubes stands one vial with a label: **4**",
+        "de": "Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **4**"
       },
       "practises": {
         "en": "Dictionaries: nested lookups, looping over `.items()`, filtering with conditions",
@@ -200,8 +200,8 @@
       },
       "hints": [
         {
-          "en": "Ida's decrypted notes say how the padlock code works. The label tells you which samples to use.",
-          "de": "Idas entschlüsselte Notizen verraten, wie der Code funktioniert. Das Etikett sagt euch, welche Proben ihr braucht."
+          "en": "The padlock code is not on the freezer. Ida explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.",
+          "de": "Der Code steht nicht am Gefrierschrank. Ida erklärt ihn in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht."
         },
         {
           "en": "`catalog[\"M-04\"][\"spores\"]` looks up one value. To find the smudged sample, loop with `for sample_id, info in catalog.items():` and check `sample_id.startswith(\"M-1\")` and `info[\"glows\"]`.",
@@ -235,8 +235,8 @@
         "hash": "781e65122ba6d613117b2fdb6e7d47327b46c4a70548091be7a073bee7a95abb"
       },
       "reveal": {
-        "en": "The vents rumble back to life. A display on the control panel shows: **🌀 8**",
-        "de": "Die Lüftung springt rumpelnd wieder an. Ein Display an der Steuerung zeigt: **🌀 8**"
+        "en": "The vents rumble back to life. A display on the control panel shows: **8**",
+        "de": "Die Lüftung springt rumpelnd wieder an. Ein Display an der Steuerung zeigt: **8**"
       },
       "practises": {
         "en": "Debugging: reading error messages, syntax and indentation errors, `int()` conversion, `+=` versus `=`",
@@ -275,7 +275,7 @@
         "mode": "exact",
         "hash": "fdbda4cc71c8dc41199fab204dfff640b3736f16c0070a4ac077cff0df6f6c95"
       },
-      "requires": [
+      "uses": [
         "terminal",
         "incubator",
         "notebook",
@@ -292,16 +292,16 @@
       ],
       "hints": [
         {
-          "en": "Every station you solved gives you a digit next to a symbol. Open a solved station again to read its digit.",
-          "de": "Jede gelöste Station liefert eine Ziffer neben einem Symbol. Öffnet eine gelöste Station noch einmal, um ihre Ziffer zu lesen."
+          "en": "Four stations show a digit once solved: the incubator, the notebook, the freezer and the ventilation control. Open a solved station again to read its digit. The terminal gives no digit, it gives the order.",
+          "de": "Vier Stationen zeigen eine Ziffer, sobald sie gelöst sind: der Inkubator, das Notizbuch, der Gefrierschrank und die Lüftungssteuerung. Öffnet eine gelöste Station noch einmal, um ihre Ziffer zu lesen. Das Terminal liefert keine Ziffer, sondern die Reihenfolge."
         },
         {
-          "en": "The whiteboard shows which symbol belongs to which station. Ida's draft message on her terminal gives the order.",
-          "de": "Das Whiteboard zeigt, welches Symbol zu welcher Station gehört. Idas Entwurf auf ihrem Terminal verrät die Reihenfolge."
+          "en": "Ida's draft message on her terminal gives the order as four shapes. The whiteboard shows which shape belongs to which station.",
+          "de": "Idas Entwurf auf ihrem Terminal gibt die Reihenfolge als vier Formen an. Das Whiteboard zeigt, welche Form zu welcher Station gehört."
         },
         {
-          "en": "The order is ☀ 🍄 ❄ 🌀: incubator, notebook, freezer, ventilation.",
-          "de": "Die Reihenfolge ist ☀ 🍄 ❄ 🌀: Inkubator, Notizbuch, Gefrierschrank, Lüftung."
+          "en": "The order is ● ▲ ◆ ■: incubator, notebook, freezer, ventilation.",
+          "de": "Die Reihenfolge ist ● ▲ ◆ ■: Inkubator, Notizbuch, Gefrierschrank, Lüftung."
         }
       ]
     }
@@ -369,8 +369,8 @@
         "de": "Das Whiteboard"
       },
       "text": {
-        "en": "Most of the board has been wiped clean. In one corner you can still read:\n\n\"OVERRIDE = one digit from each station\"\n\nAround it, four symbols with arrows: ☀ → incubator, 🍄 → notebook, ❄ → freezer, 🌀 → vents. The line that gave their order has been wiped away.",
-        "de": "Das Board wurde fast vollständig weggewischt. In einer Ecke kann man noch lesen:\n\n\"OVERRIDE = eine Ziffer von jeder Station\"\n\nDrumherum vier Symbole mit Pfeilen: ☀ → Inkubator, 🍄 → Notizbuch, ❄ → Gefrierschrank, 🌀 → Lüftung. Die Zeile mit ihrer Reihenfolge ist weggewischt."
+        "en": "Most of the board has been wiped clean. In one corner you can still read:\n\n\"OVERRIDE = 4 digits, one per shape\"\n\nAround it, four shapes with arrows: ▲ → notebook, ■ → vents, ● → incubator, ◆ → freezer. The line that gave their order has been wiped away.",
+        "de": "Das Board wurde fast vollständig weggewischt. In einer Ecke kann man noch lesen:\n\n\"OVERRIDE = 4 Ziffern, eine pro Form\"\n\nDrumherum vier Formen mit Pfeilen: ▲ → Notizbuch, ■ → Lüftung, ● → Inkubator, ◆ → Gefrierschrank. Die Zeile mit ihrer Reihenfolge ist weggewischt."
       }
     },
     {

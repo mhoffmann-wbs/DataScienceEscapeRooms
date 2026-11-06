@@ -23,14 +23,11 @@ flowchart LR
     terminal["1 · Ida's terminal<br/>variables, str, upper, len"]
     incubator["2 · The incubator<br/>lists, for/enumerate, if/elif, None"]
     notebook["3 · The encrypted notebook<br/>string slicing, loops, a function"]
+    freezer["4 · The sample freezer<br/>nested dicts, .items, filtering"]
     ventilation["5 · The ventilation control<br/>debugging, int, +="]
   end
 
-  subgraph p2["Needs an earlier result"]
-    freezer["4 · The sample freezer 🔒<br/>nested dicts, .items, filtering"]
-  end
-
-  subgraph p3["Final lock"]
+  subgraph p2["Final lock"]
     exit{{"6 · The exit keypad<br/>final code 6348"}}
   end
 
@@ -44,16 +41,16 @@ flowchart LR
   manual -->|"🔎 safe range 20.0–26.0 °C, limits safe"| incubator
   microscope -->|"🔎 KEY = 7"| notebook
   poster -->|"🔎 HIGH = 1000, MEDIUM = 600"| ventilation
-  whiteboard -.->|"🔎 ☀ incubator, 🍄 notebook,<br/>❄ freezer, 🌀 vents"| exit
-  intro -.->|"📜 one digit per piece of equipment"| exit
+  whiteboard -->|"🔎 ● incubator, ▲ notebook,<br/>◆ freezer, ■ vents"| exit
+  intro -.->|"📜 digits hidden in the equipment"| exit
 
-  notebook ==>|"📤 code = sum of spores of the door's samples · ⛓"| freezer
+  notebook ==>|"📤 padlock code = sum of spores of the door's samples"| freezer
 
-  terminal ==>|"🔢 order ☀ 🍄 ❄ 🌀 · ⛓"| exit
-  incubator ==>|"🔢 ☀ 6 · ⛓"| exit
-  notebook ==>|"🔢 🍄 3, mushroom digit · ⛓"| exit
-  freezer ==>|"🔢 ❄ 4 · ⛓"| exit
-  ventilation ==>|"🔢 🌀 8 · ⛓"| exit
+  terminal ==>|"🔢 order ● ▲ ◆ ■"| exit
+  incubator ==>|"🔢 6"| exit
+  notebook ==>|"🔢 3"| exit
+  freezer ==>|"🔢 4"| exit
+  ventilation ==>|"🔢 8"| exit
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
   classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
@@ -61,8 +58,7 @@ flowchart LR
   classDef data fill:#b9c4cc,stroke:#55636e,color:#1c2329
   classDef final fill:#9fd4a3,stroke:#2f7a36,color:#0f2e12
   classDef intro fill:#d3c1e3,stroke:#6a4c86,color:#25163a
-  class terminal,incubator,notebook,ventilation station
-  class freezer locked
+  class terminal,incubator,notebook,freezer,ventilation station
   class photo,diploma,manual,microscope,poster,whiteboard,jars clue
   class d_incubator,d_notebook,d_freezer,d_ventilation data
   class exit final
@@ -74,27 +70,26 @@ flowchart LR
 | `==>` thick | A result or final digit moves from one station to another |
 | `-->` solid | A clue or data file the station can't be solved without |
 | `-.->` dotted | Context only: the value is also elsewhere, or it only helps to read a result |
-| `⛓` in a label | The source is also in the target's `requires`: the game keeps the target closed until the source is solved (no lock code; the freezer's 🔒 is this mechanical lock) |
 
 The shelf of jars is flavour only and has no edge.
 
 ## Phases
 
-- **Start:** 4 stations open at once (terminal, incubator, notebook, ventilation). Enough for a team of 4; a team of 2–3 takes two each, a team of 5 pairs up on one.
-- **Second wave:** the freezer stays closed until the notebook is solved (`requires`), and its padlock rule comes from the notebook's decrypted notes. Only 1 station wide, so most of the team idles or walks to the whiteboard while one sub-team does it.
-- **Final:** the keypad waits for all five stations (`requires`) and needs four digits plus the order from the terminal.
+- **Start:** all 5 stations open at once (terminal, incubator, notebook, freezer, ventilation). Enough for a team of 5; a team of 2–4 takes two each.
+- **Second wave:** none mechanically. The freezer is open, and its catalogue work (finding the smudged sample M-13) can start right away, but the padlock rule is only in the notebook's decrypted notes, so the freezer team has to wait for or ask the notebook team.
+- **Final:** the keypad is open from the start (no `requires`) and needs four digits, the terminal's shape order and the whiteboard's shape key.
 
 ## Chains
 
 - Notebook → freezer → exit: 3 stations, the longest path.
-- Terminal, incubator, ventilation → exit: 2 stations each.
+- Terminal, incubator, ventilation → exit: 2 stations each; the terminal's order also needs the whiteboard.
 - The notebook is the bottleneck: it feeds both the freezer and a digit, so a team should start it early.
 
 ## Hand-offs
 
-- Between stations: 1 result (the spore-sum rule, notebook → freezer), plus 4 digits and 1 symbol order into the keypad.
-- From clues: 7 clues; 5 hard (photo, diploma, manual, microscope, poster), 1 soft (whiteboard), 1 flavour (jars).
-- Mechanical: 6 `requires` links (1 into the freezer, 5 into the exit), all of them doubling a knowledge edge.
+- Between stations: 1 result (the spore-sum rule, notebook → freezer), plus 4 digits and 1 shape order into the keypad.
+- From clues: 7 clues; 6 hard (photo, diploma, manual, microscope, poster, whiteboard), 1 flavour (jars).
+- Mechanical: none. The freezer and the exit list their sources in `uses`.
 
 ## Where things are
 
@@ -104,10 +99,16 @@ The shelf of jars is flavour only and has no edge.
 
 ## Findings
 
-- **The whiteboard is soft.** The terminal's draft already gives the order in symbols (☀ 🍄 ❄ 🌀) and every reveal shows its digit next to its symbol, so the symbol → station key is never needed; only the notebook's "mushroom digit is three" lacks a symbol, and "mushroom" reads as 🍄 on its own. To make it hard, have the draft give the order by station names (or the reveals show only symbols and the draft names stations), so the whiteboard's key is the bridge.
-- **The whiteboard says "one digit from each station", but the terminal gives none** (it gives the order). Five stations, four digits: teams may hunt for a terminal digit. Hint 1 of the keypad repeats the same wording.
-- **Freezer `requires: ["notebook"]` could become `uses: ["notebook"]`.** The knowledge already travels (the spore-sum rule is nowhere in the freezer's task), so the freezer could open from the start and widen the first wave to 5; the team would explore the catalogue and the smudged label while the notebook is decoded. Alternatively the notes could end in a short code and the freezer get a `lock` with `from: "notebook"`.
-- **The exit's five `requires` duplicate its knowledge edges.** The code can't be read without the four digits and the draft's order, so they could all become `uses` (or be dropped); keeping them only guards a 4-digit keypad against guessing.
-- **The microscope's KEY = 7 is brute-forceable** (26 values, and the notes read as plain text at the right one), so it is hard for the check but a determined team can skip the walk. Minor at beginner level.
-- **The manual is only half needed:** "None means the sensor dropped out" is also in the data file's comment and the task; the safe range and "limits still safe" are the hard part.
+Fixed (this round):
+
+- **The whiteboard is now hard.** The reveals show bare digits, the terminal's draft gives the order as neutral shapes (● ▲ ◆ ■), and only the whiteboard maps shapes to stations (listed out of order, so it doesn't give the order away). Before, thematic symbols (☀ ❄ 🌀 🍄) in the reveals made it guessable.
+- **"One digit from each station" is gone.** The whiteboard says "4 digits, one per shape", and the keypad's first hint names the four digit stations and says the terminal gives the order.
+- **The freezer opens from the start** (`uses: ["notebook"]` instead of `requires`). Its text says the code isn't written on the freezer, and hint 1 sends the team to whoever decodes the notebook.
+- **The exit's `requires` are now `uses`**, as in stats-fair's gate. Guessing stays costly: without the whiteboard there are 24 orders, and every wrong try shows in the debrief.
+
+Left as they are:
+
+- **The microscope's KEY = 7 is brute-forceable** (26 values, and the notes read as plain text at the right one). Fine at beginner level; it is also a nice "try all keys" moment.
+- **The manual is only half needed:** "None means the sensor dropped out" is also in the data file's comment and the task. The safe range and "limits still safe" are the hard part, which is enough to make the clue needed.
+- **Partial-code guessing:** a team with three digits and the order can try 10 values for the fourth (e.g. skip the freezer). Accepted: wrong attempts are counted in the debrief.
 - **The shelf of jars is flavour only**, as intended; no station uses it.

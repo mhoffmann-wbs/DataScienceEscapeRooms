@@ -15,9 +15,9 @@
 | 1 | Idas Terminal | Variablen, String-Methoden (`.upper()`), Zahlen mit `str()` in Text umwandeln, `len()` | 🔎 Ein gerahmtes Foto, 🔎 Eine Urkunde |
 | 2 | Der Inkubator | Listen, `for`-Schleifen mit `enumerate`, `if`/`elif`, Zählen, fehlende Werte (`None`) überspringen | 🔎 Inkubator-Anleitung |
 | 3 | Das verschlüsselte Notizbuch | Strings: Umdrehen mit `[::-1]`, Schleifen über Zeichen, Strings zusammenbauen, eine Funktion schreiben | 🔎 Das Mikroskop |
-| 4 | Der Probengefrierschrank | Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen | 3. Das verschlüsselte Notizbuch |
+| 4 | Der Probengefrierschrank | Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen | 3. Das verschlüsselte Notizbuch (sein Ergebnis) |
 | 5 | Die Lüftungssteuerung | Debugging: Fehlermeldungen lesen, Syntax- und Einrückungsfehler, Umwandlung mit `int()`, `+=` statt `=` | 🔎 Luftqualitäts-Poster |
-| 6 | Das Tastenfeld am Ausgang (Abschluss-Schloss) | Ergebnisse aus dem ganzen Raum kombinieren | 1. Idas Terminal, 2. Der Inkubator, 3. Das verschlüsselte Notizbuch, 4. Der Probengefrierschrank, 5. Die Lüftungssteuerung, 🔎 Das Whiteboard |
+| 6 | Das Tastenfeld am Ausgang (Abschluss-Schloss) | Ergebnisse aus dem ganzen Raum kombinieren | 1. Idas Terminal (sein Ergebnis), 2. Der Inkubator (sein Ergebnis), 3. Das verschlüsselte Notizbuch (sein Ergebnis), 4. Der Probengefrierschrank (sein Ergebnis), 5. Die Lüftungssteuerung (sein Ergebnis), 🔎 Das Whiteboard |
 
 **Abschluss-Code:** `6348`
 
@@ -71,7 +71,7 @@ print("Logging in with:", password)
 
 > Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:
 >
-> "Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ☀ 🍄 ❄ 🌀."
+> "Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ● ▲ ◆ ■."
 
 **Hinweise:**
 
@@ -134,7 +134,7 @@ print(missing, alarms, first_alarm)
 
 **Zeigt nach dem Lösen:**
 
-> Der Inkubator piept und sein Display leuchtet auf: **☀ 6**
+> Der Inkubator piept und sein Display leuchtet auf: **6**
 
 **Hinweise:**
 
@@ -210,7 +210,7 @@ for line in notes["en"]:
 >
 > Gefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.
 >
-> Die Pilz-Ziffer für den Override ist drei."
+> Die Override-Ziffer in diesen Notizen ist drei."
 
 **Hinweise:**
 
@@ -221,12 +221,12 @@ for line in notes["en"]:
 ### 4. Der Probengefrierschrank
 
 **Übt:** Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen  
-**Braucht:** 3. Das verschlüsselte Notizbuch  
+**Braucht:** 3. Das verschlüsselte Notizbuch (sein Ergebnis)  
 **Daten:** [catalog.py](../../content/rooms/python-lab/data/catalog.py)
 
 **Aufgabe:**
 
-> Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Auf einem Etikett an der Tür steht:
+> Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Wie Ida den Code gewählt hat, steht nirgends am Gefrierschrank. Auf einem Etikett an der Tür steht:
 >
 > `SAMPLES INSIDE: M-04 · M-09 · M-1▒`
 >
@@ -257,11 +257,11 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 **Zeigt nach dem Lösen:**
 
-> Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **❄ 4**
+> Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **4**
 
 **Hinweise:**
 
-1. Idas entschlüsselte Notizen verraten, wie der Code funktioniert. Das Etikett sagt euch, welche Proben ihr braucht.
+1. Der Code steht nicht am Gefrierschrank. Ida erklärt ihn in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht.
 2. `catalog["M-04"]["spores"]` schlägt einen Wert nach. Um die verschmierte Probe zu finden, geht mit `for sample_id, info in catalog.items():` durch den Katalog und prüft `sample_id.startswith("M-1")` und `info["glows"]`.
 3. Die verschmierte Probe ist M-13. Der Code ist die Summe der Sporenzahlen von M-04, M-09 und M-13.
 
@@ -338,7 +338,7 @@ print("Total:", total)
 
 **Zeigt nach dem Lösen:**
 
-> Die Lüftung springt rumpelnd wieder an. Ein Display an der Steuerung zeigt: **🌀 8**
+> Die Lüftung springt rumpelnd wieder an. Ein Display an der Steuerung zeigt: **8**
 
 **Hinweise:**
 
@@ -349,7 +349,7 @@ print("Total:", total)
 ### 6. Das Tastenfeld am Ausgang (Abschluss-Schloss)
 
 **Übt:** Ergebnisse aus dem ganzen Raum kombinieren  
-**Braucht:** 1. Idas Terminal, 2. Der Inkubator, 3. Das verschlüsselte Notizbuch, 4. Der Probengefrierschrank, 5. Die Lüftungssteuerung, 🔎 Das Whiteboard
+**Braucht:** 1. Idas Terminal (sein Ergebnis), 2. Der Inkubator (sein Ergebnis), 3. Das verschlüsselte Notizbuch (sein Ergebnis), 4. Der Probengefrierschrank (sein Ergebnis), 5. Die Lüftungssteuerung (sein Ergebnis), 🔎 Das Whiteboard
 
 **Aufgabe:**
 
@@ -363,9 +363,9 @@ print("Total:", total)
 
 **Hinweise:**
 
-1. Jede gelöste Station liefert eine Ziffer neben einem Symbol. Öffnet eine gelöste Station noch einmal, um ihre Ziffer zu lesen.
-2. Das Whiteboard zeigt, welches Symbol zu welcher Station gehört. Idas Entwurf auf ihrem Terminal verrät die Reihenfolge.
-3. Die Reihenfolge ist ☀ 🍄 ❄ 🌀: Inkubator, Notizbuch, Gefrierschrank, Lüftung.
+1. Vier Stationen zeigen eine Ziffer, sobald sie gelöst sind: der Inkubator, das Notizbuch, der Gefrierschrank und die Lüftungssteuerung. Öffnet eine gelöste Station noch einmal, um ihre Ziffer zu lesen. Das Terminal liefert keine Ziffer, sondern die Reihenfolge.
+2. Idas Entwurf auf ihrem Terminal gibt die Reihenfolge als vier Formen an. Das Whiteboard zeigt, welche Form zu welcher Station gehört.
+3. Die Reihenfolge ist ● ▲ ◆ ■: Inkubator, Notizbuch, Gefrierschrank, Lüftung.
 
 ## Hinweise im Raum
 
@@ -427,9 +427,9 @@ print("Total:", total)
 
 > Das Board wurde fast vollständig weggewischt. In einer Ecke kann man noch lesen:
 >
-> "OVERRIDE = eine Ziffer von jeder Station"
+> "OVERRIDE = 4 Ziffern, eine pro Form"
 >
-> Drumherum vier Symbole mit Pfeilen: ☀ → Inkubator, 🍄 → Notizbuch, ❄ → Gefrierschrank, 🌀 → Lüftung. Die Zeile mit ihrer Reihenfolge ist weggewischt.
+> Drumherum vier Formen mit Pfeilen: ▲ → Notizbuch, ■ → Lüftung, ● → Inkubator, ◆ → Gefrierschrank. Die Zeile mit ihrer Reihenfolge ist weggewischt.
 
 ### 🔎 Ein Regal mit Gläsern
 
