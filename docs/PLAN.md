@@ -91,7 +91,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 
 ### 9. Polish
 - **Art:** ✅ redrawn in our own generator (`scripts/generate-art.mjs`): outlined, shaded tiles with drop shadows and texture, doors that pair into double doors, and 12 characters (hair styles, skin tones, glasses, a cap) with idle and two walking frames per direction. Kenney's CC0 packs were checked and dropped: no lab, hotel or station props, and characters that only face forward. Players on an older build drop hellos from the new avatars 7–12 until they reload.
-- Accessibility pass: keyboard-only play, readable contrast, chat usable with a screen reader.
+- **Accessibility pass:** ✅ dialogs keep Tab inside them, answer Esc only when topmost, and return the focus to the button that opened them; a visible focus ring everywhere; the chat list is a `log` with a labelled input, and unread messages in a collapsed chat are announced; `<html lang>` follows the language switch; the map is a labelled region that names the controls (the object prompt was already a `status`); crossed-off notes and "Coming soon" badges got more contrast; animations respect reduced motion. Keyboard-only play already worked (walking, E, Enter for chat, notes reorder by buttons). Not done: an audio cue or text description of the map layout for blind players.
 - Optional TURN server setting for networks that block peer-to-peer.
 - **pandas support** for future intermediate rooms: serve the pandas and numpy wheels from our own site, as is already done for Pyodide, and load them only in rooms that declare them. (Pulled forward into step 10.)
 

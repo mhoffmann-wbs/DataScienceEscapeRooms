@@ -63,6 +63,7 @@ interface Props {
 
 /** One place in the world: its Phaser game, and for rooms the room's network session. */
 export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom, onRejoin, onPractise, instructorKey, onGoTo }: Props) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   // Author mode and solo practice play the room offline, on an in-process network of one.
   const solo = place.kind === 'room' && !!place.run.solo;
@@ -110,7 +111,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
   return (
     <>
       {/* Clicking the map ends typing in any field (chat, notes), so walking works again. */}
-      <div ref={containerRef} className="game" onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
+      <div ref={containerRef} className="game" role="region" aria-label={t('app.map')} onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
       {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} instructorKey={instructorKey} onGoTo={onGoTo} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         // A solo run has no team to report to the lobby.

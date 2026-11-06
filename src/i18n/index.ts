@@ -25,7 +25,15 @@ void i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
+// Screen readers pick their voice from the page language. (This file also loads under Node, without a DOM.)
+const setPageLanguage = (lng: string) => {
+  const doc = (globalThis as { document?: { documentElement: { lang: string } } }).document;
+  if (doc) doc.documentElement.lang = lng;
+};
+setPageLanguage(i18n.language);
+
 i18n.on('languageChanged', (lng) => {
+  setPageLanguage(lng);
   try {
     localStorage.setItem(STORAGE_KEY, lng);
   } catch {

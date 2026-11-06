@@ -2,7 +2,8 @@
   "app": {
     "title": "Data Science Escape Rooms",
     "loading": "Wird geladen…",
-    "close": "Schließen"
+    "close": "Schließen",
+    "map": "Spielkarte. Laufen mit WASD oder den Pfeiltasten, Türen und Objekte benutzen mit E."
   },
   "join": {
     "title": "Lobby betreten",
@@ -24,6 +25,7 @@
   },
   "chat": {
     "title": "Chat",
+    "history": "Chatnachrichten",
     "everyone": "Alle",
     "nearby": "In der Nähe",
     "placeholderAll": "Nachricht an alle (Enter)",

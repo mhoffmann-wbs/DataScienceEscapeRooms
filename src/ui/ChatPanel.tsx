@@ -71,6 +71,9 @@ export function ChatPanel({ chat }: { chat: Chat }) {
           💬 {t('chat.title')}
           {unread > 0 && <span className="chat-unread">{t('chat.unread', { count: unread })}</span>}
         </button>
+        <span className="visually-hidden" role="status">
+          {unread > 0 && t('chat.unread', { count: unread })}
+        </span>
       </section>
     );
 
@@ -89,7 +92,7 @@ export function ChatPanel({ chat }: { chat: Chat }) {
           ▾
         </button>
       </div>
-      <ol className="chat-list" ref={listRef} aria-live="polite">
+      <ol className="chat-list" ref={listRef} role="log" aria-label={t('chat.history')}>
         {entries.map((entry) => (
           <ChatLine key={entry.id} entry={entry} />
         ))}
@@ -99,6 +102,7 @@ export function ChatPanel({ chat }: { chat: Chat }) {
           ref={inputRef}
           value={text}
           maxLength={CHAT_MAX_LENGTH}
+          aria-label={t(scope === 'all' ? 'chat.placeholderAll' : 'chat.placeholderNearby')}
           placeholder={t(scope === 'all' ? 'chat.placeholderAll' : 'chat.placeholderNearby')}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Escape' && inputRef.current?.blur()}
