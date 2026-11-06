@@ -63,6 +63,11 @@
   "lobby": {
     "controls": "Move: WASD or arrow keys · Use doors and objects: E · Chat: Enter, Esc to leave",
     "doorPrompt": "Press E to reopen the scenario list",
+    "rejoinReminder_one": "Your team's run in “{{room}}” is still going, with {{count}} player in the room. Walk to the {{door}} door to rejoin it.",
+    "rejoinReminder_other": "Your team's run in “{{room}}” is still going, with {{count}} players in the room. Walk to the {{door}} door to rejoin it.",
+    "rejoinReminderEnded": "Your team's run in “{{room}}” was ended by the team's creator. Pick a scenario at any door to play again.",
+    "rejoinReminderNobody": "Your team's run in “{{room}}” is saved, but nobody is in the room right now. Walk to the {{door}} door to continue it or discard it.",
+    "rejoinReminderSolo": "Your practice run in “{{room}}” is still saved. Walk to the {{door}} door to continue it.",
     "profile": "Profile"
   },
   "settings": {
@@ -349,7 +354,7 @@
     },
     "teams": {
       "title": "Forming a team",
-      "body": "Each door stands for a room type (🐍 Python, 🗄️ SQL, 📈 time series). Walk onto it and press E, then **choose a scenario**: each shows its difficulty, and its ⓘ button tells you the story, what it practises and which tools it uses. Then **create a team** or **join** one waiting there; up to 5 players per team, and every team plays its own copy of the room.\n\nA **private** team needs a password: tell it to your teammates, for example in nearby chat. Add your **group** (class or cohort) so your instructor finds you. The creator starts the run when everyone is in.\n\nWant to try a room first? **Practice alone** plays it offline; it doesn't count for the scoreboard."
+      "body": "Each door stands for a room type (🐍 Python, 🗄️ SQL, 📈 time series). Walk onto it to **choose a scenario**: each shows its difficulty, and its ⓘ button tells you the story, what it practises and which tools it uses. Then **create a team** or **join** one waiting there; up to 5 players per team, and every team plays its own copy of the room.\n\nA **private** team needs a password: tell it to your teammates, for example in nearby chat. Add your **group** (class or cohort) so your instructor finds you. The creator starts the run when everyone is in.\n\nWant to try a room first? **Practice alone** plays it offline; it doesn't count for the scoreboard."
     },
     "room": {
       "title": "In a room",
@@ -369,7 +374,7 @@
     },
     "after": {
       "title": "Leaving, rejoining, escaping",
-      "body": "Your run is saved in your browser, so reloading the page puts you back in your room. Leave through the room's exit door; the room's door in the lobby then lets you **rejoin** your team.\n\nOnce your team solves the final lock, you've escaped: the **debrief** shows your time, the hints you used and a model solution for each puzzle. Compare it with yours, there's usually more than one way."
+      "body": "Your run is saved in your browser. If you reload the page or leave through the room's exit door, you're back in the lobby: walk to the room's door there to **rejoin** your team. The team's creator can also **end the run** when leaving; it then closes for everyone.\n\nOnce your team solves the final lock, you've escaped: the **debrief** shows your time, the hints you used and a model solution for each puzzle. Compare it with yours, there's usually more than one way."
     }
   }
 }

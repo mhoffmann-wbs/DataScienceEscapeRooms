@@ -97,9 +97,8 @@ export function App() {
     setProfile(p);
     // First visit: show how to play right away.
     if (!helpSeen()) openHelp();
-    // Resume a run that was interrupted by a refresh.
-    const run = loadRun();
-    setPlace(run ? { kind: 'room', run } : { kind: 'lobby' });
+    // Always start in the lobby; an unfinished run is rejoined at its door.
+    setPlace({ kind: 'lobby', reminder: !!loadRun() });
   };
 
   const enterRoom = ({ team, password }: StartedTeam, leader: string) => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createGame } from '../game/createGame';
 import { bus, type Interactable } from '../game/events';
@@ -6,14 +6,15 @@ import { LOBBY, MAPS } from '../game/maps';
 import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { createMemoryTransport, MemoryHub } from '../net/memoryTransport';
 import { attemptsPerPuzzle, type RunState } from '../net/run';
-import type { RunSummary } from '../net/runs';
+import type { Runs, RunSummary } from '../net/runs';
 import { INSTRUCTOR_CONFIG } from '../net/instructorConfig';
 import { LobbySession, RoomSession } from '../net/session';
 import type { StartedTeam } from '../net/teams';
 import type { Transport } from '../net/transport';
 import type { Profile } from '../player/profile';
-import { saveRun, type SavedRun } from '../player/run';
-import { finalPuzzleId, getPuzzle, ROOMS } from '../rooms';
+import { clearRun, loadRun, saveRun, type SavedRun } from '../player/run';
+import { finalPuzzleId, getPuzzle, loc, roomTitle, ROOMS } from '../rooms';
+import { getDoor } from '../rooms/doors';
 import { AvDock } from './AvDock';
 import { ChatBubbles } from './ChatBubbles';
 import { ChatPanel } from './ChatPanel';
@@ -32,7 +33,12 @@ import { useEmitterValue } from './useStore';
 
 export type Place =
   /** `from`: the room just left, so the player arrives in front of its door. */
-  | { kind: 'lobby'; from?: string }
+  | {
+      kind: 'lobby';
+      from?: string;
+      /** Just joined with an unfinished run saved: say where to rejoin it. */
+      reminder?: boolean;
+    }
   | {
       kind: 'room';
       run: SavedRun;
@@ -112,7 +118,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
     <>
       {/* Clicking the map ends typing in any field (chat, notes), so walking works again. */}
       <div ref={containerRef} className="game" role="region" aria-label={t('app.map')} onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
-      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} instructorKey={instructorKey} onGoTo={onGoTo} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
+      {session instanceof LobbySession && <LobbyOverlays session={session} reminder={place.kind === 'lobby' && !!place.reminder} profile={profile} instructorKey={instructorKey} onGoTo={onGoTo} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         // A solo run has no team to report to the lobby.
         <RoomOverlays session={session} lobby={solo ? null : lobby} solo={solo} observer={!!place.observer} profile={profile} author={place.author} onGoTo={onGoTo} onLeaveRoom={onLeaveRoom} />
@@ -123,6 +129,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
 
 interface LobbyOverlaysProps {
   session: LobbySession;
+  reminder: boolean;
   profile: Profile;
   instructorKey: CryptoKey | null;
   onGoTo: ((peerId: string) => Promise<boolean>) | null;
@@ -131,7 +138,7 @@ interface LobbyOverlaysProps {
   onPractise: (roomId: string) => void;
 }
 
-function LobbyOverlays({ session, profile, instructorKey, onGoTo, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
+function LobbyOverlays({ session, reminder, profile, instructorKey, onGoTo, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
   const { t } = useTranslation();
   const [dialogDoor, setDialogDoor] = useState<string | null>(null);
   const [scoreboard, setScoreboard] = useState(false);
@@ -146,6 +153,7 @@ function LobbyOverlays({ session, profile, instructorKey, onGoTo, onEnterRoom, o
   return (
     <>
       <InteractPrompt onUse={use} onEnter={use} onLeave={leave} />
+      {reminder && <RejoinReminder runs={session.runs} hidden={dialogDoor !== null} />}
       <div className="overlay lobby-actions">
         <button type="button" onClick={() => setScoreboard(true)}>
           🏆 {t('scores.title')}
@@ -182,6 +190,41 @@ function LobbyOverlays({ session, profile, instructorKey, onGoTo, onEnterRoom, o
 }
 
 const END_SEND_MS = 400;
+
+/** Whether the lobby heard that this team's run was ended by its creator. */
+function useRunEnded(runs: Runs | null, teamId: string | undefined): boolean {
+  const subscribe = useCallback((onChange: () => void) => runs?.events.on('ended', onChange) ?? (() => {}), [runs]);
+  return useSyncExternalStore(subscribe, () => !!runs && !!teamId && runs.isEnded(teamId));
+}
+
+/** After a reload: the saved, unfinished run and the door to rejoin it at. Gone once dismissed or once that door's dialog opens. */
+function RejoinReminder({ runs, hidden }: { runs: Runs; hidden: boolean }) {
+  const { t, i18n } = useTranslation();
+  const [run] = useState(loadRun);
+  // Teammates still in the room report the run in the lobby.
+  const live = useEmitterValue(runs.events, 'runs', () => runs.list()).find((r) => r.teamId === run?.teamId);
+  // Ended while we were away: nothing to rejoin.
+  const ended = useRunEnded(runs, run?.teamId);
+  useEffect(() => {
+    if (ended) clearRun();
+  }, [ended]);
+  const [shown, setShown] = useState(true);
+  if (hidden && shown) setShown(false);
+  const door = run && getDoor(ROOMS[run.roomId]?.category ?? '');
+  if (!shown || !run || !door) return null;
+  const params = { room: roomTitle(run.roomId, i18n.language), door: `${door.icon} ${loc(door.title, i18n.language)}`, count: live?.members.length ?? 0 };
+  const key = run.solo ? 'lobby.rejoinReminderSolo' : ended ? 'lobby.rejoinReminderEnded' : live ? 'lobby.rejoinReminder' : 'lobby.rejoinReminderNobody';
+  return (
+    <section className="overlay announcements" role="status">
+      <div className="announcement">
+        <span>🔁 {t(key, params)}</span>
+        <button type="button" aria-label={t('instructor.dismiss')} onClick={() => setShown(false)}>
+          ✕
+        </button>
+      </div>
+    </section>
+  );
+}
 
 type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string } | { kind: 'leave' } | { kind: 'intro' } | { kind: 'escaped' } | null;
 
@@ -258,7 +301,9 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
   }
 
   // The creator can end the run for everyone; it then can't be rejoined.
-  const ended = state.endedAt !== null && !escaped;
+  // Also when the lobby announced it, for a member coming back to an empty room.
+  const endedInLobby = useRunEnded(lobby?.runs ?? null, session.info.teamId);
+  const ended = (state.endedAt !== null || endedInLobby) && !escaped;
   useEffect(() => {
     if (ended) reporter?.runs.withdraw();
   }, [ended, reporter]);
@@ -267,6 +312,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
   const endRun = () => {
     setEnding(true);
     run.end();
+    lobby?.runs.end(session.info.teamId);
     // Leaving closes the connections at once; give the message a moment to reach the team.
     setTimeout(() => onLeaveRoom(true), END_SEND_MS);
   };

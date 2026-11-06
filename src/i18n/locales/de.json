@@ -63,6 +63,11 @@
   "lobby": {
     "controls": "Bewegen: WASD oder Pfeiltasten · Türen und Objekte benutzen: E · Chat: Enter, Esc zum Verlassen",
     "doorPrompt": "Drücke E, um die Szenarioliste wieder zu öffnen",
+    "rejoinReminder_one": "Der Durchgang deines Teams in „{{room}}“ läuft noch, {{count}} Person ist im Raum. Geh zur Tür {{door}}, um wieder einzusteigen.",
+    "rejoinReminder_other": "Der Durchgang deines Teams in „{{room}}“ läuft noch, {{count}} Personen sind im Raum. Geh zur Tür {{door}}, um wieder einzusteigen.",
+    "rejoinReminderEnded": "Der Durchgang deines Teams in „{{room}}“ wurde von der Person beendet, die das Team gegründet hat. Wähl an einer Tür ein Szenario, um neu zu spielen.",
+    "rejoinReminderNobody": "Der Durchgang deines Teams in „{{room}}“ ist gespeichert, aber gerade ist niemand im Raum. Geh zur Tür {{door}}, um weiterzumachen oder ihn zu verwerfen.",
+    "rejoinReminderSolo": "Dein Übungsdurchgang in „{{room}}“ ist noch gespeichert. Geh zur Tür {{door}}, um weiterzumachen.",
     "profile": "Profil"
   },
   "settings": {
@@ -349,7 +354,7 @@
     },
     "teams": {
       "title": "Ein Team bilden",
-      "body": "Jede Tür steht für eine Raumart (🐍 Python, 🗄️ SQL, 📈 Zeitreihen). Stell dich darauf, drück E und **wähl ein Szenario**: Jedes zeigt seinen Schwierigkeitsgrad, und sein ⓘ-Knopf verrät die Geschichte, was es übt und welche Werkzeuge es nutzt. Dann kannst du ein **Team gründen** oder einem wartenden Team **beitreten**; bis zu 5 Personen pro Team, und jedes Team spielt seine eigene Kopie des Raums.\n\nEin **privates** Team braucht ein Passwort: Sag es deinem Team, zum Beispiel im Chat in der Nähe. Gib deine **Gruppe** (Kurs oder Jahrgang) an, damit deine Lehrkraft dich findet. Wer das Team gegründet hat, startet den Lauf, sobald alle da sind.\n\nErst mal ausprobieren? **Allein üben** spielt den Raum offline; das zählt nicht für die Bestenliste."
+      "body": "Jede Tür steht für eine Raumart (🐍 Python, 🗄️ SQL, 📈 Zeitreihen). Stell dich darauf und **wähl ein Szenario**: Jedes zeigt seinen Schwierigkeitsgrad, und sein ⓘ-Knopf verrät die Geschichte, was es übt und welche Werkzeuge es nutzt. Dann kannst du ein **Team gründen** oder einem wartenden Team **beitreten**; bis zu 5 Personen pro Team, und jedes Team spielt seine eigene Kopie des Raums.\n\nEin **privates** Team braucht ein Passwort: Sag es deinem Team, zum Beispiel im Chat in der Nähe. Gib deine **Gruppe** (Kurs oder Jahrgang) an, damit deine Lehrkraft dich findet. Wer das Team gegründet hat, startet den Lauf, sobald alle da sind.\n\nErst mal ausprobieren? **Allein üben** spielt den Raum offline; das zählt nicht für die Bestenliste."
     },
     "room": {
       "title": "Im Raum",
@@ -369,7 +374,7 @@
     },
     "after": {
       "title": "Verlassen, zurückkehren, entkommen",
-      "body": "Dein Lauf wird im Browser gespeichert, nach dem Neuladen bist du wieder in deinem Raum. Verlass den Raum durch seine Ausgangstür; an der Tür des Raums in der Lobby kannst du dann bei deinem Team **wieder einsteigen**.\n\nSobald euer Team das Schlussschloss löst, seid ihr entkommen: Die **Auswertung** zeigt eure Zeit, die genutzten Tipps und eine Musterlösung zu jedem Rätsel. Vergleicht sie mit eurer, meist gibt es mehr als einen Weg."
+      "body": "Dein Lauf wird im Browser gespeichert. Wenn du die Seite neu lädst oder den Raum durch seine Ausgangstür verlässt, bist du wieder in der Lobby: Geh dort zur Tür des Raums, um bei deinem Team **wieder einzusteigen**. Wer das Team gegründet hat, kann den Durchgang beim Verlassen auch **beenden**; er endet dann für alle.\n\nSobald euer Team das Schlussschloss löst, seid ihr entkommen: Die **Auswertung** zeigt eure Zeit, die genutzten Tipps und eine Musterlösung zu jedem Rätsel. Vergleicht sie mit eurer, meist gibt es mehr als einen Weg."
     }
   }
 }

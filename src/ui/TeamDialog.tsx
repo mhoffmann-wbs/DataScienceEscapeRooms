@@ -39,6 +39,14 @@ export function TeamDialog({ doorId, teams, runs, presence, profile, onRejoin, o
   // Nothing is picked until the player chooses a scenario.
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const live = useEmitterValue(runs.events, 'runs', () => runs.list()).find((r) => r.teamId === saved?.teamId);
+  // Its creator ended it while we were away: nothing to rejoin.
+  const ended = useEmitterValue(runs.events, 'ended', () => !!saved && runs.isEnded(saved.teamId));
+  useEffect(() => {
+    if (!ended) return;
+    clearRun();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSaved(null);
+  }, [ended]);
   const all = useEmitterValue(teams.events, 'teams', () => teams.list());
   // Re-render when names arrive.
   useEmitterValue(presence.events, 'roster', () => presence.list());

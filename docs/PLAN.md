@@ -47,7 +47,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 - Door dialog to create a team or join a team waiting at that door; a team has 1–5 players and a leader who starts the run.
 - Each team gets its own room instance, with its own chat channel and shared state.
 - Shared state merges without a leader: solved puzzles and revealed hints keep the earliest timestamp per key, and the timer starts at the earliest start time any peer reports.
-- Leaving a room returns the player to the lobby; rejoining after a page refresh resumes the run.
+- Leaving a room returns the player to the lobby; rejoining after a page refresh resumes the run (a reload now lands in the lobby, with a reminder; the player rejoins at the door).
 
 ### 5. Room engine and code runners ✅
 - Room manifest format with a zod schema and the `validate-rooms` script; rooms are discovered automatically.

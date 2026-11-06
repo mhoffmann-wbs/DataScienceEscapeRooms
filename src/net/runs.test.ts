@@ -57,6 +57,18 @@ describe('Runs', () => {
     expect(teacher.runs.list()).toEqual([]);
   });
 
+  it('passes ended runs on to peers who arrive later, after the creator left', () => {
+    const hub = new MemoryHub();
+    const ada = peer(hub, 'ada');
+    const bob = peer(hub, 'bob');
+    ada.runs.end('t1', 5);
+    expect(bob.runs.isEnded('t1')).toBe(true);
+    ada.room.leave();
+    const cara = peer(hub, 'cara');
+    expect(cara.runs.isEnded('t1')).toBe(true);
+    expect(cara.runs.isEnded('t2')).toBe(false);
+  });
+
   it('ignores malformed summaries', () => {
     const hub = new MemoryHub();
     const eve = peer(hub, 'eve');
