@@ -32,8 +32,8 @@
         "de": "Der Rezeptionscomputer"
       },
       "text": {
-        "en": "The reception computer is connected to the hotel database. Start with the obvious question: who slept on the 4th floor on the night of the theft?\n\nList the guest name and room of everyone staying on the 4th floor that night, ordered by room.",
-        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Beginnt mit der naheliegenden Frage: Wer hat in der Nacht des Diebstahls im 4. Stock geschlafen?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht im 4. Stock wohnten, sortiert nach Zimmer."
+        "en": "The reception computer is connected to the hotel database. The night guard heard the thief run off into one wing of the 4th floor. Start there: who slept in that wing on the night of the theft?\n\nList the guest name and room of everyone staying in that wing that night, ordered by room.",
+        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Der Nachtwächter hat den Dieb in einen Flügel des 4. Stocks davonlaufen hören. Fangt dort an: Wer hat in der Nacht des Diebstahls in diesem Flügel geschlafen?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -44,32 +44,33 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "2238bdaf8058de587a65490d5c11cfbcb8198af9cf754bebb4bd357d619c7ee8"
+        "hash": "9059342c041621d5ee7ae76afcaa8b713a43980a3f57aef0a793cef7b54f5b43"
       },
       "reveal": {
-        "en": "The printer rattles out the list, and you pin it to the wall. Five guests slept on the 4th floor that night: **Henrik Sol, Victor Hale, Nora Quill, Priya Nand and Ada Okafor.**",
-        "de": "Der Drucker rattert die Liste heraus, und ihr pinnt sie an die Wand. Fünf Gäste haben in dieser Nacht im 4. Stock geschlafen: **Henrik Sol, Victor Hale, Nora Quill, Priya Nand und Ada Okafor.**"
+        "en": "The printer rattles out the list, and you pin it to the wall. Three guests slept in the east wing of the 4th floor that night: **Nora Quill (406), Priya Nand (409) and Ada Okafor (411).**",
+        "de": "Der Drucker rattert die Liste heraus, und ihr pinnt sie an die Wand. Drei Gäste haben in dieser Nacht im Ostflügel des 4. Stocks geschlafen: **Nora Quill (406), Priya Nand (409) und Ada Okafor (411).**"
       },
       "practises": {
         "en": "`SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY`",
         "de": "`SELECT` und `WHERE` mit mehreren Bedingungen (`AND`, `BETWEEN`), Datumsvergleiche, `ORDER BY`"
       },
       "clues": [
-        "newspaper",
-        "floorplan"
+        "guard",
+        "floorplan",
+        "newspaper"
       ],
       "hints": [
         {
-          "en": "The date of the theft is on the newspaper in the lounge. The floor plan next to the door says which rooms are on the 4th floor.",
-          "de": "Das Datum des Diebstahls steht auf der Zeitung in der Lounge. Der Grundriss neben der Tür zeigt, welche Zimmer im 4. Stock liegen."
+          "en": "The night guard's notes by the manager's desk say which wing. The floor plan next to the door says which rooms are in it, and the newspaper in the lounge gives the date of the theft.",
+          "de": "Die Notizen des Nachtwächters beim Schreibtisch des Managers verraten, welcher Flügel. Der Grundriss neben der Tür zeigt, welche Zimmer dazugehören, und die Zeitung in der Lounge nennt das Datum des Diebstahls."
         },
         {
-          "en": "A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`).",
-          "de": "Ein Gast hat in dieser Nacht hier geschlafen, wenn er am 14. oder früher angekommen ist (`check_in <= '2026-03-14'`) und am 15. oder später abgereist ist (`check_out > '2026-03-14'`)."
+          "en": "The east wing of the 4th floor is rooms 405–412 (`room BETWEEN 405 AND 412`). A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`).",
+          "de": "Der Ostflügel des 4. Stocks sind die Zimmer 405–412 (`room BETWEEN 405 AND 412`). Ein Gast hat in dieser Nacht hier geschlafen, wenn er am 14. oder früher angekommen ist (`check_in <= '2026-03-14'`) und am 15. oder später abgereist ist (`check_out > '2026-03-14'`)."
         },
         {
-          "en": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 401 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`",
-          "de": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 401 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`"
+          "en": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`",
+          "de": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`"
         }
       ]
     },
@@ -95,20 +96,21 @@
         "hash": "f22043e24ea2c203e005ac8d1229b467490eefd8ef5328bf444e1a70e76b9ce7"
       },
       "reveal": {
-        "en": "Four events while Victor was away. One stands out: at **02:47** the card **M-02** opened room 404.",
-        "de": "Vier Ereignisse, während Victor weg war. Eines fällt auf: Um **02:47** hat die Karte **M-02** Zimmer 404 geöffnet."
+        "en": "Four events while Victor was away. One stands out: at **02:47** on the 15th, the card **M-02** opened room 404.",
+        "de": "Vier Ereignisse, während Victor weg war. Eines fällt auf: Am 15. um **02:47** hat die Karte **M-02** Zimmer 404 geöffnet."
       },
       "practises": {
         "en": "`WHERE` on a time range that crosses midnight, text comparison of timestamps, `ORDER BY`",
         "de": "`WHERE` mit einem Zeitraum über Mitternacht, Textvergleich von Zeitstempeln, `ORDER BY`"
       },
       "clues": [
-        "statement"
+        "statement",
+        "newspaper"
       ],
       "hints": [
         {
-          "en": "Victor's statement on the manager's desk says when he left his room and when he came back.",
-          "de": "Victors Aussage auf dem Schreibtisch des Managers verrät, wann er sein Zimmer verlassen hat und wann er zurückkam."
+          "en": "Victor's statement on the manager's desk says when he left his room and when he came back. The date of the theft is on the newspaper in the lounge.",
+          "de": "Victors Aussage auf dem Schreibtisch des Managers verrät, wann er sein Zimmer verlassen hat und wann er zurückkam. Das Datum des Diebstahls steht auf der Zeitung in der Lounge."
         },
         {
           "en": "Times are text like `'2026-03-14 22:00'`, so `time BETWEEN '…' AND '…'` works. The night crosses midnight, so the end time is on the 15th.",
@@ -127,8 +129,8 @@
         "de": "Das Kartencodiergerät"
       },
       "text": {
-        "en": "This machine writes the hotel's key cards, and it knows who every card belongs to.\n\nTake the events at room 404 while Victor was away, and show `time`, the name of the card holder and `event`, earliest first.",
-        "de": "Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört.\n\nNehmt die Ereignisse an Zimmer 404, während Victor weg war, und zeigt `time`, den Namen des Karteninhabers und `event`, das früheste zuerst."
+        "en": "This machine writes the hotel's key cards, and it knows who every card belongs to.\n\nTake the card that opened room 404 in the middle of the night. Show `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.",
+        "de": "Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört.\n\nNehmt die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat. Zeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -139,9 +141,9 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "85942e661986440bb20e73e28056e1be9f7b1bbf45319151b4e2f335b70f5172"
+        "hash": "b836b7fdba651c07ba14e918d69f2425700d59facd5a441906303aeae2713963"
       },
-      "requires": [
+      "uses": [
         "door-log"
       ],
       "reveal": {
@@ -153,20 +155,21 @@
         "de": "Zwei Tabellen über eine gemeinsame Spalte verbinden (`JOIN`), Tabellen-Aliasse"
       },
       "clues": [
-        "statement"
+        "statement",
+        "newspaper"
       ],
       "hints": [
         {
-          "en": "`door_log` has the card ids, `keycards` has the holders. Connect them with `JOIN keycards ON door_log.card_id = keycards.card_id`.",
-          "de": "`door_log` enthält die Karten-IDs, `keycards` die Inhaber. Verbindet sie mit `JOIN keycards ON door_log.card_id = keycards.card_id`."
+          "en": "The door-lock server's result names the card. Victor's statement says when he was away, and the newspaper gives the date.",
+          "de": "Das Ergebnis am Türschloss-Server nennt die Karte. Victors Aussage verrät, wann er weg war, und die Zeitung nennt das Datum."
         },
         {
-          "en": "Start from your door-log query and add the `JOIN`. Aliases like `door_log AS d` keep it short, and both tables have a `card_id`, so write `d.card_id`.",
-          "de": "Geht von eurer Abfrage am Türschloss-Server aus und ergänzt den `JOIN`. Aliasse wie `door_log AS d` halten sie kurz, und beide Tabellen haben eine Spalte `card_id`, also schreibt `d.card_id`."
+          "en": "`door_log` has the card ids, `keycards` has the holders: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Both tables have a `card_id`, so write `d.card_id`, and filter on the card instead of the room.",
+          "de": "`door_log` enthält die Karten-IDs, `keycards` die Inhaber: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Beide Tabellen haben eine Spalte `card_id`, also schreibt `d.card_id`, und filtert nach der Karte statt nach dem Zimmer."
         },
         {
-          "en": "`SELECT d.time, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.room = 404 AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`",
-          "de": "`SELECT d.time, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.room = 404 AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`"
+          "en": "`SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`",
+          "de": "`SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`"
         }
       ]
     },
@@ -177,8 +180,8 @@
         "de": "Der Sicherheits-PC"
       },
       "text": {
-        "en": "The security PC can report on any single card. Look at the card that opened room 404 in the night.\n\nFor the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.",
-        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Karte an, die in der Nacht Zimmer 404 geöffnet hat.\n\nZählt für die Zeit, seit diese Karte verschwunden ist, wie oft sie jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
+        "en": "The security PC can report on any single card. Look at the card that opened room 404 in the middle of the night.\n\nFor the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.",
+        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Karte an, die mitten in der Nacht Zimmer 404 geöffnet hat.\n\nZählt für die Zeit, seit diese Karte verschwunden ist, wie oft sie jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -191,12 +194,13 @@
         "ordered": false,
         "hash": "a14b22b5fdb4f6f25dcca10bad3653438d47f06af2dacadd08833f9cc99405b7"
       },
-      "requires": [
-        "door-log"
+      "uses": [
+        "door-log",
+        "card-holders"
       ],
       "reveal": {
-        "en": "Since 21:00 the master card opened room 404 once, and room **406** twice.",
-        "de": "Seit 21:00 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal."
+        "en": "Since 21:00 the master card opened room 404 once, and room **406** twice.\n\nThe security PC beeps: \"Room 406 flagged. Code sent to the manager's phone.\"",
+        "de": "Seit 21:00 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal.\n\nDer Sicherheits-PC piept: \"Zimmer 406 markiert. Code ans Telefon des Managers gesendet.\""
       },
       "practises": {
         "en": "`GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count",
@@ -207,12 +211,12 @@
       ],
       "hints": [
         {
-          "en": "The front-desk logbook at reception says since when `M-02` has been missing.",
-          "de": "Das Logbuch an der Rezeption verrät, seit wann `M-02` verschwunden ist."
+          "en": "The door-lock server found the card, and the key-card encoder says whose it is. The front-desk logbook at reception says since when that person's master card has been missing.",
+          "de": "Der Türschloss-Server hat die Karte gefunden, und das Kartencodiergerät verrät, wem sie gehört. Das Logbuch an der Rezeption verrät, seit wann die Generalkarte dieser Person verschwunden ist."
         },
         {
-          "en": "Keep only rows where `card_id = 'M-02'`, `event = 'open'` and the time is after it went missing. Then `GROUP BY room` and count with `COUNT(*)`.",
-          "de": "Behaltet nur Zeilen mit `card_id = 'M-02'`, `event = 'open'` und einer Zeit nach dem Verschwinden. Dann `GROUP BY room` und mit `COUNT(*)` zählen."
+          "en": "Keep only rows where `card_id = 'M-02'`, `event = 'open'` and the time is after it went missing (21:00 on the 14th). Then `GROUP BY room` and count with `COUNT(*)`.",
+          "de": "Behaltet nur Zeilen mit `card_id = 'M-02'`, `event = 'open'` und einer Zeit nach dem Verschwinden (21:00 am 14.). Dann `GROUP BY room` und mit `COUNT(*)` zählen."
         },
         {
           "en": "`SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:00' GROUP BY room ORDER BY openings DESC;`",
@@ -227,8 +231,8 @@
         "de": "Die Barkasse"
       },
       "text": {
-        "en": "Guests and staff sign every receipt with their key card: at the bar, in the card room, for room service, even at reception.\n\nSomeone opened room 404 at 02:47. Who signed a receipt between 02:40 and 02:55 that night? Show `time`, the name of whoever signed and `place`, earliest first.",
-        "de": "Gäste und Personal unterschreiben jeden Beleg mit ihrer Schlüsselkarte: an der Bar, im Kartenzimmer, beim Zimmerservice, sogar an der Rezeption.\n\nJemand hat Zimmer 404 um 02:47 geöffnet. Wer hat in dieser Nacht zwischen 02:40 und 02:55 einen Beleg unterschrieben? Zeigt `time`, den Namen der Person und `place`, den frühesten zuerst."
+        "en": "Guests and staff sign every receipt with their key card: at the bar, in the card room, for room service, even at reception.\n\nThe night guard noted the moment he heard a door close upstairs. Who signed a receipt in the ten minutes before or after it? Show `time`, the name of whoever signed and `place`, earliest first.",
+        "de": "Gäste und Personal unterschreiben jeden Beleg mit ihrer Schlüsselkarte: an der Bar, im Kartenzimmer, beim Zimmerservice, sogar an der Rezeption.\n\nDer Nachtwächter hat notiert, wann er oben eine Tür zufallen hörte. Wer hat in den zehn Minuten davor oder danach einen Beleg unterschrieben? Zeigt `time`, den Namen der Person und `place`, den frühesten zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -249,18 +253,22 @@
         "en": "`JOIN` combined with `WHERE` and `ORDER BY`",
         "de": "`JOIN` kombiniert mit `WHERE` und `ORDER BY`"
       },
+      "clues": [
+        "guard",
+        "newspaper"
+      ],
       "hints": [
         {
-          "en": "`receipts` has the `card_id` of whoever signed. `JOIN keycards` turns it into a name.",
-          "de": "`receipts` enthält die `card_id` der Person, die unterschrieben hat. Ein `JOIN` mit `keycards` macht daraus einen Namen."
+          "en": "The night guard's notes by the manager's desk say when he heard the door. The night had crossed midnight by then, so it is the day after the newspaper's date. `receipts` has the `card_id` of whoever signed, and `JOIN keycards` turns it into a name.",
+          "de": "Die Notizen des Nachtwächters beim Schreibtisch des Managers verraten, wann er die Tür hörte. Die Nacht war da schon über Mitternacht, es ist also der Tag nach dem Datum der Zeitung. `receipts` enthält die `card_id` der Person, die unterschrieben hat, und ein `JOIN` mit `keycards` macht daraus einen Namen."
         },
         {
-          "en": "The night has crossed midnight: filter with `r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55'` and sort by time.",
-          "de": "Die Nacht ist schon über Mitternacht: Filtert mit `r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55'` und sortiert nach Zeit."
+          "en": "The door closed at 02:50 on the 15th: filter with `r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'` and sort by time.",
+          "de": "Die Tür fiel am 15. um 02:50 zu: Filtert mit `r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'` und sortiert nach Zeit."
         },
         {
-          "en": "`SELECT r.time, k.holder, r.place FROM receipts AS r JOIN keycards AS k ON r.card_id = k.card_id WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55' ORDER BY r.time;`",
-          "de": "`SELECT r.time, k.holder, r.place FROM receipts AS r JOIN keycards AS k ON r.card_id = k.card_id WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55' ORDER BY r.time;`"
+          "en": "`SELECT r.time, k.holder, r.place FROM receipts AS r JOIN keycards AS k ON r.card_id = k.card_id WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00' ORDER BY r.time;`",
+          "de": "`SELECT r.time, k.holder, r.place FROM receipts AS r JOIN keycards AS k ON r.card_id = k.card_id WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00' ORDER BY r.time;`"
         }
       ]
     },
@@ -285,29 +293,33 @@
         "mode": "caseless",
         "hash": "d0cc2ac7bcf3b70ae3901bf4e22a7e12ebadf70c2f8ca2615fb436a9a26c7581"
       },
-      "requires": [
-        "reception",
-        "door-log",
-        "card-holders",
+      "lock": {
+        "text": {
+          "en": "The manager's phone is locked. It asks for a three-digit code.",
+          "de": "Das Telefon des Managers ist gesperrt. Es verlangt einen dreistelligen Code."
+        },
+        "from": "master-card",
+        "mode": "number",
+        "hash": "f393b4953c8637e0404c0edfc7f34537248efabb89204771d7c9fb48881a2fe4"
+      },
+      "uses": [
         "master-card",
-        "alibis"
+        "reception"
       ],
       "final": true,
       "practises": {
         "en": "Combining evidence from several queries",
         "de": "Hinweise aus mehreren Abfragen kombinieren"
       },
-      "clues": [
-        "guard"
-      ],
+      "clues": [],
       "hints": [
         {
-          "en": "The thief used the stolen master card. Who can't have used it at 02:47, and which room did the card keep going back to?",
-          "de": "Der Dieb hat die gestohlene Generalkarte benutzt. Wer kann sie um 02:47 nicht benutzt haben, und zu welchem Zimmer ist die Karte immer wieder zurückgekehrt?"
+          "en": "The thief used the stolen master card. Which guest room did it keep going back to, and who slept there?",
+          "de": "Der Dieb hat die gestohlene Generalkarte benutzt. Zu welchem Gästezimmer ist sie immer wieder zurückgekehrt, und wer hat dort geschlafen?"
         },
         {
-          "en": "The alibis rule out Victor, Mia, Otto and Priya. The master card opened one guest room twice, and the night guard heard steps heading that way.",
-          "de": "Die Alibis schließen Victor, Mia, Otto und Priya aus. Die Generalkarte hat ein Gästezimmer zweimal geöffnet, und der Nachtwächter hat Schritte in diese Richtung gehört."
+          "en": "The room is the code you opened this phone with. The guest list from reception says who slept in it. The bar till rules out the card's owner, Otto.",
+          "de": "Das Zimmer ist der Code, mit dem ihr dieses Telefon entsperrt habt. Die Gästeliste von der Rezeption verrät, wer darin geschlafen hat. Die Barkasse schließt den Karteninhaber Otto aus."
         },
         {
           "en": "The master card opened room 406 twice. The guest list from reception says who slept in 406.",
@@ -357,8 +369,8 @@
         "de": "Das Logbuch der Rezeption"
       },
       "text": {
-        "en": "FRONT DESK · 14 March\n\n18:00 Night shift starts: O. Brandt\n\n21:00 Porter Leo says my master card M-02, which I lent him for the luggage, is gone from his trolley. Will have it blocked in the morning. – O.B.\n\n02:45 Late check-in: Mr Ruiz, room 312, came through the storm on foot.",
-        "de": "REZEPTION · 14. März\n\n18:00 Beginn Nachtschicht: O. Brandt\n\n21:00 Gepäckträger Leo meldet, dass meine Generalkarte M-02, die ich ihm fürs Gepäck geliehen habe, von seinem Wagen verschwunden ist. Lasse sie morgen früh sperren. – O.B.\n\n02:45 Später Check-in: Herr Ruiz, Zimmer 312, zu Fuß durch den Sturm gekommen."
+        "en": "FRONT DESK · 14 March\n\n18:00 Night shift starts: O. Brandt\n\n21:00 Porter Leo says my master card, which I lent him for the luggage, is gone from his trolley. Will have it blocked in the morning; until then I'm using my spare card. – O.B.\n\n02:45 Late check-in: Mr Ruiz, room 312, came through the storm on foot.",
+        "de": "REZEPTION · 14. März\n\n18:00 Beginn Nachtschicht: O. Brandt\n\n21:00 Gepäckträger Leo meldet, dass meine Generalkarte, die ich ihm fürs Gepäck geliehen habe, von seinem Wagen verschwunden ist. Lasse sie morgen früh sperren, bis dahin nehme ich meine Ersatzkarte. – O.B.\n\n02:45 Später Check-in: Herr Ruiz, Zimmer 312, zu Fuß durch den Sturm gekommen."
       }
     },
     {
@@ -368,8 +380,8 @@
         "de": "Notizen des Nachtwächters"
       },
       "text": {
-        "en": "02:30 Round on the 4th floor. All quiet.\n\n02:50 Heard a door close upstairs, then quick footsteps heading into the east wing. By the time I got up there, the corridor was empty.",
-        "de": "02:30 Runde im 4. Stock. Alles ruhig.\n\n02:50 Oben eine Tür zufallen hören, dann schnelle Schritte in Richtung Ostflügel. Als ich oben war, war der Flur leer."
+        "en": "02:30 Round on the 4th floor. All quiet.\n\n02:50 Heard a door close up on the 4th floor, then quick footsteps heading into the east wing. By the time I got up there, the corridor was empty.",
+        "de": "02:30 Runde im 4. Stock. Alles ruhig.\n\n02:50 Oben im 4. Stock eine Tür zufallen hören, dann schnelle Schritte in Richtung Ostflügel. Als ich oben war, war der Flur leer."
       }
     },
     {

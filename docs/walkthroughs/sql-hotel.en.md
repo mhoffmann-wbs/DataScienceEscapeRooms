@@ -12,12 +12,12 @@
 
 | # | Station | Practises | Needs |
 |---|---|---|---|
-| 1 | The reception computer | `SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY` | 🔎 A newspaper, 🔎 The floor plan |
-| 2 | The door-lock server | `WHERE` on a time range that crosses midnight, text comparison of timestamps, `ORDER BY` | 🔎 Victor Hale's statement |
-| 3 | The key-card encoder | `JOIN` two tables on a shared column, table aliases | 2. The door-lock server, 🔎 Victor Hale's statement |
-| 4 | The security PC | `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count | 2. The door-lock server, 🔎 The front-desk logbook |
-| 5 | The bar till | `JOIN` combined with `WHERE` and `ORDER BY` | open from the start |
-| 6 | The manager's phone (Final lock) | Combining evidence from several queries | 1. The reception computer, 2. The door-lock server, 3. The key-card encoder, 4. The security PC, 5. The bar till, 🔎 The night guard's notes |
+| 1 | The reception computer | `SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY` | 🔎 The night guard's notes, 🔎 The floor plan, 🔎 A newspaper |
+| 2 | The door-lock server | `WHERE` on a time range that crosses midnight, text comparison of timestamps, `ORDER BY` | 🔎 Victor Hale's statement, 🔎 A newspaper |
+| 3 | The key-card encoder | `JOIN` two tables on a shared column, table aliases | 2. The door-lock server (its result), 🔎 Victor Hale's statement, 🔎 A newspaper |
+| 4 | The security PC | `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count | 2. The door-lock server (its result), 3. The key-card encoder (its result), 🔎 The front-desk logbook |
+| 5 | The bar till | `JOIN` combined with `WHERE` and `ORDER BY` | 🔎 The night guard's notes, 🔎 A newspaper |
+| 6 | The manager's phone (Final lock) | Combining evidence from several queries | 4. The security PC (its result), 1. The reception computer (its result), 🔒 4. The security PC |
 
 **Final code:** `Nora Quill`
 
@@ -26,14 +26,14 @@
 ### 1. The reception computer
 
 **Practises:** `SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY`  
-**Needs:** 🔎 A newspaper, 🔎 The floor plan  
+**Needs:** 🔎 The night guard's notes, 🔎 The floor plan, 🔎 A newspaper  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
 
-> The reception computer is connected to the hotel database. Start with the obvious question: who slept on the 4th floor on the night of the theft?
+> The reception computer is connected to the hotel database. The night guard heard the thief run off into one wing of the 4th floor. Start there: who slept in that wing on the night of the theft?
 >
-> List the guest name and room of everyone staying on the 4th floor that night, ordered by room.
+> List the guest name and room of everyone staying in that wing that night, ordered by room.
 
 <details><summary>Starter code</summary>
 
@@ -51,7 +51,7 @@ LIMIT 5;
 ```sql
 SELECT guest_name, room
 FROM bookings
-WHERE room BETWEEN 401 AND 412
+WHERE room BETWEEN 405 AND 412
   AND check_in <= '2026-03-14'
   AND check_out > '2026-03-14'
 ORDER BY room;
@@ -60,23 +60,23 @@ ORDER BY room;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["Henrik Sol",401],["Victor Hale",404],["Nora Quill",406],["Priya Nand",409],["Ada Okafor",411]]
+[["Nora Quill",406],["Priya Nand",409],["Ada Okafor",411]]
 ```
 
 **Reveals when solved:**
 
-> The printer rattles out the list, and you pin it to the wall. Five guests slept on the 4th floor that night: **Henrik Sol, Victor Hale, Nora Quill, Priya Nand and Ada Okafor.**
+> The printer rattles out the list, and you pin it to the wall. Three guests slept in the east wing of the 4th floor that night: **Nora Quill (406), Priya Nand (409) and Ada Okafor (411).**
 
 **Hints:**
 
-1. The date of the theft is on the newspaper in the lounge. The floor plan next to the door says which rooms are on the 4th floor.
-2. A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`).
-3. `SELECT guest_name, room FROM bookings WHERE room BETWEEN 401 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`
+1. The night guard's notes by the manager's desk say which wing. The floor plan next to the door says which rooms are in it, and the newspaper in the lounge gives the date of the theft.
+2. The east wing of the 4th floor is rooms 405–412 (`room BETWEEN 405 AND 412`). A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`).
+3. `SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`
 
 ### 2. The door-lock server
 
 **Practises:** `WHERE` on a time range that crosses midnight, text comparison of timestamps, `ORDER BY`  
-**Needs:** 🔎 Victor Hale's statement  
+**Needs:** 🔎 Victor Hale's statement, 🔎 A newspaper  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
@@ -114,25 +114,25 @@ ORDER BY time;
 
 **Reveals when solved:**
 
-> Four events while Victor was away. One stands out: at **02:47** the card **M-02** opened room 404.
+> Four events while Victor was away. One stands out: at **02:47** on the 15th, the card **M-02** opened room 404.
 
 **Hints:**
 
-1. Victor's statement on the manager's desk says when he left his room and when he came back.
+1. Victor's statement on the manager's desk says when he left his room and when he came back. The date of the theft is on the newspaper in the lounge.
 2. Times are text like `'2026-03-14 22:00'`, so `time BETWEEN '…' AND '…'` works. The night crosses midnight, so the end time is on the 15th.
 3. `SELECT time, card_id, event FROM door_log WHERE room = 404 AND time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY time;`
 
 ### 3. The key-card encoder
 
 **Practises:** `JOIN` two tables on a shared column, table aliases  
-**Needs:** 2. The door-lock server, 🔎 Victor Hale's statement  
+**Needs:** 2. The door-lock server (its result), 🔎 Victor Hale's statement, 🔎 A newspaper  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
 
 > This machine writes the hotel's key cards, and it knows who every card belongs to.
 >
-> Take the events at room 404 while Victor was away, and show `time`, the name of the card holder and `event`, earliest first.
+> Take the card that opened room 404 in the middle of the night. Show `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -148,10 +148,10 @@ LIMIT 5;
 **Model solution:**
 
 ```sql
-SELECT d.time, k.holder, d.event
+SELECT d.time, d.room, k.holder, d.event
 FROM door_log AS d
 JOIN keycards AS k ON d.card_id = k.card_id
-WHERE d.room = 404
+WHERE d.card_id = 'M-02'
   AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'
 ORDER BY d.time;
 ```
@@ -159,7 +159,7 @@ ORDER BY d.time;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["2026-03-14 23:12","Mia Lund","open"],["2026-03-15 00:18","Priya Nand","denied"],["2026-03-15 02:47","Otto Brandt","open"],["2026-03-15 06:52","Victor Hale","open"]]
+[["2026-03-15 02:40",402,"Otto Brandt","denied"],["2026-03-15 02:47",404,"Otto Brandt","open"],["2026-03-15 02:52",406,"Otto Brandt","open"]]
 ```
 
 **Reveals when solved:**
@@ -168,19 +168,19 @@ ORDER BY d.time;
 
 **Hints:**
 
-1. `door_log` has the card ids, `keycards` has the holders. Connect them with `JOIN keycards ON door_log.card_id = keycards.card_id`.
-2. Start from your door-log query and add the `JOIN`. Aliases like `door_log AS d` keep it short, and both tables have a `card_id`, so write `d.card_id`.
-3. `SELECT d.time, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.room = 404 AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`
+1. The door-lock server's result names the card. Victor's statement says when he was away, and the newspaper gives the date.
+2. `door_log` has the card ids, `keycards` has the holders: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Both tables have a `card_id`, so write `d.card_id`, and filter on the card instead of the room.
+3. `SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`
 
 ### 4. The security PC
 
 **Practises:** `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count  
-**Needs:** 2. The door-lock server, 🔎 The front-desk logbook  
+**Needs:** 2. The door-lock server (its result), 3. The key-card encoder (its result), 🔎 The front-desk logbook  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
 
-> The security PC can report on any single card. Look at the card that opened room 404 in the night.
+> The security PC can report on any single card. Look at the card that opened room 404 in the middle of the night.
 >
 > For the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.
 
@@ -216,24 +216,26 @@ ORDER BY openings DESC;
 **Reveals when solved:**
 
 > Since 21:00 the master card opened room 404 once, and room **406** twice.
+>
+> The security PC beeps: "Room 406 flagged. Code sent to the manager's phone."
 
 **Hints:**
 
-1. The front-desk logbook at reception says since when `M-02` has been missing.
-2. Keep only rows where `card_id = 'M-02'`, `event = 'open'` and the time is after it went missing. Then `GROUP BY room` and count with `COUNT(*)`.
+1. The door-lock server found the card, and the key-card encoder says whose it is. The front-desk logbook at reception says since when that person's master card has been missing.
+2. Keep only rows where `card_id = 'M-02'`, `event = 'open'` and the time is after it went missing (21:00 on the 14th). Then `GROUP BY room` and count with `COUNT(*)`.
 3. `SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:00' GROUP BY room ORDER BY openings DESC;`
 
 ### 5. The bar till
 
 **Practises:** `JOIN` combined with `WHERE` and `ORDER BY`  
-**Needs:** open from the start  
+**Needs:** 🔎 The night guard's notes, 🔎 A newspaper  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
 
 > Guests and staff sign every receipt with their key card: at the bar, in the card room, for room service, even at reception.
 >
-> Someone opened room 404 at 02:47. Who signed a receipt between 02:40 and 02:55 that night? Show `time`, the name of whoever signed and `place`, earliest first.
+> The night guard noted the moment he heard a door close upstairs. Who signed a receipt in the ten minutes before or after it? Show `time`, the name of whoever signed and `place`, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -252,7 +254,7 @@ LIMIT 5;
 SELECT r.time, k.holder, r.place
 FROM receipts AS r
 JOIN keycards AS k ON r.card_id = k.card_id
-WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55'
+WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'
 ORDER BY r.time;
 ```
 
@@ -268,15 +270,19 @@ ORDER BY r.time;
 
 **Hints:**
 
-1. `receipts` has the `card_id` of whoever signed. `JOIN keycards` turns it into a name.
-2. The night has crossed midnight: filter with `r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55'` and sort by time.
-3. `SELECT r.time, k.holder, r.place FROM receipts AS r JOIN keycards AS k ON r.card_id = k.card_id WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 02:55' ORDER BY r.time;`
+1. The night guard's notes by the manager's desk say when he heard the door. The night had crossed midnight by then, so it is the day after the newspaper's date. `receipts` has the `card_id` of whoever signed, and `JOIN keycards` turns it into a name.
+2. The door closed at 02:50 on the 15th: filter with `r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'` and sort by time.
+3. `SELECT r.time, k.holder, r.place FROM receipts AS r JOIN keycards AS k ON r.card_id = k.card_id WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00' ORDER BY r.time;`
 
 ### 6. The manager's phone (Final lock)
 
 **Practises:** Combining evidence from several queries  
-**Needs:** 1. The reception computer, 2. The door-lock server, 3. The key-card encoder, 4. The security PC, 5. The bar till, 🔎 The night guard's notes  
+**Needs:** 4. The security PC (its result), 1. The reception computer (its result), 🔒 4. The security PC  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
+
+**Code lock** (opens with `406`):
+
+> The manager's phone is locked. It asks for a three-digit code.
 
 **Task:**
 
@@ -316,15 +322,15 @@ ORDER BY openings DESC;
 
 **Hints:**
 
-1. The thief used the stolen master card. Who can't have used it at 02:47, and which room did the card keep going back to?
-2. The alibis rule out Victor, Mia, Otto and Priya. The master card opened one guest room twice, and the night guard heard steps heading that way.
+1. The thief used the stolen master card. Which guest room did it keep going back to, and who slept there?
+2. The room is the code you opened this phone with. The guest list from reception says who slept in it. The bar till rules out the card's owner, Otto.
 3. The master card opened room 406 twice. The guest list from reception says who slept in 406.
 
 ## Clues in the room
 
 ### 🔎 A newspaper
 
-*Used by: 1. The reception computer*
+*Used by: 1. The reception computer, 2. The door-lock server, 3. The key-card encoder, 5. The bar till*
 
 > THE ALPINE COURIER · Saturday, 14 March 2026
 >
@@ -362,17 +368,17 @@ ORDER BY openings DESC;
 >
 > 18:00 Night shift starts: O. Brandt
 >
-> 21:00 Porter Leo says my master card M-02, which I lent him for the luggage, is gone from his trolley. Will have it blocked in the morning. – O.B.
+> 21:00 Porter Leo says my master card, which I lent him for the luggage, is gone from his trolley. Will have it blocked in the morning; until then I'm using my spare card. – O.B.
 >
 > 02:45 Late check-in: Mr Ruiz, room 312, came through the storm on foot.
 
 ### 🔎 The night guard's notes
 
-*Used by: 6. The manager's phone*
+*Used by: 1. The reception computer, 5. The bar till*
 
 > 02:30 Round on the 4th floor. All quiet.
 >
-> 02:50 Heard a door close upstairs, then quick footsteps heading into the east wing. By the time I got up there, the corridor was empty.
+> 02:50 Heard a door close up on the 4th floor, then quick footsteps heading into the east wing. By the time I got up there, the corridor was empty.
 
 ### 🔎 A portrait
 

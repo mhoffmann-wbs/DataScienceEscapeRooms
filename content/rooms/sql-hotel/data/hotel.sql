@@ -37,6 +37,7 @@ CREATE TABLE keycards (
 INSERT INTO keycards (card_id, holder, role) VALUES
   ('M-01', 'Sabine Kohl', 'day manager'),
   ('M-02', 'Otto Brandt', 'night manager'),
+  ('M-03', 'Otto Brandt', 'night manager'),
   ('H-01', 'Jan Petrov', 'housekeeping'),
   ('H-03', 'Mia Lund', 'housekeeping'),
   ('P-01', 'Leo Marek', 'porter'),
@@ -129,8 +130,8 @@ INSERT INTO receipts (receipt_id, time, place, card_id, amount) VALUES
   (9, '2026-03-15 02:20', 'night bar', 'C-406', 7.50),
   (10, '2026-03-15 02:41', 'card room', 'C-404', 120.00),
   (11, '2026-03-15 02:44', 'room service', 'H-03', 24.50),
-  (12, '2026-03-15 02:45', 'reception', 'M-02', 0.00),
+  (12, '2026-03-15 02:45', 'reception', 'M-03', 0.00),
   (13, '2026-03-15 02:50', 'room service', 'C-409', 12.00),
-  (14, '2026-03-15 02:58', 'night bar', 'C-401', 11.00),
+  (14, '2026-03-15 03:02', 'night bar', 'C-401', 11.00),
   (15, '2026-03-15 03:05', 'card room', 'C-404', 90.00),
   (16, '2026-03-15 06:30', 'breakfast', 'C-207', 19.00);
