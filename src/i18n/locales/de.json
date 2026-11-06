@@ -205,7 +205,10 @@
     "empty": "(keine Ausgabe)",
     "close": "Schließen",
     "reveal": "Was ihr gefunden habt",
-    "loadingPackages": "Python mit {{list}} wird geladen… beim ersten Mal werden einige Megabyte heruntergeladen, das dauert einen Moment."
+    "loadingPackages": "Python mit {{list}} wird geladen… beim ersten Mal werden einige Megabyte heruntergeladen, das dauert einen Moment.",
+    "lockCode": "Code",
+    "openLock": "Öffnen",
+    "lockWrong": "Das Schloss geht nicht auf. Sucht den Code an einer anderen Stelle im Raum."
   },
   "debrief": {
     "open": "Auswertung",
@@ -358,7 +361,7 @@
     },
     "room": {
       "title": "Im Raum",
-      "body": "Oben siehst du euren Fortschritt und die Teamzeit. Geh zu Gegenständen und drück E: **Rätsel** (Terminals, Tresore, Tastenfelder) brauchen Code oder eine Antwort, **Hinweise** (Poster, Fotos, Handbücher) enthalten Werte, die die Rätsel brauchen.\n\nManche Rätsel sind gesperrt, bis andere gelöst sind. Mehrere sind von Anfang an offen, also teilt euch auf. Das letzte, das Schlussschloss, kombiniert, was ihr gefunden habt."
+      "body": "Oben siehst du euren Fortschritt und die Teamzeit. Geh zu Gegenständen und drück E: **Rätsel** (Terminals, Tresore, Tastenfelder) brauchen Code oder eine Antwort, **Hinweise** (Poster, Fotos, Handbücher) enthalten Werte, die die Rätsel brauchen.\n\nManche Rätsel brauchen ein Ergebnis aus einem anderen, und manche liegen hinter einem Zahlenschloss: Der Code taucht woanders im Raum auf. Mehrere sind von Anfang an offen, also teilt euch auf. Das letzte, das Schlussschloss, kombiniert, was ihr gefunden habt."
     },
     "puzzles": {
       "title": "Rätsel lösen",

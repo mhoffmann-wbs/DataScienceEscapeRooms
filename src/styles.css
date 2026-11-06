@@ -627,6 +627,12 @@ code {
   font-size: 0.9rem;
 }
 
+.lock-icon {
+  font-size: 2rem;
+  margin: 0;
+  text-align: center;
+}
+
 .answer-form {
   display: flex;
   gap: 8px;
@@ -1145,6 +1151,8 @@ code {
 .chart-line.series-3 { stroke: var(--series-3); }
 
 .chart rect.series-1 { fill: var(--series-1); }
+.chart rect.series-2 { fill: var(--series-2); }
+.chart rect.series-3 { fill: var(--series-3); }
 .chart rect.hovered { opacity: 0.75; }
 
 .chart-crosshair {

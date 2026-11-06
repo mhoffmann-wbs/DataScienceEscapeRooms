@@ -215,15 +215,17 @@ export class WorldScene extends Phaser.Scene {
     const signs = doors.flatMap((d) => {
       const info = getDoor(d.doorTo);
       if (!info) return [];
+      // Above the door: centred over a door in the top wall, flush with the wall over a side door.
+      const anchor = d.facing === 'down' ? { x: d.x + d.width / 2, origin: 0.5 } : d.facing === 'right' ? { x: d.x + 2, origin: 0 } : { x: d.x + d.width - 2, origin: 1 };
       const text = this.add
-        .text(d.x + d.width / 2, d.y - 2, '', {
+        .text(anchor.x, d.y - 2, '', {
           fontFamily: 'system-ui, sans-serif',
           fontSize: '11px',
           color: '#f3f4f6',
           backgroundColor: '#1b1f2bdd',
           padding: { x: 5, y: 2 },
         })
-        .setOrigin(0.5, 1)
+        .setOrigin(anchor.origin, 1)
         .setResolution(2)
         .setDepth(5);
       return [{ text, info }];

@@ -13,6 +13,7 @@ describe('debriefRows', () => {
       startedAt: 1000,
       solved: { [first!.id]: 61_000 },
       hints: { [hintKey(first!.id, 0)]: 5000, [hintKey(first!.id, 1)]: 6000, [hintKey(second!.id, 0)]: 7000 },
+      unlocked: {},
       attempts: { [`${first!.id}|ada`]: 2, [`${first!.id}|bob`]: 1 },
       players: {},
       endedAt: null,

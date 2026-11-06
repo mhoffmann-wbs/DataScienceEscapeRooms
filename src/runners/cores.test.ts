@@ -91,6 +91,21 @@ describe('python plots', () => {
     expect(out.plots).toEqual([{ title: 'T', kind: 'line', x: [0, 1, 2], series: [{ name: 'a', values: [1, 2, null] }, { name: 'b', values: [5, null, null] }], band: null }]);
   });
 
+  it('counts samples into shared histogram bins', async () => {
+    const out = await runPython(py, 'show_hist([0, 1, 1, 2, 4], [4, 4], bins=2, labels=["a", "b"])');
+    expect(out.ok).toBe(true);
+    expect(out.plots).toEqual([{ title: null, kind: 'columns', x: ['0–2', '2–4'], series: [{ name: 'a', values: [3, 2] }, { name: 'b', values: [0, 2] }], band: null }]);
+  });
+
+  it('draws bars labelled by dict keys or by x', async () => {
+    const out = await runPython(py, 'show_bars({"heads": 0.5, "tails": 0.5}, title="Coin")\nshow_bars([1, 2], x=["a", "b"])');
+    expect(out.ok).toBe(true);
+    expect(out.plots.map((p) => [p.kind, p.x, p.series[0]!.values])).toEqual([
+      ['columns', ['heads', 'tails'], [0.5, 0.5]],
+      ['columns', ['a', 'b'], [1, 2]],
+    ]);
+  });
+
   it('keeps charts drawn before an error, and explains when statsmodels is missing', async () => {
     const out = await runPython(py, 'show_plot([1, 2])\nplot_acf([1, 2, 3])');
     expect(out).toMatchObject({ ok: false, error: expect.stringContaining('need statsmodels') });

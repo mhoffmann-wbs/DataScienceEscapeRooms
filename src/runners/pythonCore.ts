@@ -2,10 +2,13 @@ import type { PyodideAPI } from 'pyodide';
 
 // Python execution shared by the worker and Node scripts/tests. Only type imports here.
 
-/** A chart drawn by `show_plot`, `plot_acf` or `plot_pacf` (see PRELUDE), rendered by the output panel. */
+/**
+ * A chart drawn by `show_plot`, `show_hist`, `show_bars`, `plot_acf` or `plot_pacf` (see PRELUDE),
+ * rendered by the output panel. `bar` is a correlogram (x = lags), `columns` a histogram or bar chart.
+ */
 export interface Plot {
   title: string | null;
-  kind: 'line' | 'bar';
+  kind: 'line' | 'bar' | 'columns';
   x: (string | number)[];
   series: { name: string; values: (number | null)[] }[];
   /** Bar charts of autocorrelations: the ±band of the 95 % significance limit. */
@@ -15,7 +18,7 @@ export interface Plot {
 export type PythonOutcome = { ok: true; stdout: string; check: string | null; plots: Plot[] } | { ok: false; stdout: string; error: string; plots: Plot[] };
 
 /** Modules imported once after loading a package, so the first student run doesn't pay for it (statsmodels takes seconds). */
-const PRELOAD: Record<string, string[]> = { statsmodels: ['statsmodels.api'], scipy: ['scipy.optimize'] };
+const PRELOAD: Record<string, string[]> = { statsmodels: ['statsmodels.api'], scipy: ['scipy.optimize', 'scipy.stats'] };
 
 /** Loads Pyodide packages (wheels from pyodide-lock.json) and pre-imports their heavy modules. Idempotent. */
 export async function loadPackages(py: PyodideAPI, packages: readonly string[]): Promise<void> {
@@ -77,6 +80,47 @@ def show_plot(*series, labels=None, title=None):
         cols = [v + [None] * (n - len(v)) for _, v in parsed]
     names = list(labels) if labels else [getattr(s, "name", None) or f"series {i + 1}" for i, s in enumerate(series)]
     _add_plot({"title": title, "kind": "line", "x": xs, "series": [{"name": str(n), "values": c} for n, c in zip(names, cols)], "band": None})
+
+def _num(v):
+    return f"{v:.4g}" if isinstance(v, float) else str(v)
+
+def show_hist(*samples, bins=20, labels=None, title=None):
+    """Draws a histogram of one or more samples below your output: how many values fall into each bin.
+    Takes lists, numpy arrays or pandas Series; several samples share the same bins, so they can be compared.
+    bins sets the number of bins; labels=["a", "b"] names the samples."""
+    if not samples:
+        raise ValueError("show_hist needs at least one sample")
+    data = [[v for v in _plot_values(s)[1] if v is not None] for s in samples]
+    values = [v for d in data for v in d]
+    if not values:
+        raise ValueError("show_hist got no numbers to count")
+    bins = max(1, min(int(bins), 200))
+    lo, hi = min(values), max(values)
+    width = (hi - lo) / bins or 1
+    counts = []
+    for d in data:
+        c = [0] * bins
+        for v in d:
+            c[min(int((v - lo) / width), bins - 1)] += 1
+        counts.append(c)
+    xs = [f"{_num(round(lo + i * width, 6))}–{_num(round(lo + (i + 1) * width, 6))}" for i in range(bins)]
+    names = list(labels) if labels else [getattr(s, "name", None) or f"sample {i + 1}" for i, s in enumerate(samples)]
+    _add_plot({"title": title, "kind": "columns", "x": xs, "series": [{"name": str(n), "values": c} for n, c in zip(names, counts)], "band": None})
+
+def show_bars(*series, x=None, labels=None, title=None):
+    """Draws one or more series as bars below your output, e.g. probabilities per outcome.
+    A pandas Series' index (or a dict's keys) labels the bars; otherwise pass x=[...].
+    labels=["a", "b"] names the series."""
+    if not series:
+        raise ValueError("show_bars needs at least one series")
+    parsed = [(list(s.keys()), _plot_values(list(s.values()))[1]) if isinstance(s, dict) else _plot_values(s) for s in series]
+    xs = list(x) if x is not None else (parsed[0][0] if parsed[0][0] is not None else list(range(len(parsed[0][1]))))
+    if any(len(v) != len(xs) for _, v in parsed):
+        raise ValueError("show_bars: every series needs one value per bar")
+    names = list(labels) if labels else [getattr(s, "name", None) or f"series {i + 1}" for i, s in enumerate(series)]
+    xs = [v.item() if hasattr(v, "item") else v for v in xs]
+    _add_plot({"title": title, "kind": "columns", "x": [v if isinstance(v, (int, float)) else str(v) for v in xs],
+               "series": [{"name": str(n), "values": v} for n, (_, v) in zip(names, parsed)], "band": None})
 
 def _correlogram(series, lags, title, partial):
     try:

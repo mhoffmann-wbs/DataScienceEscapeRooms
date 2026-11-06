@@ -21,6 +21,8 @@ export const runStateSchema = z.object({
   solved: timestamps,
   /** `${puzzleId}#${tier}` -> when that hint was first revealed */
   hints: timestamps,
+  /** puzzleId -> when its code lock was first opened */
+  unlocked: timestamps.default({}),
   /** `${puzzleId}|${peerId}` -> failed checks by that player (only they increase it) */
   attempts: z
     .record(attemptKeySchema, z.number().int().min(0).max(100_000))
@@ -36,7 +38,7 @@ export const runStateSchema = z.object({
 });
 export type RunState = z.infer<typeof runStateSchema>;
 
-export const emptyRun = (startedAt: number | null = null, epoch = 0): RunState => ({ epoch, startedAt, solved: {}, hints: {}, attempts: {}, players: {}, endedAt: null });
+export const emptyRun = (startedAt: number | null = null, epoch = 0): RunState => ({ epoch, startedAt, solved: {}, hints: {}, unlocked: {}, attempts: {}, players: {}, endedAt: null });
 
 const minOf = (a: number | null, b: number | null) => (a === null ? b : b === null ? a : Math.min(a, b));
 
@@ -60,6 +62,7 @@ export function mergeRun(a: RunState, b: RunState): RunState {
     startedAt: minOf(a.startedAt, b.startedAt),
     solved: mergeTimes(a.solved, b.solved),
     hints: mergeTimes(a.hints, b.hints),
+    unlocked: mergeTimes(a.unlocked, b.unlocked),
     attempts: mergeCounts(a.attempts, b.attempts),
     players: mergeTimes(a.players, b.players),
     endedAt: minOf(a.endedAt, b.endedAt),
@@ -69,7 +72,7 @@ export function mergeRun(a: RunState, b: RunState): RunState {
 export function sameRun(a: RunState, b: RunState): boolean {
   const same = (x: Record<string, number>, y: Record<string, number>) =>
     Object.keys(x).length === Object.keys(y).length && Object.entries(x).every(([k, t]) => y[k] === t);
-  return a.epoch === b.epoch && a.startedAt === b.startedAt && a.endedAt === b.endedAt && same(a.solved, b.solved) && same(a.hints, b.hints) && same(a.attempts, b.attempts) && same(a.players, b.players);
+  return a.epoch === b.epoch && a.startedAt === b.startedAt && a.endedAt === b.endedAt && same(a.solved, b.solved) && same(a.hints, b.hints) && same(a.unlocked, b.unlocked) && same(a.attempts, b.attempts) && same(a.players, b.players);
 }
 
 export const hintKey = (puzzleId: string, tier: number) => `${puzzleId}#${tier}`;
@@ -114,6 +117,11 @@ export class RunSync {
 
   markSolved(puzzleId: string): void {
     this.apply({ ...emptyRun(), epoch: this.current.epoch, solved: { [puzzleId]: this.now() } }, true);
+  }
+
+  /** Opens a puzzle's code lock for the whole team. */
+  unlock(puzzleId: string): void {
+    this.apply({ ...emptyRun(), epoch: this.current.epoch, unlocked: { [puzzleId]: this.now() } }, true);
   }
 
   revealHint(puzzleId: string, tier: number): void {

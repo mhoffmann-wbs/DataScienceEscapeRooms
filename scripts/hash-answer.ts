@@ -6,12 +6,13 @@
 // Reference solutions live in content/rooms/<roomId>/solutions.json:
 // { "<puzzleId>": "<answer text | Python code | SQL query>" }, depending on the check type,
 // or { "answer": "…", "code": "…" } for an answer worked out in a code workspace.
+// A puzzle's code lock takes its code under "<puzzleId>#lock".
 import { readFile, writeFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
 import { manifestSchema } from '../src/rooms/manifest.ts';
 import { nodePyodide } from '../src/runners/nodePython.ts';
 import { moduleSetup } from '../src/runners/pythonCore.ts';
-import { solutionHash, type ReferenceSolution } from '../src/rooms/solutions.ts';
+import { lockCode, lockHash, solutionHash, type ReferenceSolution } from '../src/rooms/solutions.ts';
 
 const [roomId, flag] = process.argv.slice(2);
 if (!roomId) {
@@ -38,6 +39,18 @@ for (const [i, puzzle] of manifest.puzzles.entries()) {
   if (!ok) mismatches++;
   console.log(`${ok ? '✓' : '✗'} ${puzzle.id} ${hash}`);
   raw.puzzles[i].check.hash = hash;
+  if (puzzle.lock) {
+    const code = lockCode(puzzle, solutions);
+    if (code === undefined) {
+      console.warn(`${puzzle.id}: no code for its lock (${puzzle.id}#lock), skipped`);
+      mismatches++;
+      continue;
+    }
+    const lock = await lockHash(manifest, puzzle, code);
+    if (lock !== puzzle.lock.hash) mismatches++;
+    console.log(`${lock === puzzle.lock.hash ? '✓' : '✗'} ${puzzle.id}#lock ${lock}`);
+    raw.puzzles[i].lock.hash = lock;
+  }
 }
 
 if (flag === '--write') {

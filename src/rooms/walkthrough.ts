@@ -15,6 +15,8 @@ export interface SolvedPuzzle {
   solution: ReferenceSolution;
   /** What the check compares: the normalized answer, the JSON of the Python check expression, or the result rows. */
   result: string;
+  /** The code that opens the puzzle's lock, if it has one. */
+  lock?: string;
 }
 
 const LABELS = {
@@ -40,6 +42,8 @@ const LABELS = {
     hints: 'Hints',
     clues: 'Clues in the room',
     usedBy: 'Used by',
+    lock: 'Code lock',
+    lockCode: 'opens with',
     unused: 'flavour only',
     sqlRows: 'rows, column names ignored',
     sqlOrdered: 'in this order',
@@ -67,6 +71,8 @@ const LABELS = {
     hints: 'Hinweise',
     clues: 'Hinweise im Raum',
     usedBy: 'Gebraucht von',
+    lock: 'Zahlenschloss',
+    lockCode: 'öffnet mit',
     unused: 'nur Atmosphäre',
     sqlRows: 'Zeilen, Spaltennamen egal',
     sqlOrdered: 'in dieser Reihenfolge',
@@ -91,7 +97,11 @@ export function renderWalkthrough(roomId: string, manifest: Manifest, lang: Lang
   const number = new Map(manifest.puzzles.map((p, i) => [p.id, i + 1]));
 
   const needs = (p: Puzzle) => {
-    const parts = [...p.requires.map((r) => `${number.get(r)}. ${titleOf(r)}`), ...p.clues.map((c) => `🔎 ${clueTitle(c)}`)];
+    const parts = [
+      ...p.requires.map((r) => `${number.get(r)}. ${titleOf(r)}`),
+      ...(p.lock ? [`🔒 ${number.get(p.lock.from)}. ${titleOf(p.lock.from)}`] : []),
+      ...p.clues.map((c) => `🔎 ${clueTitle(c)}`),
+    ];
     return parts.length ? parts.join(', ') : t.start;
   };
 
@@ -119,6 +129,7 @@ export function renderWalkthrough(roomId: string, manifest: Manifest, lang: Lang
     out.push(`### ${i + 1}. ${tr(p.title)}${p.final ? ` (${t.final})` : ''}`);
     const data = p.data ? `  \n**${t.data}:** [${p.data}](../../content/rooms/${roomId}/data/${p.data})` : '';
     out.push(`**${t.practises}:** ${tr(p.practises)}  \n**${t.needs}:** ${needs(p)}${data}`);
+    if (p.lock) out.push(`**${t.lock}** (${t.lockCode} \`${s.lock ?? '?'}\`):`, quote(tr(p.lock.text)));
     out.push(`**${t.task}:**`, quote(tr(p.text)));
     const starter = typeof p.starter === 'string' ? p.starter : tr(p.starter);
     if (starter.trim()) out.push(`<details><summary>${t.starter}</summary>\n\n${fence(starter, p.workspace)}\n\n</details>`);

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { createMemoryTransport, MemoryHub } from './memoryTransport';
 import { emptyRun, mergeRun, RunSync, runStateSchema, type RunState } from './run';
 
-const a: RunState = { epoch: 0, startedAt: 100, solved: { p1: 150 }, hints: { 'p1#0': 120 }, attempts: { 'p1|ada': 2 }, players: { Ada: 100 }, endedAt: null };
-const b: RunState = { epoch: 0, startedAt: 90, solved: { p1: 160, p2: 200 }, hints: {}, attempts: { 'p1|ada': 1, 'p1|bob': 3 }, players: { Ada: 95, Bob: 90 }, endedAt: 300 };
-const c: RunState = { epoch: 0, startedAt: null, solved: {}, hints: { 'p2#1': 210, 'p1#0': 110 }, attempts: {}, players: {}, endedAt: 250 };
-const reset: RunState = { epoch: 500, startedAt: 500, solved: {}, hints: {}, attempts: {}, players: {}, endedAt: null };
+const a: RunState = { epoch: 0, startedAt: 100, solved: { p1: 150 }, hints: { 'p1#0': 120 }, unlocked: { p2: 130 }, attempts: { 'p1|ada': 2 }, players: { Ada: 100 }, endedAt: null };
+const b: RunState = { epoch: 0, startedAt: 90, solved: { p1: 160, p2: 200 }, hints: {}, unlocked: { p2: 125 }, attempts: { 'p1|ada': 1, 'p1|bob': 3 }, players: { Ada: 95, Bob: 90 }, endedAt: 300 };
+const c: RunState = { epoch: 0, startedAt: null, solved: {}, hints: { 'p2#1': 210, 'p1#0': 110 }, unlocked: {}, attempts: {}, players: {}, endedAt: 250 };
+const reset: RunState = { epoch: 500, startedAt: 500, solved: {}, hints: {}, unlocked: {}, attempts: {}, players: {}, endedAt: null };
 
 describe('mergeRun', () => {
   it('keeps the earliest timestamp per key', () => {
-    expect(mergeRun(a, b)).toEqual({ epoch: 0, startedAt: 90, solved: { p1: 150, p2: 200 }, hints: { 'p1#0': 120 }, attempts: { 'p1|ada': 2, 'p1|bob': 3 }, players: { Ada: 95, Bob: 90 }, endedAt: 300 });
+    expect(mergeRun(a, b)).toEqual({ epoch: 0, startedAt: 90, solved: { p1: 150, p2: 200 }, hints: { 'p1#0': 120 }, unlocked: { p2: 125 }, attempts: { 'p1|ada': 2, 'p1|bob': 3 }, players: { Ada: 95, Bob: 90 }, endedAt: 300 });
   });
 
   it('is commutative, associative and idempotent, also across epochs', () => {
@@ -29,7 +29,7 @@ describe('mergeRun', () => {
   });
 
   it('still loads states saved before epochs and attempts existed', () => {
-    expect(runStateSchema.parse({ ...emptyRun(1), solved: {} })).toEqual({ epoch: 0, startedAt: 1, solved: {}, hints: {}, attempts: {}, players: {}, endedAt: null });
+    expect(runStateSchema.parse({ ...emptyRun(1), solved: {} })).toEqual({ epoch: 0, startedAt: 1, solved: {}, hints: {}, unlocked: {}, attempts: {}, players: {}, endedAt: null });
   });
 
   it('rejects oversized or malformed states', () => {
@@ -52,6 +52,14 @@ describe('RunSync', () => {
     expect(ada.state).toEqual(bob.state);
     expect(ada.state.solved).toEqual({ p1: 2000 });
     expect(ada.state.hints).toEqual({ 'p2#0': 2000 });
+  });
+
+  it('shares opened code locks with the team', () => {
+    const hub = new MemoryHub();
+    const ada = join(hub, 'ada');
+    const bob = join(hub, 'bob');
+    bob.unlock('p3');
+    expect(ada.state.unlocked).toEqual({ p3: 2000 });
   });
 
   it('catches up a player who rejoins with a stale saved state', () => {
@@ -95,7 +103,7 @@ describe('RunSync attempts and resets', () => {
     ada.recordAttempt('p2');
     t.now = 5000;
     bob.reset(5000);
-    expect(ada.state).toEqual({ epoch: 5000, startedAt: 5000, solved: {}, hints: {}, attempts: {}, players: {}, endedAt: null });
+    expect(ada.state).toEqual({ epoch: 5000, startedAt: 5000, solved: {}, hints: {}, unlocked: {}, attempts: {}, players: {}, endedAt: null });
     bob.reset(4000); // an older reset is ignored
     expect(bob.state.epoch).toBe(5000);
     const cara = new RunSync(createMemoryTransport(hub, 'cara').join('room:x:t1'), { ...emptyRun(1000), solved: { p1: 1500 } }, () => t.now);

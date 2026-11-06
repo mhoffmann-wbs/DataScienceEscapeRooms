@@ -20,6 +20,24 @@ export const checkSchema = z.discriminatedUnion('type', [
 ]);
 export type Check = z.infer<typeof checkSchema>;
 
+/**
+ * A code lock in front of a puzzle, opened by typing a code found elsewhere in the room
+ * (usually another puzzle's reveal). Its hash is salted with `<puzzleId>#lock`; the code
+ * goes into solutions.json under that key.
+ */
+export const lockSchema = z.object({
+  /** What the lock looks like and what it asks for, shown instead of the puzzle until it opens. */
+  text: localized,
+  /** The puzzle whose result gives the code, for the walkthrough and the reachability test. */
+  from: puzzleId,
+  mode: z.enum(['caseless', 'exact', 'number']).default('number'),
+  hash,
+});
+export type Lock = z.infer<typeof lockSchema>;
+
+/** Key of a puzzle's lock in solutions.json, run state and answer hashes. */
+export const lockKey = (puzzleId: string) => `${puzzleId}#lock`;
+
 export const puzzleSchema = z
   .object({
     id: puzzleId,
@@ -41,8 +59,12 @@ export const puzzleSchema = z
     hints: z.array(localized).min(1).max(3),
     /** Shown to the whole team once solved: what the solved object gives back (a code digit, a message). */
     reveal: localized.optional(),
-    /** Puzzles that must be solved before this one opens. */
+    /**
+     * Puzzles that must be solved before this one opens. Prefer a `lock`, or a task that
+     * needs an earlier result, so players find out for themselves what they still need.
+     */
     requires: z.array(puzzleId).default([]),
+    lock: lockSchema.optional(),
     /** Solving the final puzzle means the team escaped. */
     final: z.boolean().default(false),
   })
@@ -90,6 +112,7 @@ export const manifestSchema = z
     for (const p of m.puzzles) {
       for (const r of p.requires) if (!ids.has(r)) ctx.addIssue({ code: 'custom', message: `${p.id} requires unknown puzzle ${r}` });
       for (const c of p.clues) if (!clueIds.has(c)) ctx.addIssue({ code: 'custom', message: `${p.id} uses unknown clue ${c}` });
+      if (p.lock && !ids.has(p.lock.from)) ctx.addIssue({ code: 'custom', message: `${p.id}'s lock comes from unknown puzzle ${p.lock.from}` });
     }
   });
 export type Manifest = z.infer<typeof manifestSchema>;

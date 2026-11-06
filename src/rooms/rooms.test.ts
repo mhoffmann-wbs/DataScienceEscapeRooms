@@ -5,7 +5,7 @@ import { parseMapObjects, tiledMapSchema } from '../game/tiled';
 import { loadDataFile, loadModules, ROOMS } from './index';
 import { nodePyodide } from '../runners/nodePython';
 import { moduleSetup } from '../runners/pythonCore';
-import { canonicalSolution, solutionHash, type Engines, type ReferenceSolution } from './solutions';
+import { canonicalSolution, lockCode, lockHash, solutionHash, type Engines, type ReferenceSolution } from './solutions';
 import { LANGUAGES, renderWalkthrough, walkthroughPath, type SolvedPuzzle } from './walkthrough';
 
 // Reference solutions; every stored hash is re-derived from them.
@@ -41,12 +41,18 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
     while (progress) {
       progress = false;
       for (const p of manifest.puzzles)
-        if (!solved.has(p.id) && p.requires.every((r) => solved.has(r))) {
+        if (!solved.has(p.id) && [...p.requires, ...(p.lock ? [p.lock.from] : [])].every((r) => solved.has(r))) {
           solved.add(p.id);
           progress = true;
         }
     }
     expect(solved.size).toBe(manifest.puzzles.length);
+  });
+
+  it.each(manifest.puzzles.filter((p) => p.lock).map((p) => [p.id, p] as const))('%s opens its lock with the stored code', async (_, puzzle) => {
+    const code = lockCode(puzzle, solutionsFor(roomId)!);
+    expect(code, `no code for ${puzzle.id}#lock in solutions.json`).toBeDefined();
+    expect(await lockHash(manifest, puzzle, code!)).toBe(puzzle.lock!.hash);
   });
 
   describe('reference solutions', () => {
@@ -65,7 +71,7 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
       const solved: Record<string, SolvedPuzzle> = {};
       for (const p of manifest.puzzles) {
         const solution = solutionsFor(roomId)![p.id]!;
-        solved[p.id] = { solution, result: await canonicalSolution(p, solution, engines) };
+        solved[p.id] = { solution, result: await canonicalSolution(p, solution, engines), lock: lockCode(p, solutionsFor(roomId)!) };
       }
       for (const lang of LANGUAGES) expect(walkthroughs[`../../${walkthroughPath(roomId, lang)}`]).toBe(renderWalkthrough(roomId, manifest, lang, solved));
     });

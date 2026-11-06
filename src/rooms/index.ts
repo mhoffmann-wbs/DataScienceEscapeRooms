@@ -72,7 +72,7 @@ export function finalPuzzleId(roomId: string): string | undefined {
   return ROOMS[roomId]?.puzzles.find((p) => p.final)?.id;
 }
 
-/** A puzzle is open once everything it requires is solved. */
+/** A puzzle is open once everything it requires is solved. Its code lock, if any, is separate (`RunState.unlocked`). */
 export function isUnlocked(puzzle: Puzzle, solved: Record<string, number>): boolean {
   return puzzle.requires.every((r) => r in solved);
 }

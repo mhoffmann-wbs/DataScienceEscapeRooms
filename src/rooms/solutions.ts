@@ -2,7 +2,7 @@ import type { PyodideAPI } from 'pyodide';
 import type { SqlJsStatic } from 'sql.js';
 // Explicit .ts extensions: this module also runs directly under Node (scripts/hash-answer.ts).
 import { canonicalRows, hashAnswer, normalizeAnswer } from './answers.ts';
-import type { Manifest, Puzzle } from './manifest.ts';
+import { lockKey, type Manifest, type Puzzle } from './manifest.ts';
 import { runPython } from '../runners/pythonCore.ts';
 import { runSql } from '../runners/sqlCore.ts';
 
@@ -63,6 +63,17 @@ async function checkWorkedAnswer(puzzle: Puzzle, { answer, code }: { answer: str
     throw new Error(`${puzzle.id}: reference code needs a python or sql workspace`);
   }
   if (!shown.toLowerCase().includes(answer.toLowerCase())) throw new Error(`${puzzle.id}: reference code doesn't show the answer ${answer}; it shows:\n${shown}`);
+}
+
+/** The code that opens a puzzle's lock, stored in solutions.json under `<puzzleId>#lock`. */
+export function lockCode(puzzle: Puzzle, solutions: Record<string, ReferenceSolution>): string | undefined {
+  const code = solutions[lockKey(puzzle.id)];
+  return typeof code === 'string' ? code : undefined;
+}
+
+export async function lockHash(manifest: Manifest, puzzle: Puzzle, code: string): Promise<string> {
+  if (!puzzle.lock) throw new Error(`${puzzle.id} has no lock`);
+  return hashAnswer(manifest.salt, lockKey(puzzle.id), normalizeAnswer(code, puzzle.lock.mode));
 }
 
 export async function solutionHash(manifest: Manifest, puzzle: Puzzle, solution: ReferenceSolution, engines: Engines): Promise<string> {

@@ -205,7 +205,10 @@
     "empty": "(no output)",
     "close": "Close",
     "reveal": "What you found",
-    "loadingPackages": "Loading Python with {{list}}… the first time downloads several megabytes and takes a little while."
+    "loadingPackages": "Loading Python with {{list}}… the first time downloads several megabytes and takes a little while.",
+    "lockCode": "Code",
+    "openLock": "Open",
+    "lockWrong": "The lock doesn't open. Look for the code somewhere else in the room."
   },
   "debrief": {
     "open": "Debrief",
@@ -358,7 +361,7 @@
     },
     "room": {
       "title": "In a room",
-      "body": "The top bar shows your progress and the team timer. Walk up to objects and press E: **puzzles** (terminals, safes, keypads) need code or an answer, **clues** (posters, photos, manuals) hold values the puzzles need.\n\nSome puzzles are locked until you've solved others. Several are open from the start, so split up. The last one, the final lock, combines what you found."
+      "body": "The top bar shows your progress and the team timer. Walk up to objects and press E: **puzzles** (terminals, safes, keypads) need code or an answer, **clues** (posters, photos, manuals) hold values the puzzles need.\n\nSome puzzles need a result from another one, and some are behind a code lock: the code turns up elsewhere in the room. Several are open from the start, so split up. The last one, the final lock, combines what you found."
     },
     "puzzles": {
       "title": "Solving puzzles",

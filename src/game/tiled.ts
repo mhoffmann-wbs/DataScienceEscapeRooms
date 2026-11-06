@@ -49,9 +49,15 @@ export interface Rect {
   height: number;
 }
 
+/** Which way a door opens into the map: `down` for doors in the top wall, `right` for the left wall, `left` for the right wall. */
+export type Facing = 'down' | 'left' | 'right';
+const FACINGS: readonly Facing[] = ['down', 'left', 'right'];
+
 export interface Door extends Rect {
   /** A roomId, or 'lobby' for exits. */
   doorTo: string;
+  /** From the door's optional `facing` property; `down` when it has none. */
+  facing: Facing;
 }
 
 export interface PuzzleSpot extends Rect {
@@ -99,7 +105,9 @@ export function parseMapObjects(map: TiledMap): MapObjects {
     .map((o) => {
       const doorTo = stringProp(o, 'doorTo');
       if (!doorTo) throw new Error(`Door "${o.name}" (id ${o.id}) has no doorTo property`);
-      return { doorTo, x: o.x, y: o.y, width: o.width, height: o.height };
+      const facing = stringProp(o, 'facing') ?? 'down';
+      if (!FACINGS.includes(facing as Facing)) throw new Error(`Door "${o.name}" (id ${o.id}) has an unknown facing "${facing}"`);
+      return { doorTo, facing: facing as Facing, x: o.x, y: o.y, width: o.width, height: o.height };
     });
 
   const puzzles = objects
@@ -127,11 +135,19 @@ export function parseMapObjects(map: TiledMap): MapObjects {
 const POINT_SPAWN_JITTER = 12;
 
 /**
- * Where a player arrives when coming back out through a door: one tile in front of it.
- * Doors sit in the top wall, so "in front" is below.
+ * Where a player arrives when coming back out through a door: one tile in front of it,
+ * below a door in the top wall, beside a door in a side wall.
  */
-export function inFrontOf(door: Rect, tileHeight: number): Rect {
-  return { x: door.x + door.width / 2, y: door.y + door.height + tileHeight, width: 0, height: 0 };
+export function inFrontOf(door: Door, tileSize: number): Rect {
+  const at = (x: number, y: number) => ({ x, y, width: 0, height: 0 });
+  switch (door.facing) {
+    case 'down':
+      return at(door.x + door.width / 2, door.y + door.height + tileSize);
+    case 'right':
+      return at(door.x + door.width + tileSize, door.y + door.height / 2);
+    case 'left':
+      return at(door.x - tileSize, door.y + door.height / 2);
+  }
 }
 
 export function pickSpawnPoint(spawn: Rect, random: () => number = Math.random): { x: number; y: number } {

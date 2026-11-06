@@ -2,9 +2,10 @@ import { useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Plot } from '../runners/protocol';
 
-// Charts from show_plot / plot_acf / plot_pacf. Plain SVG: lines for series, bars for
-// correlograms (with the ±significance band), a hover readout, and a data table for
-// screen readers. Colors are the validated categorical slots 1–3 (see styles.css).
+// Charts from show_plot / show_hist / show_bars / plot_acf / plot_pacf. Plain SVG: lines for
+// series, bars for correlograms (with the ±significance band) and grouped columns for
+// histograms and bar charts, a hover readout, and a data table for screen readers.
+// Colors are the validated categorical slots 1–3 (see styles.css).
 
 const W = 560;
 const H = 200;
@@ -38,7 +39,9 @@ export function Chart({ plot }: { plot: Plot }) {
   const all = plot.series.flatMap((s) => s.values).filter((v): v is number => v !== null);
   if (n === 0 || all.length === 0) return null;
 
-  const bar = plot.kind === 'bar';
+  const bar = plot.kind !== 'line';
+  // Correlograms label their x values as lags; histograms and bar charts show them as they are.
+  const lagged = plot.kind === 'bar';
   let lo = Math.min(...all, ...(bar ? [0, -(plot.band ?? 0)] : []));
   let hi = Math.max(...all, ...(bar ? [0, plot.band ?? 0] : []));
   if (lo === hi) [lo, hi] = [lo - 1, hi + 1];
@@ -111,25 +114,29 @@ export function Chart({ plot }: { plot: Plot }) {
             </>
           )}
           {bar
-            ? plot.series[0]!.values.map((v, i) =>
-                v === null ? null : (
-                  <rect
-                    key={i}
-                    className={`series-1 ${hover === i ? 'hovered' : ''}`}
-                    x={xAt(i) - Math.max(1, slot / 2 - 2)}
-                    width={Math.max(2, slot - 4)}
-                    y={Math.min(yAt(v), yAt(0))}
-                    height={Math.max(1, Math.abs(yAt(v) - yAt(0)))}
-                    rx={2}
-                  />
-                ),
-              )
+            ? plot.series.flatMap((s, k) => {
+                // Several series share a slot side by side.
+                const w = Math.max(2, slot - 4) / plot.series.length;
+                return s.values.map((v, i) =>
+                  v === null ? null : (
+                    <rect
+                      key={`${k}-${i}`}
+                      className={`series-${(k % 3) + 1} ${hover === i ? 'hovered' : ''}`}
+                      x={xAt(i) - Math.max(1, slot / 2 - 2) + k * w}
+                      width={Math.max(1, w - (plot.series.length > 1 ? 1 : 0))}
+                      y={Math.min(yAt(v), yAt(0))}
+                      height={Math.max(1, Math.abs(yAt(v) - yAt(0)))}
+                      rx={plot.series.length > 1 ? 1 : 2}
+                    />
+                  ),
+                );
+              })
             : plot.series.map((s, i) => <path key={i} className={`chart-line series-${(i % 3) + 1}`} d={path(s.values)} />)}
           {hover !== null && !bar && <line className="chart-crosshair" x1={xAt(hover)} x2={xAt(hover)} y1={PAD.top} y2={H - PAD.bottom} />}
         </svg>
         {hover !== null && (
           <div className="chart-tooltip" style={{ left: `${(xAt(hover) / W) * 100}%` }}>
-            <strong>{bar ? `${t('chart.lag')} ${String(plot.x[hover])}` : String(plot.x[hover])}</strong>
+            <strong>{lagged ? `${t('chart.lag')} ${String(plot.x[hover])}` : String(plot.x[hover])}</strong>
             {plot.series.map((s, i) => {
               const v = s.values[hover];
               return v === null || v === undefined ? null : (
@@ -148,7 +155,7 @@ export function Chart({ plot }: { plot: Plot }) {
         <table>
           <thead>
             <tr>
-              <th>{bar ? t('chart.lag') : 'x'}</th>
+              <th>{lagged ? t('chart.lag') : 'x'}</th>
               {plot.series.map((s, i) => (
                 <th key={i}>{s.name}</th>
               ))}

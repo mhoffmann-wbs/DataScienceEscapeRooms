@@ -42,15 +42,29 @@ describe.each(Object.keys(MAPS))('map %s', (key) => {
     }
   });
 
-  it('keeps every door reachable (its bottom row is walkable)', () => {
+  it('keeps every door reachable (the side it opens to is walkable)', () => {
     const walls = lobby.layers.find((l) => l.type === 'tilelayer' && l.name === 'walls');
     if (walls?.type !== 'tilelayer') throw new Error('no walls layer');
     const blocked = collidingGids(lobby);
     for (const d of doors) {
-      const ty = Math.floor((d.y + d.height - 1) / lobby.tileheight);
-      const tx = Math.floor(d.x / lobby.tilewidth);
+      // The door's tile row (or column) nearest the room.
+      const x = d.facing === 'right' ? d.x + d.width - 1 : d.x;
+      const y = d.facing === 'down' ? d.y + d.height - 1 : d.y;
+      const tx = Math.floor(x / lobby.tilewidth);
+      const ty = Math.floor(y / lobby.tileheight);
       expect(blocked.has(walls.data[ty * walls.width + tx]!)).toBe(false);
     }
+  });
+});
+
+describe('inFrontOf', () => {
+  const door = { doorTo: 'x', x: 64, y: 96, width: 64, height: 64 };
+  it('puts players one tile below a door in the top wall', () => {
+    expect(inFrontOf({ ...door, facing: 'down' }, 32)).toMatchObject({ x: 96, y: 192 });
+  });
+  it('puts players one tile beside a door in a side wall', () => {
+    expect(inFrontOf({ ...door, facing: 'right' }, 32)).toMatchObject({ x: 160, y: 128 });
+    expect(inFrontOf({ ...door, facing: 'left' }, 32)).toMatchObject({ x: 32, y: 128 });
   });
 });
 
@@ -64,6 +78,23 @@ describe('parseMapObjects', () => {
       ] }],
     });
     expect(() => parseMapObjects(map)).toThrow(/doorTo/);
+  });
+
+  it('reads a door facing, defaulting to down, and rejects unknown ones', () => {
+    const mapWith = (facing?: string) =>
+      tiledMapSchema.parse({
+        width: 1, height: 1, tilewidth: 32, tileheight: 32, tilesets: [],
+        layers: [{ type: 'objectgroup', name: 'objects', objects: [
+          { id: 1, name: 'spawn', type: 'spawn', x: 0, y: 0, width: 0, height: 0 },
+          { id: 2, name: 'side', class: 'door', x: 0, y: 0, width: 64, height: 64, properties: [
+            { name: 'doorTo', type: 'string', value: 'lobby' },
+            ...(facing ? [{ name: 'facing', type: 'string', value: facing }] : []),
+          ] },
+        ] }],
+      });
+    expect(parseMapObjects(mapWith()).doors[0]!.facing).toBe('down');
+    expect(parseMapObjects(mapWith('right')).doors[0]!.facing).toBe('right');
+    expect(() => parseMapObjects(mapWith('up'))).toThrow(/facing/);
   });
 
   it('reads clue objects and rejects one without clueId', () => {

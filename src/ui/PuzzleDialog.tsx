@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { hintKey, type RunSync } from '../net/run';
 import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
 import { getPuzzle, isUnlocked, loadSetup, loc, ROOMS } from '../rooms';
-import type { Puzzle } from '../rooms/manifest';
+import { lockKey, type Puzzle } from '../rooms/manifest';
 import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
 import type { Plot, SqlTable } from '../runners/protocol';
 import { Chart } from './Chart';
@@ -51,6 +51,8 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
   const state = useEmitterValue(run.events, 'state', () => run.state);
   const solved = puzzle.id in state.solved;
   const locked = !author && !isUnlocked(puzzle, state.solved);
+  // A code lock stays open once the team opened it; solving the puzzle some other way (author mode) also counts.
+  const codeLocked = !author && !!puzzle.lock && !(puzzle.id in state.unlocked) && !solved;
   const workspace = puzzle.workspace === 'none' ? null : puzzle.workspace;
   // Code that runs before the student's: the data file, plus the room's modules for Python.
   const hasSetup = !!puzzle.data || (workspace === 'python' && modules.length > 0);
@@ -68,7 +70,7 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
 
   // Share our editor with the team while this puzzle is open.
   const sharedCode = useRef(code);
-  const sharing = !!workspace && !locked;
+  const sharing = !!workspace && !locked && !codeLocked;
   useEffect(() => {
     if (!sharing) return;
     codeShare.open(puzzle.id, sharedCode.current);
@@ -185,6 +187,8 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
     );
   }
 
+  if (codeLocked && puzzle.lock) return <LockDialog title={title} puzzleId={puzzle.id} lock={puzzle.lock} salt={salt} run={run} onClose={onClose} />;
+
   return (
     <Modal title={title} onClose={onClose} wide>
       <div className={workspace ? 'puzzle-layout' : undefined}>
@@ -287,6 +291,44 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
           </div>
         )}
       </div>
+    </Modal>
+  );
+}
+
+/** A code lock in front of a puzzle: the team opens it with a code found elsewhere in the room. */
+function LockDialog({ title, puzzleId, lock, salt, run, onClose }: { title: string; puzzleId: string; lock: NonNullable<Puzzle['lock']>; salt: string; run: RunSync; onClose: () => void }) {
+  const { t, i18n } = useTranslation();
+  const [code, setCode] = useState('');
+  const [wrong, setWrong] = useState(false);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) return;
+    const ok = (await hashAnswer(salt, lockKey(puzzleId), normalizeAnswer(code, lock.mode))) === lock.hash;
+    setWrong(!ok);
+    if (ok) run.unlock(puzzleId);
+  };
+
+  return (
+    <Modal title={title} onClose={onClose}>
+      <p className="lock-icon" aria-hidden>
+        🔒
+      </p>
+      <RichText text={loc(lock.text, i18n.language)} />
+      <form className="answer-form" onSubmit={(e) => void submit(e)}>
+        <label>
+          <span>{t('puzzle.lockCode')}</span>
+          <input value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" />
+        </label>
+        <button type="submit" className="primary">
+          {t('puzzle.openLock')}
+        </button>
+      </form>
+      {wrong && (
+        <p className="error" role="alert">
+          {t('puzzle.lockWrong')}
+        </p>
+      )}
     </Modal>
   );
 }
