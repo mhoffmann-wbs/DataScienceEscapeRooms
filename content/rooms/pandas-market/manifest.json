@@ -167,8 +167,8 @@
         }
       ],
       "reveal": {
-        "en": "**128** cash sales and **90** card sales, from **12** stalls. Only the cash went into the envelopes.",
-        "de": "**128** Barverkäufe und **90** Kartenverkäufe von **12** Ständen. Nur das Bargeld kam in die Umschläge."
+        "en": "**128** cash sales and **90** card sales, from **12** stalls.",
+        "de": "**128** Barverkäufe und **90** Kartenverkäufe von **12** Ständen."
       }
     },
     {
@@ -178,24 +178,20 @@
         "de": "Das Kassenbuch"
       },
       "text": {
-        "en": "Greta wants to know how much cash each stall should have put in its envelope. The cleaning from the price tags and the card terminal is already in the editor.\n\nKeep only the cash sales and add up their `revenue` per stall with `groupby`. Store the result in `cash_by_stall` (a Series with one total per `stall_id`), and the stall that took the most cash in `top_stall`.",
-        "de": "Greta will wissen, wie viel Bargeld jeder Stand in seinen Umschlag hätte stecken müssen. Die Bereinigung von den Preisschildern und vom Kartenterminal steht schon im Editor.\n\nBehaltet nur die Barverkäufe und addiert ihren `revenue` pro Stand mit `groupby`. Speichert das Ergebnis in `cash_by_stall` (eine Series mit einer Summe pro `stall_id`) und den Stand mit dem meisten Bargeld in `top_stall`."
+        "en": "Greta wants to know how much money each stall should have put in its envelope at 14:00. Careful: not every sale goes into an envelope.\n\n`sales.csv` is still raw here. Prices, payments and stall ids are cleaned at the price tags and the card terminal: get that code from your teammates.\n\nAdd up `revenue` per stall with `groupby`, keeping only the sales that belong in the envelopes. Store the result in `expected` (a Series with one total per `stall_id`), and the stall with the largest total in `top_stall`.",
+        "de": "Greta will wissen, wie viel Geld jeder Stand um 14:00 Uhr in seinen Umschlag hätte stecken müssen. Vorsicht: Nicht jeder Verkauf landet in einem Umschlag.\n\n`sales.csv` ist hier noch roh. Preise, Zahlungsarten und Stand-IDs werden an den Preisschildern und am Kartenterminal bereinigt: Holt euch diesen Code von eurem Team.\n\nAddiert `revenue` pro Stand mit `groupby` und behaltet dabei nur die Verkäufe, die in die Umschläge gehören. Speichert das Ergebnis in `expected` (eine Series mit einer Summe pro `stall_id`) und den Stand mit der größten Summe in `top_stall`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n# cleaned at the price tags and the card terminal:\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\n\ncash_by_stall = None   # cash revenue per stall_id\ntop_stall = None       # stall_id with the most cash\n",
-        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n# bereinigt an den Preisschildern und am Kartenterminal:\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\n\ncash_by_stall = None   # Bareinnahmen pro stall_id\ntop_stall = None       # stall_id mit dem meisten Bargeld\n"
+        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n\n# the cleaning from the price tags and the card terminal goes here:\n# sales[\"price\"], sales[\"revenue\"], sales[\"payment\"], sales[\"stall_id\"]\n\nexpected = None    # what belongs in each envelope, per stall_id\ntop_stall = None   # stall_id with the largest total\n",
+        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n\n# hierher gehört die Bereinigung von den Preisschildern und vom Kartenterminal:\n# sales[\"price\"], sales[\"revenue\"], sales[\"payment\"], sales[\"stall_id\"]\n\nexpected = None    # was in jeden Umschlag gehört, pro stall_id\ntop_stall = None   # stall_id mit der größten Summe\n"
       },
       "check": {
         "type": "python",
-        "expr": "[round(float(cash_by_stall.sum()), 2), str(top_stall).strip().upper()]",
+        "expr": "[round(float(expected.sum()), 2), str(top_stall).strip().upper()]",
         "hash": "87ca850b79b6434886ab7e3c4f7a2b0eb811a5944eb986c8cfa2d65ef55eda81"
       },
-      "requires": [
-        "price-tags",
-        "card-terminal"
-      ],
       "practises": {
         "en": "Filtering before aggregating, `groupby` with `sum`, `idxmax`",
         "de": "Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax`"
@@ -205,22 +201,26 @@
       ],
       "hints": [
         {
-          "en": "Filter first: `cash = sales[sales[\"payment\"] == \"cash\"]`. Card payments go straight to the bank, not into the envelopes.",
-          "de": "Erst filtern: `cash = sales[sales[\"payment\"] == \"cash\"]`. Kartenzahlungen gehen direkt an die Bank, nicht in die Umschläge."
+          "en": "Start with the cleaning code from the price tags (`price`, `revenue`) and the card terminal (`payment`, `stall_id`). Then: which sales go into the envelopes? The market rules on the wall say.",
+          "de": "Fangt mit dem Bereinigungscode von den Preisschildern (`price`, `revenue`) und vom Kartenterminal (`payment`, `stall_id`) an. Dann: Welche Verkäufe kommen in die Umschläge? Das steht in der Marktordnung an der Wand."
         },
         {
-          "en": "`df.groupby(\"stall_id\")[\"revenue\"].sum()` gives one sum per stall. `.idxmax()` returns the index label (here the stall id) of the largest value.",
-          "de": "`df.groupby(\"stall_id\")[\"revenue\"].sum()` ergibt eine Summe pro Stand. `.idxmax()` liefert das Index-Label (hier die stall_id) des größten Werts."
+          "en": "Market rules §5: card payments go straight to the bank, only the **cash** goes into the envelopes. Filter first, then `df.groupby(\"stall_id\")[\"revenue\"].sum()`. `.idxmax()` returns the index label (here the stall id) of the largest value.",
+          "de": "Marktordnung §5: Kartenzahlungen gehen direkt an die Bank, nur das **Bargeld** kommt in die Umschläge. Erst filtern, dann `df.groupby(\"stall_id\")[\"revenue\"].sum()`. `.idxmax()` liefert das Index-Label (hier die stall_id) des größten Werts."
         },
         {
-          "en": "`cash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()` and `top_stall = cash_by_stall.idxmax()`.",
-          "de": "`cash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()` und `top_stall = cash_by_stall.idxmax()`."
+          "en": "After the cleaning: `expected = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()` and `top_stall = expected.idxmax()`.",
+          "de": "Nach der Bereinigung: `expected = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()` und `top_stall = expected.idxmax()`."
         }
       ],
       "reveal": {
         "en": "The envelopes should hold **€1,110.00** in cash. The most cash went to **S04**, Imkerei Sommer: €161.20. The honey stall again…",
         "de": "In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €. Schon wieder der Honigstand …"
-      }
+      },
+      "uses": [
+        "price-tags",
+        "card-terminal"
+      ]
     },
     {
       "id": "envelopes",
@@ -229,23 +229,20 @@
         "de": "Der Umschlagtisch"
       },
       "text": {
-        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to your cash totals.\n\nMerge the tables, work out how much each envelope is short (cash taken minus cash in the envelope), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.",
-        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit euren Bareinnahmen zu verbinden.\n\nVerbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Bareinnahmen minus Geld im Umschlag), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`."
+        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to the cash ledger's `expected` totals.\n\nThis editor only loads the two tables: bring the cash ledger's code to get `expected`. Merge the tables, work out how much each envelope is short (expected minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.",
+        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit den Summen `expected` aus dem Kassenbuch zu verbinden.\n\nDieser Editor lädt nur die beiden Tabellen: Holt euch den Code vom Kassenbuch, um `expected` zu bekommen. Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\ncash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and cash_by_stall, then compare\n\nbadge = None     # badge number with the largest total shortfall\nmissing = None   # that badge's total shortfall in euros\n",
-        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\nsales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)\nsales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]\nsales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})\nsales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()\ncash_by_stall = sales[sales[\"payment\"] == \"cash\"].groupby(\"stall_id\")[\"revenue\"].sum()\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und cash_by_stall und vergleicht dann\n\nbadge = None     # Ausweisnummer mit dem größten Fehlbetrag\nmissing = None   # dessen Fehlbetrag insgesamt, in Euro\n"
+        "en": "import pandas as pd\n\n# the cash ledger's code goes here (it gives you expected, one total per stall_id)\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and expected, then compare\n\nbadge = None     # badge number with the largest total shortfall\nmissing = None   # that badge's total shortfall in euros\n",
+        "de": "import pandas as pd\n\n# hierher gehört der Code vom Kassenbuch (er liefert expected, eine Summe pro stall_id)\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und expected und vergleicht dann\n\nbadge = None     # Ausweisnummer mit dem größten Fehlbetrag\nmissing = None   # dessen Fehlbetrag insgesamt, in Euro\n"
       },
       "check": {
         "type": "python",
         "expr": "[int(badge), round(float(missing), 2)]",
         "hash": "45c967c02ef48cd760d973873ba7a79d3307a2630e3669535e0b07e82361258c"
       },
-      "requires": [
-        "ledger"
-      ],
       "practises": {
         "en": "Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern",
         "de": "Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden"
@@ -253,12 +250,12 @@
       "clues": [],
       "hints": [
         {
-          "en": "`pd.merge(handover, stalls, on=\"stall\")` adds the `stall_id` to each envelope. `cash_by_stall.reset_index(name=\"cash\")` turns the Series into a table you can merge `on=\"stall_id\"`.",
-          "de": "`pd.merge(handover, stalls, on=\"stall\")` ergänzt jeden Umschlag um die `stall_id`. `cash_by_stall.reset_index(name=\"cash\")` macht aus der Series eine Tabelle, die ihr `on=\"stall_id\"` verbinden könnt."
+          "en": "You can start without `expected`: `pd.merge(handover, stalls, on=\"stall\")` adds the `stall_id` to each envelope. For `expected`, paste the cash ledger's whole code (with its cleaning) at the top; `expected.reset_index(name=\"expected\")` turns it into a table you can merge `on=\"stall_id\"`.",
+          "de": "Ihr könnt ohne `expected` anfangen: `pd.merge(handover, stalls, on=\"stall\")` ergänzt jeden Umschlag um die `stall_id`. Für `expected` fügt ihr den ganzen Code vom Kassenbuch (mit der Bereinigung) oben ein; `expected.reset_index(name=\"expected\")` macht daraus eine Tabelle, die ihr `on=\"stall_id\"` verbinden könnt."
         },
         {
-          "en": "Then `df[\"short\"] = df[\"cash\"] - df[\"envelope_eur\"]` and `df.groupby(\"badge\")[\"short\"].sum()`. A few cents either way are coins; look for the badge where it really adds up.",
-          "de": "Dann `df[\"short\"] = df[\"cash\"] - df[\"envelope_eur\"]` und `df.groupby(\"badge\")[\"short\"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt."
+          "en": "Then `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` and `df.groupby(\"badge\")[\"short\"].sum()`. A few cents either way are coins; look for the badge where it really adds up.",
+          "de": "Dann `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` und `df.groupby(\"badge\")[\"short\"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt."
         },
         {
           "en": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, then `badge = by_badge.idxmax()` and `missing = by_badge.max()`.",
@@ -268,7 +265,10 @@
       "reveal": {
         "en": "Badge **7** carried four envelopes, and every one of them is short: **€145.00** in total. Badge 12 is 50 cents short and badge 3 a euro over: coins, not theft. Imkerei Sommer's envelope matches to the cent.",
         "de": "Ausweis **7** hat vier Umschläge getragen, und in jedem fehlt Geld: **145,00 €** insgesamt. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 ist ein Euro zu viel: Münzen, kein Diebstahl. Der Umschlag der Imkerei Sommer stimmt auf den Cent."
-      }
+      },
+      "uses": [
+        "ledger"
+      ]
     },
     {
       "id": "report",
@@ -286,10 +286,15 @@
         "mode": "caseless",
         "hash": "181997beccfce69a4b243d6c1b9916f5b8392bd8a348bd36dda0e5afa4340011"
       },
-      "requires": [
-        "register",
-        "envelopes"
-      ],
+      "lock": {
+        "text": {
+          "en": "Greta's report folder has a three-digit number lock. Her note on it: \"Code = the euros missing in total.\"",
+          "de": "Gretas Berichtsmappe hat ein dreistelliges Zahlenschloss. Ihr Zettel darauf: „Code = die fehlenden Euro insgesamt.“"
+        },
+        "from": "envelopes",
+        "mode": "caseless",
+        "hash": "430137be6587d862b41ec7981d4e29a8e166a1d14aadd3491b2ef891a5894cf9"
+      },
       "final": true,
       "practises": {
         "en": "Combining the results of several analyses, and checking a suspicion against the data",

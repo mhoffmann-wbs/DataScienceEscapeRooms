@@ -15,9 +15,9 @@
 | 1 | Das Marktregister | Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen | 🔎 Eine Beschwerde, 🔎 Marktplan |
 | 2 | Preisschilder | Eine Textspalte mit `.str.replace` und `.str.strip` bereinigen, mit `astype(float)` umwandeln, eine neue Spalte berechnen, `sum` | 🔎 Preistafel |
 | 3 | Das Kartenterminal | Uneinheitliche Bezeichnungen mit `value_counts` und `nunique` finden, Text vereinheitlichen (`.str.strip`, `.str.lower`, `.str.upper`), Werte mit `replace` umbenennen, mit einer Bedingung zählen | 🔎 Marktordnung |
-| 4 | Das Kassenbuch | Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax` | 2. Preisschilder, 3. Das Kartenterminal, 🔎 Marktordnung |
-| 5 | Der Umschlagtisch | Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden | 4. Das Kassenbuch |
-| 6 | Gretas Bericht (Abschluss-Schloss) | Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen | 1. Das Marktregister, 5. Der Umschlagtisch, 🔎 Helferplan |
+| 4 | Das Kassenbuch | Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax` | 2. Preisschilder (sein Ergebnis), 3. Das Kartenterminal (sein Ergebnis), 🔎 Marktordnung |
+| 5 | Der Umschlagtisch | Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden | 4. Das Kassenbuch (sein Ergebnis) |
+| 6 | Gretas Bericht (Abschluss-Schloss) | Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen | 🔒 5. Der Umschlagtisch, 🔎 Helferplan |
 
 **Abschluss-Code:** `Tobi`
 
@@ -190,7 +190,7 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 
 **Zeigt nach dem Lösen:**
 
-> **128** Barverkäufe und **90** Kartenverkäufe von **12** Ständen. Nur das Bargeld kam in die Umschläge.
+> **128** Barverkäufe und **90** Kartenverkäufe von **12** Ständen.
 
 **Hinweise:**
 
@@ -201,14 +201,16 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 ### 4. Das Kassenbuch
 
 **Übt:** Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax`  
-**Braucht:** 2. Preisschilder, 3. Das Kartenterminal, 🔎 Marktordnung  
+**Braucht:** 2. Preisschilder (sein Ergebnis), 3. Das Kartenterminal (sein Ergebnis), 🔎 Marktordnung  
 **Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
 
 **Aufgabe:**
 
-> Greta will wissen, wie viel Bargeld jeder Stand in seinen Umschlag hätte stecken müssen. Die Bereinigung von den Preisschildern und vom Kartenterminal steht schon im Editor.
+> Greta will wissen, wie viel Geld jeder Stand um 14:00 Uhr in seinen Umschlag hätte stecken müssen. Vorsicht: Nicht jeder Verkauf landet in einem Umschlag.
 >
-> Behaltet nur die Barverkäufe und addiert ihren `revenue` pro Stand mit `groupby`. Speichert das Ergebnis in `cash_by_stall` (eine Series mit einer Summe pro `stall_id`) und den Stand mit dem meisten Bargeld in `top_stall`.
+> `sales.csv` ist hier noch roh. Preise, Zahlungsarten und Stand-IDs werden an den Preisschildern und am Kartenterminal bereinigt: Holt euch diesen Code von eurem Team.
+>
+> Addiert `revenue` pro Stand mit `groupby` und behaltet dabei nur die Verkäufe, die in die Umschläge gehören. Speichert das Ergebnis in `expected` (eine Series mit einer Summe pro `stall_id`) und den Stand mit der größten Summe in `top_stall`.
 
 <details><summary>Startcode</summary>
 
@@ -216,14 +218,12 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 import pandas as pd
 
 sales = pd.read_csv("sales.csv")
-# bereinigt an den Preisschildern und am Kartenterminal:
-sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
-sales["revenue"] = sales["qty"] * sales["price"]
-sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
-sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
 
-cash_by_stall = None   # Bareinnahmen pro stall_id
-top_stall = None       # stall_id mit dem meisten Bargeld
+# hierher gehört die Bereinigung von den Preisschildern und vom Kartenterminal:
+# sales["price"], sales["revenue"], sales["payment"], sales["stall_id"]
+
+expected = None    # was in jeden Umschlag gehört, pro stall_id
+top_stall = None   # stall_id mit der größten Summe
 ```
 
 </details>
@@ -239,13 +239,13 @@ sales["revenue"] = sales["qty"] * sales["price"]
 sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
 sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
 
-cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
-top_stall = cash_by_stall.idxmax()
-print(cash_by_stall.round(2))
+expected = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+top_stall = expected.idxmax()
+print(expected.round(2))
 print(top_stall)
 ```
 
-**Geprüftes Ergebnis** (`[round(float(cash_by_stall.sum()), 2), str(top_stall).strip().upper()]`):
+**Geprüftes Ergebnis** (`[round(float(expected.sum()), 2), str(top_stall).strip().upper()]`):
 
 ```json
 [1110.0, "S04"]
@@ -257,39 +257,34 @@ print(top_stall)
 
 **Hinweise:**
 
-1. Erst filtern: `cash = sales[sales["payment"] == "cash"]`. Kartenzahlungen gehen direkt an die Bank, nicht in die Umschläge.
-2. `df.groupby("stall_id")["revenue"].sum()` ergibt eine Summe pro Stand. `.idxmax()` liefert das Index-Label (hier die stall_id) des größten Werts.
-3. `cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()` und `top_stall = cash_by_stall.idxmax()`.
+1. Fangt mit dem Bereinigungscode von den Preisschildern (`price`, `revenue`) und vom Kartenterminal (`payment`, `stall_id`) an. Dann: Welche Verkäufe kommen in die Umschläge? Das steht in der Marktordnung an der Wand.
+2. Marktordnung §5: Kartenzahlungen gehen direkt an die Bank, nur das **Bargeld** kommt in die Umschläge. Erst filtern, dann `df.groupby("stall_id")["revenue"].sum()`. `.idxmax()` liefert das Index-Label (hier die stall_id) des größten Werts.
+3. Nach der Bereinigung: `expected = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()` und `top_stall = expected.idxmax()`.
 
 ### 5. Der Umschlagtisch
 
 **Übt:** Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden  
-**Braucht:** 4. Das Kassenbuch  
+**Braucht:** 4. Das Kassenbuch (sein Ergebnis)  
 **Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
 
 **Aufgabe:**
 
-> Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit euren Bareinnahmen zu verbinden.
+> Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit den Summen `expected` aus dem Kassenbuch zu verbinden.
 >
-> Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Bareinnahmen minus Geld im Umschlag), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`.
+> Dieser Editor lädt nur die beiden Tabellen: Holt euch den Code vom Kassenbuch, um `expected` zu bekommen. Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`.
 
 <details><summary>Startcode</summary>
 
 ```python
 import pandas as pd
 
-sales = pd.read_csv("sales.csv")
-sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
-sales["revenue"] = sales["qty"] * sales["price"]
-sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
-sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
-cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+# hierher gehört der Code vom Kassenbuch (er liefert expected, eine Summe pro stall_id)
 
 stalls = pd.read_csv("stalls.csv")
 handover = pd.read_csv("handover.csv")
 print(handover.head())
 
-# verbindet handover, stalls und cash_by_stall und vergleicht dann
+# verbindet handover, stalls und expected und vergleicht dann
 
 badge = None     # Ausweisnummer mit dem größten Fehlbetrag
 missing = None   # dessen Fehlbetrag insgesamt, in Euro
@@ -307,15 +302,15 @@ sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str
 sales["revenue"] = sales["qty"] * sales["price"]
 sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
 sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
-cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+expected = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
 
 stalls = pd.read_csv("stalls.csv")
 handover = pd.read_csv("handover.csv")
 
 df = pd.merge(handover, stalls, on="stall")
-df = pd.merge(df, cash_by_stall.reset_index(name="cash"), on="stall_id")
-df["short"] = df["cash"] - df["envelope_eur"]
-print(df[["stall_id", "badge", "cash", "envelope_eur", "short"]].round(2))
+df = pd.merge(df, expected.reset_index(name="expected"), on="stall_id")
+df["short"] = df["expected"] - df["envelope_eur"]
+print(df[["stall_id", "badge", "expected", "envelope_eur", "short"]].round(2))
 
 by_badge = df.groupby("badge")["short"].sum()
 badge = by_badge.idxmax()
@@ -335,14 +330,18 @@ print(badge, round(missing, 2))
 
 **Hinweise:**
 
-1. `pd.merge(handover, stalls, on="stall")` ergänzt jeden Umschlag um die `stall_id`. `cash_by_stall.reset_index(name="cash")` macht aus der Series eine Tabelle, die ihr `on="stall_id"` verbinden könnt.
-2. Dann `df["short"] = df["cash"] - df["envelope_eur"]` und `df.groupby("badge")["short"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt.
+1. Ihr könnt ohne `expected` anfangen: `pd.merge(handover, stalls, on="stall")` ergänzt jeden Umschlag um die `stall_id`. Für `expected` fügt ihr den ganzen Code vom Kassenbuch (mit der Bereinigung) oben ein; `expected.reset_index(name="expected")` macht daraus eine Tabelle, die ihr `on="stall_id"` verbinden könnt.
+2. Dann `df["short"] = df["expected"] - df["envelope_eur"]` und `df.groupby("badge")["short"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt.
 3. `by_badge = df.groupby("badge")["short"].sum()`, dann `badge = by_badge.idxmax()` und `missing = by_badge.max()`.
 
 ### 6. Gretas Bericht (Abschluss-Schloss)
 
 **Übt:** Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen  
-**Braucht:** 1. Das Marktregister, 5. Der Umschlagtisch, 🔎 Helferplan
+**Braucht:** 🔒 5. Der Umschlagtisch, 🔎 Helferplan
+
+**Zahlenschloss** (öffnet mit `145`):
+
+> Gretas Berichtsmappe hat ein dreistelliges Zahlenschloss. Ihr Zettel darauf: „Code = die fehlenden Euro insgesamt.“
 
 **Aufgabe:**
 

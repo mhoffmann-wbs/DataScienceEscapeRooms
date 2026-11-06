@@ -15,9 +15,9 @@
 | 1 | The market register | Loading a CSV with `read_csv`, looking at a DataFrame (`head`, `columns`), filtering rows with a condition, selecting columns | 🔎 A complaint, 🔎 Market plan |
 | 2 | Price tags | Cleaning a text column with `.str.replace` and `.str.strip`, converting it with `astype(float)`, computing a new column, `sum` | 🔎 Price board |
 | 3 | The card terminal | Finding inconsistent labels with `value_counts` and `nunique`, normalising text (`.str.strip`, `.str.lower`, `.str.upper`), renaming values with `replace`, counting with a condition | 🔎 Market rules |
-| 4 | The cash ledger | Filtering before aggregating, `groupby` with `sum`, `idxmax` | 2. Price tags, 3. The card terminal, 🔎 Market rules |
-| 5 | The envelope table | Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern | 4. The cash ledger |
-| 6 | Greta's report (Final lock) | Combining the results of several analyses, and checking a suspicion against the data | 1. The market register, 5. The envelope table, 🔎 Helper rota |
+| 4 | The cash ledger | Filtering before aggregating, `groupby` with `sum`, `idxmax` | 2. Price tags (its result), 3. The card terminal (its result), 🔎 Market rules |
+| 5 | The envelope table | Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern | 4. The cash ledger (its result) |
+| 6 | Greta's report (Final lock) | Combining the results of several analyses, and checking a suspicion against the data | 🔒 5. The envelope table, 🔎 Helper rota |
 
 **Final code:** `Tobi`
 
@@ -190,7 +190,7 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 
 **Reveals when solved:**
 
-> **128** cash sales and **90** card sales, from **12** stalls. Only the cash went into the envelopes.
+> **128** cash sales and **90** card sales, from **12** stalls.
 
 **Hints:**
 
@@ -201,14 +201,16 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 ### 4. The cash ledger
 
 **Practises:** Filtering before aggregating, `groupby` with `sum`, `idxmax`  
-**Needs:** 2. Price tags, 3. The card terminal, 🔎 Market rules  
+**Needs:** 2. Price tags (its result), 3. The card terminal (its result), 🔎 Market rules  
 **Data:** [market.py](../../content/rooms/pandas-market/data/market.py)
 
 **Task:**
 
-> Greta wants to know how much cash each stall should have put in its envelope. The cleaning from the price tags and the card terminal is already in the editor.
+> Greta wants to know how much money each stall should have put in its envelope at 14:00. Careful: not every sale goes into an envelope.
 >
-> Keep only the cash sales and add up their `revenue` per stall with `groupby`. Store the result in `cash_by_stall` (a Series with one total per `stall_id`), and the stall that took the most cash in `top_stall`.
+> `sales.csv` is still raw here. Prices, payments and stall ids are cleaned at the price tags and the card terminal: get that code from your teammates.
+>
+> Add up `revenue` per stall with `groupby`, keeping only the sales that belong in the envelopes. Store the result in `expected` (a Series with one total per `stall_id`), and the stall with the largest total in `top_stall`.
 
 <details><summary>Starter code</summary>
 
@@ -216,14 +218,12 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 import pandas as pd
 
 sales = pd.read_csv("sales.csv")
-# cleaned at the price tags and the card terminal:
-sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
-sales["revenue"] = sales["qty"] * sales["price"]
-sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
-sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
 
-cash_by_stall = None   # cash revenue per stall_id
-top_stall = None       # stall_id with the most cash
+# the cleaning from the price tags and the card terminal goes here:
+# sales["price"], sales["revenue"], sales["payment"], sales["stall_id"]
+
+expected = None    # what belongs in each envelope, per stall_id
+top_stall = None   # stall_id with the largest total
 ```
 
 </details>
@@ -239,13 +239,13 @@ sales["revenue"] = sales["qty"] * sales["price"]
 sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
 sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
 
-cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
-top_stall = cash_by_stall.idxmax()
-print(cash_by_stall.round(2))
+expected = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+top_stall = expected.idxmax()
+print(expected.round(2))
 print(top_stall)
 ```
 
-**Checked result** (`[round(float(cash_by_stall.sum()), 2), str(top_stall).strip().upper()]`):
+**Checked result** (`[round(float(expected.sum()), 2), str(top_stall).strip().upper()]`):
 
 ```json
 [1110.0, "S04"]
@@ -257,39 +257,34 @@ print(top_stall)
 
 **Hints:**
 
-1. Filter first: `cash = sales[sales["payment"] == "cash"]`. Card payments go straight to the bank, not into the envelopes.
-2. `df.groupby("stall_id")["revenue"].sum()` gives one sum per stall. `.idxmax()` returns the index label (here the stall id) of the largest value.
-3. `cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()` and `top_stall = cash_by_stall.idxmax()`.
+1. Start with the cleaning code from the price tags (`price`, `revenue`) and the card terminal (`payment`, `stall_id`). Then: which sales go into the envelopes? The market rules on the wall say.
+2. Market rules §5: card payments go straight to the bank, only the **cash** goes into the envelopes. Filter first, then `df.groupby("stall_id")["revenue"].sum()`. `.idxmax()` returns the index label (here the stall id) of the largest value.
+3. After the cleaning: `expected = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()` and `top_stall = expected.idxmax()`.
 
 ### 5. The envelope table
 
 **Practises:** Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern  
-**Needs:** 4. The cash ledger  
+**Needs:** 4. The cash ledger (its result)  
 **Data:** [market.py](../../content/rooms/pandas-market/data/market.py)
 
 **Task:**
 
-> The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to your cash totals.
+> The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to the cash ledger's `expected` totals.
 >
-> Merge the tables, work out how much each envelope is short (cash taken minus cash in the envelope), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.
+> This editor only loads the two tables: bring the cash ledger's code to get `expected`. Merge the tables, work out how much each envelope is short (expected minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.
 
 <details><summary>Starter code</summary>
 
 ```python
 import pandas as pd
 
-sales = pd.read_csv("sales.csv")
-sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)
-sales["revenue"] = sales["qty"] * sales["price"]
-sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
-sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
-cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+# the cash ledger's code goes here (it gives you expected, one total per stall_id)
 
 stalls = pd.read_csv("stalls.csv")
 handover = pd.read_csv("handover.csv")
 print(handover.head())
 
-# connect handover, stalls and cash_by_stall, then compare
+# connect handover, stalls and expected, then compare
 
 badge = None     # badge number with the largest total shortfall
 missing = None   # that badge's total shortfall in euros
@@ -307,15 +302,15 @@ sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str
 sales["revenue"] = sales["qty"] * sales["price"]
 sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})
 sales["stall_id"] = sales["stall_id"].str.strip().str.upper()
-cash_by_stall = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
+expected = sales[sales["payment"] == "cash"].groupby("stall_id")["revenue"].sum()
 
 stalls = pd.read_csv("stalls.csv")
 handover = pd.read_csv("handover.csv")
 
 df = pd.merge(handover, stalls, on="stall")
-df = pd.merge(df, cash_by_stall.reset_index(name="cash"), on="stall_id")
-df["short"] = df["cash"] - df["envelope_eur"]
-print(df[["stall_id", "badge", "cash", "envelope_eur", "short"]].round(2))
+df = pd.merge(df, expected.reset_index(name="expected"), on="stall_id")
+df["short"] = df["expected"] - df["envelope_eur"]
+print(df[["stall_id", "badge", "expected", "envelope_eur", "short"]].round(2))
 
 by_badge = df.groupby("badge")["short"].sum()
 badge = by_badge.idxmax()
@@ -335,14 +330,18 @@ print(badge, round(missing, 2))
 
 **Hints:**
 
-1. `pd.merge(handover, stalls, on="stall")` adds the `stall_id` to each envelope. `cash_by_stall.reset_index(name="cash")` turns the Series into a table you can merge `on="stall_id"`.
-2. Then `df["short"] = df["cash"] - df["envelope_eur"]` and `df.groupby("badge")["short"].sum()`. A few cents either way are coins; look for the badge where it really adds up.
+1. You can start without `expected`: `pd.merge(handover, stalls, on="stall")` adds the `stall_id` to each envelope. For `expected`, paste the cash ledger's whole code (with its cleaning) at the top; `expected.reset_index(name="expected")` turns it into a table you can merge `on="stall_id"`.
+2. Then `df["short"] = df["expected"] - df["envelope_eur"]` and `df.groupby("badge")["short"].sum()`. A few cents either way are coins; look for the badge where it really adds up.
 3. `by_badge = df.groupby("badge")["short"].sum()`, then `badge = by_badge.idxmax()` and `missing = by_badge.max()`.
 
 ### 6. Greta's report (Final lock)
 
 **Practises:** Combining the results of several analyses, and checking a suspicion against the data  
-**Needs:** 1. The market register, 5. The envelope table, 🔎 Helper rota
+**Needs:** 🔒 5. The envelope table, 🔎 Helper rota
+
+**Code lock** (opens with `145`):
+
+> Greta's report folder has a three-digit number lock. Her note on it: "Code = the euros missing in total."
 
 **Task:**
 
