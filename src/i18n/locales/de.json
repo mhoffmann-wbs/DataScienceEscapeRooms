@@ -40,7 +40,10 @@
     "title": "Online ({{count}})",
     "you": "(du)",
     "alone": "Noch niemand sonst hier.",
-    "inRoom": "in {{room}}"
+    "inRoom": "in {{room}}",
+    "goTo": "🎓 Zu {{name}} gehen",
+    "going": "Unterwegs …",
+    "goToFailed": "{{name}} ist gerade nicht erreichbar: vielleicht übt {{name}} allein, oder niemand im Raum hat geantwortet."
   },
   "team": {
     "intro": "Bildet Teams mit bis zu {{max}} Personen. Jedes Team spielt seine eigene Kopie des Raums.",

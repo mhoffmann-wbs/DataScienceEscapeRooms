@@ -18,6 +18,10 @@ const ZOOM = 1.5;
 // this far past the map edge so objects near the walls aren't hidden behind them.
 const UI_INSET_TOP = 72;
 const UI_INSET_BOTTOM = 64;
+/** How long 'player:goto' waits for the peer to show up on this map (ms), e.g. after entering a room. */
+const GOTO_WAIT_MS = 15_000;
+/** The feet sit this far below the sprite's centre; walls are checked there. */
+const FEET_OFFSET_Y = 10;
 
 type MoveKeys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -53,6 +57,9 @@ export class WorldScene extends Phaser.Scene {
   private currentArea: AreaSpot | undefined;
   /** Shows who can hear you in the lobby; hidden inside private areas, where the area itself lights up. */
   private ring: Phaser.GameObjects.Arc | null = null;
+  private walls!: Phaser.Tilemaps.TilemapLayer;
+  /** A peer to jump next to as soon as its position is known (see 'player:goto'). */
+  private goto: { peerId: string; until: number } | null = null;
 
   constructor() {
     super('World');
@@ -80,6 +87,8 @@ export class WorldScene extends Phaser.Scene {
     const walls = map.createLayer('walls', tileset);
     if (!walls) throw new Error(`Map ${mapKey} has no walls layer`);
     walls.setCollisionByProperty({ collides: true });
+    this.walls = walls;
+    this.goto = null;
 
     this.areaGraphics = this.add.graphics().setDepth(1);
     this.drawAreas();
@@ -120,6 +129,7 @@ export class WorldScene extends Phaser.Scene {
     this.remotes = new RemoteAvatars(this, this.presence);
     const offSolved = bus.on('puzzles:solved', ({ ids }) => this.markSolved(ids));
     const offBubble = bus.on('chat:bubble', ({ peerId, self, text }) => (self ? this.player : this.remotes.get(peerId))?.say(text));
+    const offGoto = bus.on('player:goto', ({ peerId }) => (this.goto = { peerId, until: this.time.now + GOTO_WAIT_MS }));
     const offInstructors = bus.on('instructors:changed', ({ ids, self }) => {
       this.player.setInstructor(self);
       this.remotes.setInstructors(ids);
@@ -132,6 +142,7 @@ export class WorldScene extends Phaser.Scene {
       cleaned = true;
       offSolved();
       offBubble();
+      offGoto();
       offInstructors();
       offLanguage();
       this.remotes.destroy();
@@ -155,11 +166,29 @@ export class WorldScene extends Phaser.Scene {
     if (moving) this.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
     this.player.setMotion(this.facing, moving);
     this.player.syncLabel();
+    if (this.goto) this.followGoto(time);
     this.presence.updateSelf({ x: this.player.sprite.x, y: this.player.sprite.y, dir: this.facing, moving }, time);
     this.remotes.update(delta);
 
     this.updateTarget();
     this.updateProximityVisuals();
+  }
+
+  /** Jumps next to the peer in `goto` once it is on this map; gives up after GOTO_WAIT_MS. */
+  private followGoto(time: number): void {
+    const target = this.presence.get(this.goto!.peerId);
+    if (!target || target.away) {
+      if (time > this.goto!.until) this.goto = null;
+      return;
+    }
+    this.goto = null;
+    const step = this.walls.tilemap.tileWidth;
+    const around = [[0, 1], [1, 0], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]] as const;
+    const free = (x: number, y: number) =>
+      this.physics.world.bounds.contains(x, y + FEET_OFFSET_Y) && !this.walls.getTileAtWorldXY(x, y + FEET_OFFSET_Y)?.collides;
+    const spot = around.map(([dx, dy]) => ({ x: target.x + dx * step, y: target.y + dy * step })).find((p) => free(p.x, p.y)) ?? target;
+    this.body.reset(spot.x, spot.y);
+    this.facing = spot.y > target.y ? 'up' : spot.y < target.y ? 'down' : spot.x > target.x ? 'left' : 'right';
   }
 
   private updateProximityVisuals(): void {

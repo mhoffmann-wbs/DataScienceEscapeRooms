@@ -8,6 +8,7 @@ const summary = (teamId: string, at: number, solved: Record<string, number> = {}
   leader: 'Ada',
   group: 'DS-1',
   members: ['Ada', 'Bob'],
+  peers: ['ada', 'bob'],
   epoch: 0,
   startedAt: 1000,
   solved,
@@ -29,6 +30,8 @@ describe('Runs', () => {
     ada.runs.publish(summary('t1', 1));
     const teacher = peer(hub, 'teacher');
     expect(teacher.runs.list().map((r) => r.teamId)).toEqual(['t1']);
+    // The members' peer ids come along, so an instructor can find a player's team.
+    expect(teacher.runs.list()[0]!.peers).toEqual(['ada', 'bob']);
   });
 
   it('keeps the newest summary when several members report the same team', () => {

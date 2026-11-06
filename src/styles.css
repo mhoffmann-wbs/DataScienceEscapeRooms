@@ -320,6 +320,28 @@ button:disabled {
   gap: 6px;
 }
 
+/* Instructors: a name opens a small menu below it. */
+.people-panel li.menu-open {
+  flex-wrap: wrap;
+}
+
+.people-panel li .link-button {
+  font-weight: normal;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.people-menu {
+  flex-basis: 100%;
+  padding: 2px 0 4px 22px;
+}
+
+.people-menu .error {
+  margin: 4px 0 0;
+  font-size: 12px;
+  white-space: normal;
+}
+
 .modal-backdrop {
   position: absolute;
   inset: 0;

@@ -56,10 +56,12 @@ interface Props {
   onPractise: (roomId: string) => void;
   /** The unlocked instructor key, if any. */
   instructorKey: CryptoKey | null;
+  /** Instructors: go to a player (see PeoplePanel). */
+  onGoTo: ((peerId: string) => Promise<boolean>) | null;
 }
 
 /** One place in the world: its Phaser game, and for rooms the room's network session. */
-export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom, onRejoin, onPractise, instructorKey }: Props) {
+export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRoom, onRejoin, onPractise, instructorKey, onGoTo }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Author mode and solo practice play the room offline, on an in-process network of one.
   const solo = place.kind === 'room' && !!place.run.solo;
@@ -108,10 +110,10 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
     <>
       {/* Clicking the map ends typing in any field (chat, notes), so walking works again. */}
       <div ref={containerRef} className="game" onPointerDown={() => (document.activeElement as HTMLElement | null)?.blur?.()} />
-      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} instructorKey={instructorKey} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
+      {session instanceof LobbySession && <LobbyOverlays session={session} profile={profile} instructorKey={instructorKey} onGoTo={onGoTo} onEnterRoom={onEnterRoom} onRejoin={onRejoin} onPractise={onPractise} />}
       {session instanceof RoomSession && place.kind === 'room' && (
         // A solo run has no team to report to the lobby.
-        <RoomOverlays session={session} lobby={solo ? null : lobby} solo={solo} observer={!!place.observer} profile={profile} author={place.author} onLeaveRoom={onLeaveRoom} />
+        <RoomOverlays session={session} lobby={solo ? null : lobby} solo={solo} observer={!!place.observer} profile={profile} author={place.author} onGoTo={onGoTo} onLeaveRoom={onLeaveRoom} />
       )}
     </>
   );
@@ -121,12 +123,13 @@ interface LobbyOverlaysProps {
   session: LobbySession;
   profile: Profile;
   instructorKey: CryptoKey | null;
+  onGoTo: ((peerId: string) => Promise<boolean>) | null;
   onEnterRoom: (started: StartedTeam, leader: string) => void;
   onRejoin: () => void;
   onPractise: (roomId: string) => void;
 }
 
-function LobbyOverlays({ session, profile, instructorKey, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
+function LobbyOverlays({ session, profile, instructorKey, onGoTo, onEnterRoom, onRejoin, onPractise }: LobbyOverlaysProps) {
   const { t } = useTranslation();
   const [dialogDoor, setDialogDoor] = useState<string | null>(null);
   const [scoreboard, setScoreboard] = useState(false);
@@ -168,7 +171,7 @@ function LobbyOverlays({ session, profile, instructorKey, onEnterRoom, onRejoin,
       <ChatPanel chat={session.chat} />
       <ChatBubbles chat={session.chat} />
       <div className="side-column">
-        <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('people.title', { count: n })} aloneText={t('people.alone')} />
+        <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('people.title', { count: n })} aloneText={t('people.alone')} onGoTo={onGoTo} />
         <AvDock media={session.media} presence={session.presence} scope="proximity" />
       </div>
     </>
@@ -187,10 +190,11 @@ interface RoomOverlaysProps {
   observer: boolean;
   profile: Profile;
   author?: { puzzleId?: string };
+  onGoTo: ((peerId: string) => Promise<boolean>) | null;
   onLeaveRoom: (finished: boolean) => void;
 }
 
-function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeaveRoom }: RoomOverlaysProps) {
+function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo, onLeaveRoom }: RoomOverlaysProps) {
   const { t } = useTranslation();
   const { roomId } = session.info;
   const { run } = session;
@@ -206,8 +210,9 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeave
   const roster = useEmitterValue(session.presence.events, 'roster', () => session.presence.list());
   useEffect(() => {
     if (!reporter) return;
-    const members = roster.filter((p) => !reporter.help.isVisitor(p.id)).map((p) => p.nickname);
-    reporter.runs.publish(summarize(session, state, [profile.nickname, ...members], profile.nickname));
+    const members = roster.filter((p) => !reporter.help.isVisitor(p.id));
+    const names = [profile.nickname, ...members.map((p) => p.nickname)];
+    reporter.runs.publish(summarize(session, state, names, [reporter.selfId, ...members.map((p) => p.id)], profile.nickname));
   }, [reporter, session, state, roster, profile.nickname]);
   useEffect(() => () => reporter?.runs.withdraw(), [reporter]);
 
@@ -266,7 +271,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeave
       {!solo && <ChatPanel chat={session.chat} />}
       {!solo && <ChatBubbles chat={session.chat} />}
       <div className="side-column">
-        <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('room.team', { count: n })} aloneText={t('room.alone')} />
+        <PeoplePanel presence={session.presence} self={profile} heading={(n) => t('room.team', { count: n })} aloneText={t('room.alone')} onGoTo={onGoTo} />
         <NotesPanel notebook={session.notebook} />
         {!author && !solo && <AvDock media={session.media} presence={session.presence} scope="team" />}
       </div>
@@ -275,7 +280,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onLeave
 }
 
 /** The lobby-facing summary of this team's run. */
-function summarize(session: RoomSession, state: RunState, members: string[], self: string): RunSummary {
+function summarize(session: RoomSession, state: RunState, members: string[], peers: string[], self: string): RunSummary {
   const { roomId, teamId, leader, group } = session.info;
   const hints: Record<string, number> = {};
   for (const key of Object.keys(state.hints)) {
@@ -288,6 +293,7 @@ function summarize(session: RoomSession, state: RunState, members: string[], sel
     leader: leader ?? self,
     group: group ?? null,
     members,
+    peers,
     epoch: state.epoch,
     startedAt: state.startedAt,
     solved: state.solved,

@@ -18,6 +18,8 @@ export interface GameEvents {
   'instructors:changed': { ids: readonly string[]; self: boolean };
   /** React -> scene: a chat message to show as a speech bubble (`self` for our own). */
   'chat:bubble': { peerId: string; self: boolean; text: string };
+  /** React -> scene: move the local player next to this peer (instructors), once it is on the map. */
+  'player:goto': { peerId: string };
 }
 
 export const bus = new Emitter<GameEvents>();

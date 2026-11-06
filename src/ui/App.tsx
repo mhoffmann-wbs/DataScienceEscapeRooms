@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { bus } from '../game/events';
 import { LOBBY, MAPS } from '../game/maps';
@@ -130,6 +130,42 @@ export function App() {
     setPlace({ kind: 'room', run: { roomId, teamId, password: password ?? undefined, leader: leader ?? undefined, group, state: emptyRun() }, observer: true });
   };
 
+  // Instructors: go to a player. On this map the scene jumps there; a player in the lobby means
+  // leaving the room first; a player in a room means visiting their team (as from the panel).
+  const pendingGoto = useRef<string | null>(null);
+  useEffect(
+    () =>
+      bus.on('scene:ready', () => {
+        if (pendingGoto.current) bus.emit('player:goto', { peerId: pendingGoto.current });
+        pendingGoto.current = null;
+      }),
+    [],
+  );
+  const goTo = async (peerId: string): Promise<boolean> => {
+    const target = lobby?.presence.get(peerId);
+    if (!lobby || !instructorKey || !target || !place) return false;
+    const here = place.kind === 'room' ? place.run.teamId : null;
+    if (!target.away) {
+      if (here === null) bus.emit('player:goto', { peerId });
+      else {
+        pendingGoto.current = peerId;
+        leaveRoom(false);
+      }
+      return true;
+    }
+    const run = lobby.runs.list().find((r) => r.peers?.includes(peerId));
+    if (!run) return false;
+    if (run.teamId === here) {
+      bus.emit('player:goto', { peerId });
+      return true;
+    }
+    const invite = await lobby.help.visit(instructorKey, run.teamId);
+    if (!invite || invite.roomId !== run.roomId) return false;
+    pendingGoto.current = peerId;
+    visit(invite);
+    return true;
+  };
+
   const rejoin = () => {
     const run = loadRun();
     if (run) setPlace({ kind: 'room', run });
@@ -139,7 +175,7 @@ export function App() {
     <div className="app">
       {place && profile ? (
         // Until the lobby connection exists (one render), show nothing rather than the join screen.
-        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} onPractise={practise} instructorKey={instructorKey} />
+        (lobby || !online) && <World profile={profile} place={place} lobby={lobby} transport={transport} onEnterRoom={enterRoom} onLeaveRoom={leaveRoom} onRejoin={rejoin} onPractise={practise} instructorKey={instructorKey} onGoTo={instructorKey ? goTo : null} />
       ) : (
         <JoinScreen initial={profile} onJoin={join} />
       )}

@@ -16,6 +16,8 @@ export const runSummarySchema = z.object({
   leader: z.string().max(20),
   group: z.string().max(24).nullable(),
   members: z.array(z.string().max(20)).max(10),
+  /** The members' peer ids, so an instructor can find a player's team (older clients omit it). */
+  peers: z.array(key).max(10).optional(),
   /** Bumped when an instructor resets the run. */
   epoch: z.number().finite(),
   startedAt: z.number().finite().nullable(),
