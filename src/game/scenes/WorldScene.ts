@@ -9,8 +9,8 @@ import { RemoteAvatars } from '../entities/RemoteAvatars';
 import { bus, type Interactable } from '../events';
 import { NEARBY_RADIUS } from '../../net/session';
 import { LOBBY, MAPS } from '../maps';
-import { getMapKey, getPresence, getProfile } from '../registry';
-import { containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Door, type Rect } from '../tiled';
+import { getArriveAt, getMapKey, getPresence, getProfile } from '../registry';
+import { containsPoint, inFrontOf, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Door, type Rect } from '../tiled';
 
 const SPEED = 160;
 const ZOOM = 1.5;
@@ -94,7 +94,8 @@ export class WorldScene extends Phaser.Scene {
     this.drawAreas();
     const offLanguage = mapKey === LOBBY ? this.addDoorSigns(doors) : () => {};
 
-    const start = pickSpawnPoint(spawn);
+    const arriveDoor = doors.find((d) => d.doorTo === getArriveAt(this));
+    const start = pickSpawnPoint(arriveDoor ? inFrontOf(arriveDoor, map.tileHeight) : spawn);
     this.player = new Avatar(this, start.x, start.y, profile.avatar, profile.nickname);
     this.physics.add.existing(this.player.sprite);
     this.body = this.player.sprite.body as Phaser.Physics.Arcade.Body;

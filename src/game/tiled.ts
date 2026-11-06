@@ -126,6 +126,14 @@ export function parseMapObjects(map: TiledMap): MapObjects {
 /** Max offset (px) around a point spawn, so arriving players don't stack exactly on top of each other. */
 const POINT_SPAWN_JITTER = 12;
 
+/**
+ * Where a player arrives when coming back out through a door: one tile in front of it.
+ * Doors sit in the top wall, so "in front" is below.
+ */
+export function inFrontOf(door: Rect, tileHeight: number): Rect {
+  return { x: door.x + door.width / 2, y: door.y + door.height + tileHeight, width: 0, height: 0 };
+}
+
 export function pickSpawnPoint(spawn: Rect, random: () => number = Math.random): { x: number; y: number } {
   const jitter = spawn.width === 0 && spawn.height === 0 ? POINT_SPAWN_JITTER : 0;
   return {

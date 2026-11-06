@@ -13,7 +13,7 @@ import type { StartedTeam } from '../net/teams';
 import type { Transport } from '../net/transport';
 import type { Profile } from '../player/profile';
 import { saveRun, type SavedRun } from '../player/run';
-import { finalPuzzleId, getPuzzle } from '../rooms';
+import { finalPuzzleId, getPuzzle, ROOMS } from '../rooms';
 import { AvDock } from './AvDock';
 import { ChatBubbles } from './ChatBubbles';
 import { ChatPanel } from './ChatPanel';
@@ -31,7 +31,8 @@ import { nameOf } from './names';
 import { useEmitterValue } from './useStore';
 
 export type Place =
-  | { kind: 'lobby' }
+  /** `from`: the room just left, so the player arrives in front of its door. */
+  | { kind: 'lobby'; from?: string }
   | {
       kind: 'room';
       run: SavedRun;
@@ -86,7 +87,7 @@ export function World({ profile, place, lobby, transport, onEnterRoom, onLeaveRo
       const save = () => saveRun({ ...place.run, state: s.run.state, notes: s.notebook.state });
       offs.push(s.run.events.on('state', save), s.notebook.events.on('notes', save));
     }
-    const game = createGame(containerRef.current!, { profile, presence: s.presence, mapKey });
+    const game = createGame(containerRef.current!, { profile, presence: s.presence, mapKey, arriveAt: place.kind === 'lobby' && place.from ? ROOMS[place.from]?.category : undefined });
     // The session only exists once the effect runs (it opens network connections).
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSession(s);

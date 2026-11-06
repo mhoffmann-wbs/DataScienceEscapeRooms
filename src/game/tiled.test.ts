@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DOORS } from '../rooms/doors';
 import { ROOMS } from '../rooms';
 import { LOBBY, MAPS, ROOM_IDS } from './maps';
-import { collidingGids, containsPoint, parseMapObjects, pickSpawnPoint, tiledMapSchema } from './tiled';
+import { collidingGids, containsPoint, inFrontOf, parseMapObjects, pickSpawnPoint, tiledMapSchema } from './tiled';
 
 describe('maps', () => {
   it('the lobby has one door per room type, every room has a type, and every room has an exit to the lobby', () => {
@@ -25,6 +25,20 @@ describe.each(Object.keys(MAPS))('map %s', (key) => {
     for (const layer of lobby.layers) {
       if (layer.type !== 'tilelayer') continue;
       expect(blocked.has(layer.data[ty * layer.width + tx]!)).toBe(false);
+    }
+  });
+
+  it('lets players arrive in front of every door, on a walkable tile outside it', () => {
+    const blocked = collidingGids(lobby);
+    for (const d of doors) {
+      const p = inFrontOf(d, lobby.tileheight);
+      expect(doors.some((o) => containsPoint(o, p.x, p.y))).toBe(false);
+      const tx = Math.floor(p.x / lobby.tilewidth);
+      const ty = Math.floor(p.y / lobby.tileheight);
+      for (const layer of lobby.layers) {
+        if (layer.type !== 'tilelayer') continue;
+        expect(blocked.has(layer.data[ty * layer.width + tx]!)).toBe(false);
+      }
     }
   });
 

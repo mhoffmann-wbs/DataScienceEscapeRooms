@@ -112,7 +112,7 @@ export function App() {
   const leaveRoom = (finished: boolean) => {
     // A visiting instructor's own saved run (if any) isn't the one they leave.
     if (finished && !(place?.kind === 'room' && place.observer)) clearRun();
-    setPlace({ kind: 'lobby' });
+    setPlace({ kind: 'lobby', from: place?.kind === 'room' ? place.run.roomId : undefined });
   };
 
   /** Solo practice: an offline copy of the room, saved like a team run. */
