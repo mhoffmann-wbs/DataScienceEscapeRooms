@@ -1,6 +1,6 @@
 # Generates data/fuel.py and data/freezer.py for Station Nordlys. Not bundled with the site.
-# The supply check's reference forecast (7220 litres, Jan 2026) comes from the reference
-# solution in solutions.json; update it if the data changes (the room tests will notice).
+# The supply check's reference values (holdout MAE 269 litres, Jan 2026 forecast 7220 litres)
+# and the chief's 602 come from the reference solutions in solutions.json; update it if the data changes (the room tests will notice).
 # Needs numpy (any Python with numpy works); the seeds were chosen so that the ACF/PACF of the
 # fuel series show the airline-model pattern clearly and the freezer's AR(2) coefficients round
 # cleanly. Run from this folder:  python3 generate_data.py
@@ -40,16 +40,24 @@ fuel = pd.Series([
 ], index=pd.date_range("2010-01-01", periods=192, freq="MS"), name="fuel", dtype="float64")
 
 
-def _supply_check(pin, litres, holdout_mae):
-    """The supply terminal's check: PIN, January 2026 forecast and the holdout error."""
-    import hashlib
+def _supply_check(chief_mae, holdout_mae, litres):
+    """The supply terminal's check: the chief's error, the model's holdout error and the January 2026 order.
+    The model must be the echo chamber's airline model (holdout MAE about 269 l, January about 7220 l)."""
+    def number(x):
+        try:
+            return float(x)
+        except (TypeError, ValueError):
+            return None
+    chief_mae, holdout_mae, litres = number(chief_mae), number(holdout_mae), number(litres)
     problems = []
-    if hashlib.sha256(str(pin).strip().encode()).hexdigest() != "de650d61f5bd166a91f8ccec3158297db18b9d50eaedca238cd29dc3a214a916":
-        problems.append("The terminal rejects the PIN. / Das Terminal lehnt die PIN ab.")
-    if not isinstance(holdout_mae, (int, float)) or not 100 < holdout_mae < 602:
-        problems.append("Order refused: the model must beat the chief's 602 litres on 2024-2025 (check mae_sarima). / Bestellung abgelehnt: Das Modell muss die 602 Liter der Leiterin auf 2024-2025 schlagen (mae_sarima prüfen).")
-    if not isinstance(litres, (int, float)) or abs(litres - 7220) > 0.03 * 7220:
-        problems.append("Order refused: that January forecast doesn't match a sound model (log scale? back-transformed?). / Bestellung abgelehnt: Diese Januar-Prognose passt zu keinem stimmigen Modell (Log-Skala? zurücktransformiert?).")
+    if chief_mae is None or round(chief_mae) != 602:
+        problems.append("The terminal doesn't recognise mae_chief as the chief's error. Ask at the chief's desk. / Das Terminal erkennt mae_chief nicht als Fehler der Leiterin. Fragt am Schreibtisch der Leiterin nach.")
+    elif holdout_mae is None or holdout_mae >= chief_mae:
+        problems.append("Order refused: that model doesn't beat the chief (mae_sarima). / Bestellung abgelehnt: Dieses Modell schlägt die Leiterin nicht (mae_sarima).")
+    elif abs(holdout_mae - 269) > 10:
+        problems.append("Order refused: mae_sarima doesn't match the station's model (the echo chamber's winner on the repaired log) on the chief's test period. / Bestellung abgelehnt: mae_sarima passt nicht zum Modell der Station (dem Gewinner der Echokammer auf dem reparierten Logbuch) auf dem Testzeitraum der Leiterin.")
+    if litres is None or abs(litres - 7220) > 15:
+        problems.append("Order refused: that January order doesn't match the station's model on the repaired log. Read the order form. / Bestellung abgelehnt: Diese Januar-Bestellung passt nicht zum Modell der Station auf dem reparierten Logbuch. Lest das Bestellformular.")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

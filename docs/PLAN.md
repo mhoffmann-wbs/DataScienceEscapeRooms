@@ -178,6 +178,10 @@ A new 📊 **Statistics** door, the first in a side wall: the lobby's left wall,
 5. **Web shop dashboard** (chi-squared goodness of fit and independence; uses 1): SRM p = 0.22; A 3.0 %, B 3.2 %, C 4.0 %, χ² = 16.7, p = 0.0002 → C. Card 5.
 6. **Release console** (final): cards in agenda order → 5294.
 
+### 14. Room flows ✅
+- **Flow pages:** ✅ `docs/flows/<roomId>.md` per room (written with the `room-flow` skill): a Mermaid flowchart of every station, clue, data file and the final lock, arrows labelled with the knowledge that moves (hard or context only), and an analysis of phases, chains, clue placement and findings.
+- **Acting on the findings:** ✅ no room uses `requires` any more: stations either need an earlier result (`uses`, with the earlier station's code taken out of the starter) or sit behind a code lock (Market Day's report, The Blue Index's phone, Station Nordlys's supply terminal, The Chocolate Experiment's dashboard). Values that clues carry were taken out of the task texts, so the clues must be read. Station Nordlys now opens 5 stations at the start instead of 2. What each room left on purpose is listed on its flow page. All of it needs a playtest.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
@@ -197,7 +201,5 @@ Add new ideas here before they move into a step.
 - **Italic text in manifests:** RichText only knows `**bold**` and `` `code` ``; a single `*star*` shows literally. Either support it or add a manifest test that rejects it.
 - **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.
 - **Scoreboard export:** let the instructor export and import the scoreboard as JSON from the panel, as a backup that doesn't depend on returning browsers.
-- **Retrofit older rooms:** replace `requires` in the first five rooms with result dependencies (`uses`) or code locks, as the statistics rooms do.
 - **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
-- **Act on the room flows' findings:** every page in [flows/](flows/) ends with findings: soft clues whose values are already in the task text, `requires` that move no knowledge (starters that already contain the earlier station's code), unused clues, and too few open stations at the start (`ts-nordlys`: 2). Merges with "Retrofit older rooms" below.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.

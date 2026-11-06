@@ -14,25 +14,19 @@ flowchart LR
   orderform[/"🔎 The supply order form"/]
   aurora[/"🔎 A frosted window"/]
 
-  d_logbook[("fuel.py<br/>fuel, 2010–2025 monthly")]
+  d_logbook[("fuel.py<br/>fuel, 2010–2025 monthly, 4 gaps")]
   d_freezer[("freezer.py<br/>freezer, hourly")]
 
   subgraph p1["Open from the start"]
     logbook["1 · The frost-damaged logbook<br/>isna, time interpolation"]
     freezer["2 · The drifting freezer sensor<br/>detrending, AR(2)"]
-  end
-
-  subgraph p2["Waits for the logbook (requires)"]
     chief["3 · The chief's method<br/>train/test split, naive baselines, MAE"]
     gauge["4 · The stationarity gauge<br/>log, diff(12), diff(1), ADF"]
-  end
-
-  subgraph p3["Waits for the gauge (requires)"]
     echo["5 · The echo chamber<br/>ACF/PACF, SARIMA by AIC"]
   end
 
-  subgraph p4["Final"]
-    supply{{"6 · The supply terminal<br/>final check: PIN, MAE below 602, Jan 2026 ≈ 7220 l"}}
+  subgraph p2["Final lock"]
+    supply{{"6 · The supply terminal 🔒<br/>final check: mae_chief 602, MAE ≈ 269 l, Jan 2026 ≈ 7220 l"}}
   end
 
   d_logbook --> logbook
@@ -44,18 +38,19 @@ flowchart LR
 
   logbookpage -->|"🔎 empty, not zero;<br/>fill in proportion to time"| logbook
   technote -->|"🔎 straight-line drift, don't difference;<br/>code = AR coefs × 10, no signs"| freezer
-  chiefnotebook -.->|"🔎 same month last year; test on 2024–2025"| chief
+  chiefnotebook -->|"🔎 rule = same month last year;<br/>test on 2024–2025"| chief
   gaugepanel -->|"🔎 log, then diff 1 year, then diff 1 month"| gauge
-  echomanual -.->|"🔎 ACF/PACF cut-offs; lower AIC wins"| echo
-  orderform -.->|"🔎 litres, not log; must beat the chief; PIN"| supply
+  echomanual -.->|"🔎 ACF/PACF cut-offs;<br/>lower AIC wins"| echo
+  orderform -->|"🔎 litres, not log units;<br/>state the chief's error"| supply
   intro -.->|"📜 a model must beat the chief's rule of thumb"| supply
 
-  logbook --o|"⛓ requires; interpolate method=time,<br/>already in the starter"| chief
-  logbook --o|"⛓ requires; interpolate method=time,<br/>already in the starter"| gauge
-  gauge --o|"⛓ requires; log → diff 12 → diff 1,<br/>already in the starter"| echo
-  chief -.->|"📤 the chief's 602 l,<br/>also in the check's message ⛓"| supply
-  echo -.->|"📤 (0,1,1)(0,1,1,12);<br/>every candidate passes the check ⛓"| supply
-  freezer ==>|"📤 PIN 4711 ⛓"| supply
+  logbook ==>|"📤 interpolate method=time"| gauge
+  logbook -.->|"📤 interpolate method=time;<br/>the AIC winner is the same on the gappy log"| echo
+  logbook ==>|"📤 interpolate method=time"| supply
+  gauge ==>|"📤 log → diff 12 → diff 1;<br/>d = 1, D = 1"| echo
+  chief ==>|"📤 mae_chief 602;<br/>test period 2024–2025"| supply
+  echo ==>|"📤 (0,1,1)(0,1,1,12)"| supply
+  freezer ==>|"🔒 PIN 4711"| supply
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
   classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
@@ -75,29 +70,24 @@ flowchart LR
 | `==>` thick | A result, lock code or final digit moves from one station to another |
 | `-->` solid | A clue or data file the station can't be solved without |
 | `-.->` dotted | Context only: the value is also in the task text or starter code, or it only helps to judge a result that isn't checked |
-| `--o` ⛓ | A `requires` lock: the station stays closed until the other is solved, but no knowledge moves |
-| ⛓ at the end of a label | The target also `requires` the source |
 
-This room has no `lock` codes and no final digits: the supply terminal is a `final` Python check, and every station after the first two is gated by `requires`. The frosted window (aurora) is flavour and feeds no station.
+The room has no `requires` any more. The supply terminal is the `final` Python check and sits behind a code `lock` (PIN 4711 from the freezer's reveal). Its grader `_supply_check(mae_chief, mae_sarima, jan_2026)` in `fuel.py` wants the chief's 602 without stating it, and accepts only the airline model's numbers (holdout MAE within 10 l of 269, January within 15 l of 7220). The frosted window (aurora) is flavour and feeds no station.
 
 ## Phases
 
-- **Start:** 2 stations open (logbook, freezer). Enough for a pair; in a team of 3–5 the rest watch or share a screen.
-- **Second wave:** the chief's method and the gauge open together once the logbook is solved: again 2 stations in parallel (the freezer may still be running).
-- **Third wave:** the echo chamber opens after the gauge, alone.
-- **Final:** the supply terminal opens once the freezer, the chief's method and the echo chamber are all solved.
-- Peak parallel width: 2 stations (3 if the freezer is still open when the second wave starts).
+- **Start:** 5 stations open (logbook, freezer, chief's method, gauge, echo chamber). Logbook, freezer and chief's method need nothing from elsewhere; the gauge needs the logbook's fill, the echo chamber the gauge's transform, so those two teams find out they have to wait or ask.
+- **Final:** the supply terminal opens with the freezer's PIN, and its check needs the chief's 602 and test period, the echo chamber's model and the logbook's fill.
+- Parallel width: 3 stations solvable at once from the start (logbook, freezer, chief), 5 open; enough for a team of 3–5.
 
 ## Chains
 
 - Logbook → gauge → echo chamber → supply terminal: 4 stations, the longest path.
-- Logbook → chief's method → supply terminal: 3 stations.
-- Freezer → supply terminal: 2 stations, the only chain with a hard hand-off.
+- Chief's method → supply terminal; freezer → supply terminal: 2 stations each.
 
 ## Hand-offs
 
-- Between stations: 6 `requires` edges, but only 1 piece of knowledge that the check can't pass without (the PIN 4711 from the freezer's reveal). The other 5 carry nothing the next station needs: the starters already contain the logbook's interpolation and the gauge's transform, and the supply check accepts every echo candidate and states the 602 itself.
-- From clues: 7 clues; 3 hard (logbook page, technician's note, gauge panel), 3 soft (chief's notebook, echo manual, order form), 1 flavour (frosted window).
+- Between stations: 7 edges, 6 hard (logbook → gauge, logbook → supply, gauge → echo, chief → supply, echo → supply, freezer PIN → supply lock), 1 soft (logbook → echo: SARIMAX copes with the gaps and picks the same winner).
+- From clues: 7 clues; 5 hard (logbook page, technician's note, chief's notebook, gauge panel, order form), 1 soft (echo manual), 1 flavour (frosted window).
 
 ## Where things are
 
@@ -106,12 +96,22 @@ Tiles are 32 px; the map is 22 × 15 tiles.
 - Next to their station (1 tile): the logbook page, the chief's notebook, the gauge panel.
 - A short walk: the technician's note stands about 6 tiles from the freezer (north-west of it), the echo manual about 7 tiles from the echo chamber (north-east).
 - Across the room: the order form hangs on the north wall by the exit, about 10 tiles from the supply terminal in the south-east.
+- The stations that trade results are spread out: logbook (west) → gauge (north), gauge → echo chamber (south centre), chief (north-east) and echo → supply (south-east), so the hand-offs need walking and talking.
 
 ## Findings
 
-- **Only one hard hand-off between stations.** Of the six `requires`, only freezer → supply carries knowledge the check needs (the PIN). The others are pure waiting: the chief, gauge, echo and supply starters all contain `fuel.interpolate(method="time")`, and the echo starter contains `log_fuel.diff(12).diff(1)`.
-- **The echo chamber's result isn't needed.** The supply check accepts all five echo candidates (holdout MAE 268–595 l, January forecast 7176–7245 l, all within 3 % of 7220 and below 602). Narrowing the check (for example a tighter tolerance on `jan_2026`, or checking `mae_sarima` against the airline model's ≈ 269) or leaving `order` out of the starter as a must-know would make echo → supply a hard `uses`.
-- **`requires` that could become `uses` or a code lock:** freezer → supply is already a natural code lock (`lock.from: freezer`, PIN 4711 typed at the terminal instead of a `pin` variable). logbook → chief / gauge could become `uses` if those starters loaded the gappy `fuel` without the interpolation line, so the team has to bring `method="time"` from the logbook. gauge → echo could become `uses` if the echo starter left the transform out. chief → supply could become `uses` if the supply check's message didn't state 602 and the team had to bring `mae_snaive`.
-- **Soft clues:** the chief's notebook (the task text already defines seasonal naive and the 2024–2025 test period), the echo manual (the AIC loop alone finds the winner; the ACF/PACF reading isn't checked) and the order form (task and starter already say litres, back-transform, beat the chief and PIN).
-- **Only 2 stations open from the start**, against the rooms.md rule of several open stations for a team of 3–5; the logbook gates 4 of the other 5 stations. Since the logbook's result isn't actually needed downstream, dropping `requires: ["logbook"]` from the chief and the gauge would open 4 stations at once.
-- **The frosted window feeds nothing.** Fine as flavour, but it could carry a hard value (for example the seasonal period 12 for the gauge or echo) to earn its place.
+Fixed in this pass (previously listed here):
+
+- `requires` everywhere → gone. The gauge, echo and supply starters no longer contain `interpolate(method="time")` or the log/diff transform; the gauge's check fails with any other fill (linear changes the std, dropping gaps changes the length), the echo candidates come as (p, q)(P, Q) and need d = D = 1 from the gauge (with d = D = 0 the AIC picks (1,0,0)(1,0,0,12)), and the supply check rejects an unfilled or forward-filled log.
+- The echo chamber's result is now needed: the supply check accepts only the airline model; the next-best candidates miss by 25 l on January ((1,1,1)(0,1,1,12)) or 23 l on the MAE ((2,1,0)(0,1,1,12)).
+- Freezer → supply is a code lock (PIN 4711); the `pin` variable is gone.
+- The check's messages no longer state 602 or hint at the log scale; the team brings `mae_chief` from the chief's station.
+- Soft clues: the chief's notebook is now the only source of the rule and the test period (task, starter and supply text no longer give them); the order form is the only place that asks for litres instead of log units and for the chief's error.
+- 5 stations open from the start instead of 2.
+
+Left as they are:
+
+- **The echo manual stays soft.** The task text points to it for the selection rule, but "lower AIC wins" is common knowledge and the ACF/PACF reading isn't checked. Checking the reading would add a task; not worth the time budget.
+- **The frosted window feeds nothing.** The season length 12 would be its natural value, but every student knows monthly data repeats every 12 months, so it couldn't be a hard clue.
+- **Small leaks of the test period:** the echo starter trains on `log_fuel[:"2023-12"]`, so a team reading the echo chamber's code can guess the chief's test period without the notebook. The echo chamber needs a fixed training window for its AIC comparison.
+- **The order form's "litres, not log" is partly common sense**: the supply starter asks for the MAE "against the real litres", which already implies `np.exp`.

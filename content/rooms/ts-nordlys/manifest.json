@@ -52,8 +52,8 @@
         "hash": "69a1e59576cbd7307f8ee0a3b3a542e38e9d52611675b3250b041c3cd0a511f7"
       },
       "reveal": {
-        "en": "The log is complete again: four frozen months filled in, in proportion to the time between readings.",
-        "de": "Das Logbuch ist wieder vollständig: vier eingefrorene Monate, im Verhältnis zur Zeit zwischen den Messungen gefüllt."
+        "en": "The log is complete again: four frozen months filled with `fuel.interpolate(method=\"time\")`, in proportion to the time between readings.\n\nEvery station that works with the fuel log needs it repaired exactly this way.",
+        "de": "Das Logbuch ist wieder vollständig: vier eingefrorene Monate mit `fuel.interpolate(method=\"time\")` gefüllt, im Verhältnis zur Zeit zwischen den Messungen.\n\nJede Station, die mit dem Heizöl-Logbuch arbeitet, braucht es genau so repariert."
       },
       "practises": {
         "en": "Finding missing values (`isna`), time-based interpolation, why gaps must not become zeros",
@@ -131,26 +131,23 @@
         "de": "Die Methode der Leiterin"
       },
       "text": {
-        "en": "Before anyone trusts a model, it has to beat the simple rules people already use. Hold out 2024–2025 as the test period and train on everything before.\n\nForecast the test period with two baselines: `naive` (every month equals the last training month) and `seasonal_naive` (every month equals the same month one year earlier). Compute their mean absolute errors in litres as `mae_naive` and `mae_snaive`.",
-        "de": "Bevor man einem Modell traut, muss es die einfachen Regeln schlagen, die schon benutzt werden. Haltet 2024–2025 als Testzeitraum zurück und trainiert auf allem davor.\n\nPrognostiziert den Testzeitraum mit zwei Baselines: `naive` (jeder Monat gleich dem letzten Trainingsmonat) und `seasonal_naive` (jeder Monat gleich demselben Monat ein Jahr vorher). Berechnet ihre mittleren absoluten Fehler in Litern als `mae_naive` und `mae_snaive`."
+        "en": "Before anyone trusts a model, it has to beat the rules of thumb people already use. Test two of them on the test period named in the chief's notebook, and train on everything before it:\n\n`naive`: every test month equals the last training month.\n`seasonal_naive`: the chief's own rule, as she describes it in her notebook.\n\nCompute their mean absolute errors in litres as `mae_naive` and `mae_snaive`.",
+        "de": "Bevor man einem Modell traut, muss es die Faustregeln schlagen, die schon benutzt werden. Testet zwei davon auf dem Testzeitraum, den das Notizbuch der Leiterin nennt, und trainiert auf allem davor:\n\n`naive`: jeder Testmonat gleich dem letzten Trainingsmonat.\n`seasonal_naive`: die Regel der Leiterin selbst, so wie sie sie in ihrem Notizbuch beschreibt.\n\nBerechnet ihre mittleren absoluten Fehler in Litern als `mae_naive` und `mae_snaive`."
       },
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "fuel_filled = fuel.interpolate(method=\"time\")   # the repaired logbook\ntrain = fuel_filled[:\"2023-12\"]\ntest = fuel_filled[\"2024-01\":]\n\n# Forecast 2024-2025 two ways, using only train:\nnaive = None            # every month = the last month of train\nseasonal_naive = None   # every month = the same month one year earlier\n\nmae_naive = None        # mean absolute error against test, in litres\nmae_snaive = None\n",
-        "de": "fuel_filled = fuel.interpolate(method=\"time\")   # das reparierte Logbuch\ntrain = fuel_filled[:\"2023-12\"]\ntest = fuel_filled[\"2024-01\":]\n\n# Prognostiziert 2024-2025 auf zwei Arten, nur mit train:\nnaive = None            # jeder Monat = der letzte Monat von train\nseasonal_naive = None   # jeder Monat = derselbe Monat ein Jahr vorher\n\nmae_naive = None        # mittlerer absoluter Fehler gegenüber test, in Litern\nmae_snaive = None\n"
+        "en": "# fuel is loaded: litres per month, 2010 to 2025. Its frozen months lie\n# long before the test period, so they don't matter here.\ntrain = None   # everything before the test period (see the chief's notebook)\ntest = None    # the test period, e.g. fuel[\"2019-01\":\"2019-12\"]\n\n# Forecast the test period two ways, using only train:\nnaive = None            # every month = the last month of train\nseasonal_naive = None   # the chief's rule\n\nmae_naive = None        # mean absolute error against test, in litres\nmae_snaive = None\n",
+        "de": "# fuel ist geladen: Liter pro Monat, 2010 bis 2025. Seine eingefrorenen Monate\n# liegen lange vor dem Testzeitraum und spielen hier keine Rolle.\ntrain = None   # alles vor dem Testzeitraum (siehe Notizbuch der Leiterin)\ntest = None    # der Testzeitraum, z. B. fuel[\"2019-01\":\"2019-12\"]\n\n# Prognostiziert den Testzeitraum auf zwei Arten, nur mit train:\nnaive = None            # jeder Monat = der letzte Monat von train\nseasonal_naive = None   # die Regel der Leiterin\n\nmae_naive = None        # mittlerer absoluter Fehler gegenüber test, in Litern\nmae_snaive = None\n"
       },
       "check": {
         "type": "python",
         "expr": "[round(float(mae_naive)), round(float(mae_snaive))]",
         "hash": "9a5a50b6c22bbb53368a78b29b10424c9aeb63d1577a82623240c412b3117c0b"
       },
-      "requires": [
-        "logbook"
-      ],
       "reveal": {
-        "en": "The chief's rule of thumb (seasonal naive) misses by **602 litres** a month on average; the naive forecast by 1519. Any model you build has to beat 602.",
-        "de": "Die Faustregel der Leiterin (saisonal naiv) liegt im Schnitt **602 Liter** pro Monat daneben, die naive Prognose 1519. Jedes Modell, das ihr baut, muss 602 schlagen."
+        "en": "The chief's rule of thumb (seasonal naive) misses by **602 litres** a month on average; the naive forecast by 1519.\n\nThe supply terminal will ask for the chief's 602, and for a model that beats it on the same test period, 2024–2025.",
+        "de": "Die Faustregel der Leiterin (saisonal naiv) liegt im Schnitt **602 Liter** pro Monat daneben, die naive Prognose 1519.\n\nDas Versorgungsterminal wird nach den 602 der Leiterin fragen, und nach einem Modell, das sie auf demselben Testzeitraum schlägt, 2024–2025."
       },
       "practises": {
         "en": "Train/test split in time, naive and seasonal naive baselines, mean absolute error",
@@ -161,16 +158,16 @@
       ],
       "hints": [
         {
-          "en": "`train.iloc[-1]` is the last training month; `train.iloc[-12:]` is the last training year. Both forecasts need the 24 test months as index: `pd.Series(..., index=test.index)`.",
-          "de": "`train.iloc[-1]` ist der letzte Trainingsmonat, `train.iloc[-12:]` das letzte Trainingsjahr. Beide Prognosen brauchen die 24 Testmonate als Index: `pd.Series(..., index=test.index)`."
+          "en": "Read the chief's notebook: it says what her rule forecasts, and the note underneath names the test period. Slice by date with `fuel[:\"YYYY-MM\"]` and `fuel[\"YYYY-MM\":]`.",
+          "de": "Lest das Notizbuch der Leiterin: Es sagt, was ihre Regel vorhersagt, und die Notiz darunter nennt den Testzeitraum. Schneidet nach Datum mit `fuel[:\"JJJJ-MM\"]` und `fuel[\"JJJJ-MM\":]`."
         },
         {
-          "en": "The seasonal naive forecast repeats the last training year twice: `np.tile(train.iloc[-12:].values, 2)`. The MAE is `(forecast - test).abs().mean()`.",
-          "de": "Die saisonal naive Prognose wiederholt das letzte Trainingsjahr zweimal: `np.tile(train.iloc[-12:].values, 2)`. Der MAE ist `(prognose - test).abs().mean()`."
+          "en": "`train.iloc[-1]` is the last training month; `np.tile(train.iloc[-12:].values, 2)` repeats the last training year twice. Both forecasts need the test months as index: `pd.Series(..., index=test.index)`. The MAE is `(forecast - test).abs().mean()`.",
+          "de": "`train.iloc[-1]` ist der letzte Trainingsmonat; `np.tile(train.iloc[-12:].values, 2)` wiederholt das letzte Trainingsjahr zweimal. Beide Prognosen brauchen die Testmonate als Index: `pd.Series(..., index=test.index)`. Der MAE ist `(prognose - test).abs().mean()`."
         },
         {
-          "en": "`naive = pd.Series(train.iloc[-1], index=test.index)`, `seasonal_naive = pd.Series(np.tile(train.iloc[-12:].values, 2), index=test.index)`, then `mae_naive = (naive - test).abs().mean()` and the same for `mae_snaive`.",
-          "de": "`naive = pd.Series(train.iloc[-1], index=test.index)`, `seasonal_naive = pd.Series(np.tile(train.iloc[-12:].values, 2), index=test.index)`, dann `mae_naive = (naive - test).abs().mean()` und dasselbe für `mae_snaive`."
+          "en": "Test on 2024–2025: `train = fuel[:\"2023-12\"]`, `test = fuel[\"2024-01\":]`, `naive = pd.Series(train.iloc[-1], index=test.index)`, `seasonal_naive = pd.Series(np.tile(train.iloc[-12:].values, 2), index=test.index)`, then `mae_naive = (naive - test).abs().mean()` and the same for `mae_snaive`.",
+          "de": "Getestet wird auf 2024–2025: `train = fuel[:\"2023-12\"]`, `test = fuel[\"2024-01\":]`, `naive = pd.Series(train.iloc[-1], index=test.index)`, `seasonal_naive = pd.Series(np.tile(train.iloc[-12:].values, 2), index=test.index)`, dann `mae_naive = (naive - test).abs().mean()` und dasselbe für `mae_snaive`."
         }
       ]
     },
@@ -181,26 +178,26 @@
         "de": "Die Stationaritätsanzeige"
       },
       "text": {
-        "en": "SARIMA models need to know how far the series is from stationary. The gauge on the wall runs an ADF test and only turns green below p = 0.05.\n\nTransform the filled fuel series step by step, as the gauge panel describes, until it is stationary. Store the result in `stationary` (without the empty rows that differencing creates) and its ADF p-value in `adf_p`.",
-        "de": "SARIMA-Modelle müssen wissen, wie weit die Reihe von stationär entfernt ist. Die Anzeige an der Wand führt einen ADF-Test aus und wird erst unter p = 0,05 grün.\n\nTransformiert die gefüllte Heizölreihe Schritt für Schritt, wie es die Anzeigetafel beschreibt, bis sie stationär ist. Speichert das Ergebnis in `stationary` (ohne die leeren Zeilen, die beim Differenzieren entstehen) und seinen ADF-p-Wert in `adf_p`."
+        "en": "SARIMA models need to know how far the series is from stationary. The gauge on the wall runs an ADF test and only turns green below p = 0.05.\n\nThe fuel log still has its frozen months: repair them exactly as the logbook station does. Then transform the series step by step, as the gauge panel describes, until it is stationary. Store the result in `stationary` (without the empty rows that differencing creates) and its ADF p-value in `adf_p`.",
+        "de": "SARIMA-Modelle müssen wissen, wie weit die Reihe von stationär entfernt ist. Die Anzeige an der Wand führt einen ADF-Test aus und wird erst unter p = 0,05 grün.\n\nDas Heizöl-Logbuch hat noch seine eingefrorenen Monate: Repariert sie genau so, wie es die Logbuch-Station tut. Transformiert die Reihe dann Schritt für Schritt, wie es die Anzeigetafel beschreibt, bis sie stationär ist. Speichert das Ergebnis in `stationary` (ohne die leeren Zeilen, die beim Differenzieren entstehen) und seinen ADF-p-Wert in `adf_p`."
       },
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "from statsmodels.tsa.stattools import adfuller\nfrom helpers import show_plot\n\nfuel_filled = fuel.interpolate(method=\"time\")\nprint(\"ADF p-value, untouched:\", adfuller(fuel_filled)[1])\n\nstationary = fuel_filled   # transform step by step (see the gauge panel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF p-value:\", adf_p)\nshow_plot(stationary, title=\"What the gauge sees\")\n",
-        "de": "from statsmodels.tsa.stattools import adfuller\nfrom helpers import show_plot\n\nfuel_filled = fuel.interpolate(method=\"time\")\nprint(\"ADF-p-Wert, unverändert:\", adfuller(fuel_filled)[1])\n\nstationary = fuel_filled   # Schritt für Schritt transformieren (siehe Anzeigetafel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF-p-Wert:\", adf_p)\nshow_plot(stationary, title=\"Was die Anzeige sieht\")\n"
+        "en": "from statsmodels.tsa.stattools import adfuller\nfrom helpers import show_plot\n\nfuel_filled = fuel   # still has the frozen months: repair them as the logbook station does\nprint(\"ADF p-value, untouched:\", adfuller(fuel_filled.dropna())[1])\n\nstationary = fuel_filled   # transform step by step (see the gauge panel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF p-value:\", adf_p)\nshow_plot(stationary, title=\"What the gauge sees\")\n",
+        "de": "from statsmodels.tsa.stattools import adfuller\nfrom helpers import show_plot\n\nfuel_filled = fuel   # hat noch die eingefrorenen Monate: repariert sie wie die Logbuch-Station\nprint(\"ADF-p-Wert, unverändert:\", adfuller(fuel_filled.dropna())[1])\n\nstationary = fuel_filled   # Schritt für Schritt transformieren (siehe Anzeigetafel)\nadf_p = adfuller(stationary.dropna())[1]\nprint(\"ADF-p-Wert:\", adf_p)\nshow_plot(stationary, title=\"Was die Anzeige sieht\")\n"
       },
       "check": {
         "type": "python",
         "expr": "[len(stationary), round(float(stationary.mean()), 4), round(float(stationary.std()), 4), bool(adf_p < 0.05)]",
         "hash": "efa56f70aff0f2e4a185d1b2be949224f12f31b48bc679c512c1ddbb19611a1f"
       },
-      "requires": [
+      "uses": [
         "logbook"
       ],
       "reveal": {
-        "en": "The needle swings into the green: **log → diff(12) → diff(1)**. Remember it as d = 1 and D = 1 on the log scale.",
-        "de": "Die Nadel schwingt ins Grüne: **log → diff(12) → diff(1)**. Merkt es euch als d = 1 und D = 1 auf der Log-Skala."
+        "en": "The needle swings into the green: **log → diff(12) → diff(1)**. For a model on the log scale that means d = 1 and D = 1: the echo chamber needs to know.",
+        "de": "Die Nadel schwingt ins Grüne: **log → diff(12) → diff(1)**. Für ein Modell auf der Log-Skala heißt das d = 1 und D = 1: Die Echokammer muss das wissen."
       },
       "practises": {
         "en": "Log transform for growing seasonal swings, seasonal and first differencing, the ADF test",
@@ -211,16 +208,16 @@
       ],
       "hints": [
         {
-          "en": "Plot the series: the winter peaks grow as the station grows. That calls for `np.log` first, before any differencing.",
-          "de": "Plottet die Reihe: Die Winterspitzen wachsen mit der Station. Das verlangt zuerst `np.log`, vor jedem Differenzieren."
+          "en": "Ask the logbook team how they filled the gaps, and fill them the same way: another fill gives a slightly different series, and the gauge won't accept it. Then plot the series: the winter peaks grow as the station grows. That calls for `np.log` first, before any differencing.",
+          "de": "Fragt das Logbuch-Team, wie es die Lücken gefüllt hat, und füllt sie genauso: Eine andere Füllung ergibt eine leicht andere Reihe, und die Anzeige nimmt sie nicht an. Plottet dann die Reihe: Die Winterspitzen wachsen mit der Station. Das verlangt zuerst `np.log`, vor jedem Differenzieren."
         },
         {
           "en": "Then remove the yearly pattern with `.diff(12)` and the remaining trend with `.diff(1)`. Check the p-value after each step; one step alone isn't enough.",
           "de": "Entfernt dann das Jahresmuster mit `.diff(12)` und den restlichen Trend mit `.diff(1)`. Prüft den p-Wert nach jedem Schritt; ein Schritt allein reicht nicht."
         },
         {
-          "en": "`stationary = np.log(fuel_filled).diff(12).diff(1).dropna()` and `adf_p = adfuller(stationary)[1]`.",
-          "de": "`stationary = np.log(fuel_filled).diff(12).diff(1).dropna()` und `adf_p = adfuller(stationary)[1]`."
+          "en": "`fuel_filled = fuel.interpolate(method=\"time\")`, `stationary = np.log(fuel_filled).diff(12).diff(1).dropna()` and `adf_p = adfuller(stationary)[1]`.",
+          "de": "`fuel_filled = fuel.interpolate(method=\"time\")`, `stationary = np.log(fuel_filled).diff(12).diff(1).dropna()` und `adf_p = adfuller(stationary)[1]`."
         }
       ]
     },
@@ -231,26 +228,27 @@
         "de": "Die Echokammer"
       },
       "text": {
-        "en": "The echo sounder shows how strongly each month still echoes earlier months: the ACF and PACF of the stationary series. Read the echoes with the manual on the wall, then let the data decide among the candidate models.\n\nFit every candidate on the log training data (until 2023) and keep the one with the lowest AIC. Store its orders in `order` and `seasonal_order`.",
-        "de": "Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF der stationären Reihe. Lest die Echos mit dem Handbuch an der Wand und lasst dann die Daten zwischen den Kandidatenmodellen entscheiden.\n\nPasst jeden Kandidaten auf die logarithmierten Trainingsdaten (bis 2023) an und behaltet den mit dem kleinsten AIC. Speichert seine Ordnungen in `order` und `seasonal_order`."
+        "en": "The echo sounder shows how strongly each month still echoes earlier months: the ACF and PACF of the series that turned the gauge green. Read the echoes with the manual on the wall, then let the data decide among the sounder's candidates, the way the manual says.\n\nThe candidates only list their AR and MA terms. Add the differencing the gauge needed, fit each one on the log training data (until 2023), and store the winner's orders in `order` and `seasonal_order`.",
+        "de": "Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF der Reihe, mit der die Anzeige grün wurde. Lest die Echos mit dem Handbuch an der Wand und lasst dann die Daten zwischen den Kandidaten des Echolots entscheiden, so wie es das Handbuch sagt.\n\nDie Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, die die Anzeige gebraucht hat, passt jeden Kandidaten auf die logarithmierten Trainingsdaten (bis 2023) an und speichert die Ordnungen des Gewinners in `order` und `seasonal_order`."
       },
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "import statsmodels.api as sm\nfrom helpers import plot_acf, plot_pacf\n\nlog_fuel = np.log(fuel.interpolate(method=\"time\"))\nstationary = log_fuel.diff(12).diff(1).dropna()   # from the gauge\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\ncandidates = [\n    ((1, 1, 0), (1, 1, 0, 12)),\n    ((0, 1, 1), (0, 1, 1, 12)),\n    ((1, 1, 1), (0, 1, 1, 12)),\n    ((2, 1, 0), (0, 1, 1, 12)),\n    ((0, 1, 1), (1, 1, 0, 12)),\n]\n# Fit every candidate on train (d=1 and D=1 do the differencing inside the model):\n#   sm.tsa.SARIMAX(train, order=..., seasonal_order=...).fit(disp=False).aic\norder = None            # the winner, e.g. (p, d, q)\nseasonal_order = None   # e.g. (P, D, Q, 12)\n",
-        "de": "import statsmodels.api as sm\nfrom helpers import plot_acf, plot_pacf\n\nlog_fuel = np.log(fuel.interpolate(method=\"time\"))\nstationary = log_fuel.diff(12).diff(1).dropna()   # von der Anzeigetafel\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\ncandidates = [\n    ((1, 1, 0), (1, 1, 0, 12)),\n    ((0, 1, 1), (0, 1, 1, 12)),\n    ((1, 1, 1), (0, 1, 1, 12)),\n    ((2, 1, 0), (0, 1, 1, 12)),\n    ((0, 1, 1), (1, 1, 0, 12)),\n]\n# Passt jeden Kandidaten auf train an (d=1 und D=1 differenzieren im Modell):\n#   sm.tsa.SARIMAX(train, order=..., seasonal_order=...).fit(disp=False).aic\norder = None            # der Gewinner, z. B. (p, d, q)\nseasonal_order = None   # z. B. (P, D, Q, 12)\n"
+        "en": "import statsmodels.api as sm\nfrom helpers import plot_acf, plot_pacf\n\nfuel_filled = fuel           # repair the frozen months as the logbook station does\nlog_fuel = np.log(fuel_filled)\nstationary = None            # the series that turned the gauge green\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\n# The sounder's candidates as (p, q) and (P, Q): the AR and MA terms only.\ncandidates = [\n    ((1, 0), (1, 0)),\n    ((0, 1), (0, 1)),\n    ((1, 1), (0, 1)),\n    ((2, 0), (0, 1)),\n    ((0, 1), (1, 0)),\n]\n# d and D: the differencing the gauge needed, done inside the model. Fit each one on train:\n#   sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12)).fit(disp=False)\norder = None            # the winner as (p, d, q)\nseasonal_order = None   # and as (P, D, Q, 12)\n",
+        "de": "import statsmodels.api as sm\nfrom helpers import plot_acf, plot_pacf\n\nfuel_filled = fuel           # die eingefrorenen Monate reparieren wie die Logbuch-Station\nlog_fuel = np.log(fuel_filled)\nstationary = None            # die Reihe, mit der die Anzeige grün wurde\nplot_acf(stationary)\nplot_pacf(stationary)\n\ntrain = log_fuel[:\"2023-12\"]\n# Die Kandidaten des Echolots als (p, q) und (P, Q): nur die AR- und MA-Terme.\ncandidates = [\n    ((1, 0), (1, 0)),\n    ((0, 1), (0, 1)),\n    ((1, 1), (0, 1)),\n    ((2, 0), (0, 1)),\n    ((0, 1), (1, 0)),\n]\n# d und D: die Differenzen, die die Anzeige gebraucht hat, im Modell. Passt jeden auf train an:\n#   sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12)).fit(disp=False)\norder = None            # der Gewinner als (p, d, q)\nseasonal_order = None   # und als (P, D, Q, 12)\n"
       },
       "check": {
         "type": "python",
         "expr": "[list(order), list(seasonal_order)]",
         "hash": "eb6799665aa56c200c31893aa97f11f9ead8e828f6e0e76fa06e110f83b11e87"
       },
-      "requires": [
+      "uses": [
+        "logbook",
         "gauge"
       ],
       "reveal": {
-        "en": "The echoes settle: **(0,1,1)(0,1,1,12)**, the classic airline model. One short echo at lag 1 and one at lag 12, nothing else.",
-        "de": "Die Echos legen sich: **(0,1,1)(0,1,1,12)**, das klassische Airline-Modell. Ein kurzes Echo bei Lag 1 und eines bei Lag 12, sonst nichts."
+        "en": "The echoes settle: **(0,1,1)(0,1,1,12)**, the classic airline model. One short echo at lag 1 and one at lag 12, nothing else. The supply terminal only accepts this model's numbers.",
+        "de": "Die Echos legen sich: **(0,1,1)(0,1,1,12)**, das klassische Airline-Modell. Ein kurzes Echo bei Lag 1 und eines bei Lag 12, sonst nichts. Das Versorgungsterminal nimmt nur die Zahlen dieses Modells an."
       },
       "practises": {
         "en": "Reading ACF and PACF, MA vs AR signatures, comparing ARIMA/SARIMA candidates by AIC, differencing inside the model (d, D)",
@@ -261,16 +259,16 @@
       ],
       "hints": [
         {
-          "en": "The ACF has two clear spikes, at lag 1 and lag 12, while the PACF fades out; single bars that just touch the dashed band are noise. In the manual that means MA terms: q = 1 and Q = 1.",
-          "de": "Die ACF hat zwei deutliche Ausschläge, bei Lag 1 und Lag 12, während die PACF ausklingt; einzelne Balken, die das gestrichelte Band gerade berühren, sind Rauschen. Laut Handbuch heißt das MA-Terme: q = 1 und Q = 1."
+          "en": "Get the gauge's result first: it says how to make the series stationary and which d and D that means. Then the ACF has two clear spikes, at lag 1 and lag 12, while the PACF fades out; single bars that just touch the dashed band are noise. In the manual that means MA terms: q = 1 and Q = 1.",
+          "de": "Holt euch zuerst das Ergebnis der Anzeige: Es sagt, wie die Reihe stationär wird und welche d und D das bedeutet. Dann hat die ACF zwei deutliche Ausschläge, bei Lag 1 und Lag 12, während die PACF ausklingt; einzelne Balken, die das gestrichelte Band gerade berühren, sind Rauschen. Laut Handbuch heißt das MA-Terme: q = 1 und Q = 1."
         },
         {
-          "en": "Fit on `train` (the log series), not on `stationary`: `d=1, D=1` already difference inside the model. Loop over `candidates`, read `.fit(disp=False).aic` and remember the smallest.",
-          "de": "Passt auf `train` an (die Log-Reihe), nicht auf `stationary`: `d=1, D=1` differenzieren schon im Modell. Geht in einer Schleife durch `candidates`, lest `.fit(disp=False).aic` und merkt euch den kleinsten."
+          "en": "Fit on `train` (the log series), not on `stationary`: with d = 1 and D = 1 the model differences by itself. The manual's last line says how the data decides: loop over `candidates`, read `.fit(disp=False).aic` and keep the smallest.",
+          "de": "Passt auf `train` an (die Log-Reihe), nicht auf `stationary`: Mit d = 1 und D = 1 differenziert das Modell selbst. Die letzte Zeile des Handbuchs sagt, wie die Daten entscheiden: Geht in einer Schleife durch `candidates`, lest `.fit(disp=False).aic` und behaltet den kleinsten."
         },
         {
-          "en": "The lowest AIC (about −635) belongs to `order = (0, 1, 1)` and `seasonal_order = (0, 1, 1, 12)`.",
-          "de": "Den kleinsten AIC (etwa −635) hat `order = (0, 1, 1)` mit `seasonal_order = (0, 1, 1, 12)`."
+          "en": "`stationary = log_fuel.diff(12).diff(1).dropna()`; with d = D = 1 the lowest AIC (about −635) belongs to `order = (0, 1, 1)` and `seasonal_order = (0, 1, 1, 12)`.",
+          "de": "`stationary = log_fuel.diff(12).diff(1).dropna()`; mit d = D = 1 hat den kleinsten AIC (etwa −635) `order = (0, 1, 1)` mit `seasonal_order = (0, 1, 1, 12)`."
         }
       ]
     },
@@ -281,25 +279,34 @@
         "de": "Das Versorgungsterminal"
       },
       "text": {
-        "en": "The heating comes back once the station orders January's fuel. The terminal only accepts an order from a model that beats the chief on 2024–2025, and it needs its PIN.\n\nSet `mae_sarima` (holdout error of your model in litres), `jan_2026` (the January 2026 forecast in litres) and `pin`. The terminal tells you what it doesn't like.",
-        "de": "Die Heizung läuft wieder, sobald die Station das Heizöl für Januar bestellt. Das Terminal nimmt nur eine Bestellung von einem Modell an, das die Leiterin auf 2024–2025 schlägt, und es braucht seine PIN.\n\nSetzt `mae_sarima` (Holdout-Fehler eures Modells in Litern), `jan_2026` (die Prognose für Januar 2026 in Litern) und `pin`. Das Terminal sagt euch, was ihm nicht passt."
+        "en": "The heating comes back once the station orders January's fuel. The terminal only accepts an order from the station's model, and only if that model beats the chief on her own test period.\n\nSet `mae_chief` (the chief's error, in litres), `mae_sarima` (your model's error on the same test period, in litres) and `jan_2026` (the January 2026 order, written as the order form asks). The terminal tells you what it doesn't like.",
+        "de": "Die Heizung läuft wieder, sobald die Station das Heizöl für Januar bestellt. Das Terminal nimmt nur eine Bestellung vom Modell der Station an, und nur, wenn dieses Modell die Leiterin auf ihrem eigenen Testzeitraum schlägt.\n\nSetzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026, so geschrieben, wie es das Bestellformular verlangt). Das Terminal sagt euch, was ihm nicht passt."
       },
       "workspace": "python",
       "data": "fuel.py",
       "starter": {
-        "en": "import statsmodels.api as sm\n\nfuel_filled = fuel.interpolate(method=\"time\")\nlog_fuel = np.log(fuel_filled)\norder, seasonal_order = (0, 0, 0), (0, 0, 0, 12)   # the winner from the echo chamber\n\n# 1. Prove the model beats the chief: fit on log_fuel up to 2023-12, forecast the 24 months\n#    of 2024-2025, back-transform, and compute the MAE against the real litres.\nmae_sarima = None\n\n# 2. Fit on all of log_fuel, forecast January 2026, back-transform to litres.\njan_2026 = None\n\npin = None   # the supply terminal's PIN\n",
-        "de": "import statsmodels.api as sm\n\nfuel_filled = fuel.interpolate(method=\"time\")\nlog_fuel = np.log(fuel_filled)\norder, seasonal_order = (0, 0, 0), (0, 0, 0, 12)   # der Gewinner aus der Echokammer\n\n# 1. Zeigt, dass das Modell die Leiterin schlägt: auf log_fuel bis 2023-12 anpassen, die 24 Monate\n#    2024-2025 prognostizieren, zurücktransformieren und den MAE gegen die echten Liter berechnen.\nmae_sarima = None\n\n# 2. Auf ganz log_fuel anpassen, Januar 2026 prognostizieren, in Liter zurücktransformieren.\njan_2026 = None\n\npin = None   # die PIN des Versorgungsterminals\n"
+        "en": "import statsmodels.api as sm\n\nfuel_filled = fuel   # repair the frozen months as the logbook station does\nlog_fuel = np.log(fuel_filled)\norder, seasonal_order = None, None   # the winner from the echo chamber\n\nmae_chief = None     # the chief's error on her test period, in litres\n\n# 1. Prove the model beats the chief: fit on log_fuel up to the start of her test period,\n#    forecast that period and compute the MAE against the real litres.\nmae_sarima = None\n\n# 2. Fit on all of log_fuel and forecast January 2026 (see the order form).\njan_2026 = None\n",
+        "de": "import statsmodels.api as sm\n\nfuel_filled = fuel   # die eingefrorenen Monate reparieren wie die Logbuch-Station\nlog_fuel = np.log(fuel_filled)\norder, seasonal_order = None, None   # der Gewinner aus der Echokammer\n\nmae_chief = None     # der Fehler der Leiterin auf ihrem Testzeitraum, in Litern\n\n# 1. Zeigt, dass das Modell die Leiterin schlägt: auf log_fuel bis zum Beginn ihres Testzeitraums\n#    anpassen, diesen Zeitraum prognostizieren und den MAE gegen die echten Liter berechnen.\nmae_sarima = None\n\n# 2. Auf ganz log_fuel anpassen und Januar 2026 prognostizieren (siehe Bestellformular).\njan_2026 = None\n"
       },
       "check": {
         "type": "python",
-        "expr": "_supply_check(pin, jan_2026, mae_sarima)",
+        "expr": "_supply_check(mae_chief, mae_sarima, jan_2026)",
         "hash": "4d14df9bc78e04442cb50122974be30453010224ad96d8cc502fcd55a83f3e85"
       },
-      "requires": [
-        "freezer",
+      "uses": [
+        "logbook",
         "chief",
         "echo"
       ],
+      "lock": {
+        "text": {
+          "en": "The supply terminal is locked. Its screen asks for a four-digit PIN.",
+          "de": "Das Versorgungsterminal ist gesperrt. Der Bildschirm verlangt eine vierstellige PIN."
+        },
+        "from": "freezer",
+        "mode": "number",
+        "hash": "ebea7b063b5c64f09918d265677f18541d8733da6d99838c8bffc94ae26fd3bf"
+      },
       "final": true,
       "practises": {
         "en": "Fitting SARIMA on the log scale, forecasting, back-transforming with `exp`, proving a model against a baseline",
@@ -310,16 +317,16 @@
       ],
       "hints": [
         {
-          "en": "Use the airline model from the echo chamber. Fit `sm.tsa.SARIMAX(log_fuel[:\"2023-12\"], order=order, seasonal_order=seasonal_order).fit(disp=False)`, forecast 24 months, and take `np.exp` before comparing with real litres.",
-          "de": "Nehmt das Airline-Modell aus der Echokammer. Passt `sm.tsa.SARIMAX(log_fuel[:\"2023-12\"], order=order, seasonal_order=seasonal_order).fit(disp=False)` an, prognostiziert 24 Monate und nehmt `np.exp`, bevor ihr mit echten Litern vergleicht."
+          "en": "Bring three things: `mae_chief` and her test period from the chief's method, and `order`, `seasonal_order` from the echo chamber. Fit `sm.tsa.SARIMAX(log_fuel[:last_training_month], order=order, seasonal_order=seasonal_order).fit(disp=False)` and `.forecast()` as many months as the test period has.",
+          "de": "Bringt drei Dinge mit: `mae_chief` und ihren Testzeitraum aus der Methode der Leiterin, dazu `order` und `seasonal_order` aus der Echokammer. Passt `sm.tsa.SARIMAX(log_fuel[:letzter_trainingsmonat], order=order, seasonal_order=seasonal_order).fit(disp=False)` an und prognostiziert mit `.forecast()` so viele Monate, wie der Testzeitraum hat."
         },
         {
-          "en": "For January 2026, fit the same model on all of `log_fuel` and use `.forecast(1)`. The PIN was in the freezer.",
-          "de": "Für Januar 2026 passt dasselbe Modell auf ganz `log_fuel` an und nutzt `.forecast(1)`. Die PIN war im Gefrierschrank."
+          "en": "The model forecasts log litres; the order form wants real litres, so take `np.exp` before you compare or order. For January 2026, fit the same model on all of `log_fuel` and use `.forecast(1)`.",
+          "de": "Das Modell prognostiziert Log-Liter; das Bestellformular will echte Liter, also nehmt `np.exp`, bevor ihr vergleicht oder bestellt. Für Januar 2026 passt dasselbe Modell auf ganz `log_fuel` an und nutzt `.forecast(1)`."
         },
         {
-          "en": "`mae_sarima` is about 269 litres and `jan_2026` about 7220 litres; the PIN is 4711.",
-          "de": "`mae_sarima` liegt bei etwa 269 Litern und `jan_2026` bei etwa 7220 Litern; die PIN ist 4711."
+          "en": "`fuel_filled = fuel.interpolate(method=\"time\")`, the model is (0,1,1)(0,1,1,12), training ends in 2023-12 and the test period has 24 months. `mae_chief = 602`, `mae_sarima` is about 269 litres and `jan_2026` about 7220 litres.",
+          "de": "`fuel_filled = fuel.interpolate(method=\"time\")`, das Modell ist (0,1,1)(0,1,1,12), das Training endet 2023-12 und der Testzeitraum hat 24 Monate. `mae_chief = 602`, `mae_sarima` liegt bei etwa 269 Litern und `jan_2026` bei etwa 7220 Litern."
         }
       ]
     }
@@ -387,8 +394,8 @@
         "de": "Das Bestellformular"
       },
       "text": {
-        "en": "FUEL ORDER · January 2026\n\nLitres: the station model's forecast, back on the original scale (not in log units!).\n\nOnly orders from a model that beats the chief's method on 2024–2025 are accepted.\n\nAuthorised with the supply terminal PIN.",
-        "de": "HEIZÖLBESTELLUNG · Januar 2026\n\nLiter: die Prognose des Stationsmodells, zurück auf der ursprünglichen Skala (nicht in Log-Einheiten!).\n\nAngenommen werden nur Bestellungen von einem Modell, das die Methode der Leiterin auf 2024–2025 schlägt.\n\nFreigabe mit der PIN des Versorgungsterminals."
+        "en": "FUEL ORDER · January 2026\n\nLitres: the station model's forecast, back on the original scale (not in log units!).\n\nOnly orders from a model that beats the chief's method on her own test period are accepted. State her error too, so the terminal can compare.\n\nThe terminal is PIN-locked. Sigrid keeps the PIN somewhere cold.",
+        "de": "HEIZÖLBESTELLUNG · Januar 2026\n\nLiter: die Prognose des Stationsmodells, zurück auf der ursprünglichen Skala (nicht in Log-Einheiten!).\n\nAngenommen werden nur Bestellungen von einem Modell, das die Methode der Leiterin auf ihrem eigenen Testzeitraum schlägt. Gebt auch ihren Fehler an, damit das Terminal vergleichen kann.\n\nDas Terminal ist mit einer PIN gesperrt. Sigrid bewahrt die PIN irgendwo im Kalten auf."
       }
     },
     {
