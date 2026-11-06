@@ -31,6 +31,8 @@ export const notesSchema = z
 export type Notes = z.infer<typeof notesSchema>;
 type Note = z.infer<typeof noteSchema>;
 type Register<T> = { v: T; t: number; by: string };
+/** The fields of a note that are registers (everything but `source`). */
+type RegisterField = 'text' | 'crossed' | 'deleted' | 'pos';
 
 /** What the UI shows: live notes in order. */
 export interface NoteView {
@@ -212,11 +214,11 @@ export class Notebook {
     return { v, t: this.now(), by: this.selfId };
   }
 
-  private change(id: string, fields: Partial<Note>): void {
+  private change(id: string, fields: Partial<Pick<Note, RegisterField>>): void {
     const note = this.current[id];
     if (!note) return;
     const next = { ...note };
-    for (const key of Object.keys(fields) as (keyof Note)[]) {
+    for (const key of Object.keys(fields) as RegisterField[]) {
       const field = fields[key]!;
       // Strictly newer than what it replaces, even within the same millisecond.
       (next[key] as Register<unknown>) = { ...field, t: Math.max(field.t, note[key].t + 1) };

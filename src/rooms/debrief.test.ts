@@ -14,6 +14,7 @@ describe('debriefRows', () => {
       solved: { [first!.id]: 61_000 },
       hints: { [hintKey(first!.id, 0)]: 5000, [hintKey(first!.id, 1)]: 6000, [hintKey(second!.id, 0)]: 7000 },
       attempts: { [`${first!.id}|ada`]: 2, [`${first!.id}|bob`]: 1 },
+      players: {},
     });
     expect(rows.map((r) => r.puzzle.id)).toEqual(manifest.puzzles.map((p) => p.id));
     expect(rows[0]).toMatchObject({ solvedAfter: 60_000, hintsUsed: 2, wrongAttempts: 3 });

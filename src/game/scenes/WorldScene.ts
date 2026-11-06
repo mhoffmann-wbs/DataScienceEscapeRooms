@@ -85,7 +85,8 @@ export class WorldScene extends Phaser.Scene {
     if (!tileset) throw new Error(`Tileset missing for map ${mapKey}`);
     map.createLayer('floor', tileset);
     const walls = map.createLayer('walls', tileset);
-    if (!walls) throw new Error(`Map ${mapKey} has no walls layer`);
+    // Without the gpu flag createLayer makes a plain TilemapLayer; the check narrows the type.
+    if (!(walls instanceof Phaser.Tilemaps.TilemapLayer)) throw new Error(`Map ${mapKey} has no walls layer`);
     walls.setCollisionByProperty({ collides: true });
     this.walls = walls;
     this.goto = null;
