@@ -159,6 +159,25 @@ Observations from the first playthroughs.
 5. **Envelope table** (`merge`; needs 4): handover sheet (by stall name) → stalls → cash totals; shortfall per helper badge: badge 7 is €145.00 short over four envelopes, while badge 12 (−€0.50) and badge 3 (+€1) are coin noise.
 6. **Greta's report** (final; needs 1 and 5): the helper rota maps badge 7 to Tobi.
 
+### 13. Statistics rooms ✅ content built (`stats-fair`, `stats-ab`), playtest pending
+A new 📊 **Statistics** door, the first in a side wall: the lobby's left wall, near the top (doors now take a `facing`; side-door tiles 54/55; the rooms' exits are in their right wall). The tileset grew to 12 rows, with fairground and chocolate-factory tiles. Both rooms load pandas and scipy (`scipy.stats` is pre-imported), and use the new `show_hist`/`show_bars` charts. Neither uses `requires`: later stations need an earlier result (`uses`) or sit behind a player-opened **code lock** (manifest `lock`, shared as the run state's `unlocked`). Single newlines in manifest text are now line breaks.
+
+**"The Rigged Fair"** (`stats-fair`, beginner). Kleeberg's autumn fair after closing; the commission's inspection team must find which game cheats. Seals from four stalls open the gate. Numbers from `generate_data.py`:
+1. **Cup log** (mean vs. median, outliers, sample sd; open): 3 spilled cups typed as 0 and a 2980 typo; the mean drops from 311.3 to 296.4 ml, the median stays 296; sd 7.9 (ddof = 1; the grader explains ddof = 0).
+2. **Lucky Seven** (sample space, binomial cdf; open): P(7 or 11) = 8/36; 163 wins in 900 games, P(≤ 163) = 0.0014 < the handbook's 1 in 100: loaded dice. Seal 3.
+3. **Duck pond** (binomial sf, expected value; open): P(≥ 3 stars of 6) = 0.1694, Bruno earns €1.15 a game, tonight 16.75 %: honest. Seal 8; the reveal says the office PIN is "my duck odds" → 1694.
+4. **Filling machine** (normal cdf/ppf, z; uses 1): 7.5 % of cups below 285 ml (law: 2 %), target 301.2 ml. Seal 6.
+5. **Ticket office** (population vs. sample, bias; lock 1694 from 3): wristbands €33.51, random sample €34.23, VIP survey €65.18; 1,000 random samples stay within about €25–45. Seal 1.
+6. **Gate** (final): seals in stall order → 1836.
+
+**"The Chocolate Experiment"** (`stats-ab`, advanced). A chocolate factory the night before the board decides on a recipe, a checkout and the packing line. Decision cards open the release console.
+1. **Planning board** (design, α, power, sample size; open): proposal C (coin flip, blind) and n = 77 per group at α = 0.01, power 0.9, σ 1.6, δ 1. Its reveal registers α = 0.01 for the relaunch.
+2. **Packing line scale** (t interval, one-sample t-test; open): CI [100.33, 101.27], p = 0.0017 → recalibrate. Card 9.
+3. **Order values** (CLT; open): skewness 3.35, standard error €4.99 matches the simulated spread, means' skewness ≈ 0.5. Card 4.
+4. **Tasting room** (Welch t-test; lock 77 from 1, uses α from 1): +0.60 points, p = 0.025: significant at 0.05 but not at the registered 0.01 → keep the old recipe. Card 2.
+5. **Web shop dashboard** (chi-squared goodness of fit and independence; uses 1): SRM p = 0.22; A 3.0 %, B 3.2 %, C 4.0 %, χ² = 16.7, p = 0.0002 → C. Card 5.
+6. **Release console** (final): cards in agenda order → 5294.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
@@ -178,4 +197,6 @@ Add new ideas here before they move into a step.
 - **Italic text in manifests:** RichText only knows `**bold**` and `` `code` ``; a single `*star*` shows literally. Either support it or add a manifest test that rejects it.
 - **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.
 - **Scoreboard export:** let the instructor export and import the scoreboard as JSON from the panel, as a backup that doesn't depend on returning browsers.
+- **Retrofit older rooms:** replace `requires` in the first five rooms with result dependencies (`uses`) or code locks, as the statistics rooms do.
+- **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.

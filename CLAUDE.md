@@ -10,7 +10,7 @@ Early build. The step-by-step plan, with what is done, is in [docs/PLAN.md](docs
 
 A browser-based, gather.town-style virtual escape room for data science students: a 2D top-down lobby with presence, chat and proximity voice/video, and doors to themed rooms where teams of 2–5 solve data science puzzles. It ships as a static site on GitHub Pages, with **no backend and no third-party accounts**.
 
-Rooms: `python-lab` ("Quarantine"), `sql-hotel` ("The Blue Index"), `pandas-market` ("Market Day"), `ts-nordlys` ("Station Nordlys"), `ts-festival` ("Festival Season", with a Prophet-style model, see [docs/prophet-lite.md](docs/prophet-lite.md)). A room should take a beginner team about 30 minutes; puzzle design rules are in [docs/architecture/rooms.md](docs/architecture/rooms.md).
+Rooms: `python-lab` ("Quarantine"), `sql-hotel` ("The Blue Index"), `pandas-market` ("Market Day"), `ts-nordlys` ("Station Nordlys"), `ts-festival` ("Festival Season", with a Prophet-style model, see [docs/prophet-lite.md](docs/prophet-lite.md)), `stats-fair` ("The Rigged Fair") and `stats-ab` ("The Chocolate Experiment", A/B testing with scipy). A room should take a beginner team about 30 minutes; puzzle design rules are in [docs/architecture/rooms.md](docs/architecture/rooms.md).
 
 ## Stack
 

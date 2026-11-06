@@ -3,19 +3,33 @@
     {
       "id": "python",
       "icon": "🐍",
-      "title": { "en": "Python", "de": "Python" },
-      "order": ["python-lab", "pandas-market"]
+      "title": {
+        "en": "Python",
+        "de": "Python"
+      },
+      "order": [
+        "python-lab",
+        "pandas-market"
+      ]
     },
     {
       "id": "sql",
       "icon": "🗄️",
-      "title": { "en": "SQL", "de": "SQL" },
+      "title": {
+        "en": "SQL",
+        "de": "SQL"
+      },
       "upcoming": [
         {
-          "title": { "en": "Night Train", "de": "Nachtzug" },
+          "title": {
+            "en": "Night Train",
+            "de": "Nachtzug"
+          },
           "difficulty": "advanced",
           "about": {
-            "tools": ["SQL (SQLite)"],
+            "tools": [
+              "SQL (SQLite)"
+            ],
             "practises": {
               "en": "Subqueries, CTEs (WITH), LEFT JOIN, window functions such as LAG and ROW_NUMBER.",
               "de": "Unterabfragen, CTEs (WITH), LEFT JOIN, Fensterfunktionen wie LAG und ROW_NUMBER."
@@ -31,7 +45,22 @@
     {
       "id": "timeseries",
       "icon": "📈",
-      "title": { "en": "Time series", "de": "Zeitreihen" }
+      "title": {
+        "en": "Time series",
+        "de": "Zeitreihen"
+      }
+    },
+    {
+      "id": "statistics",
+      "icon": "📊",
+      "title": {
+        "en": "Statistics",
+        "de": "Statistik"
+      },
+      "order": [
+        "stats-fair",
+        "stats-ab"
+      ]
     }
   ]
 }

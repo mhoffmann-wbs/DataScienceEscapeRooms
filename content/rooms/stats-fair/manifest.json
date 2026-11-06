@@ -1,0 +1,411 @@
+{
+  "version": 1,
+  "salt": "d20d67143f213f26",
+  "title": {
+    "en": "The Rigged Fair",
+    "de": "Der gezinkte Jahrmarkt"
+  },
+  "category": "statistics",
+  "difficulty": "beginner",
+  "about": {
+    "tools": [
+      "Python",
+      "pandas",
+      "scipy.stats"
+    ],
+    "practises": {
+      "en": "Mean, median and spread, outliers, probability, the binomial and normal distributions, expected value, samples vs. populations.",
+      "de": "Mittelwert, Median und Streuung, Ausreißer, Wahrscheinlichkeit, Binomial- und Normalverteilung, Erwartungswert, Stichprobe vs. Grundgesamtheit."
+    },
+    "story": {
+      "en": "Players say a game at the autumn fair is rigged. Inspect the stalls after closing time, and find the code before you're locked in for the night.",
+      "de": "Besucher sagen, ein Spiel auf dem Herbstmarkt sei gezinkt. Prüft die Stände nach Feierabend und findet den Code, bevor ihr über Nacht eingeschlossen seid."
+    }
+  },
+  "intro": {
+    "en": "Kleeberg's autumn fair, a quarter past midnight. Players have complained that a game is rigged, so the fair commission sent you, its inspection team, after closing time. Then the gate locked behind you.\n\nThe night guard left a note on the gate: every stall you finish inspecting gets a seal with one digit, and the seals open the gate. Check the stalls' logs with Python and find out which numbers are chance and which are not. This room loads Python with pandas and scipy: the first puzzle you open takes a little while.",
+    "de": "Kleeberger Herbstmarkt, Viertel nach Mitternacht. Besucher haben sich beschwert, dass ein Spiel gezinkt ist, also hat euch die Marktkommission als Prüfteam nach Feierabend geschickt. Dann ist hinter euch das Tor zugefallen.\n\nDer Nachtwächter hat eine Notiz am Tor hinterlassen: Jeder Stand, den ihr fertig geprüft habt, bekommt ein Siegel mit einer Ziffer, und die Siegel öffnen das Tor. Prüft die Protokolle der Stände mit Python und findet heraus, welche Zahlen Zufall sind und welche nicht. Dieser Raum lädt Python mit pandas und scipy: Das erste Rätsel, das ihr öffnet, braucht einen Moment."
+  },
+  "packages": [
+    "pandas",
+    "scipy"
+  ],
+  "puzzles": [
+    {
+      "id": "lemonade",
+      "title": {
+        "en": "The lemonade stand's cup log",
+        "de": "Das Becherprotokoll am Limonadenstand"
+      },
+      "text": {
+        "en": "Kai sells lemonade in 300 ml cups. Tonight's cup log is loaded as `cups`: the millilitres of every cup, as typed in at the till. Before anyone judges the stall, describe the log, and clean it: Kai's note says how mistakes get into it.\n\n1. Describe the log as it is: `mean_raw` and `median_raw`.\n2. Keep only the real cups, as `clean`.\n3. Describe the clean cups: `mean`, `median` and their standard deviation `sd` (they are a sample of the machine's cups).\n\nWhich of mean and median moved when you cleaned the log?",
+        "de": "Kai verkauft Limonade in 300-ml-Bechern. Das Becherprotokoll von heute Abend ist als `cups` geladen: die Milliliter jedes Bechers, wie sie an der Kasse eingetippt wurden. Bevor jemand den Stand beurteilt, beschreibt das Protokoll und bereinigt es: Kais Notiz sagt, wie Fehler hineingeraten.\n\n1. Beschreibt das Protokoll, wie es ist: `mean_raw` und `median_raw`.\n2. Behaltet nur die echten Becher, als `clean`.\n3. Beschreibt die bereinigten Becher: `mean`, `median` und ihre Standardabweichung `sd` (sie sind eine Stichprobe der Becher der Maschine).\n\nWelcher von Mittelwert und Median hat sich beim Bereinigen bewegt?"
+      },
+      "workspace": "python",
+      "data": "lemonade.py",
+      "starter": {
+        "en": "from helpers import show_hist\n\n# cups is loaded: ml per cup, as typed in at the till.\nprint(cups.describe())\nshow_hist(cups, title=\"Cups as typed in\")\n\nmean_raw = None     # mean of the log as it is\nmedian_raw = None   # median of the log as it is\n\nclean = cups        # only the real cups (see Kai's note)\nmean = None\nmedian = None\nsd = None           # standard deviation of the clean cups\n",
+        "de": "from helpers import show_hist\n\n# cups ist geladen: ml pro Becher, wie an der Kasse eingetippt.\nprint(cups.describe())\nshow_hist(cups, title=\"Becher wie eingetippt\")\n\nmean_raw = None     # Mittelwert des Protokolls, wie es ist\nmedian_raw = None   # Median des Protokolls, wie es ist\n\nclean = cups        # nur die echten Becher (siehe Kais Notiz)\nmean = None\nmedian = None\nsd = None           # Standardabweichung der bereinigten Becher\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_cup_check(mean_raw, median_raw, clean, mean, median, sd)",
+        "hash": "ca96918a539186725aa8f3d76ac3fd0b07ab8ae4a4a9399afe1ef4d0fd65b18e"
+      },
+      "reveal": {
+        "en": "Calibration values for the filling machine: tonight's cups hold **296.4 ml** on average, with a standard deviation of **7.9 ml**.\n\nThe median stayed at 296 ml while you cleaned the log; the mean dropped by 15 ml. One typo was enough to move it.",
+        "de": "Kalibrierwerte für die Abfüllmaschine: Die Becher von heute Abend enthalten im Mittel **296,4 ml**, mit einer Standardabweichung von **7,9 ml**.\n\nDer Median blieb beim Bereinigen bei 296 ml; der Mittelwert fiel um 15 ml. Ein einziger Tippfehler hat ihn verschoben."
+      },
+      "practises": {
+        "en": "Mean vs. median, outliers and data errors, the sample standard deviation, histograms",
+        "de": "Mittelwert vs. Median, Ausreißer und Datenfehler, die Stichproben-Standardabweichung, Histogramme"
+      },
+      "clues": [
+        "cup-note"
+      ],
+      "hints": [
+        {
+          "en": "`cups.mean()` and `cups.median()` describe the raw log. `cups.sort_values()` shows the strange entries at both ends.",
+          "de": "`cups.mean()` und `cups.median()` beschreiben das Rohprotokoll. `cups.sort_values()` zeigt die seltsamen Einträge an beiden Enden."
+        },
+        {
+          "en": "Kai's note: spilled cups were typed in as 0, and no cup holds more than 400 ml. A filter keeps the rest: `cups[(cups > 0) & (cups <= 400)]`.",
+          "de": "Kais Notiz: Verschüttete Becher wurden als 0 eingetippt, und kein Becher fasst mehr als 400 ml. Ein Filter behält den Rest: `cups[(cups > 0) & (cups <= 400)]`."
+        },
+        {
+          "en": "`clean = cups[(cups > 0) & (cups <= 400)]`, then `clean.mean()`, `clean.median()` and `clean.std()`. pandas' `.std()` divides by n − 1, the sample standard deviation.",
+          "de": "`clean = cups[(cups > 0) & (cups <= 400)]`, dann `clean.mean()`, `clean.median()` und `clean.std()`. pandas' `.std()` teilt durch n − 1, die Stichproben-Standardabweichung."
+        }
+      ]
+    },
+    {
+      "id": "dice",
+      "title": {
+        "en": "Lucky Seven",
+        "de": "Glückssieben"
+      },
+      "text": {
+        "en": "At Lucky Seven you roll two dice and win with a sum of 7 or 11. The sign promises a chance of 2 in 9. The log of tonight's 900 games is loaded as `games` (columns `die1` and `die2`).\n\n1. Work out the theoretical chance of winning, `p_theory`, from all 36 equally likely outcomes of two fair dice.\n2. Count tonight's wins: `wins`.\n3. With fair dice, how likely is a night with at most this many wins? The number of wins in 900 games follows a binomial distribution. Store that probability as `p_value`.\n\nIs the game fair? The inspection handbook says when a result counts as suspicious.",
+        "de": "Bei der Glückssieben würfelt man mit zwei Würfeln und gewinnt mit einer Summe von 7 oder 11. Das Schild verspricht eine Chance von 2 zu 9. Das Protokoll der 900 Spiele von heute Abend ist als `games` geladen (Spalten `die1` und `die2`).\n\n1. Bestimmt die theoretische Gewinnchance `p_theory` aus allen 36 gleich wahrscheinlichen Ergebnissen zweier fairer Würfel.\n2. Zählt die heutigen Gewinne: `wins`.\n3. Wie wahrscheinlich ist mit fairen Würfeln ein Abend mit höchstens so vielen Gewinnen? Die Zahl der Gewinne in 900 Spielen folgt einer Binomialverteilung. Speichert diese Wahrscheinlichkeit als `p_value`.\n\nIst das Spiel fair? Das Prüfhandbuch sagt, wann ein Ergebnis als verdächtig gilt."
+      },
+      "workspace": "python",
+      "data": "dice.py",
+      "starter": {
+        "en": "from itertools import product\nfrom scipy import stats\n\n# games is loaded: one row per game, columns die1 and die2.\nprint(games.head())\n\noutcomes = list(product(range(1, 7), repeat=2))   # all 36 (die1, die2) pairs\np_theory = None    # share of outcomes that win (sum 7 or 11)\n\nwins = None        # games won tonight\np_value = None     # P(at most `wins` wins in 900 games) with fair dice\n",
+        "de": "from itertools import product\nfrom scipy import stats\n\n# games ist geladen: eine Zeile pro Spiel, Spalten die1 und die2.\nprint(games.head())\n\noutcomes = list(product(range(1, 7), repeat=2))   # alle 36 Paare (die1, die2)\np_theory = None    # Anteil der Ergebnisse, die gewinnen (Summe 7 oder 11)\n\nwins = None        # heute gewonnene Spiele\np_value = None     # P(höchstens `wins` Gewinne in 900 Spielen) mit fairen Würfeln\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_dice_check(p_theory, wins, p_value)",
+        "hash": "cc22797d26de5cd461ea873da78bb81f5f9c8e49d6398d8b02eca269357a05a2"
+      },
+      "reveal": {
+        "en": "Only **163 wins** in 900 games, where fair dice give about 200. With fair dice, a night this bad happens about once in 700 nights: far below the handbook's 1 in 100. The dice are loaded; 5 and 6 come up too rarely.\n\nInspection seal for Lucky Seven: **3**",
+        "de": "Nur **163 Gewinne** in 900 Spielen, wo faire Würfel etwa 200 ergeben. Mit fairen Würfeln kommt ein so schlechter Abend etwa einmal in 700 Abenden vor: weit unter den 1 zu 100 des Handbuchs. Die Würfel sind gezinkt; 5 und 6 fallen zu selten.\n\nPrüfsiegel für die Glückssieben: **3**"
+      },
+      "practises": {
+        "en": "Sample space and classical probability, relative frequencies, the binomial distribution (cdf), when a result is too unlikely to be chance",
+        "de": "Ergebnisraum und klassische Wahrscheinlichkeit, relative Häufigkeiten, die Binomialverteilung (cdf), wann ein Ergebnis zu unwahrscheinlich für Zufall ist"
+      },
+      "clues": [
+        "dice-sign",
+        "handbook"
+      ],
+      "hints": [
+        {
+          "en": "`sum(1 for a, b in outcomes if a + b in (7, 11))` counts the winning outcomes; divide by 36. In the log, `(games.die1 + games.die2).isin([7, 11])` marks the wins.",
+          "de": "`sum(1 for a, b in outcomes if a + b in (7, 11))` zählt die Gewinn-Ergebnisse; teilt durch 36. Im Protokoll markiert `(games.die1 + games.die2).isin([7, 11])` die Gewinne."
+        },
+        {
+          "en": "With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`.",
+          "de": "Mit fairen Würfeln sind die Gewinne in 900 Spielen binomialverteilt mit n = 900 und p = `p_theory`. Die Wahrscheinlichkeit für höchstens k Erfolge ist die Verteilungsfunktion: `stats.binom.cdf(k, n, p)`."
+        },
+        {
+          "en": "`p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). `games.stack().value_counts()` shows which faces are missing.",
+          "de": "`p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) und `p_value = stats.binom.cdf(wins, 900, p_theory)` (etwa 0,0014). `games.stack().value_counts()` zeigt, welche Augenzahlen fehlen."
+        }
+      ]
+    },
+    {
+      "id": "ducks",
+      "title": {
+        "en": "The duck pond",
+        "de": "Der Ententeich"
+      },
+      "text": {
+        "en": "At the duck pond, players fish 6 ducks; the sign says how many have a star and what wins. Tonight's log is loaded as `stars`: the stars fished in each of 400 games.\n\n1. The number of stars in a game is binomial. Compute the chance to win a teddy, `p_win`, with scipy.\n2. Bruno pays for the teddies. What does he earn per game on average? Store the expected profit per game in euros as `profit`.\n3. Compare with tonight: the share of games that won a teddy, `observed`.",
+        "de": "Am Ententeich angelt man 6 Enten; das Schild sagt, wie viele einen Stern haben und was gewinnt. Das Protokoll von heute Abend ist als `stars` geladen: die geangelten Sterne in jedem von 400 Spielen.\n\n1. Die Zahl der Sterne in einem Spiel ist binomialverteilt. Berechnet die Chance auf einen Teddy, `p_win`, mit scipy.\n2. Bruno bezahlt die Teddys. Was verdient er im Schnitt pro Spiel? Speichert den erwarteten Gewinn pro Spiel in Euro als `profit`.\n3. Vergleicht mit heute Abend: der Anteil der Spiele, die einen Teddy gewonnen haben, `observed`."
+      },
+      "workspace": "python",
+      "data": "ducks.py",
+      "starter": {
+        "en": "from scipy import stats\nfrom helpers import show_bars\n\n# stars is loaded: stars fished in each of tonight's 400 games.\nprint(stars.value_counts().sort_index())\n\nn, p = None, None   # ducks per game, chance of a star per duck (see the sign)\np_win = None        # P(enough stars for a teddy)\nprofit = None       # Bruno's expected profit per game, in euros\nobserved = None     # share of tonight's games that won\n\n# To compare theory and tonight, for example:\n# theory = stats.binom.pmf(range(7), n, p)\n# tonight = stars.value_counts(normalize=True).reindex(range(7), fill_value=0)\n# show_bars(theory, tonight, x=range(7), labels=[\"binomial\", \"tonight\"])\n",
+        "de": "from scipy import stats\nfrom helpers import show_bars\n\n# stars ist geladen: geangelte Sterne in jedem der 400 Spiele von heute Abend.\nprint(stars.value_counts().sort_index())\n\nn, p = None, None   # Enten pro Spiel, Chance auf einen Stern pro Ente (siehe Schild)\np_win = None        # P(genug Sterne für einen Teddy)\nprofit = None       # Brunos erwarteter Gewinn pro Spiel, in Euro\nobserved = None     # Anteil der heutigen Spiele, die gewonnen haben\n\n# Um Theorie und heute Abend zu vergleichen, zum Beispiel:\n# theorie = stats.binom.pmf(range(7), n, p)\n# heute = stars.value_counts(normalize=True).reindex(range(7), fill_value=0)\n# show_bars(theorie, heute, x=range(7), labels=[\"binomial\", \"heute\"])\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_duck_check(p_win, profit, observed)",
+        "hash": "67c3523a6037b587cb2bf095058f1a13e95ee8675b9317bfbc8b6f4b1997e2cd"
+      },
+      "reveal": {
+        "en": "The pond is honest: tonight 17 % of games won a teddy, just as the binomial distribution says, and Bruno still earns €1.15 per game.\n\nInspection seal for the duck pond: **8**\n\nStuck under the counter, in Bruno's handwriting: \"Office laptop PIN = my duck odds, the first four digits after the 0.\"",
+        "de": "Der Teich ist ehrlich: Heute Abend haben 17 % der Spiele einen Teddy gewonnen, genau wie die Binomialverteilung sagt, und Bruno verdient trotzdem 1,15 € pro Spiel.\n\nPrüfsiegel für den Ententeich: **8**\n\nUnter die Theke geklebt, in Brunos Handschrift: „PIN Büro-Laptop = meine Entenchance, die ersten vier Ziffern nach der 0.“"
+      },
+      "practises": {
+        "en": "The binomial distribution (pmf, cdf, sf), expected value, comparing theory with observed frequencies",
+        "de": "Die Binomialverteilung (pmf, cdf, sf), Erwartungswert, Theorie mit beobachteten Häufigkeiten vergleichen"
+      },
+      "clues": [
+        "duck-sign"
+      ],
+      "hints": [
+        {
+          "en": "n = 6 ducks and p = 1/4. P(3 or more) = 1 − P(at most 2): `1 - stats.binom.cdf(2, n, p)`, or directly `stats.binom.sf(2, n, p)`.",
+          "de": "n = 6 Enten und p = 1/4. P(3 oder mehr) = 1 − P(höchstens 2): `1 - stats.binom.cdf(2, n, p)`, oder direkt `stats.binom.sf(2, n, p)`."
+        },
+        {
+          "en": "Expected profit = what a game brings in minus what it costs on average: the €2 ticket minus the teddy's price times `p_win`. The price is on the sign.",
+          "de": "Erwarteter Gewinn = was ein Spiel einbringt minus was es im Schnitt kostet: das Los für 2 € minus Teddypreis mal `p_win`. Der Preis steht auf dem Schild."
+        },
+        {
+          "en": "`p_win = stats.binom.sf(2, 6, 0.25)` (0.1694), `profit = 2 - 5 * p_win` (€1.15) and `observed = (stars >= 3).mean()`.",
+          "de": "`p_win = stats.binom.sf(2, 6, 0.25)` (0,1694), `profit = 2 - 5 * p_win` (1,15 €) und `observed = (stars >= 3).mean()`."
+        }
+      ]
+    },
+    {
+      "id": "filler",
+      "title": {
+        "en": "The filling machine",
+        "de": "Die Abfüllmaschine"
+      },
+      "text": {
+        "en": "Kai's lemonade machine fills cups normally distributed around the volume it is set to. Its calibration sticker is still blank: it needs the mean and standard deviation of tonight's real cups, from the cup log.\n\nThe law allows only a few cups to fall short (see the regulation). With a normal distribution and those two values:\n\n1. How many standard deviations from the mean is 285 ml? Store it as `z`.\n2. What share of cups holds less than 285 ml? Store it as `share_below` (between 0 and 1).\n3. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly 2 % of cups hold less than 285 ml?",
+        "de": "Kais Limonadenmaschine füllt die Becher normalverteilt um die eingestellte Menge. Ihr Kalibrieraufkleber ist noch leer: Er braucht Mittelwert und Standardabweichung der echten Becher von heute Abend, aus dem Becherprotokoll.\n\nDas Gesetz erlaubt nur wenige zu knapp gefüllte Becher (siehe Verordnung). Mit einer Normalverteilung und diesen beiden Werten:\n\n1. Wie viele Standardabweichungen vom Mittelwert liegt 285 ml? Speichert es als `z`.\n2. Welcher Anteil der Becher enthält weniger als 285 ml? Speichert ihn als `share_below` (zwischen 0 und 1).\n3. Auf welchen Mittelwert (`target`, in ml) muss Kai die Maschine bei gleicher Streuung einstellen, damit genau 2 % der Becher weniger als 285 ml enthalten?"
+      },
+      "workspace": "python",
+      "data": "filler.py",
+      "starter": {
+        "en": "from scipy import stats\n\nmu = None       # mean of tonight's real cups (cup log)\nsigma = None    # their standard deviation\n\nz = None             # how many standard deviations 285 ml is from mu\nshare_below = None   # P(cup < 285 ml)\ntarget = None        # the mean that leaves exactly 2 % below 285 ml\n",
+        "de": "from scipy import stats\n\nmu = None       # Mittelwert der echten Becher von heute (Becherprotokoll)\nsigma = None    # ihre Standardabweichung\n\nz = None             # wie viele Standardabweichungen 285 ml von mu entfernt liegt\nshare_below = None   # P(Becher < 285 ml)\ntarget = None        # der Mittelwert, bei dem genau 2 % unter 285 ml liegen\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_filler_check(z, share_below, target)",
+        "hash": "e0765ab593c8a7dbe0e6c3b2f5c945a8b63e76cd6cea49cee16cca97961e63b3"
+      },
+      "uses": [
+        "lemonade"
+      ],
+      "reveal": {
+        "en": "At 296.4 ml, 7.5 % of cups hold less than 285 ml: almost four times what the law allows. Kai isn't cheating on purpose; the machine is set too low. Set to 301.2 ml, it passes.\n\nInspection seal for the lemonade stand: **6**",
+        "de": "Bei 296,4 ml enthalten 7,5 % der Becher weniger als 285 ml: fast das Vierfache dessen, was das Gesetz erlaubt. Kai betrügt nicht absichtlich; die Maschine ist zu niedrig eingestellt. Auf 301,2 ml eingestellt, besteht sie.\n\nPrüfsiegel für den Limonadenstand: **6**"
+      },
+      "practises": {
+        "en": "The normal distribution, z-scores, the cdf and its inverse (ppf), from a sample to a model",
+        "de": "Die Normalverteilung, z-Werte, die Verteilungsfunktion und ihre Umkehrung (ppf), von der Stichprobe zum Modell"
+      },
+      "clues": [
+        "fill-law"
+      ],
+      "hints": [
+        {
+          "en": "mu and sigma are the clean mean and standard deviation from the cup log at the lemonade stand. Solve that one first, or work them out there.",
+          "de": "mu und sigma sind der bereinigte Mittelwert und die Standardabweichung aus dem Becherprotokoll am Limonadenstand. Löst das zuerst, oder rechnet sie dort aus."
+        },
+        {
+          "en": "`z = (285 - mu) / sigma`. `stats.norm.cdf(285, mu, sigma)` is the share below 285 ml (the same as `stats.norm.cdf(z)`). For the target, the z with 2 % below it is `stats.norm.ppf(0.02)`.",
+          "de": "`z = (285 - mu) / sigma`. `stats.norm.cdf(285, mu, sigma)` ist der Anteil unter 285 ml (dasselbe wie `stats.norm.cdf(z)`). Für den Zielwert ist der z-Wert mit 2 % darunter `stats.norm.ppf(0.02)`."
+        },
+        {
+          "en": "With mu = 296.4 and sigma = 7.9: z ≈ −1.44, share_below ≈ 0.075, and `target = 285 - stats.norm.ppf(0.02) * sigma` ≈ 301.2 ml.",
+          "de": "Mit mu = 296,4 und sigma = 7,9: z ≈ −1,44, share_below ≈ 0,075 und `target = 285 - stats.norm.ppf(0.02) * sigma` ≈ 301,2 ml."
+        }
+      ]
+    },
+    {
+      "id": "tickets",
+      "title": {
+        "en": "The ticket office",
+        "de": "Das Kassenhäuschen"
+      },
+      "text": {
+        "en": "Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his survey from the VIP tent, `vip_survey`, the source of his flyer for sponsors.\n\n1. The mean of all visitors is a parameter of the population: `mu`.\n2. A random sample of 40 visitors, `wristbands.sample(40, random_state=7)`, gives an estimate of it: `sample_mean`.\n3. The survey's mean: `vip_mean`.\n4. Could the survey's figure be bad luck? Draw 1,000 random samples of 40 visitors and keep their means in `means`. Does any of them come close to the survey?",
+        "de": "Brunos Laptop weiß, was jeder Besucher heute Abend mit seinem bargeldlosen Armband ausgegeben hat: `wristbands`, alle 6.000 Besucher. Außerdem liegt dort seine Umfrage aus dem VIP-Zelt, `vip_survey`, die Quelle seines Flyers für Sponsoren.\n\n1. Der Mittelwert aller Besucher ist ein Parameter der Grundgesamtheit: `mu`.\n2. Eine Zufallsstichprobe von 40 Besuchern, `wristbands.sample(40, random_state=7)`, liefert eine Schätzung dafür: `sample_mean`.\n3. Der Mittelwert der Umfrage: `vip_mean`.\n4. Kann die Zahl der Umfrage Pech sein? Zieht 1.000 Zufallsstichproben von 40 Besuchern und speichert ihre Mittelwerte in `means`. Kommt irgendeine davon an die Umfrage heran?"
+      },
+      "workspace": "python",
+      "data": "tickets.py",
+      "starter": {
+        "en": "from helpers import show_hist\n\n# wristbands: euros spent by each of tonight's 6,000 visitors (the whole population)\n# vip_survey: euros spent by the 40 guests Bruno asked in the VIP tent\nmu = None\nsample_mean = None   # mean of wristbands.sample(40, random_state=7)\nvip_mean = None\n\nmeans = []           # means of 1,000 random samples of 40 visitors\n\n# show_hist(means, title=\"Means of random samples of 40\")\n",
+        "de": "from helpers import show_hist\n\n# wristbands: Euro, die jeder der 6.000 Besucher heute ausgegeben hat (die ganze Grundgesamtheit)\n# vip_survey: Euro der 40 Gäste, die Bruno im VIP-Zelt gefragt hat\nmu = None\nsample_mean = None   # Mittelwert von wristbands.sample(40, random_state=7)\nvip_mean = None\n\nmeans = []           # Mittelwerte von 1.000 Zufallsstichproben von 40 Besuchern\n\n# show_hist(means, title=\"Mittelwerte von Zufallsstichproben von 40\")\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_ticket_check(mu, sample_mean, vip_mean, means)",
+        "hash": "d39ea5afbf13f6a8e49e786f0baca2692788bd4fdceabab36b492744ca0feba1"
+      },
+      "lock": {
+        "text": {
+          "en": "Bruno's laptop asks for a four-digit PIN.",
+          "de": "Brunos Laptop verlangt eine vierstellige PIN."
+        },
+        "from": "ducks",
+        "mode": "caseless",
+        "hash": "e9b995b18a4a2ea855890a765213f61ce8beabbecf9d6dd50833670837ebff0e"
+      },
+      "reveal": {
+        "en": "Tonight's visitors spent **€33.51** on average. A random sample of 40 lands close (€34.23), and 1,000 random samples stay between about €25 and €45. The VIP tent says €65.18: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.\n\nInspection seal for the ticket office: **1**",
+        "de": "Die Besucher von heute Abend haben im Schnitt **33,51 €** ausgegeben. Eine Zufallsstichprobe von 40 landet nah dran (34,23 €), und 1.000 Zufallsstichproben bleiben zwischen etwa 25 € und 45 €. Das VIP-Zelt sagt 65,18 €: Das ist kein Pech, sondern eine verzerrte Stichprobe. Gefragt wurden nur Vielausgeber. Der Flyer täuscht die Sponsoren.\n\nPrüfsiegel für das Kassenhäuschen: **1**"
+      },
+      "practises": {
+        "en": "Population vs. sample, parameter vs. statistic, random vs. biased samples, how much a sample mean varies",
+        "de": "Grundgesamtheit vs. Stichprobe, Parameter vs. Kennzahl, zufällige vs. verzerrte Stichproben, wie stark ein Stichprobenmittel schwankt"
+      },
+      "clues": [
+        "flyer"
+      ],
+      "hints": [
+        {
+          "en": "`wristbands.mean()` is the population mean. `wristbands.sample(40, random_state=7).mean()` is one random sample's mean, and `vip_survey.mean()` the survey's.",
+          "de": "`wristbands.mean()` ist der Mittelwert der Grundgesamtheit. `wristbands.sample(40, random_state=7).mean()` ist der Mittelwert einer Zufallsstichprobe, `vip_survey.mean()` der der Umfrage."
+        },
+        {
+          "en": "In a loop, `wristbands.sample(40).mean()` draws a new random sample each time; append each mean to `means`. `show_hist(means)` shows how much a sample mean of 40 can vary by chance.",
+          "de": "In einer Schleife zieht `wristbands.sample(40).mean()` jedes Mal eine neue Zufallsstichprobe; hängt jeden Mittelwert an `means` an. `show_hist(means)` zeigt, wie stark ein Stichprobenmittel von 40 zufällig schwanken kann."
+        },
+        {
+          "en": "`means = [wristbands.sample(40).mean() for i in range(1000)]`. They stay between about €25 and €45, nowhere near €65: the survey isn't unlucky, it only asked VIP guests.",
+          "de": "`means = [wristbands.sample(40).mean() for i in range(1000)]`. Sie bleiben zwischen etwa 25 € und 45 €, weit weg von 65 €: Die Umfrage hatte kein Pech, sie hat nur VIP-Gäste gefragt."
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "title": {
+        "en": "The fairground gate",
+        "de": "Das Tor des Festplatzes"
+      },
+      "text": {
+        "en": "The gate has a four-digit keypad and the night guard's note: \"Every stall you finish inspecting gets a seal with one digit. Enter the seals in the order of the stall numbers.\"\n\nThe fair map says which stall has which number.",
+        "de": "Das Tor hat ein vierstelliges Tastenfeld und die Notiz des Nachtwächters: „Jeder Stand, den ihr fertig geprüft habt, bekommt ein Siegel mit einer Ziffer. Gebt die Siegel in der Reihenfolge der Standnummern ein.“\n\nDer Festplatzplan sagt, welcher Stand welche Nummer hat."
+      },
+      "workspace": "none",
+      "check": {
+        "type": "answer",
+        "mode": "caseless",
+        "hash": "068bd5711e37ce068d287c36895f16fd790eecb597accd65685eb9d7484fc47f"
+      },
+      "final": true,
+      "uses": [
+        "dice",
+        "ducks",
+        "filler",
+        "tickets"
+      ],
+      "reveal": {
+        "en": "The gate swings open. Your report: Lucky Seven's dice are loaded, the lemonade machine is set too low, Bruno's flyer rests on a biased survey, and the duck pond is fair.",
+        "de": "Das Tor schwingt auf. Euer Bericht: Die Würfel der Glückssieben sind gezinkt, die Limonadenmaschine ist zu niedrig eingestellt, Brunos Flyer beruht auf einer verzerrten Umfrage, und der Ententeich ist fair."
+      },
+      "practises": {
+        "en": "Putting the inspection together: which findings are chance and which are not",
+        "de": "Die Prüfung zusammenführen: Welche Befunde sind Zufall und welche nicht"
+      },
+      "clues": [
+        "fair-map"
+      ],
+      "hints": [
+        {
+          "en": "Every finished inspection shows a seal digit when it's solved: the ticket office, the duck pond, Lucky Seven and the filling machine. Pin them to your notes.",
+          "de": "Jede fertige Prüfung zeigt beim Lösen eine Siegelziffer: Kassenhäuschen, Ententeich, Glückssieben und Abfüllmaschine. Heftet sie an eure Notizen."
+        },
+        {
+          "en": "The fair map numbers the stalls: 1 ticket office, 2 duck pond, 3 Lucky Seven, 4 lemonade stand.",
+          "de": "Der Festplatzplan nummeriert die Stände: 1 Kassenhäuschen, 2 Ententeich, 3 Glückssieben, 4 Limonadenstand."
+        },
+        {
+          "en": "Ticket office 1, duck pond 8, Lucky Seven 3, lemonade stand 6: 1836.",
+          "de": "Kassenhäuschen 1, Ententeich 8, Glückssieben 3, Limonadenstand 6: 1836."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "cup-note",
+      "title": {
+        "en": "Kai's note at the till",
+        "de": "Kais Notiz an der Kasse"
+      },
+      "text": {
+        "en": "LEMONADE · notes for the till (Kai)\n\nSpilled a cup? Type in 0 ml, so it gets refunded.\n\nOur cups hold at most 400 ml. Anything bigger is a typo.",
+        "de": "LIMONADE · Notizen für die Kasse (Kai)\n\nBecher verschüttet? 0 ml eintippen, dann wird er erstattet.\n\nUnsere Becher fassen höchstens 400 ml. Alles darüber ist ein Tippfehler."
+      }
+    },
+    {
+      "id": "dice-sign",
+      "title": {
+        "en": "The Lucky Seven sign",
+        "de": "Das Schild der Glückssieben"
+      },
+      "text": {
+        "en": "LUCKY SEVEN!\n\nRoll two dice: a **7** or an **11** wins!\n\nYour chance: **2 in 9**! Only €3 a game.",
+        "de": "GLÜCKSSIEBEN!\n\nZwei Würfel: Eine **7** oder eine **11** gewinnt!\n\nEure Chance: **2 zu 9**! Nur 3 € pro Spiel."
+      }
+    },
+    {
+      "id": "duck-sign",
+      "title": {
+        "en": "The duck pond sign",
+        "de": "Das Schild am Ententeich"
+      },
+      "text": {
+        "en": "DUCK POND\n\nEvery 4th duck has a gold star underneath! Fish 6 ducks: **3 or more stars** win a teddy bear. Only €2 a game!\n\nOn the back, a wholesaler's price tag: Teddy bear, 30 cm, **€5.00** each.",
+        "de": "ENTENTEICH\n\nJede 4. Ente hat einen goldenen Stern unten drauf! Angelt 6 Enten: **3 oder mehr Sterne** gewinnen einen Teddy. Nur 2 € pro Spiel!\n\nAuf der Rückseite ein Preisschild vom Großhandel: Teddybär, 30 cm, **5,00 €** pro Stück."
+      }
+    },
+    {
+      "id": "fill-law",
+      "title": {
+        "en": "The fill regulation",
+        "de": "Die Füllmengenverordnung"
+      },
+      "text": {
+        "en": "FILL QUANTITY REGULATION (excerpt, pinned up by the commission)\n\nDrinks sold by volume: at most **2 %** of servings may hold more than **15 ml** less than the stated volume.\n\nFor a 300 ml cup, that means: at most 2 % of cups below 285 ml.",
+        "de": "FÜLLMENGENVERORDNUNG (Auszug, von der Kommission ausgehängt)\n\nNach Volumen verkaufte Getränke: Höchstens **2 %** der Portionen dürfen mehr als **15 ml** unter der angegebenen Menge liegen.\n\nFür einen 300-ml-Becher heißt das: höchstens 2 % der Becher unter 285 ml."
+      }
+    },
+    {
+      "id": "handbook",
+      "title": {
+        "en": "The inspection handbook",
+        "de": "Das Prüfhandbuch"
+      },
+      "text": {
+        "en": "FAIR COMMISSION · Inspection handbook, page 4\n\nA game looks rigged when its results would be very unlikely if it were fair. Our rule: if a fair game would do this badly (or worse) less than **1 time in 100**, the game is suspicious.",
+        "de": "MARKTKOMMISSION · Prüfhandbuch, Seite 4\n\nEin Spiel wirkt gezinkt, wenn seine Ergebnisse bei einem fairen Spiel sehr unwahrscheinlich wären. Unsere Regel: Wenn ein faires Spiel seltener als **1 von 100 Mal** so schlecht (oder schlechter) abschneidet, ist das Spiel verdächtig."
+      }
+    },
+    {
+      "id": "flyer",
+      "title": {
+        "en": "Bruno's flyer for sponsors",
+        "de": "Brunos Flyer für Sponsoren"
+      },
+      "text": {
+        "en": "KLEEBERG AUTUMN FAIR · Become a sponsor!\n\nOur visitors spend **€65** each on average!\n\nSmall print: survey of 40 guests, VIP tent, Saturday.",
+        "de": "KLEEBERGER HERBSTMARKT · Werdet Sponsor!\n\nUnsere Besucher geben im Schnitt **65 €** aus!\n\nKleingedrucktes: Umfrage unter 40 Gästen, VIP-Zelt, Samstag."
+      }
+    },
+    {
+      "id": "fair-map",
+      "title": {
+        "en": "The fair map",
+        "de": "Der Festplatzplan"
+      },
+      "text": {
+        "en": "KLEEBERG AUTUMN FAIR · Map\n\nStall 1: Ticket office\nStall 2: Duck pond\nStall 3: Lucky Seven\nStall 4: Lemonade stand\n\nExit: the gate on the east side (closes at midnight).",
+        "de": "KLEEBERGER HERBSTMARKT · Plan\n\nStand 1: Kassenhäuschen\nStand 2: Ententeich\nStand 3: Glückssieben\nStand 4: Limonadenstand\n\nAusgang: das Tor an der Ostseite (schließt um Mitternacht)."
+      }
+    }
+  ]
+}

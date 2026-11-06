@@ -65,6 +65,8 @@ export const puzzleSchema = z
      */
     requires: z.array(puzzleId).default([]),
     lock: lockSchema.optional(),
+    /** Earlier results the task needs (a value from another puzzle's reveal). Not enforced; shown in the walkthrough. */
+    uses: z.array(puzzleId).default([]),
     /** Solving the final puzzle means the team escaped. */
     final: z.boolean().default(false),
   })
@@ -112,6 +114,7 @@ export const manifestSchema = z
     for (const p of m.puzzles) {
       for (const r of p.requires) if (!ids.has(r)) ctx.addIssue({ code: 'custom', message: `${p.id} requires unknown puzzle ${r}` });
       for (const c of p.clues) if (!clueIds.has(c)) ctx.addIssue({ code: 'custom', message: `${p.id} uses unknown clue ${c}` });
+      for (const u of p.uses) if (!ids.has(u)) ctx.addIssue({ code: 'custom', message: `${p.id} uses unknown puzzle ${u}` });
       if (p.lock && !ids.has(p.lock.from)) ctx.addIssue({ code: 'custom', message: `${p.id}'s lock comes from unknown puzzle ${p.lock.from}` });
     }
   });

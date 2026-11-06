@@ -44,6 +44,7 @@ const LABELS = {
     usedBy: 'Used by',
     lock: 'Code lock',
     lockCode: 'opens with',
+    itsResult: 'its result',
     unused: 'flavour only',
     sqlRows: 'rows, column names ignored',
     sqlOrdered: 'in this order',
@@ -73,6 +74,7 @@ const LABELS = {
     usedBy: 'Gebraucht von',
     lock: 'Zahlenschloss',
     lockCode: 'öffnet mit',
+    itsResult: 'sein Ergebnis',
     unused: 'nur Atmosphäre',
     sqlRows: 'Zeilen, Spaltennamen egal',
     sqlOrdered: 'in dieser Reihenfolge',
@@ -99,6 +101,7 @@ export function renderWalkthrough(roomId: string, manifest: Manifest, lang: Lang
   const needs = (p: Puzzle) => {
     const parts = [
       ...p.requires.map((r) => `${number.get(r)}. ${titleOf(r)}`),
+      ...p.uses.map((u) => `${number.get(u)}. ${titleOf(u)} (${t.itsResult})`),
       ...(p.lock ? [`🔒 ${number.get(p.lock.from)}. ${titleOf(p.lock.from)}`] : []),
       ...p.clues.map((c) => `🔎 ${clueTitle(c)}`),
     ];

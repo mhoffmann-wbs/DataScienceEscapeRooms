@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 8 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 12 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 8;
+const TILESET_ROWS = 12;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -939,6 +939,378 @@ drawTile(53, (g, { obj, shadow }) => {
       o.ellipse(x + 2, 10, 2.5, 2.5, sh(col, 0.85));
       o.ellipse(x, 6, 2, 2, sh(col, 1.2));
       o.box(x - 4, 19, 8, 10, [90, 120, 160]);
+    }
+  });
+});
+
+// --- Side doors (statistics) ---------------------------------------------------
+/**
+ * One leaf of a double door in a side wall, opening to the right (a door in a map's left wall);
+ * mirrored for the right wall. Doors are two tiles tall, so each tile fills its height and a
+ * pair meets at a post, like the doors in the top wall turned on their side.
+ */
+function sideDoor(g, frame, glow) {
+  g.rect(0, 0, T, T, WALL_TOP);
+  g.noise(0, 0, T, T, 0.08, 12);
+  g.rect(0, 0, T - 1, T, sh(frame, 0.7));
+  g.box(0, 0, T - 2, T, frame, 1.3);
+  g.rect(0, 3, T - 5, T - 6, [24, 20, 30]);
+  for (let i = 0; i < T - 5; i++) g.rect(i, 3, 1, T - 6, alpha(glow, Math.round(30 + (i / (T - 5)) * 140)));
+  g.rect(T - 5, 3, 3, T - 6, glow);
+  g.rect(8, 5, 10, 2, alpha(sh(glow, 1.4), 90));
+}
+const STATS_FRAME = [126, 84, 186];
+const STATS_GLOW = [214, 186, 255];
+// 54 door in a left wall: statistics (violet), 55 the same door in a right wall
+drawTile(54, (g) => sideDoor(g, STATS_FRAME, STATS_GLOW));
+drawTile(55, (g) => {
+  const leaf = canvas(T, T);
+  sideDoor(leaf, STATS_FRAME, STATS_GLOW);
+  g.paste(leaf, 0, 0, true);
+});
+
+// --- Fairground at night (stats-fair) -------------------------------------------
+// 56 fairground floor: trampled grass with sawdust
+drawTile(56, (g) => {
+  const grass = [72, 112, 62];
+  g.rect(0, 0, T, T, grass);
+  g.noise(0, 0, T, T, 0.16, 56);
+  const r = rng(56);
+  for (let i = 0; i < 26; i++) {
+    const x = Math.floor(r() * T);
+    const y = Math.floor(r() * T);
+    if (i < 14) g.rect(x, y, 1, 2, sh(grass, 1.3));
+    else g.rect(x, y, 2, 1, [196, 168, 112]);
+  }
+});
+/** A fairground booth: a tall striped canopy with a scalloped edge over a painted counter. */
+function booth(o, stripe, counter, goods) {
+  o.rect(3, 4, 2, 18, WOOD_DARK);
+  o.rect(T - 5, 4, 2, 18, WOOD_DARK);
+  for (let x = 1; x < T - 1; x++) o.rect(x, 0, 1, 6, Math.floor((x - 1) / 4) % 2 ? [250, 246, 236] : stripe);
+  for (let x = 1; x < T - 1; x += 4) o.ellipse(x + 2, 6, 2, 1.5, stripe);
+  o.rect(1, 0, T - 2, 1, sh(stripe, 1.3));
+  for (let x = 4; x < T - 3; x += 6) o.set(x, 9, [255, 236, 150]);
+  o.box(1, 18, T - 2, 11, counter, 1.3);
+  o.rect(1, 20, T - 2, 1, sh(counter, 0.82));
+  for (let x = 4; x < T - 4; x += 6) o.rect(x, 23, 3, 3, sh(counter, 1.35));
+  goods(o);
+}
+/** A die seen at an angle: a light square with pips. */
+function die(o, x, y, pips) {
+  o.box(x, y, 6, 6, [248, 246, 240], 1, 0.8);
+  for (const [i, j] of pips) o.set(x + i, y + j, [40, 36, 50]);
+}
+// 57 dice stall (Lucky Seven)
+drawTile(57, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) =>
+    booth(o, [128, 70, 190], [170, 46, 70], () => {
+      o.box(6, 12, 20, 6, [40, 110, 70], 1.2);
+      die(o, 8, 11, [[1, 1], [4, 4]]);
+      die(o, 17, 12, [[1, 1], [3, 3], [4, 4]]);
+      o.box(11, 21, 10, 5, [252, 216, 80], 1.2);
+      o.rect(14, 22, 4, 3, [170, 46, 70]);
+    }),
+  );
+});
+// 58 duck pond: a round tub with floating ducks
+drawTile(58, (g, { obj, shadow }) => {
+  shadow(16, 28, 15, 3);
+  obj((o) => {
+    o.ellipse(16, 19, 15, 9, [196, 60, 60]);
+    o.ellipse(16, 18, 13.5, 7.5, sh([196, 60, 60], 1.25));
+    o.ellipse(16, 18, 12, 6, [70, 150, 210]);
+    o.ellipse(12, 16, 4, 1.2, [150, 210, 240]);
+    for (const [x, y] of [[9, 18], [16, 15], [21, 20], [14, 21], [23, 15]]) {
+      o.ellipse(x, y, 2.5, 1.8, [252, 214, 60]);
+      o.ellipse(x + 1.5, y - 2, 1.5, 1.4, [252, 214, 60]);
+      o.set(x + 3, y - 2, [240, 130, 40]);
+      o.set(x + 1, y - 2, [40, 36, 50]);
+    }
+    o.box(3, 23, 26, 4, [176, 52, 52], 1.1);
+  });
+});
+// 59 lemonade stand: a yellow canopy, a jug and cups
+drawTile(59, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) =>
+    booth(o, [240, 200, 50], [70, 150, 190], () => {
+      o.box(7, 9, 8, 9, [250, 240, 150], 1.2);
+      o.rect(8, 11, 6, 6, [250, 222, 70]);
+      o.rect(15, 11, 2, 4, [220, 230, 236]);
+      for (const x of [18, 23]) {
+        o.box(x, 13, 4, 5, [240, 244, 248], 1, 0.85);
+        o.rect(x + 1, 14, 2, 3, [250, 222, 70]);
+      }
+      o.ellipse(11, 7.5, 1.5, 1.5, [120, 190, 70]);
+    }),
+  );
+});
+// 60 filling machine: a steel dispenser with a lemonade tank
+drawTile(60, (g, { obj, shadow }) => {
+  shadow(16, 30, 11, 2);
+  obj((o) => {
+    o.box(7, 9, 18, 20, METAL, 1.25);
+    o.rect(9, 11, 14, 7, [200, 206, 216]);
+    o.box(9, 1, 14, 9, [236, 242, 246], 1, 0.85);
+    o.rect(10, 4, 12, 5, [250, 222, 70]);
+    o.rect(11, 4, 2, 1, [255, 246, 170]);
+    o.rect(10, 12, 5, 3, [24, 40, 34]);
+    o.rect(11, 13, 3, 1, [120, 230, 160]);
+    o.ellipse(19, 13.5, 1.5, 1.5, [220, 70, 70]);
+    o.rect(15, 18, 2, 3, [90, 96, 110]);
+    o.box(13, 22, 6, 5, [240, 244, 248], 1, 0.85);
+    o.rect(14, 24, 4, 2, [250, 222, 70]);
+    o.rect(9, 27, 14, 1, sh(METAL, 0.7));
+  });
+});
+// 61 ticket booth: a small kiosk with a window and a laptop
+drawTile(61, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) => {
+    const red = [176, 52, 60];
+    o.box(2, 3, T - 4, T - 4, red, 1.2);
+    o.rect(2, 1, T - 4, 4, [250, 236, 200]);
+    for (let x = 2; x < T - 2; x += 4) o.rect(x, 1, 2, 4, [210, 160, 60]);
+    o.rect(5, 8, T - 10, 10, [36, 30, 44]);
+    o.rect(6, 9, T - 12, 8, [70, 60, 90]);
+    o.box(10, 13, 10, 5, [52, 56, 70]);
+    o.rect(11, 14, 8, 3, [70, 160, 220]);
+    o.box(3, 18, T - 6, 3, WOOD, 1.3);
+    o.box(9, 22, 14, 4, [250, 236, 200], 1, 0.85);
+    o.rect(11, 23, 10, 2, red);
+  });
+});
+// 62 signpost: a painted board on a post
+drawTile(62, (g, { obj, shadow }) => {
+  shadow(16, 30, 7, 2);
+  obj((o) => {
+    o.rect(15, 16, 3, 14, WOOD_DARK);
+    o.box(4, 3, 24, 15, [236, 222, 186], 1.1);
+    o.rect(5, 4, 22, 1, [200, 70, 70]);
+    o.rect(7, 7, 14, 1, [70, 60, 90]);
+    o.rect(7, 10, 18, 1, [130, 120, 150]);
+    o.rect(7, 13, 11, 1, [130, 120, 150]);
+    o.ellipse(23, 13, 2, 2, [240, 200, 50]);
+  });
+});
+// 63 prize shelf with teddy bears
+drawTile(63, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) => {
+    o.box(2, 2, T - 4, T - 3, [112, 74, 44]);
+    for (const y of [12, 24]) o.rect(3, y, T - 6, 2, [150, 104, 66]);
+    const bears = [[196, 140, 90], [230, 120, 150], [120, 170, 220]];
+    for (let s = 0; s < 2; s++)
+      for (let i = 0; i < 3; i++) {
+        const x = 7 + i * 9;
+        const y = 8 + s * 12;
+        const col = bears[(i + s) % 3];
+        o.ellipse(x, y, 3.5, 3.5, col);
+        o.ellipse(x, y - 4, 2.5, 2.5, col);
+        o.set(x - 2, y - 6, sh(col, 0.8));
+        o.set(x + 2, y - 6, sh(col, 0.8));
+        o.set(x, y - 4, [40, 36, 50]);
+      }
+  });
+});
+// 64 wall with string lights
+drawTile(64, (g) => {
+  wallFront(g, 64);
+  for (let x = 0; x < T; x++) g.set(x, 6 + Math.round(Math.sin((x / T) * Math.PI) * 4), [50, 46, 60]);
+  const bulbs = [[255, 220, 90], [250, 110, 110], [130, 200, 255], [150, 240, 140]];
+  for (let i = 0; i < 4; i++) {
+    const x = 4 + i * 8;
+    const y = 8 + Math.round(Math.sin((x / T) * Math.PI) * 4);
+    g.ellipse(x, y, 3.5, 3.5, alpha(bulbs[i], 70));
+    g.ellipse(x, y, 1.5, 2, bulbs[i]);
+  }
+});
+// 65 fair poster
+drawTile(65, (g, { obj }) => {
+  wallFront(g);
+  obj((o) => {
+    o.box(7, 2, 18, 22, [40, 40, 90], 1.2);
+    for (let i = 0; i < 5; i++) o.set(9 + i * 4, 4, [255, 220, 90]);
+    o.ellipse(16, 12, 5, 5, [240, 200, 50]);
+    o.ellipse(16, 12, 3, 3, [220, 70, 90]);
+    o.rect(10, 19, 12, 1, [250, 246, 236]);
+    o.rect(12, 21, 8, 1, [200, 190, 230]);
+  });
+});
+
+// --- Chocolate factory (stats-ab) -----------------------------------------------
+// 66 factory floor: terracotta quarry tiles
+drawTile(66, (g) => {
+  const tile = [166, 96, 70];
+  g.rect(0, 0, T, T, sh(tile, 0.75));
+  const r = rng(66);
+  for (const [x, y] of [[0, 0], [16, 0], [0, 16], [16, 16]]) {
+    const c = sh(tile, 0.94 + r() * 0.12);
+    g.rect(x + 1, y + 1, 15, 15, c);
+    g.rect(x + 1, y + 1, 15, 1, sh(c, 1.12));
+    g.rect(x + 1, y + 15, 15, 1, sh(c, 0.88));
+  }
+  g.noise(0, 0, T, T, 0.06, 66);
+});
+/** A chocolate bar in its wrapper, seen from above. */
+function bar(o, x, y, wrap) {
+  o.box(x, y, 7, 4, wrap, 1.25);
+  o.rect(x + 2, y + 1, 3, 2, [250, 240, 220]);
+}
+// 67 conveyor belt with chocolate bars
+drawTile(67, (g, { obj, shadow }) => {
+  shadow(16, 30, 15, 2);
+  obj((o) => {
+    o.box(0, 10, T, 12, [60, 62, 74], 1.3);
+    for (let x = 1; x < T; x += 4) o.rect(x, 12, 1, 8, [80, 84, 98]);
+    o.rect(0, 22, T, 2, METAL);
+    for (const x of [3, T - 6]) o.rect(x, 24, 3, 6, sh(METAL, 0.7));
+    bar(o, 2, 13, [120, 70, 44]);
+    bar(o, 12, 14, [200, 60, 70]);
+    bar(o, 22, 13, [120, 70, 44]);
+  });
+});
+// 68 scale on a bench
+drawTile(68, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 2);
+  obj((o) => {
+    benchBase(o);
+    o.box(6, 5, 20, 9, [226, 230, 236], 1.1);
+    o.box(8, 2, 16, 4, METAL, 1.2);
+    bar(o, 12, 0, [200, 60, 70]);
+    o.rect(9, 8, 10, 4, [24, 40, 34]);
+    o.rect(10, 9, 7, 2, [120, 230, 160]);
+    o.ellipse(22, 10, 1.5, 1.5, [70, 160, 220]);
+  });
+});
+// 69 tasting table: plates of chocolate and rating cards
+drawTile(69, (g, { obj, shadow }) => {
+  shadow(16, 28, 13, 3);
+  obj((o) => {
+    o.box(1, 9, T - 2, 12, [244, 240, 232], 1.05, 0.85);
+    o.rect(1, 11, T - 2, 1, [220, 214, 204]);
+    o.rect(3, 21, 3, 8, WOOD_DARK);
+    o.rect(T - 6, 21, 3, 8, WOOD_DARK);
+    for (const [x, col] of [[8, [92, 54, 36]], [21, [150, 96, 60]]]) {
+      o.ellipse(x, 6, 6, 3, [250, 250, 250]);
+      for (let i = -3; i <= 2; i += 3) o.box(x + i, 4, 3, 3, col, 1.25);
+    }
+    paper(o, 4, 12, 7, 7);
+    paper(o, 18, 12, 7, 7);
+    o.rect(12, 14, 4, 1, [200, 60, 70]);
+  });
+});
+// 70 fridge with a padlock
+drawTile(70, (g, { obj, shadow }) => {
+  shadow(16, 30, 12, 2);
+  obj((o) => {
+    o.box(5, 0, 22, 30, [226, 232, 238], 1.05, 0.82);
+    o.rect(6, 11, 20, 1, [170, 176, 188]);
+    o.rect(22, 3, 2, 6, METAL);
+    o.rect(22, 14, 2, 10, METAL);
+    o.rect(8, 3, 9, 5, [120, 70, 44]);
+    o.rect(9, 4, 3, 1, [250, 240, 220]);
+    o.ellipse(19, 21, 3, 2, [200, 160, 50]);
+    o.rect(17, 17, 4, 3, [140, 146, 156]);
+    o.rect(18, 18, 2, 2, [226, 232, 238]);
+  });
+});
+// 71 cocoa sacks
+drawTile(71, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) => {
+    const jute = [186, 150, 100];
+    for (const [x, y] of [[9, 21], [23, 21], [16, 11]]) {
+      o.ellipse(x, y, 7, 7, jute);
+      o.ellipse(x, y - 6, 3, 1.5, sh(jute, 0.8));
+      o.rect(x - 3, y - 1, 6, 1, [120, 70, 44]);
+      o.rect(x - 2, y + 1, 4, 1, [120, 70, 44]);
+    }
+    o.ellipse(16, 5, 2, 1.5, [110, 62, 40]);
+    o.ellipse(19, 6, 1.5, 1.2, [130, 76, 48]);
+  });
+});
+// 72 dashboard: a wide monitor with conversion bars on a desk
+drawTile(72, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 2);
+  obj((o) => {
+    deskBase(o);
+    o.box(2, 0, 28, 14, [52, 56, 70]);
+    o.rect(4, 2, 24, 10, [20, 28, 40]);
+    for (const [x, h, col] of [[6, 4, [57, 135, 229]], [11, 5, [217, 89, 38]], [16, 7, [25, 158, 112]]]) o.rect(x, 11 - h, 3, h, col);
+    o.rect(21, 4, 5, 1, [200, 206, 216]);
+    o.rect(21, 6, 4, 1, [130, 136, 150]);
+    o.rect(21, 8, 5, 1, [130, 136, 150]);
+    o.rect(14, 14, 4, 1, [52, 56, 70]);
+    o.box(8, 15, 12, 2, [80, 84, 98]);
+  });
+});
+// 73 planning board: a whiteboard with four proposal cards
+drawTile(73, (g, { obj }) => {
+  wallFront(g);
+  obj((o) => {
+    o.box(2, 3, T - 4, 21, [170, 176, 188]);
+    o.rect(3, 4, T - 6, 18, [248, 250, 252]);
+    const cards = [[250, 200, 90], [150, 200, 250], [160, 230, 160], [250, 160, 170]];
+    cards.forEach((col, i) => {
+      const x = 4 + (i % 2) * 12;
+      const y = 5 + Math.floor(i / 2) * 8;
+      o.box(x, y, 10, 7, col, 1.1);
+      o.rect(x + 1, y + 2, 6, 1, sh(col, 0.6));
+      o.rect(x + 1, y + 4, 8, 1, sh(col, 0.75));
+    });
+    o.rect(18, 6, 3, 3, [25, 158, 112]);
+    o.rect(5, 24, 22, 2, [140, 146, 156]);
+  });
+});
+// 74 release console: a panel with switches and a big button
+drawTile(74, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) => {
+    o.box(2, 8, T - 4, 21, [70, 74, 88], 1.25);
+    o.rect(4, 10, T - 8, 6, [24, 40, 34]);
+    o.rect(5, 12, 9, 2, [120, 230, 160]);
+    for (let i = 0; i < 4; i++) {
+      o.rect(5 + i * 4, 19, 2, 4, [206, 210, 220]);
+      o.set(5 + i * 4, 18 + (i % 2) * 5, [230, 196, 80]);
+    }
+    o.ellipse(24, 21, 3.5, 3.5, [200, 50, 60]);
+    o.ellipse(23.5, 20, 1.5, 1.2, [250, 140, 140]);
+    o.box(6, 2, 20, 7, [52, 56, 70]);
+    o.rect(8, 4, 16, 3, [40, 36, 60]);
+    o.rect(9, 5, 3, 1, [214, 186, 255]);
+  });
+});
+// 75 bell-curve poster
+drawTile(75, (g, { obj }) => {
+  wallFront(g);
+  obj((o) => {
+    o.box(5, 2, 22, 22, [252, 252, 250], 1, 0.88);
+    o.rect(7, 20, 18, 1, [80, 80, 90]);
+    for (let x = 0; x < 18; x++) {
+      const y = Math.round(19 - 13 * Math.exp(-(((x - 8.5) / 3.6) ** 2) / 2));
+      o.rect(7 + x, y, 1, 20 - y, x > 4 && x < 13 ? [190, 170, 240] : [226, 220, 246]);
+      o.set(7 + x, y, [126, 84, 186]);
+    }
+    o.rect(16, 5, 1, 15, [200, 70, 70]);
+  });
+});
+// 76 shelf of chocolate packaging
+drawTile(76, (g, { obj }) => {
+  wallFront(g);
+  obj((o) => {
+    o.box(2, 3, T - 4, 21, [112, 74, 44]);
+    const wraps = [[200, 60, 70], [120, 70, 44], [70, 130, 200], [240, 200, 50], [90, 160, 100]];
+    for (let s = 0; s < 2; s++) {
+      const y = 5 + s * 10;
+      o.rect(3, y + 8, T - 6, 2, [150, 104, 66]);
+      for (let i = 0; i < 6; i++) {
+        const col = wraps[(i + s * 2) % wraps.length];
+        o.box(4 + i * 4, y + 1, 3, 7, col, 1.25);
+        o.set(5 + i * 4, y + 4, [250, 240, 220]);
+      }
     }
   });
 });

@@ -1,0 +1,373 @@
+{
+  "version": 1,
+  "salt": "6ea89ca8faf1af5a",
+  "title": {
+    "en": "The Chocolate Experiment",
+    "de": "Das Schokoladen-Experiment"
+  },
+  "category": "statistics",
+  "difficulty": "advanced",
+  "about": {
+    "tools": [
+      "Python",
+      "pandas",
+      "scipy.stats"
+    ],
+    "practises": {
+      "en": "A/B testing: experimental design and sample size, the central limit theorem, confidence intervals, one- and two-sample t-tests, chi-squared tests.",
+      "de": "A/B-Tests: Versuchsplanung und Stichprobenumfang, der zentrale Grenzwertsatz, Konfidenzintervalle, Ein- und Zweistichproben-t-Tests, Chi-Quadrat-Tests."
+    },
+    "story": {
+      "en": "A chocolate factory's board decides on a new recipe, a new web shop checkout and its packing line tomorrow morning. Finish the analyses tonight, or stay locked in the factory.",
+      "de": "Der Vorstand einer Schokoladenfabrik entscheidet morgen früh über ein neues Rezept, einen neuen Webshop-Checkout und die Verpackungslinie. Macht die Analysen heute Nacht fertig, sonst bleibt ihr in der Fabrik eingeschlossen."
+    }
+  },
+  "intro": {
+    "en": "Kakaowerk Kleeberg, the night before the board meeting. At 8 a.m. the board decides on three changes tested this autumn: a new recipe, a new web shop checkout and the packing line. Ana Berger, head of analytics, was taken to hospital this afternoon with her analyses half done. You stayed to finish them, and at midnight the security system locked every door.\n\nThe release console by the exit opens them with the digits from Ana's decision cards: every finished analysis prints one. Plan carefully, test honestly, and decide only what the data supports. This room loads Python with pandas and scipy: the first puzzle you open takes a little while.",
+    "de": "Kakaowerk Kleeberg, die Nacht vor der Vorstandssitzung. Um 8 Uhr entscheidet der Vorstand über drei Änderungen, die diesen Herbst getestet wurden: ein neues Rezept, einen neuen Webshop-Checkout und die Verpackungslinie. Ana Berger, Leiterin der Datenanalyse, kam heute Nachmittag ins Krankenhaus, ihre Analysen nur halb fertig. Ihr seid geblieben, um sie abzuschließen, und um Mitternacht hat die Sicherheitsanlage alle Türen verriegelt.\n\nDie Freigabekonsole am Ausgang öffnet sie mit den Ziffern von Anas Entscheidungskarten: Jede fertige Analyse druckt eine. Plant sorgfältig, testet ehrlich und entscheidet nur, was die Daten hergeben. Dieser Raum lädt Python mit pandas und scipy: Das erste Rätsel, das ihr öffnet, braucht einen Moment."
+  },
+  "packages": [
+    "pandas",
+    "scipy"
+  ],
+  "puzzles": [
+    {
+      "id": "plan",
+      "title": {
+        "en": "The planning board",
+        "de": "Die Planungstafel"
+      },
+      "text": {
+        "en": "Before the recipe test, Ana pinned four proposals for it to the board:\n\n**A.** Sell the new recipe in November and compare its ratings with October's (old recipe).\n**B.** Put out both recipes and let every taster pick the one they want to rate.\n**C.** Flip a coin for each taster: heads, new recipe; tails, old. Same room, same afternoon, identical plain wrappers.\n**D.** Our staff rate the new recipe, customers from the shop rate the old one.\n\nOnly one is a proper randomised experiment: store its letter as `design`.\n\nThen size it with the board's requirements, written below the proposals: at most a 1 % chance of a false alarm (calling a difference real when there is none), tested two-sided, as `alpha`; and if the new recipe is truly 1 point better, the test should find that 90 % of the time, as `power`.\n\nTasters per recipe for comparing two means: n = 2 · (z₁₋α/₂ + z_power)² · σ² / δ², rounded up. The z values are quantiles of the standard normal distribution, σ is the spread of ratings and δ the difference to detect. Store it as `n_per_group`.",
+        "de": "Vor dem Rezepttest hat Ana vier Vorschläge dafür an die Tafel gepinnt:\n\n**A.** Im November das neue Rezept verkaufen und seine Bewertungen mit denen vom Oktober (altes Rezept) vergleichen.\n**B.** Beide Rezepte hinstellen und jede Testperson das wählen lassen, das sie bewerten möchte.\n**C.** Für jede Testperson eine Münze werfen: Kopf, neues Rezept; Zahl, altes. Gleicher Raum, gleicher Nachmittag, identisches neutrales Papier.\n**D.** Unser Personal bewertet das neue Rezept, Kundschaft aus dem Laden das alte.\n\nNur einer ist ein echtes randomisiertes Experiment: Speichert seinen Buchstaben als `design`.\n\nDann bestimmt seine Größe mit den Anforderungen des Vorstands, die unter den Vorschlägen stehen: höchstens 1 % Chance auf einen Fehlalarm (einen Unterschied für echt halten, obwohl es keinen gibt), zweiseitig getestet, als `alpha`; und wenn das neue Rezept wirklich 1 Punkt besser ist, soll der Test das in 90 % der Fälle finden, als `power`.\n\nTestpersonen pro Rezept für den Vergleich zweier Mittelwerte: n = 2 · (z₁₋α/₂ + z_power)² · σ² / δ², aufgerundet. Die z-Werte sind Quantile der Standardnormalverteilung, σ ist die Streuung der Bewertungen und δ der Unterschied, den man finden will. Speichert es als `n_per_group`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import math\nfrom scipy import stats\n\ndesign = None        # the proper randomised experiment: \"A\", \"B\", \"C\" or \"D\"\nalpha = None         # significance level: the accepted chance of a false alarm\npower = None         # the chance to detect a real difference of delta\n\nsigma = 1.6          # spread (standard deviation) of ratings in earlier tastings\ndelta = 1.0          # the difference worth detecting, in rating points\n\n# stats.norm.ppf(q) is the value with a share q of the standard normal distribution below it.\nn_per_group = None   # tasters per recipe, rounded up\n",
+        "de": "import math\nfrom scipy import stats\n\ndesign = None        # das echte randomisierte Experiment: \"A\", \"B\", \"C\" oder \"D\"\nalpha = None         # Signifikanzniveau: die akzeptierte Chance auf einen Fehlalarm\npower = None         # die Chance, einen echten Unterschied von delta zu finden\n\nsigma = 1.6          # Streuung (Standardabweichung) der Bewertungen in früheren Verkostungen\ndelta = 1.0          # der Unterschied, der sich lohnt, in Bewertungspunkten\n\n# stats.norm.ppf(q) ist der Wert, unter dem ein Anteil q der Standardnormalverteilung liegt.\nn_per_group = None   # Testpersonen pro Rezept, aufgerundet\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[str(design).strip().upper(), float(alpha), float(power), int(n_per_group)]",
+        "hash": "611f1970886acc6c6fe621a3681a0d1f0a1c86c2fc77f10754879bf0e073b3f5"
+      },
+      "reveal": {
+        "en": "Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for every experiment of the relaunch two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in.",
+        "de": "Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für jedes Experiment des Relaunchs zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr."
+      },
+      "practises": {
+        "en": "Experimental design (randomisation, control group, blinding, confounders), significance level and power, sample size for comparing two means",
+        "de": "Versuchsplanung (Randomisierung, Kontrollgruppe, Verblindung, Störfaktoren), Signifikanzniveau und Teststärke, Stichprobenumfang für den Vergleich zweier Mittelwerte"
+      },
+      "hints": [
+        {
+          "en": "A and D compare groups that differ in more than the recipe (the month; staff vs. customers), and in B the tasters choose. Only in C does chance alone decide who tastes what.",
+          "de": "A und D vergleichen Gruppen, die sich in mehr als dem Rezept unterscheiden (der Monat; Personal vs. Kundschaft), und in B wählen die Testpersonen selbst. Nur in C entscheidet allein der Zufall, wer was probiert."
+        },
+        {
+          "en": "A false alarm is a type I error, so `alpha = 0.01`; `power = 0.9`. Two-sided: z₁₋α/₂ = `stats.norm.ppf(1 - alpha / 2)` (2.576), and z_power = `stats.norm.ppf(power)` (1.282).",
+          "de": "Ein Fehlalarm ist ein Fehler 1. Art, also `alpha = 0.01`; `power = 0.9`. Zweiseitig: z₁₋α/₂ = `stats.norm.ppf(1 - alpha / 2)` (2,576), und z_power = `stats.norm.ppf(power)` (1,282)."
+        },
+        {
+          "en": "`n_per_group = math.ceil(2 * (stats.norm.ppf(0.995) + stats.norm.ppf(0.9)) ** 2 * sigma ** 2 / delta ** 2)`, which is 77, with `design = \"C\"`.",
+          "de": "`n_per_group = math.ceil(2 * (stats.norm.ppf(0.995) + stats.norm.ppf(0.9)) ** 2 * sigma ** 2 / delta ** 2)`, also 77, mit `design = \"C\"`."
+        }
+      ]
+    },
+    {
+      "id": "scale",
+      "title": {
+        "en": "The packing line scale",
+        "de": "Die Waage an der Verpackungslinie"
+      },
+      "text": {
+        "en": "The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. The quality manual says when the line must be recalibrated.\n\n1. A 95 % confidence interval for the line's mean weight, from the t distribution: `ci_low` and `ci_high`.\n2. A one-sample t-test of the weights against 100 g, two-sided: `p_value`.\n3. `recalibrate`: True or False, as the manual says.",
+        "de": "Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Das Qualitätshandbuch sagt, wann die Linie neu kalibriert werden muss.\n\n1. Ein 95-%-Konfidenzintervall für das mittlere Gewicht der Linie, mit der t-Verteilung: `ci_low` und `ci_high`.\n2. Ein Einstichproben-t-Test der Gewichte gegen 100 g, zweiseitig: `p_value`.\n3. `recalibrate`: True oder False, wie es das Handbuch sagt."
+      },
+      "workspace": "python",
+      "data": "scale.py",
+      "starter": {
+        "en": "from scipy import stats\n\n# weights is loaded: 30 bars, in grams.\nprint(weights.describe())\n\nci_low, ci_high = None, None   # 95 % confidence interval for the mean weight\np_value = None                 # one-sample t-test against 100 g\nrecalibrate = None             # True or False (see the quality manual)\n",
+        "de": "from scipy import stats\n\n# weights ist geladen: 30 Tafeln, in Gramm.\nprint(weights.describe())\n\nci_low, ci_high = None, None   # 95-%-Konfidenzintervall für das mittlere Gewicht\np_value = None                 # Einstichproben-t-Test gegen 100 g\nrecalibrate = None             # True oder False (siehe Qualitätshandbuch)\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_scale_check(ci_low, ci_high, p_value, recalibrate)",
+        "hash": "c3780c91c2a7c7e470c2adac7d1363ce5b65b2bc568a0049ba318075108bcbd1"
+      },
+      "reveal": {
+        "en": "The line pours 100.8 g on average. The interval [100.33, 101.27] doesn't contain 100 g, and the t-test agrees (p = 0.002). Every bar gives away almost a gram: recalibrate.\n\nDecision card \"Packing line\": **9**",
+        "de": "Die Linie füllt im Schnitt 100,8 g ab. Das Intervall [100,33; 101,27] enthält 100 g nicht, und der t-Test sagt dasselbe (p = 0,002). Jede Tafel verschenkt fast ein Gramm: neu kalibrieren.\n\nEntscheidungskarte „Verpackungslinie“: **9**"
+      },
+      "practises": {
+        "en": "Confidence intervals for a mean (t distribution, standard error), the one-sample t-test, how intervals and tests agree",
+        "de": "Konfidenzintervalle für einen Mittelwert (t-Verteilung, Standardfehler), der Einstichproben-t-Test, wie Intervalle und Tests zusammenpassen"
+      },
+      "clues": [
+        "qc-manual"
+      ],
+      "hints": [
+        {
+          "en": "The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(0.95, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.",
+          "de": "Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(0.95, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29."
+        },
+        {
+          "en": "`stats.ttest_1samp(weights, 100)` tests whether the mean differs from 100 g; its `.pvalue` is two-sided.",
+          "de": "`stats.ttest_1samp(weights, 100)` testet, ob der Mittelwert von 100 g abweicht; sein `.pvalue` ist zweiseitig."
+        },
+        {
+          "en": "The interval is about [100.33, 101.27] and p ≈ 0.0017. 100 g lies outside the interval, so `recalibrate = True`.",
+          "de": "Das Intervall ist etwa [100,33; 101,27] und p ≈ 0,0017. 100 g liegt außerhalb des Intervalls, also `recalibrate = True`."
+        }
+      ]
+    },
+    {
+      "id": "orders",
+      "title": {
+        "en": "Ana's laptop: order values",
+        "de": "Anas Laptop: Bestellwerte"
+      },
+      "text": {
+        "en": "The board wants average order values compared with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples of 50.\n\n1. How skewed are single orders? `skew_orders`, with `scipy.stats.skew`.\n2. Draw at least 1,000 random samples of 50 orders and keep their means in `means`.\n3. Theory says such means vary by the standard error σ/√n: `se_theory`. Compare it with the spread of your means.\n4. How skewed are the means? `skew_means`.",
+        "de": "Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben von 50.\n\n1. Wie schief sind einzelne Bestellungen? `skew_orders`, mit `scipy.stats.skew`.\n2. Zieht mindestens 1.000 Zufallsstichproben von 50 Bestellungen und speichert ihre Mittelwerte in `means`.\n3. Laut Theorie schwanken solche Mittelwerte um den Standardfehler σ/√n: `se_theory`. Vergleicht ihn mit der Streuung eurer Mittelwerte.\n4. Wie schief sind die Mittelwerte? `skew_means`."
+      },
+      "workspace": "python",
+      "data": "orders.py",
+      "starter": {
+        "en": "import numpy as np\nfrom scipy import stats\nfrom helpers import show_hist\n\n# orders is loaded: the value of every order in 2025, in euros.\nshow_hist(orders, bins=40, title=\"Single orders\")\n\nskew_orders = None\nrng = np.random.default_rng()\nmeans = []          # means of random samples of 50 orders, e.g. rng.choice(orders, 50).mean()\nse_theory = None    # standard deviation of the orders / square root of 50\nskew_means = None\n\n# show_hist(means, bins=40, title=\"Means of 50 orders\")\n",
+        "de": "import numpy as np\nfrom scipy import stats\nfrom helpers import show_hist\n\n# orders ist geladen: der Wert jeder Bestellung 2025, in Euro.\nshow_hist(orders, bins=40, title=\"Einzelne Bestellungen\")\n\nskew_orders = None\nrng = np.random.default_rng()\nmeans = []          # Mittelwerte von Zufallsstichproben von 50 Bestellungen, z. B. rng.choice(orders, 50).mean()\nse_theory = None    # Standardabweichung der Bestellungen / Wurzel aus 50\nskew_means = None\n\n# show_hist(means, bins=40, title=\"Mittelwerte von 50 Bestellungen\")\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_clt_check(skew_orders, means, se_theory, skew_means)",
+        "hash": "c9d9cd3ebbce2f07bd993475c61231627eab00f75d82ace5f1b420236b6bb067"
+      },
+      "reveal": {
+        "en": "Single orders are badly skewed (skewness 3.3), but means of 50 orders are close to normal (skewness about 0.5), and they spread by €4.99, just as σ/√50 predicts. The board may compare average order values with t-tests.\n\nDecision card \"Revenue reporting\": **4**",
+        "de": "Einzelne Bestellungen sind stark schief (Schiefe 3,3), aber Mittelwerte von 50 Bestellungen sind fast normalverteilt (Schiefe etwa 0,5), und sie streuen um 4,99 €, genau wie σ/√50 vorhersagt. Der Vorstand darf mittlere Bestellwerte mit t-Tests vergleichen.\n\nEntscheidungskarte „Umsatzberichte“: **4**"
+      },
+      "practises": {
+        "en": "The central limit theorem, sampling distributions and the standard error, skewness, simulation with numpy",
+        "de": "Der zentrale Grenzwertsatz, Stichprobenverteilungen und der Standardfehler, Schiefe, Simulation mit numpy"
+      },
+      "clues": [
+        "ana-note"
+      ],
+      "hints": [
+        {
+          "en": "`stats.skew(orders)` measures the skew. `rng.choice(orders, 50).mean()` is the mean of one random sample of 50 orders; repeat it in a loop.",
+          "de": "`stats.skew(orders)` misst die Schiefe. `rng.choice(orders, 50).mean()` ist der Mittelwert einer Zufallsstichprobe von 50 Bestellungen; wiederholt das in einer Schleife."
+        },
+        {
+          "en": "`means = [rng.choice(orders, 50).mean() for i in range(2000)]`. The standard error is `orders.std() / np.sqrt(50)`; compare it with `np.std(means)`.",
+          "de": "`means = [rng.choice(orders, 50).mean() for i in range(2000)]`. Der Standardfehler ist `orders.std() / np.sqrt(50)`; vergleicht ihn mit `np.std(means)`."
+        },
+        {
+          "en": "skew_orders ≈ 3.35 and se_theory ≈ 4.99; `np.std(means)` lands close to it, and `skew_means = stats.skew(means)` is about 0.5.",
+          "de": "skew_orders ≈ 3,35 und se_theory ≈ 4,99; `np.std(means)` landet nah dran, und `skew_means = stats.skew(means)` ist etwa 0,5."
+        }
+      ]
+    },
+    {
+      "id": "tasting",
+      "title": {
+        "en": "The tasting room",
+        "de": "Der Verkostungsraum"
+      },
+      "text": {
+        "en": "The blind tasting ran exactly as registered. The ratings are loaded as `ratings`: columns `taster`, `recipe` (\"old\" or \"new\") and `rating` (1 to 10).\n\n1. `diff`: the mean rating of the new recipe minus that of the old one.\n2. A two-sample t-test for independent groups (Welch's version, which doesn't assume equal spreads): `p_value`.\n3. `ship_recipe`: True or False. Decide as registered on the planning board.",
+        "de": "Die Blindverkostung lief genau wie registriert. Die Bewertungen sind als `ratings` geladen: Spalten `taster`, `recipe` (\"old\" oder \"new\") und `rating` (1 bis 10).\n\n1. `diff`: die mittlere Bewertung des neuen Rezepts minus die des alten.\n2. Ein Zweistichproben-t-Test für unabhängige Gruppen (die Welch-Variante, die keine gleichen Streuungen annimmt): `p_value`.\n3. `ship_recipe`: True oder False. Entscheidet so, wie es auf der Planungstafel registriert ist."
+      },
+      "workspace": "python",
+      "data": "tasting.py",
+      "starter": {
+        "en": "from scipy import stats\n\n# ratings is loaded: one row per taster.\nprint(ratings.groupby(\"recipe\").rating.describe())\n\ndiff = None          # mean rating of new minus old\np_value = None       # two-sample t-test\nship_recipe = None   # True or False, as registered\n",
+        "de": "from scipy import stats\n\n# ratings ist geladen: eine Zeile pro Testperson.\nprint(ratings.groupby(\"recipe\").rating.describe())\n\ndiff = None          # mittlere Bewertung neu minus alt\np_value = None       # Zweistichproben-t-Test\nship_recipe = None   # True oder False, wie registriert\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_tasting_check(diff, p_value, ship_recipe)",
+        "hash": "a3c94adb975aa748ef8a5ba69b72004e17df8e37d5f1ca8215f5447b068b5161"
+      },
+      "uses": [
+        "plan"
+      ],
+      "lock": {
+        "text": {
+          "en": "The fridge with the rating sheets has a padlock. Ana's sticker on it: \"Code = tasters per recipe, as planned.\"",
+          "de": "Der Kühlschrank mit den Bewertungsbögen hat ein Vorhängeschloss. Anas Aufkleber darauf: „Code = Testpersonen pro Rezept, wie geplant.“"
+        },
+        "from": "plan",
+        "mode": "number",
+        "hash": "f18024101877ce69cd1e33707db81d69fe756be437765a8f6c299939d065dd91"
+      },
+      "reveal": {
+        "en": "The new recipe scores 0.6 points higher, with p = 0.025. At the usual 0.05 that would look like a win, but the board registered α = 0.01: the evidence isn't strong enough. Keep the old recipe and plan a bigger tasting.\n\nDecision card \"Recipe\": **2**",
+        "de": "Das neue Rezept liegt 0,6 Punkte höher, mit p = 0,025. Beim üblichen 0,05 sähe das nach einem Sieg aus, aber der Vorstand hat α = 0,01 registriert: Die Belege reichen nicht. Das alte Rezept bleibt, und eine größere Verkostung wird geplant.\n\nEntscheidungskarte „Rezept“: **2**"
+      },
+      "practises": {
+        "en": "The two-sample t-test (Welch), one- vs. two-sided tests, deciding at a pre-registered significance level",
+        "de": "Der Zweistichproben-t-Test (Welch), ein- vs. zweiseitige Tests, Entscheiden mit einem vorab registrierten Signifikanzniveau"
+      },
+      "clues": [
+        "tasting-sheet"
+      ],
+      "hints": [
+        {
+          "en": "`new = ratings[ratings.recipe == \"new\"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.",
+          "de": "`new = ratings[ratings.recipe == \"new\"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`."
+        },
+        {
+          "en": "`stats.ttest_ind(new, old, equal_var=False)` is Welch's t-test; its `.pvalue` is two-sided. The significance level comes from the pre-registration on the planning board.",
+          "de": "`stats.ttest_ind(new, old, equal_var=False)` ist der Welch-t-Test; sein `.pvalue` ist zweiseitig. Das Signifikanzniveau kommt aus der Präregistrierung an der Planungstafel."
+        },
+        {
+          "en": "diff ≈ 0.60 and p ≈ 0.025. That's above α = 0.01, so `ship_recipe = False`.",
+          "de": "diff ≈ 0,60 und p ≈ 0,025. Das liegt über α = 0,01, also `ship_recipe = False`."
+        }
+      ]
+    },
+    {
+      "id": "checkout",
+      "title": {
+        "en": "The web shop dashboard",
+        "de": "Das Webshop-Dashboard"
+      },
+      "text": {
+        "en": "The checkout test split visitors at random between three checkouts: A (the old one), B (a green button) and C (a one-page checkout). The dashboard's export is loaded as `daily`: sessions and orders per day and variant.\n\n1. A sanity check first: the split was planned 1 : 1 : 1. Run a chi-squared goodness-of-fit test on the total sessions per variant: `srm_p`. A tiny p-value would mean the split is broken and the test can't be trusted.\n2. Do the variants convert differently? Run a chi-squared test of independence on a table with one row per variant, holding its orders and its sessions without an order. Store `chi2` and `p_value`.\n3. `winner`: the variant with the highest conversion rate. Is the difference significant at the registered level?",
+        "de": "Der Checkout-Test hat Besucher zufällig auf drei Checkouts verteilt: A (der alte), B (ein grüner Button) und C (ein einseitiger Checkout). Der Export des Dashboards ist als `daily` geladen: Sitzungen und Bestellungen pro Tag und Variante.\n\n1. Zuerst eine Plausibilitätsprüfung: Die Aufteilung war 1 : 1 : 1 geplant. Macht einen Chi-Quadrat-Anpassungstest auf die Sitzungen pro Variante insgesamt: `srm_p`. Ein winziger p-Wert hieße, die Aufteilung ist kaputt und dem Test ist nicht zu trauen.\n2. Konvertieren die Varianten unterschiedlich? Macht einen Chi-Quadrat-Unabhängigkeitstest auf eine Tabelle mit einer Zeile pro Variante, mit ihren Bestellungen und ihren Sitzungen ohne Bestellung. Speichert `chi2` und `p_value`.\n3. `winner`: die Variante mit der höchsten Konversionsrate. Ist der Unterschied auf dem registrierten Niveau signifikant?"
+      },
+      "workspace": "python",
+      "data": "shop.py",
+      "starter": {
+        "en": "import pandas as pd\nfrom scipy import stats\n\n# daily is loaded: date, variant, sessions, orders.\nprint(daily.head())\n\ntotals = None                # sessions and orders per variant, summed over the days\nsrm_p = None                 # goodness of fit: sessions per variant vs. an even split\nchi2, p_value = None, None   # independence: variant x (order, no order)\nwinner = None                # \"A\", \"B\" or \"C\"\n",
+        "de": "import pandas as pd\nfrom scipy import stats\n\n# daily ist geladen: Datum, Variante, Sitzungen, Bestellungen.\nprint(daily.head())\n\ntotals = None                # Sitzungen und Bestellungen pro Variante, über die Tage summiert\nsrm_p = None                 # Anpassungstest: Sitzungen pro Variante vs. gleichmäßige Aufteilung\nchi2, p_value = None, None   # Unabhängigkeit: Variante x (Bestellung, keine Bestellung)\nwinner = None                # \"A\", \"B\" oder \"C\"\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_checkout_check(srm_p, chi2, p_value, winner)",
+        "hash": "de9d7ac949cc95b3bd6ebd06a65edddd8fb86cf57e4ecf59ac4aa16db9c6bd88"
+      },
+      "uses": [
+        "plan"
+      ],
+      "reveal": {
+        "en": "The split is fine (p = 0.22). Conversion: A 3.0 %, B 3.2 %, C 4.0 %; χ² = 16.7 with p = 0.0002, well below α = 0.01. The one-page checkout ships.\n\nDecision card \"Web shop checkout\": **5**",
+        "de": "Die Aufteilung passt (p = 0,22). Konversion: A 3,0 %, B 3,2 %, C 4,0 %; χ² = 16,7 mit p = 0,0002, weit unter α = 0,01. Der einseitige Checkout geht live.\n\nEntscheidungskarte „Webshop-Checkout“: **5**"
+      },
+      "practises": {
+        "en": "Chi-squared tests: goodness of fit (sample ratio mismatch) and independence (conversion by variant), contingency tables, conversion rates",
+        "de": "Chi-Quadrat-Tests: Anpassung (Sample Ratio Mismatch) und Unabhängigkeit (Konversion je Variante), Kontingenztafeln, Konversionsraten"
+      },
+      "hints": [
+        {
+          "en": "`totals = daily.groupby(\"variant\")[[\"sessions\", \"orders\"]].sum()`. `stats.chisquare(totals.sessions)` compares the sessions with an even split.",
+          "de": "`totals = daily.groupby(\"variant\")[[\"sessions\", \"orders\"]].sum()`. `stats.chisquare(totals.sessions)` vergleicht die Sitzungen mit einer gleichmäßigen Aufteilung."
+        },
+        {
+          "en": "The table needs orders and **non**-orders per variant: `pd.DataFrame({\"orders\": totals.orders, \"no_order\": totals.sessions - totals.orders})`. `stats.chi2_contingency(table)` returns chi2, the p-value, the degrees of freedom and the expected counts.",
+          "de": "Die Tabelle braucht Bestellungen und **Nicht**-Bestellungen pro Variante: `pd.DataFrame({\"orders\": totals.orders, \"no_order\": totals.sessions - totals.orders})`. `stats.chi2_contingency(table)` liefert chi2, den p-Wert, die Freiheitsgrade und die erwarteten Häufigkeiten."
+        },
+        {
+          "en": "srm_p ≈ 0.22, chi2 ≈ 16.68, p ≈ 0.00024, and `winner = (totals.orders / totals.sessions).idxmax()`, which is C.",
+          "de": "srm_p ≈ 0,22, chi2 ≈ 16,68, p ≈ 0,00024, und `winner = (totals.orders / totals.sessions).idxmax()`, also C."
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "title": {
+        "en": "The release console",
+        "de": "Die Freigabekonsole"
+      },
+      "text": {
+        "en": "The console by the exit releases tomorrow's decisions and unlocks the doors. It wants the four digits from Ana's decision cards, in the order of tomorrow's agenda.",
+        "de": "Die Konsole am Ausgang gibt die Entscheidungen für morgen frei und entriegelt die Türen. Sie will die vier Ziffern von Anas Entscheidungskarten, in der Reihenfolge der Tagesordnung von morgen."
+      },
+      "workspace": "none",
+      "check": {
+        "type": "answer",
+        "mode": "caseless",
+        "hash": "8dca80b91ad38e959170611e32c9dff9e458eb2ea2b3d5e5935b041c68211cf0"
+      },
+      "final": true,
+      "uses": [
+        "scale",
+        "orders",
+        "tasting",
+        "checkout"
+      ],
+      "reveal": {
+        "en": "The doors unlock. The board gets a clear story tomorrow: ship the one-page checkout, recalibrate the packing line, keep the old recipe until a bigger tasting, and compare order values with t-tests.",
+        "de": "Die Türen entriegeln. Der Vorstand bekommt morgen eine klare Geschichte: einseitigen Checkout live schalten, Verpackungslinie neu kalibrieren, altes Rezept bis zu einer größeren Verkostung behalten und Bestellwerte mit t-Tests vergleichen."
+      },
+      "practises": {
+        "en": "Turning test results into decisions",
+        "de": "Testergebnisse in Entscheidungen übersetzen"
+      },
+      "clues": [
+        "agenda"
+      ],
+      "hints": [
+        {
+          "en": "Every finished analysis prints a decision card with one digit: packing line, revenue reporting, recipe and web shop checkout. Pin them to your notes.",
+          "de": "Jede fertige Analyse druckt eine Entscheidungskarte mit einer Ziffer: Verpackungslinie, Umsatzberichte, Rezept und Webshop-Checkout. Heftet sie an eure Notizen."
+        },
+        {
+          "en": "The agenda: 1. web shop checkout, 2. new recipe, 3. packing line, 4. revenue reporting.",
+          "de": "Die Tagesordnung: 1. Webshop-Checkout, 2. neues Rezept, 3. Verpackungslinie, 4. Umsatzberichte."
+        },
+        {
+          "en": "Checkout 5, recipe 2, packing line 9, revenue reporting 4: 5294.",
+          "de": "Checkout 5, Rezept 2, Verpackungslinie 9, Umsatzberichte 4: 5294."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "qc-manual",
+      "title": {
+        "en": "The quality manual",
+        "de": "Das Qualitätshandbuch"
+      },
+      "text": {
+        "en": "QUALITY MANUAL · Packing line, section 3\n\nWeigh 30 bars taken at random. Compute a 95 % confidence interval for the mean weight.\n\nIf 100 g lies **outside** the interval, recalibrate the line. (That is the same decision as a two-sided t-test at α = 0.05.)",
+        "de": "QUALITÄTSHANDBUCH · Verpackungslinie, Abschnitt 3\n\nWiegt 30 zufällig entnommene Tafeln. Berechnet ein 95-%-Konfidenzintervall für das mittlere Gewicht.\n\nLiegt 100 g **außerhalb** des Intervalls, kalibriert die Linie neu. (Das ist dieselbe Entscheidung wie ein zweiseitiger t-Test mit α = 0,05.)"
+      }
+    },
+    {
+      "id": "ana-note",
+      "title": {
+        "en": "A note from Ana",
+        "de": "Eine Notiz von Ana"
+      },
+      "text": {
+        "en": "Reading skewness (pinned up by Ana):\n\n0 means symmetric, like a normal distribution. Above 1 means strongly skewed: a long tail of big values.\n\nThe CLT in one line: means of n values spread by σ/√n, and their skewness shrinks roughly by √n. So t-tests on means are fine once the means look normal, even if single values don't.",
+        "de": "Schiefe lesen (von Ana angepinnt):\n\n0 heißt symmetrisch, wie eine Normalverteilung. Über 1 heißt stark schief: ein langer Ausläufer großer Werte.\n\nDer ZGWS in einer Zeile: Mittelwerte aus n Werten streuen um σ/√n, und ihre Schiefe schrumpft ungefähr um √n. t-Tests auf Mittelwerten sind also in Ordnung, sobald die Mittelwerte normal aussehen, auch wenn einzelne Werte es nicht tun."
+      }
+    },
+    {
+      "id": "tasting-sheet",
+      "title": {
+        "en": "The tasting protocol",
+        "de": "Das Verkostungsprotokoll"
+      },
+      "text": {
+        "en": "TASTING PROTOCOL · Recipe test KW-7\n\nEvery taster flipped a coin at the door (heads: new recipe, tails: old). Plain wrappers, same room, same afternoon. Each taster rated **one** bar, from 1 (awful) to 10 (perfect).\n\nNobody tasted both recipes, so the two groups are independent.",
+        "de": "VERKOSTUNGSPROTOKOLL · Rezepttest KW-7\n\nJede Testperson hat an der Tür eine Münze geworfen (Kopf: neues Rezept, Zahl: altes). Neutrales Papier, gleicher Raum, gleicher Nachmittag. Jede Testperson hat **eine** Tafel bewertet, von 1 (furchtbar) bis 10 (perfekt).\n\nNiemand hat beide Rezepte probiert, die beiden Gruppen sind also unabhängig."
+      }
+    },
+    {
+      "id": "agenda",
+      "title": {
+        "en": "Tomorrow's agenda",
+        "de": "Die Tagesordnung für morgen"
+      },
+      "text": {
+        "en": "BOARD MEETING · Friday, 8:00 · Agenda\n\n1. Web shop checkout\n2. New recipe\n3. Packing line\n4. Revenue reporting",
+        "de": "VORSTANDSSITZUNG · Freitag, 8:00 · Tagesordnung\n\n1. Webshop-Checkout\n2. Neues Rezept\n3. Verpackungslinie\n4. Umsatzberichte"
+      }
+    }
+  ]
+}
