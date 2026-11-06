@@ -1,3 +1,5 @@
+import { indentWithTab } from '@codemirror/commands';
+import { indentUnit } from '@codemirror/language';
 import { python } from '@codemirror/lang-python';
 import { SQLite, sql } from '@codemirror/lang-sql';
 import { Compartment, EditorState, Prec } from '@codemirror/state';
@@ -43,6 +45,10 @@ export function CodeEditor({ initial, language, onChange, onRun, label, schema }
           oneDark,
           EditorView.contentAttributes.of({ 'aria-label': label }),
           Prec.highest(keymap.of([{ key: 'Mod-Enter', run: () => (callbacks.current.onRun(), true) }])),
+          // Tab indents (4 spaces, as in PEP 8). Keyboard users leave the editor with Esc, then Tab.
+          keymap.of([indentWithTab]),
+          indentUnit.of('    '),
+          EditorState.tabSize.of(4),
           EditorView.updateListener.of((u) => u.docChanged && callbacks.current.onChange(u.state.doc.toString())),
         ],
       }),

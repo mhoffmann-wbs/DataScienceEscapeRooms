@@ -1,14 +1,15 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-/** A centered dialog. Esc, the ✕ or a click on the backdrop closes it. */
+/** A centered dialog. Esc (outside a code editor), the ✕ or a click on the backdrop closes it. */
 export function Modal({ title, onClose, children, wide = false }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     ref.current?.querySelector<HTMLElement>('button:not([disabled])')?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    // Inside a code editor Esc belongs to the editor (closing autocompletion, Esc-then-Tab to leave it).
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !(e.target as Element | null)?.closest?.('.cm-editor') && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);

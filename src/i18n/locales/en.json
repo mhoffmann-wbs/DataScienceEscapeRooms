@@ -284,7 +284,7 @@
     },
     "controls": {
       "title": "Controls",
-      "body": "**WASD** or the **arrow keys** walk. **E** uses whatever you're standing on: a door, a terminal, a clue.\n\n**Enter** opens the chat; Enter again sends and returns to walking; **Esc** leaves the chat. Clicking the map also gets you back to walking. **Ctrl/⌘ + Enter** runs your code in a code editor."
+      "body": "**WASD** or the **arrow keys** walk. **E** uses whatever you're standing on: a door, a terminal, a clue.\n\n**Enter** opens the chat; Enter again sends and returns to walking; **Esc** leaves the chat. Clicking the map also gets you back to walking. In a code editor, **Ctrl/⌘ + Enter** runs your code and **Tab** indents; to leave the editor with the keyboard, press **Esc**, then **Tab**."
     },
     "lobby": {
       "title": "The lobby",

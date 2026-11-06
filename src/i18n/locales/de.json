@@ -284,7 +284,7 @@
     },
     "controls": {
       "title": "Steuerung",
-      "body": "Mit **WASD** oder den **Pfeiltasten** läufst du. **E** benutzt, worauf du stehst: eine Tür, ein Terminal, einen Hinweis.\n\n**Enter** öffnet den Chat; Enter sendet und bringt dich zurück zum Laufen; **Esc** verlässt den Chat. Ein Klick auf die Karte bringt dich ebenfalls zurück zum Laufen. **Strg/⌘ + Enter** führt im Code-Editor deinen Code aus."
+      "body": "Mit **WASD** oder den **Pfeiltasten** läufst du. **E** benutzt, worauf du stehst: eine Tür, ein Terminal, einen Hinweis.\n\n**Enter** öffnet den Chat; Enter sendet und bringt dich zurück zum Laufen; **Esc** verlässt den Chat. Ein Klick auf die Karte bringt dich ebenfalls zurück zum Laufen. Im Code-Editor führt **Strg/⌘ + Enter** deinen Code aus, und **Tab** rückt ein; um den Editor per Tastatur zu verlassen, drücke **Esc** und dann **Tab**."
     },
     "lobby": {
       "title": "Die Lobby",
