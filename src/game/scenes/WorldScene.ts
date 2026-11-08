@@ -94,7 +94,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.areaGraphics = this.add.graphics().setDepth(1);
     this.drawAreas();
-    const offLanguage = mapKey === LOBBY ? this.addDoorSigns(doors) : () => {};
+    const offLanguage = mapKey === LOBBY ? this.addDoorSigns(doors, map.tileWidth) : () => {};
 
     const arriveDoor = doors.find((d) => d.doorTo === getArriveAt(this));
     const start = pickSpawnPoint(arriveDoor ? inFrontOf(arriveDoor, map.tileHeight) : spawn);
@@ -211,22 +211,31 @@ export class WorldScene extends Phaser.Scene {
     if (a) g.fillStyle(0xffffff, 0.07).fillRect(a.x, a.y, a.width, a.height);
   }
 
-  /** A sign above each lobby door naming its room type; returns a function that stops following language changes. */
-  private addDoorSigns(doors: readonly Door[]): () => void {
+  /**
+   * A sign at each lobby door naming its room type; returns a function that stops following language changes.
+   * Top doors get it in the wall row above them. A side door sits in the inner of two wall columns,
+   * so its sign is turned on its side in the outer column, centred on the door, reading towards the room.
+   */
+  private addDoorSigns(doors: readonly Door[], tileWidth: number): () => void {
     const signs = doors.flatMap((d) => {
       const info = getDoor(d.doorTo);
       if (!info) return [];
-      // Above the door: centred over a door in the top wall, flush with the wall over a side door.
-      const anchor = d.facing === 'down' ? { x: d.x + d.width / 2, origin: 0.5 } : d.facing === 'right' ? { x: d.x + 2, origin: 0 } : { x: d.x + d.width - 2, origin: 1 };
+      const place =
+        d.facing === 'down'
+          ? { x: d.x + d.width / 2, y: d.y - 2, originY: 1, angle: 0 }
+          : d.facing === 'right'
+            ? { x: d.x - tileWidth / 2, y: d.y + d.height / 2, originY: 0.5, angle: -90 }
+            : { x: d.x + d.width + tileWidth / 2, y: d.y + d.height / 2, originY: 0.5, angle: 90 };
       const text = this.add
-        .text(anchor.x, d.y - 2, '', {
+        .text(place.x, place.y, '', {
           fontFamily: 'system-ui, sans-serif',
           fontSize: '11px',
           color: '#f3f4f6',
           backgroundColor: '#1b1f2bdd',
           padding: { x: 5, y: 2 },
         })
-        .setOrigin(anchor.origin, 1)
+        .setOrigin(0.5, place.originY)
+        .setAngle(place.angle)
         .setResolution(2)
         .setDepth(5);
       return [{ text, info }];
