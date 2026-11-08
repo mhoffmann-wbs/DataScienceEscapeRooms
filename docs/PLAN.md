@@ -265,8 +265,8 @@ A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring th
 **TensorFlow:** the course teaches TensorFlow, which can't run in the browser: Pyodide ships no TensorFlow (nor Keras or PyTorch) and TensorFlow has no WebAssembly build. Decided: as with Prophet, a small module named `tensorflow` with TensorFlow's API names, written with numpy only, so students type the code from the course (`import tensorflow as tf`, `tf.keras.Sequential`, `from tensorflow.keras import layers`). Rooms call it "a TensorFlow-style model". Unlike Prophet, the maths can match the real library (Glorot init, ReLU/softmax, cross-entropy, SGD/Adam with Keras defaults); only the exact numbers differ. Scope in [docs/tensorflow-lite.md](tensorflow-lite.md). Measured in Pyodide (Node), plain-numpy training: 2000 images of 16×16, 256→64→10, 10 epochs in 0.36 s; 5000 of 28×28, 784→128→10, 5 epochs in 2.7 s. Budget per run: 16×16 images, at most about 3000 training images and 20 epochs.
 
 **Infrastructure:**
-- `content/python/tensorflow.py`, registering `tensorflow.keras`, `tensorflow.keras.layers` etc. in `sys.modules` itself (no engine change), with tests: gradients against finite differences, Adam steps against the formula, a toy problem that converges.
-- `show_images(images, labels=, cols=)`: a grid of greyscale images in the output panel.
+- ✅ `content/python/tensorflow.py`, registering `tensorflow.keras`, `tensorflow.keras.layers` etc. in `sys.modules` itself (no engine change), with tests: gradients against finite differences, Adam steps against the formula, a toy problem that converges.
+- ✅ `show_images(images, labels=, cmap=)`: greyscale images in the output panel, with a pixel readout on hover.
 - The door, its sign and an exit in the left wall of the room maps.
 
 **Checks:** training results differ slightly between CPython and Pyodide, so exact answers only come from deterministic steps (forward passes with given weights, parameter counts, a recorded training log); anything trained is checked by a grader with a threshold, or by predictions on clearly drawn images.

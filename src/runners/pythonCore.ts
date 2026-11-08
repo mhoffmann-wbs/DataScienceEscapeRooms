@@ -3,16 +3,29 @@ import type { PyodideAPI } from 'pyodide';
 // Python execution shared by the worker and Node scripts/tests. Only type imports here.
 
 /**
- * A chart drawn by `show_plot`, `show_hist`, `show_bars`, `plot_acf` or `plot_pacf` (see PRELUDE),
- * rendered by the output panel. `bar` is a correlogram (x = lags), `columns` a histogram or bar chart.
+ * A chart drawn by `show_plot`, `show_hist`, `show_bars`, `plot_acf`, `plot_pacf` or `show_images`
+ * (see PRELUDE), rendered by the output panel. `bar` is a correlogram (x = lags), `columns` a
+ * histogram or bar chart.
  */
-export interface Plot {
+export type Plot = SeriesPlot | ImagePlot;
+
+export interface SeriesPlot {
   title: string | null;
   kind: 'line' | 'bar' | 'columns';
   x: (string | number)[];
   series: { name: string; values: (number | null)[] }[];
   /** Bar charts of autocorrelations: the ±band of the 95 % significance limit. */
   band: number | null;
+}
+
+/** Greyscale images from `show_images`: pixel values row by row, drawn from `vmin` (black) to `vmax` (white), or reversed. */
+export interface ImagePlot {
+  title: string | null;
+  kind: 'images';
+  images: { label: string | null; width: number; height: number; pixels: number[] }[];
+  vmin: number;
+  vmax: number;
+  reversed: boolean;
 }
 
 export type PythonOutcome = { ok: true; stdout: string; check: string | null; plots: Plot[] } | { ok: false; stdout: string; error: string; plots: Plot[] };
@@ -54,7 +67,7 @@ def _plot_values(s):
 def _add_plot(plot):
     if len(__plots__) >= 8:
         raise RuntimeError("At most 8 plots per run.")
-    if len(plot["x"]) > 5000:
+    if plot["kind"] != "images" and len(plot["x"]) > 5000:
         raise ValueError("Too many points to plot (at most 5000).")
     __plots__.append(plot)
 
@@ -121,6 +134,37 @@ def show_bars(*series, x=None, labels=None, title=None):
     xs = [v.item() if hasattr(v, "item") else v for v in xs]
     _add_plot({"title": title, "kind": "columns", "x": [v if isinstance(v, (int, float)) else str(v) for v in xs],
                "series": [{"name": str(n), "values": v} for n, (_, v) in zip(names, parsed)], "band": None})
+
+def show_images(images, labels=None, title=None, cmap="gray", vmin=None, vmax=None):
+    """Draws greyscale images below your output: one image (rows x columns) or several (n x rows x columns).
+    labels=[...] puts a caption under each image. By default the smallest value is black and the largest
+    white (cmap="gray"); cmap="gray_r" swaps them. vmin and vmax fix the range instead."""
+    try:
+        import numpy as np
+    except ImportError:
+        raise RuntimeError("show_images needs numpy, which only some rooms load.")
+    a = np.asarray(images, dtype=float)
+    if a.ndim == 2:
+        a = a[None]
+    if a.ndim != 3:
+        hint = " Reshape it first, e.g. images.reshape(-1, 16, 16)." if a.ndim == 1 else ""
+        raise ValueError(f"show_images needs one image (rows x columns) or several (n x rows x columns), got shape {a.shape}.{hint}")
+    if len(a) > 64:
+        raise ValueError(f"show_images draws at most 64 images at once, got {len(a)}. Pass a slice, e.g. images[:16].")
+    if a.shape[1] * a.shape[2] > 4096:
+        raise ValueError(f"show_images draws images of at most 4096 pixels (64 x 64), got {a.shape[1]} x {a.shape[2]}.")
+    if cmap not in ("gray", "gray_r"):
+        raise ValueError('cmap must be "gray" or "gray_r"')
+    if not np.isfinite(a).all():
+        raise ValueError("show_images got missing or infinite pixel values")
+    if labels is not None and len(labels) != len(a):
+        raise ValueError(f"show_images got {len(a)} images but {len(labels)} labels")
+    lo = float(a.min()) if vmin is None else float(vmin)
+    hi = float(a.max()) if vmax is None else float(vmax)
+    _add_plot({"title": title, "kind": "images", "vmin": lo, "vmax": hi, "reversed": cmap == "gray_r",
+               "images": [{"label": None if labels is None else str(labels[i].item() if hasattr(labels[i], "item") else labels[i]),
+                           "width": int(a.shape[2]), "height": int(a.shape[1]),
+                           "pixels": [round(float(v), 4) for v in img.ravel()]} for i, img in enumerate(a)]})
 
 def _correlogram(series, lags, title, partial):
     try:

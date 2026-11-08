@@ -3,7 +3,7 @@ import initSqlJs from 'sql.js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
 import { nodePyodide } from './nodePython';
-import { runPython } from './pythonCore';
+import { runPython, type SeriesPlot } from './pythonCore';
 import { describeSetup, runSql } from './sqlCore';
 
 describe('answers', () => {
@@ -116,7 +116,7 @@ describe('python plots', () => {
   it('draws bars labelled by dict keys or by x', async () => {
     const out = await runPython(py, 'show_bars({"heads": 0.5, "tails": 0.5}, title="Coin")\nshow_bars([1, 2], x=["a", "b"])');
     expect(out.ok).toBe(true);
-    expect(out.plots.map((p) => [p.kind, p.x, p.series[0]!.values])).toEqual([
+    expect((out.plots as SeriesPlot[]).map((p) => [p.kind, p.x, p.series[0]!.values])).toEqual([
       ['columns', ['heads', 'tails'], [0.5, 0.5]],
       ['columns', ['a', 'b'], [1, 2]],
     ]);
@@ -144,12 +144,30 @@ describe('python packages', () => {
     ].join('\n');
     const out = await runPython(py, code);
     expect(out.ok).toBe(true);
-    const [line, acf] = out.plots;
+    const [line, acf] = out.plots as SeriesPlot[];
     expect(line!.x).toHaveLength(48);
     expect(line!.x[0]).toBe('2020-01-01');
     expect(line!.series[0]!.values[36]).toBeNull();
     expect(acf).toMatchObject({ kind: 'bar', title: 'ACF', band: expect.closeTo(1.96 / Math.sqrt(48), 3) });
     // A 12-month sine correlates fully with itself at lag 12.
     expect(acf!.series[0]!.values[11]).toBeGreaterThan(0.5);
+  }, 60_000);
+
+  it('draws greyscale images with labels, and explains shapes it cannot draw', async () => {
+    const out = await runPython(py, 'import numpy as np\nshow_images(np.arange(8).reshape(2, 2, 2), labels=np.array([3, 7]), cmap="gray_r")\nshow_images(np.zeros(16))');
+    expect(out).toMatchObject({ ok: false, error: expect.stringContaining('images.reshape(-1, 16, 16)') });
+    expect(out.plots).toEqual([
+      {
+        title: null,
+        kind: 'images',
+        vmin: 0,
+        vmax: 7,
+        reversed: true,
+        images: [
+          { label: '3', width: 2, height: 2, pixels: [0, 1, 2, 3] },
+          { label: '7', width: 2, height: 2, pixels: [4, 5, 6, 7] },
+        ],
+      },
+    ]);
   }, 60_000);
 });

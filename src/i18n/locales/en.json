@@ -304,7 +304,9 @@
   },
   "chart": {
     "lag": "Lag",
-    "data": "Show data"
+    "data": "Show data",
+    "image": "image {{n}}",
+    "pixel": "Image {{image}}, row {{row}}, column {{col}}: {{value}}"
   },
   "scores": {
     "title": "Scoreboard",

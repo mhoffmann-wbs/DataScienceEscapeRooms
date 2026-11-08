@@ -1,11 +1,12 @@
-import { useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Plot } from '../runners/protocol';
+import type { ImagePlot, Plot, SeriesPlot } from '../runners/protocol';
 
 // Charts from show_plot / show_hist / show_bars / plot_acf / plot_pacf. Plain SVG: lines for
 // series, bars for correlograms (with the ±significance band) and grouped columns for
 // histograms and bar charts, a hover readout, and a data table for screen readers.
 // Colors are the validated categorical slots 1–3 (see styles.css).
+// show_images draws greyscale images instead, one small pixelated canvas each.
 
 const W = 560;
 const H = 200;
@@ -33,6 +34,66 @@ function niceTicks(lo: number, hi: number): number[] {
 }
 
 export function Chart({ plot }: { plot: Plot }) {
+  return plot.kind === 'images' ? <ImageGrid plot={plot} /> : <SeriesChart plot={plot} />;
+}
+
+/** Draws one image's pixels, scaled from vmin..vmax to black..white (or reversed). */
+function PixelCanvas({ image, plot, label, onHover }: { image: ImagePlot['images'][number]; plot: ImagePlot; label: string; onHover: (pixel: number | null) => void }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx) return;
+    const data = ctx.createImageData(image.width, image.height);
+    const span = plot.vmax - plot.vmin || 1;
+    image.pixels.forEach((v, i) => {
+      const f = Math.min(1, Math.max(0, (v - plot.vmin) / span));
+      const g = Math.round((plot.reversed ? 1 - f : f) * 255);
+      data.data.set([g, g, g, 255], i * 4);
+    });
+    ctx.putImageData(data, 0, 0);
+  }, [image, plot]);
+  const onMove = (e: MouseEvent<HTMLCanvasElement>) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const col = Math.floor(((e.clientX - box.left) / box.width) * image.width);
+    const row = Math.floor(((e.clientY - box.top) / box.height) * image.height);
+    onHover(col >= 0 && col < image.width && row >= 0 && row < image.height ? row * image.width + col : null);
+  };
+  return <canvas ref={ref} width={image.width} height={image.height} role="img" aria-label={label} onMouseMove={onMove} onMouseLeave={() => onHover(null)} />;
+}
+
+function ImageGrid({ plot }: { plot: ImagePlot }) {
+  const { t } = useTranslation();
+  const [hover, setHover] = useState<{ image: number; pixel: number } | null>(null);
+  const shown = hover && plot.images[hover.image];
+  return (
+    <figure className="chart">
+      {plot.title && <figcaption className="chart-title">{plot.title}</figcaption>}
+      <div className="chart-images">
+        {plot.images.map((image, i) => {
+          const label = image.label ?? t('chart.image', { n: i });
+          return (
+            <div key={i} className="chart-image">
+              <PixelCanvas image={image} plot={plot} label={label} onHover={(pixel) => setHover(pixel === null ? null : { image: i, pixel })} />
+              {image.label !== null && <span>{image.label}</span>}
+            </div>
+          );
+        })}
+      </div>
+      <div className="chart-pixel" aria-live="polite">
+        {shown && hover
+          ? t('chart.pixel', {
+              image: shown.label ?? hover.image,
+              row: Math.floor(hover.pixel / shown.width),
+              col: hover.pixel % shown.width,
+              value: shown.pixels[hover.pixel],
+            })
+          : '\u00a0'}
+      </div>
+    </figure>
+  );
+}
+
+function SeriesChart({ plot }: { plot: SeriesPlot }) {
   const { t } = useTranslation();
   const [hover, setHover] = useState<number | null>(null);
   const n = plot.x.length;

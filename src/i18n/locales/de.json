@@ -304,7 +304,9 @@
   },
   "chart": {
     "lag": "Lag",
-    "data": "Daten anzeigen"
+    "data": "Daten anzeigen",
+    "image": "Bild {{n}}",
+    "pixel": "Bild {{image}}, Zeile {{row}}, Spalte {{col}}: {{value}}"
   },
   "scores": {
     "title": "Bestenliste",
