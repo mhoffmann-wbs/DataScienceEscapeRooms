@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 15 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 22 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 15;
+const TILESET_ROWS = 22;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -1897,6 +1897,325 @@ drawTile(112, turned(wallTop, 'ccw'));
 drawTile(113, turned(wallTop, 'cw'));
 drawTile(114, turned(wallFront, 'ccw'));
 drawTile(115, turned(wallFront, 'cw'));
+
+// --- Lobby lounge and bar ------------------------------------------------------------
+/**
+ * Draws a piece several tiles big on one canvas and slices it into the tiles of `grid`
+ * (rows of tile indices), so outlines and shading run across the seams.
+ */
+function drawPiece(grid, draw) {
+  const W = grid[0].length * T;
+  const H = grid.length * T;
+  const ground = canvas(W, H);
+  const obj = (fn, outline = true) => {
+    const layer = canvas(W, H);
+    fn(layer);
+    if (outline) layer.outline();
+    ground.paste(layer);
+  };
+  const shadow = (cx, cy, rx, ry) => ground.ellipse(cx, cy, rx, ry, [0, 0, 0, 60]);
+  draw(ground, { obj, shadow });
+  grid.forEach((row, r) =>
+    row.forEach((index, c) => {
+      const tile = canvas(T, T);
+      tile.paste(ground, -c * T, -r * T);
+      tiles.paste(tile, (index % TILESET_COLUMNS) * T, Math.floor(index / TILESET_COLUMNS) * T);
+    }),
+  );
+}
+const SOFA = [178, 92, 62];
+const CUSHION = [236, 200, 112];
+const BRASS = [212, 170, 80];
+const BAR_WOOD = [92, 54, 34];
+
+// 116-117 sofa facing down (left, right half): back at the top, two seat cushions, a pillow
+drawPiece([[116, 117]], (g, { obj, shadow }) => {
+  shadow(32, 29, 30, 3);
+  obj((o) => {
+    o.box(3, 3, 58, 12, sh(SOFA, 0.85), 1.2);
+    o.rect(32, 5, 1, 9, sh(SOFA, 0.65));
+    o.box(8, 13, 24, 10, SOFA, 1.2);
+    o.box(32, 13, 24, 10, SOFA, 1.2);
+    o.rect(3, 22, 58, 5, sh(SOFA, 0.7));
+    o.box(1, 8, 8, 19, sh(SOFA, 0.95), 1.25);
+    o.box(55, 8, 8, 19, sh(SOFA, 0.95), 1.25);
+    o.box(11, 7, 8, 8, CUSHION, 1.15);
+    o.rect(4, 27, 2, 2, WOOD_DARK);
+    o.rect(58, 27, 2, 2, WOOD_DARK);
+  });
+});
+// 118-119 sofa facing up, seen from behind: the backrest in front, the seat behind it
+drawPiece([[118, 119]], (g, { obj, shadow }) => {
+  shadow(32, 29, 30, 3);
+  obj((o) => {
+    o.box(1, 4, 8, 20, sh(SOFA, 0.95), 1.25);
+    o.box(55, 4, 8, 20, sh(SOFA, 0.95), 1.25);
+    o.box(9, 5, 46, 9, SOFA, 1.2);
+    o.rect(32, 6, 1, 7, sh(SOFA, 0.7));
+    o.box(45, 3, 7, 6, CUSHION, 1.15);
+    o.box(2, 12, 60, 15, sh(SOFA, 0.82), 1.3);
+    o.rect(2, 16, 60, 1, sh(SOFA, 0.7));
+    o.rect(4, 27, 2, 2, WOOD_DARK);
+    o.rect(58, 27, 2, 2, WOOD_DARK);
+  });
+});
+/** An armchair facing right: backrest on the left, armrests above and below the seat. */
+function armchairSide(g) {
+  g.ellipse(16, 29, 13, 3, [0, 0, 0, 60]);
+  const o = canvas(T, T);
+  o.box(6, 4, 22, 7, sh(SOFA, 0.95), 1.25);
+  o.box(9, 9, 18, 13, SOFA, 1.2);
+  o.box(3, 3, 8, 23, sh(SOFA, 0.82), 1.25);
+  o.box(6, 19, 22, 8, sh(SOFA, 0.95), 1.25);
+  o.rect(7, 27, 2, 2, WOOD_DARK);
+  o.rect(24, 27, 2, 2, WOOD_DARK);
+  o.outline();
+  g.paste(o);
+}
+// 120 armchair facing right, 121 facing left
+drawTile(120, armchairSide);
+drawTile(121, (g) => {
+  const c = canvas(T, T);
+  armchairSide(c);
+  g.paste(c, 0, 0, true);
+});
+// 122-123 coffee table: a low wooden table with two mugs, a magazine and a small plant
+drawPiece([[122, 123]], (g, { obj, shadow }) => {
+  shadow(32, 28, 28, 3);
+  obj((o) => {
+    o.box(4, 9, 56, 13, WOOD, 1.25);
+    o.rect(4, 21, 56, 3, WOOD_DARK);
+    o.rect(7, 24, 3, 4, WOOD_DARK);
+    o.rect(54, 24, 3, 4, WOOD_DARK);
+  });
+  obj((o) => {
+    o.box(11, 11, 5, 6, [240, 236, 228], 1, 0.85);
+    o.rect(12, 11, 3, 1, [90, 56, 36]);
+    o.rect(16, 13, 1, 2, [240, 236, 228]);
+    o.box(47, 13, 5, 6, [70, 150, 160], 1.2);
+    o.rect(48, 13, 3, 1, [90, 56, 36]);
+    o.box(35, 10, 6, 5, [190, 110, 70]);
+    o.ellipse(38, 9, 4, 3, [70, 150, 80]);
+    o.set(37, 8, [120, 200, 120]);
+  });
+  paper(g, 22, 12, 10, 8, [236, 222, 200]);
+  g.rect(22, 12, 10, 2, [200, 70, 70]);
+});
+// 124-127 back bar: a tall cabinet of bottles on two shelves, a neon BAR sign in the third tile
+drawPiece([[124, 125, 126, 127]], (g, { obj, shadow }) => {
+  shadow(64, 30, 62, 2);
+  const r = rng(124);
+  const glass = [[90, 160, 90], [170, 110, 50], [200, 200, 210], [140, 50, 60], [70, 110, 170], [220, 180, 90]];
+  obj((o) => {
+    o.box(0, 1, 128, 28, WOOD_DARK, 1.3);
+    o.rect(3, 4, 122, 22, [64, 56, 70]);
+    for (const y of [14, 25]) {
+      o.rect(3, y, 122, 2, WOOD);
+      o.rect(3, y, 122, 1, sh(WOOD, 1.25));
+    }
+    for (let tile = 0; tile < 4; tile++)
+      for (const bottom of [14, 25]) {
+        if (tile === 2 && bottom === 14) continue;
+        for (const dx of [4, 9, 14, 19, 24]) {
+          const x = tile * T + dx;
+          if (x < 4 || x > 121) continue;
+          const h = 6 + Math.floor(r() * 3);
+          const col = glass[Math.floor(r() * glass.length)];
+          o.rect(x, bottom - h + 2, 3, h - 2, col);
+          o.rect(x + 1, bottom - h, 1, 2, sh(col, 0.7));
+          o.set(x, bottom - h + 2, sh(col, 1.4));
+          o.rect(x, bottom - 3, 3, 1, [240, 236, 220]);
+        }
+      }
+    // neon sign
+    o.rect(67, 5, 26, 8, [30, 20, 36]);
+    const neon = [255, 110, 190];
+    const letters = { B: ['110', '101', '110', '101', '110'], A: ['010', '101', '111', '101', '101'], R: ['110', '101', '110', '101', '101'] };
+    ['B', 'A', 'R'].forEach((ch, i) =>
+      letters[ch].forEach((row, y) => [...row].forEach((bit, x) => bit === '1' && o.set(71 + i * 7 + x, 6 + y + 1, neon))),
+    );
+  });
+  g.ellipse(80, 10, 16, 6, [255, 110, 190, 40]);
+});
+// 128-131 bar counter: a polished top over a panelled front with a brass foot rail;
+// taps on the second tile, glasses and a bowl of lemons on the third
+drawPiece([[128, 129, 130, 131]], (g, { obj, shadow }) => {
+  shadow(64, 30, 63, 2);
+  obj((o) => {
+    o.box(0, 9, 128, 6, BAR_WOOD, 1.4);
+    o.box(1, 15, 126, 13, WOOD_DARK, 1.1);
+    for (let x = 9; x < 128; x += 16) o.rect(x, 16, 1, 9, sh(WOOD_DARK, 0.75));
+    o.rect(1, 24, 126, 2, BRASS);
+    o.rect(1, 24, 126, 1, sh(BRASS, 1.3));
+    o.rect(1, 27, 126, 2, sh(WOOD_DARK, 0.6));
+  });
+  obj((o) => {
+    // taps
+    o.box(41, 3, 14, 3, METAL, 1.3);
+    o.rect(43, 6, 2, 5, METAL);
+    o.rect(47, 6, 2, 5, METAL);
+    o.rect(51, 6, 2, 5, METAL);
+    o.rect(43, 0, 2, 3, [200, 60, 60]);
+    o.rect(47, 0, 2, 3, [240, 200, 80]);
+    o.rect(51, 0, 2, 3, [60, 120, 200]);
+    o.box(57, 4, 5, 8, [230, 170, 60], 1.3);
+    o.rect(57, 4, 5, 2, [250, 246, 236]);
+    // glasses and lemons
+    for (const x of [70, 76]) {
+      o.rect(x, 4, 5, 3, alpha([220, 236, 240], 220));
+      o.rect(x + 2, 7, 1, 3, [220, 236, 240]);
+      o.rect(x + 1, 10, 3, 1, [220, 236, 240]);
+      o.rect(x + 1, 5, 3, 1, [240, 120, 150]);
+    }
+    o.ellipse(88, 9, 6, 3, [230, 230, 236]);
+    for (const [x, y] of [[85, 7], [89, 6], [91, 8]]) o.ellipse(x, y, 2, 1.5, [250, 220, 60]);
+    // menu card and a bowl of nuts
+    o.box(10, 2, 7, 9, [250, 246, 230], 1, 0.85);
+    o.rect(11, 4, 5, 1, [150, 60, 60]);
+    o.rect(11, 6, 4, 1, [130, 130, 145]);
+    o.rect(11, 8, 5, 1, [130, 130, 145]);
+    o.ellipse(112, 10, 5, 2.5, [200, 200, 210]);
+    o.ellipse(112, 9, 3.5, 1.5, [190, 140, 80]);
+  });
+});
+// 132 bar stool: a red leather seat on a chrome pole
+drawTile(132, (g, { obj, shadow }) => {
+  shadow(16, 29, 7, 2);
+  obj((o) => {
+    o.ellipse(16, 27, 6, 2, sh(METAL, 0.7));
+    o.rect(15, 15, 2, 12, METAL);
+    o.rect(11, 22, 10, 1, METAL);
+    o.ellipse(16, 13, 8, 4.5, [178, 48, 56]);
+    o.ellipse(14, 12, 4, 2, [214, 90, 96]);
+  });
+});
+// 133 bistro table: a round marble top on a black stand, with a cup and a little vase
+drawTile(133, (g, { obj, shadow }) => {
+  shadow(16, 29, 10, 2.5);
+  obj((o) => {
+    o.ellipse(16, 27, 7, 2, [50, 50, 56]);
+    o.rect(15, 16, 2, 11, [50, 50, 56]);
+    o.ellipse(16, 13, 13, 7, [232, 228, 220]);
+    o.ellipse(13, 11, 6, 3, [244, 242, 236]);
+    o.box(9, 10, 4, 4, [240, 236, 228], 1, 0.85);
+    o.rect(10, 10, 2, 1, [90, 56, 36]);
+    o.rect(20, 6, 3, 6, [120, 170, 200]);
+    o.ellipse(21.5, 5, 2.5, 2, [240, 90, 120]);
+  });
+});
+// 134 floor lamp: a cream shade on a black pole, with a warm glow
+drawTile(134, (g, { obj, shadow }) => {
+  g.ellipse(16, 11, 15, 11, [255, 220, 140, 45]);
+  shadow(16, 29, 6, 2);
+  obj((o) => {
+    o.ellipse(16, 27, 5, 2, [50, 50, 56]);
+    o.rect(15, 12, 2, 15, [50, 50, 56]);
+    for (let j = 0; j < 9; j++) o.rect(11 - Math.floor(j / 2), 3 + j, 10 + 2 * Math.floor(j / 2), 1, sh([244, 226, 180], 1.05 - j * 0.03));
+  });
+});
+/** A wall lamp: a brass backplate with an arm holding a frosted glass shade, washing the wall in warm light. */
+function wallLamp(g) {
+  wallFront(g, 135);
+  for (let j = 0; j < 13; j++) {
+    const w = 8 + j * 1.6;
+    g.rect(Math.round(16 - w / 2), 13 - j, Math.round(w), 1, [255, 206, 110, Math.round(150 - j * 10)]);
+  }
+  for (let j = 0; j < 4; j++) g.rect(12 - j, 20 + j, 8 + 2 * j, 1, [255, 206, 110, 90 - j * 20]);
+  const o = canvas(T, T);
+  o.box(13, 16, 6, 9, BRASS, 1.3);
+  o.rect(15, 19, 2, 2, sh(BRASS, 0.7));
+  o.rect(15, 14, 2, 3, BRASS);
+  o.box(10, 9, 12, 6, [252, 240, 206], 1.05, 0.85);
+  o.rect(10, 9, 12, 1, [255, 252, 236]);
+  o.rect(11, 14, 10, 1, BRASS);
+  o.outline();
+  g.paste(o);
+}
+// 135 wall lamp
+drawTile(135, wallLamp);
+// 136-137 entrance in the bottom wall: glass sliding doors seen from above, between wall posts
+drawPiece([[136, 137]], (g) => {
+  g.rect(0, 0, 64, T, [84, 88, 98]);
+  for (let y = 2; y < T; y += 3) g.rect(4, y, 56, 1, [70, 72, 82]);
+  const post = canvas(T, T);
+  wallTop(post);
+  g.paste(post, -26, 0);
+  g.paste(post, 58, 0);
+  g.rect(6, 13, 52, 5, METAL);
+  g.rect(7, 14, 24, 3, [170, 220, 236]);
+  g.rect(33, 14, 24, 3, [170, 220, 236]);
+  g.rect(9, 14, 6, 1, [230, 250, 255]);
+  g.rect(35, 14, 6, 1, [230, 250, 255]);
+});
+// 138-139 doormat: a coir mat with a red border, laid over the floor (an overlay, not collidable)
+drawPiece([[138, 139]], (g) => {
+  const coir = [176, 128, 78];
+  g.rect(2, 5, 60, 22, [150, 44, 58]);
+  g.rect(5, 8, 54, 16, coir);
+  g.noise(5, 8, 54, 16, 0.18, 138);
+  for (let x = 9; x < 56; x += 6) g.rect(x, 12, 3, 8, sh(coir, 0.85));
+});
+// 140 wall lamp in a left wall, 141 in a right wall (turned like the side walls)
+drawTile(140, turned(wallLamp, 'ccw'));
+drawTile(141, turned(wallLamp, 'cw'));
+/** An inner wall running down the room, seen from above: a wall top with an edge on both sides. */
+function dividerTop(g) {
+  g.rect(0, 0, T, T, WALL_TOP);
+  g.noise(0, 0, T, T, 0.08, 142);
+  g.rect(0, 0, 2, T, sh(WALL_TOP, 0.75));
+  g.rect(T - 2, 0, 2, T, sh(WALL_TOP, 0.75));
+  g.rect(2, 0, 1, T, sh(WALL_TOP, 1.2));
+}
+// 142 inner wall running down the room
+drawTile(142, dividerTop);
+// 143 the end of such a wall above an opening: its front face shows at the bottom
+drawTile(143, (g) => {
+  dividerTop(g);
+  const face = canvas(T, T);
+  wallFront(face, 143);
+  for (let y = 18; y < T; y++) for (let x = 0; x < T; x++) g.set(x, y, face.get(x, y - 18 + 16));
+  g.rect(0, 18, T, 1, sh(WALL, 0.72));
+});
+/**
+ * One rug tile. `sides` lists the edges ('n', 'e', 's', 'w') where the rug ends and gets a border:
+ * a dark rim, a band of `border` and a thin inner line. `corners` lists inside corners ('nw', ...)
+ * where two strips of rug meet, so the borders of a rug of any shape join up.
+ */
+function rugTile(index, base, border, sides, corners = []) {
+  drawTile(index, (g) => {
+    g.rect(0, 0, T, T, base);
+    g.noise(0, 0, T, T, 0.07, 140);
+    for (let y = 0; y < T; y += 2) g.rect(0, y, T, 1, alpha(sh(base, 0.9), 70));
+    const has = (side) => sides.includes(side);
+    const bands = [[0, 2, sh(base, 0.7)], [5, 2, border], [9, 1, alpha(border, 120)]];
+    for (const [i, w, col] of bands) {
+      const from = (side) => (has(side) ? i : 0);
+      if (has('n')) g.rect(from('w'), i, T - from('w') - from('e'), w, col);
+      if (has('s')) g.rect(from('w'), T - i - w, T - from('w') - from('e'), w, col);
+      if (has('w')) g.rect(i, from('n'), w, T - from('n') - from('s'), col);
+      if (has('e')) g.rect(T - i - w, from('n'), w, T - from('n') - from('s'), col);
+      for (const c of corners) {
+        const x = c.includes('w') ? i : T - i - w;
+        const y = c.includes('n') ? i : T - i - w;
+        g.rect(x, c.includes('n') ? 0 : y, w, c.includes('n') ? i + w : T - y, col);
+        g.rect(c.includes('w') ? 0 : x, y, c.includes('w') ? i + w : T - x, w, col);
+      }
+    }
+  });
+}
+const RUNNER = [124, 38, 50];
+const RUNNER_BORDER = [206, 166, 84];
+const LOUNGE = [66, 68, 76];
+const LOUNGE_BORDER = [160, 146, 120];
+const SIDES = ['n', 'e', 's', 'w'];
+// 144-159 runner, one tile per set of bordered sides (bit 1 n, 2 e, 4 s, 8 w);
+// 160-163 runner with no border and an inside corner nw, ne, sw, se
+for (let mask = 0; mask < 16; mask++) rugTile(144 + mask, RUNNER, RUNNER_BORDER, SIDES.filter((_, b) => mask & (1 << b)));
+['nw', 'ne', 'sw', 'se'].forEach((c, i) => rugTile(160 + i, RUNNER, RUNNER_BORDER, [], [c]));
+// 164-172 lounge rug, nine tiles row by row: corners, edges and centre
+[['n', 'w'], ['n'], ['n', 'e'], ['w'], [], ['e'], ['s', 'w'], ['s'], ['s', 'e']].forEach((sides, i) =>
+  rugTile(164 + i, LOUNGE, LOUNGE_BORDER, sides),
+);
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.

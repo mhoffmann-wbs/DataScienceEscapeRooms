@@ -374,7 +374,7 @@
     },
     "lobby": {
       "title": "Die Lobby",
-      "body": "Hier treffen sich alle, die online sind. Der Chat geht an **Alle** oder nur an Leute **In der Nähe**: Der blasse Kreis um dich zeigt, wie weit „in der Nähe“ reicht. In einer Ecke mit Teppich heißt in der Nähe: alle auf demselben Teppich.\n\nMit **🎙 Sprache beitreten** (unten rechts) sprichst du mit den Leuten in deiner Nähe, mit oder ohne Kamera. Die Liste an der Seite zeigt, wer online ist und wer gerade in einem Raum spielt. Wer 🎓 vor dem Namen hat, ist eine Lehrkraft."
+      "body": "Hier treffen sich alle, die online sind. Der Chat geht an **Alle** oder nur an Leute **In der Nähe**: Der blasse Kreis um dich zeigt, wie weit „in der Nähe“ reicht. In einer Sitzecke (die beiden Teppiche mit Sofas, die Bar und das Café) heißt in der Nähe: alle in derselben Ecke.\n\nMit **🎙 Sprache beitreten** (unten rechts) sprichst du mit den Leuten in deiner Nähe, mit oder ohne Kamera. Die Liste an der Seite zeigt, wer online ist und wer gerade in einem Raum spielt. Wer 🎓 vor dem Namen hat, ist eine Lehrkraft."
     },
     "teams": {
       "title": "Ein Team bilden",

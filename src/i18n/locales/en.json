@@ -374,7 +374,7 @@
     },
     "lobby": {
       "title": "The lobby",
-      "body": "Everyone online meets here. Chat goes to **Everyone** or only to people **Nearby**: the faint circle around you shows how far nearby reaches. Inside a rug-marked corner, nearby means everyone on the same rug.\n\n**🎙 Join voice** (bottom right) to talk to the people near you, with or without camera. The list on the side shows who is online and who is playing in a room. People with 🎓 before their name are instructors."
+      "body": "Everyone online meets here. Chat goes to **Everyone** or only to people **Nearby**: the faint circle around you shows how far nearby reaches. In a seating area (the two rugs with sofas, the bar and the café), nearby means everyone in the same area.\n\n**🎙 Join voice** (bottom right) to talk to the people near you, with or without camera. The list on the side shows who is online and who is playing in a room. People with 🎓 before their name are instructors."
     },
     "teams": {
       "title": "Forming a team",

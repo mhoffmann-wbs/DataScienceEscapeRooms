@@ -24,7 +24,7 @@ Part of the architecture notes; the rules that apply everywhere are in [CLAUDE.m
 
 ## Proximity
 - One rule decides who is "near" for both nearby chat and A/V: `Proximity` (`src/net/proximity.ts`). Inside a private area (Tiled `area` object) near means the same area, whatever the distance; outside every area it means within `NEARBY_RADIUS` (5 tiles), and peers already near stay near up to `LEAVE_FACTOR` × the radius, so links don't flap at the edge. Sessions get the map's areas from `World`; use `presence.nearby(proximity, wasNear)`.
-- The lobby shows a faint, outline-free disc of that radius around the local avatar. Private areas are marked in the map itself (a rug on the floor layer); the area you stand in brightens slightly and the disc hides. Rooms show no ring because the whole team hears each other there.
+- The lobby shows a faint, outline-free disc of that radius around the local avatar. Private areas are marked in the map itself (in the lobby: the two lounge rugs, and the walled bar and café); the area you stand in brightens slightly and the disc hides. Rooms show no ring because the whole team hears each other there.
 
 ## Proximity voice/video
 - Media goes through the transport too: `NetRoom.sendStream`/`stopStream`/`onPeerStream`. Receivers are never told that a stream stopped (WebRTC doesn't either); each side decides for itself what to play.
