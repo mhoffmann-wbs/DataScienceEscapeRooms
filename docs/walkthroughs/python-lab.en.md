@@ -436,3 +436,17 @@ print("Total:", total)
 *Used by: flavour only*
 
 > Dozens of jars with mushrooms glowing a soft green. One label says: "Do NOT eat. Seriously, Tobias."
+
+## Handbook in the room: 📖 Ida's Python cheat sheet
+
+**Values and types:** [`name = value`](https://docs.python.org/3/tutorial/introduction.html), [`str(x)  int(x)`](https://docs.python.org/3/library/functions.html#func-str), [`None`](https://docs.python.org/3/library/constants.html#None), [`print(a, b, ...)`](https://docs.python.org/3/library/functions.html#print)
+
+**Text (strings):** [`a + b`](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str), [`len(x)`](https://docs.python.org/3/library/functions.html#len), [`s.upper()  s.lower()`](https://docs.python.org/3/library/stdtypes.html#str.upper), [`s.startswith(prefix)`](https://docs.python.org/3/library/stdtypes.html#str.startswith), [`s[start:stop:step]`](https://docs.python.org/3/tutorial/introduction.html#text)
+
+**Lists and loops:** [`for item in items:`](https://docs.python.org/3/tutorial/controlflow.html#for-statements), [`enumerate(items)`](https://docs.python.org/3/library/functions.html#enumerate), [`total += x`](https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements)
+
+**Decisions:** [`if / elif / else`](https://docs.python.org/3/tutorial/controlflow.html#if-statements), [`<  >  <=  >=  ==  !=`](https://docs.python.org/3/library/stdtypes.html#comparisons)
+
+**Dictionaries:** [`d[key]`](https://docs.python.org/3/tutorial/datastructures.html#dictionaries), [`d.items()  d.values()  d.keys()`](https://docs.python.org/3/library/stdtypes.html#dict.items)
+
+**Functions and errors:** [`def name(arg): ... return x`](https://docs.python.org/3/tutorial/controlflow.html#defining-functions), `from helpers import unshift`, [`Tracebacks`](https://docs.python.org/3/tutorial/errors.html)

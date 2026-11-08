@@ -477,3 +477,17 @@ show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 *Used by: flavour only*
 
 > Green and violet lights ripple across the polar night. Nordlys: northern lights. Someone has drawn a sine wave in the frost and written "seasonality!" next to it.
+
+## Handbook in the room: 📖 Station forecasting binder
+
+**Series with a date index:** [`s["2020-03"]  s[:"2020-12"]  s["2021-01":]`](https://pandas.pydata.org/docs/user_guide/timeseries.html), [`s.iloc[-1]  s.iloc[-12:]`](https://pandas.pydata.org/docs/reference/api/pandas.Series.iloc.html), [`s.isna()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.isna.html), [`s.interpolate(method="time")`](https://pandas.pydata.org/docs/reference/api/pandas.Series.interpolate.html), [`s.dropna()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.dropna.html)
+
+**Transformations:** [`np.log(s)  np.exp(x)`](https://numpy.org/doc/stable/reference/generated/numpy.log.html), [`s.diff(k)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.diff.html), [`np.polyfit(x, y, 1)`](https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html)
+
+**Baselines and errors:** [`Train and test`](https://pandas.pydata.org/docs/user_guide/timeseries.html), [`Naive and seasonal naive forecasts`](https://pandas.pydata.org/docs/reference/api/pandas.Series.html), [`np.tile(values, n)`](https://numpy.org/doc/stable/reference/generated/numpy.tile.html), [`(forecast - actual).abs().mean()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.abs.html)
+
+**Stationarity and correlation:** [`adfuller(x)`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.adfuller.html), [`ACF`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.acf.html), [`PACF`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.pacf.html), `from helpers import plot_acf, plot_pacf`
+
+**Models (statsmodels):** [`sm.tsa.ARIMA(y, order=(p, d, q), trend="n")`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html), [`result.params`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html), [`sm.tsa.SARIMAX(y, order=(p, d, q), seasonal_order=(P, D, Q, s))`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAX.html), [`result.aic`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAXResults.aic.html), [`result.forecast(steps)`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAXResults.forecast.html)
+
+**Charts:** `from helpers import show_plot`

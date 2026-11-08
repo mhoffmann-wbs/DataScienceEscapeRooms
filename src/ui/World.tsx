@@ -18,7 +18,7 @@ import { getDoor } from '../rooms/doors';
 import { AvDock } from './AvDock';
 import { ChatBubbles } from './ChatBubbles';
 import { ChatPanel } from './ChatPanel';
-import { ClueDialog, DebriefDialog, IntroDialog } from './RoomDialogs';
+import { ClueDialog, DebriefDialog, IntroDialog, ReferenceDialog } from './RoomDialogs';
 import { InteractPrompt } from './InteractPrompt';
 import { LeaveRoomDialog, RunEndedDialog } from './LeaveRoomDialog';
 import { NotesPanel } from './NotesPanel';
@@ -226,7 +226,7 @@ function RejoinReminder({ runs, hidden }: { runs: Runs; hidden: boolean }) {
   );
 }
 
-type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string } | { kind: 'leave' } | { kind: 'intro' } | { kind: 'escaped' } | null;
+type RoomDialog = { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string } | { kind: 'reference' } | { kind: 'leave' } | { kind: 'intro' } | { kind: 'escaped' } | null;
 
 interface RoomOverlaysProps {
   session: RoomSession;
@@ -320,10 +320,11 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
   const use = useCallback((target: Interactable) => {
     if (target.kind === 'door') setDialog({ kind: 'leave' });
     else if (target.kind === 'clue') setDialog({ kind: 'clue', clueId: target.clueId });
+    else if (target.kind === 'reference') setDialog({ kind: 'reference' });
     else setDialog({ kind: 'puzzle', puzzleId: target.puzzleId });
   }, []);
   // Walking away closes a dialog opened from an object, but not the intro or escape screens.
-  const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'clue' || d?.kind === 'leave' ? null : d)), []);
+  const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'clue' || d?.kind === 'reference' || d?.kind === 'leave' ? null : d)), []);
   const close = useCallback(() => setDialog(null), []);
   const openDebrief = useCallback(() => setDialog({ kind: 'escaped' }), []);
   const puzzle = dialog?.kind === 'puzzle' ? getPuzzle(roomId, dialog.puzzleId) : undefined;
@@ -334,6 +335,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
       <InteractPrompt roomId={roomId} solved={state.solved} onUse={use} onLeave={leave} />
       {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} notebook={session.notebook} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
       {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} notebook={session.notebook} onClose={close} />}
+      {dialog?.kind === 'reference' && <ReferenceDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'leave' && !ending && <LeaveRoomDialog finished={escaped} solo={solo} onEnd={canEnd ? endRun : undefined} onLeave={() => onLeaveRoom(escaped)} onStay={close} />}
       {ended && !ending && <RunEndedDialog onLobby={() => onLeaveRoom(true)} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}

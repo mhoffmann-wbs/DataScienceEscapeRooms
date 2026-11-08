@@ -179,7 +179,12 @@
   "interact": {
     "puzzlePrompt": "Press E to examine",
     "solvedTag": "Solved",
-    "cluePrompt": "Press E to look closer"
+    "cluePrompt": "Press E to look closer",
+    "referencePrompt": "Press E to read"
+  },
+  "reference": {
+    "docs": "Docs ↗",
+    "docsLabel": "{{name}}: opens the official documentation in a new tab"
   },
   "puzzle": {
     "run": "Run ▶",
@@ -365,7 +370,7 @@
     },
     "puzzles": {
       "title": "Solving puzzles",
-      "body": "Write your code in the editor, press **Run ▶** to try it as often as you like, then **Check solution**. Each of you has your own editor and sandbox; nothing breaks for the others.\n\nSolved puzzles often **reveal** something (a digit, a decoded message) that another puzzle needs.\n\nStuck? Each puzzle has up to 3 **hints**, from a nudge to almost the solution. Hints are shared with your team and count on the scoreboard, so try first, then ask."
+      "body": "Write your code in the editor, press **Run ▶** to try it as often as you like, then **Check solution**. Each of you has your own editor and sandbox; nothing breaks for the others.\n\nForgot how a function works? Every room has a 📖 **handbook** on a reading stand: the functions and ideas the room needs, each with a short explanation and a link to the official documentation.\n\nSolved puzzles often **reveal** something (a digit, a decoded message) that another puzzle needs.\n\nStuck? Each puzzle has up to 3 **hints**, from a nudge to almost the solution. Hints are shared with your team and count on the scoreboard, so try first, then ask."
     },
     "together": {
       "title": "Working as a team",

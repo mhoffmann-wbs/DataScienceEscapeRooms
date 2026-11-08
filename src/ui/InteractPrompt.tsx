@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { bus, type Interactable } from '../game/events';
 import { LOBBY } from '../game/maps';
-import { getClue, getPuzzle, loc } from '../rooms';
+import { getClue, getPuzzle, loc, ROOMS } from '../rooms';
 import { getDoor } from '../rooms/doors';
 
 interface Props {
@@ -45,6 +45,10 @@ export function InteractPrompt({ roomId, solved, onUse, onEnter, onLeave }: Prop
     const clue = roomId ? getClue(roomId, target.clueId) : undefined;
     label = clue ? loc(clue.title, i18n.language) : target.clueId;
     hint = t('interact.cluePrompt');
+  } else if (target.kind === 'reference') {
+    const reference = roomId ? ROOMS[roomId]?.reference : undefined;
+    label = reference ? `📖 ${loc(reference.title, i18n.language)}` : '📖';
+    hint = t('interact.referencePrompt');
   } else {
     const puzzle = roomId ? getPuzzle(roomId, target.puzzleId) : undefined;
     label = puzzle ? loc(puzzle.title, i18n.language) : target.puzzleId;

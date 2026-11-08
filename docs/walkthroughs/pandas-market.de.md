@@ -420,3 +420,15 @@ print(badge, round(missing, 2))
 > Ausweis 12: Mia Roth
 >
 > Jeder Ausweis holt um 14:00 Uhr die Bargeldumschläge seiner Stände ab.
+
+## Handbuch im Raum: 📖 Der pandas-Ordner des Marktbüros
+
+**Laden und ansehen:** [`pd.read_csv("file.csv")`](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html), [`df.head(n)  df.dtypes  len(df)`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html), [`s.unique()  s.nunique()  s.value_counts()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html)
+
+**Auswählen und filtern:** [`df["col"]  df[["a", "b"]]`](https://pandas.pydata.org/docs/user_guide/indexing.html#basics), [`df[df["col"] == value]`](https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing), [`s.isin([a, b])`](https://pandas.pydata.org/docs/reference/api/pandas.Series.isin.html), [`s.iloc[0]`](https://pandas.pydata.org/docs/reference/api/pandas.Series.iloc.html)
+
+**Textspalten bereinigen:** [`s.str.strip()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html), [`s.str.lower()  s.str.upper()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html), [`s.str.replace(old, new)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html), [`s.replace({old: new})`](https://pandas.pydata.org/docs/reference/api/pandas.Series.replace.html), [`df["col"] = ...`](https://pandas.pydata.org/docs/getting_started/intro_tutorials/05_add_columns.html)
+
+**Zahlen:** [`s.astype(float)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.astype.html), [`df["a"] * df["b"]`](https://pandas.pydata.org/docs/getting_started/intro_tutorials/05_add_columns.html), [`s.sum()  s.max()  round(x, 2)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sum.html)
+
+**Gruppieren und verbinden:** [`df.groupby("key")["col"].sum()`](https://pandas.pydata.org/docs/user_guide/groupby.html), [`s.idxmax()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmax.html), [`s.reset_index(name="col")`](https://pandas.pydata.org/docs/reference/api/pandas.Series.reset_index.html), [`pd.merge(left, right, on="key")`](https://pandas.pydata.org/docs/reference/api/pandas.merge.html)

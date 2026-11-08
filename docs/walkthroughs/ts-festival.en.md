@@ -556,3 +556,17 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 > Expected visitors, opening weekend, **Friday 19 to Sunday 21 June 2026**: the sum of all three days, from the office's forecasting model.
 >
 > Only accepted from a model that beats the best simple rule on June to September 2025.
+
+## Handbook in the room: 📖 The forecasting office's manual
+
+**Preparing the data:** [`df = s.reset_index()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reset_index.html), [`df.loc[condition, "y"] = None`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html), [`Gaps: empty, not filled`](https://pandas.pydata.org/docs/reference/api/pandas.Series.isna.html), [`pd.to_datetime([...])  pd.concat([a, b], ignore_index=True)`](https://pandas.pydata.org/docs/reference/api/pandas.concat.html)
+
+**Baselines and errors:** [`y[:"2022-05-31"]  y["2022-06-01":]`](https://pandas.pydata.org/docs/user_guide/timeseries.html), [`Naive forecasts`](https://numpy.org/doc/stable/reference/generated/numpy.tile.html), [`y.shift(k)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.shift.html), [`(forecast - actual).abs().mean()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.abs.html), [`np.log(y)  np.exp(yhat)`](https://numpy.org/doc/stable/reference/generated/numpy.log.html)
+
+**The Prophet-style model:** [`from prophet import Prophet`](https://facebook.github.io/prophet/docs/quick_start.html), `Prophet(seasonality_mode="additive", holidays=None, changepoints=None, ...)`, `m.fit(df)`, `m.make_future_dataframe(periods, freq="D", include_history=True)`, `forecast = m.predict(df)`, `forecast columns`
+
+**Trend and changepoints:** `m.changepoints`, `m.params["delta"][0]`, `Reading growth from the trend`
+
+**Seasonality and holidays:** `seasonality_mode="multiplicative"`, `holidays: holiday, ds, lower_window, upper_window`
+
+**Charts:** `from helpers import show_plot`

@@ -179,7 +179,12 @@
   "interact": {
     "puzzlePrompt": "Drücke E zum Untersuchen",
     "solvedTag": "Gelöst",
-    "cluePrompt": "Drücke E, um genauer hinzusehen"
+    "cluePrompt": "Drücke E, um genauer hinzusehen",
+    "referencePrompt": "Drücke E zum Lesen"
+  },
+  "reference": {
+    "docs": "Doku ↗",
+    "docsLabel": "{{name}}: öffnet die offizielle Dokumentation in einem neuen Tab"
   },
   "puzzle": {
     "run": "Ausführen ▶",
@@ -365,7 +370,7 @@
     },
     "puzzles": {
       "title": "Rätsel lösen",
-      "body": "Schreib deinen Code in den Editor, probier ihn mit **Ausführen ▶** so oft du willst und klick dann auf **Lösung prüfen**. Jede und jeder hat einen eigenen Editor und eine eigene Sandbox; für die anderen geht nichts kaputt.\n\nGelöste Rätsel **verraten** oft etwas (eine Ziffer, eine entschlüsselte Nachricht), das ein anderes Rätsel braucht.\n\nKommt ihr nicht weiter? Jedes Rätsel hat bis zu 3 **Tipps**, vom Anstoß bis fast zur Lösung. Tipps gelten fürs ganze Team und zählen auf der Bestenliste, also erst probieren, dann fragen."
+      "body": "Schreib deinen Code in den Editor, probier ihn mit **Ausführen ▶** so oft du willst und klick dann auf **Lösung prüfen**. Jede und jeder hat einen eigenen Editor und eine eigene Sandbox; für die anderen geht nichts kaputt.\n\nWie ging diese Funktion noch mal? In jedem Raum liegt ein 📖 **Handbuch** auf einem Lesepult: die Funktionen und Ideen, die der Raum braucht, jeweils kurz erklärt und mit einem Link zur offiziellen Dokumentation.\n\nGelöste Rätsel **verraten** oft etwas (eine Ziffer, eine entschlüsselte Nachricht), das ein anderes Rätsel braucht.\n\nKommt ihr nicht weiter? Jedes Rätsel hat bis zu 3 **Tipps**, vom Anstoß bis fast zur Lösung. Tipps gelten fürs ganze Team und zählen auf der Bestenliste, also erst probieren, dann fragen."
     },
     "together": {
       "title": "Als Team arbeiten",

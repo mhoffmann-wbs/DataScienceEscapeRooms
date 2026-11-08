@@ -468,3 +468,15 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 > Stand 4: Limonadenstand
 >
 > Ausgang: das Tor an der Ostseite (schließt um Mitternacht).
+
+## Handbuch im Raum: 📖 Das Taschenbuch für Prüfer
+
+**Daten beschreiben:** [`s.describe()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.describe.html), [`s.mean()  s.median()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.median.html), [`s.std()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.std.html), [`s[(s > a) & (s <= b)]`](https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing), `from helpers import show_hist`
+
+**Zählen und Wahrscheinlichkeit:** `P = favourable / all`, [`itertools.product(values, repeat=k)`](https://docs.python.org/3/library/itertools.html#itertools.product), [`s.isin(values)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.isin.html), [`mask.sum()  mask.mean()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sum.html), [`s.value_counts(normalize=True)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html)
+
+**Die Binomialverteilung:** [`Binomial(n, p)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html), [`stats.binom.pmf(k, n, p)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html), [`stats.binom.cdf(k, n, p)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html), [`stats.binom.sf(k, n, p)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html), [`Unlikely if fair?`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html), [`Expected value`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_discrete.expect.html), `from helpers import show_bars`
+
+**Die Normalverteilung:** [`z = (x - mu) / sigma`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`stats.norm.cdf(x, loc=mu, scale=sigma)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`stats.norm.ppf(q, loc=mu, scale=sigma)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html)
+
+**Grundgesamtheit und Stichprobe:** [`Population vs. sample`](https://docs.python.org/3/library/statistics.html#statistics.pstdev), [`s.sample(n, random_state=seed)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sample.html), `Sampling bias`, [`[expr for i in range(1000)]`](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)

@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 4,
- "nextobjectid": 14,
+ "nextobjectid": 15,
  "layers": [
   {
    "id": 1,
@@ -453,7 +453,7 @@
     0,
     0,
     0,
-    0,
+    78,
     3,
     3,
     0,
@@ -935,6 +935,17 @@
        "value": "price-board"
       }
      ]
+    },
+    {
+     "id": 14,
+     "name": "handbook",
+     "type": "reference",
+     "x": 640,
+     "y": 96,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true
     }
    ]
   }
@@ -1535,6 +1546,16 @@
     },
     {
      "id": 76,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 77,
      "properties": [
       {
        "name": "collides",

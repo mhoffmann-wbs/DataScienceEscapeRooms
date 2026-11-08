@@ -112,6 +112,17 @@ describe('parseMapObjects', () => {
     expect(() => parseMapObjects(mapWith({}))).toThrow(/clueId/);
   });
 
+  it('reads the handbook object', () => {
+    const map = tiledMapSchema.parse({
+      width: 1, height: 1, tilewidth: 32, tileheight: 32, tilesets: [],
+      layers: [{ type: 'objectgroup', name: 'objects', objects: [
+        { id: 1, name: 'spawn', type: 'spawn', x: 0, y: 0, width: 0, height: 0 },
+        { id: 2, name: 'handbook', class: 'reference', x: 32, y: 64, width: 32, height: 64 },
+      ] }],
+    });
+    expect(parseMapObjects(map).references).toEqual([{ x: 32, y: 64, width: 32, height: 64 }]);
+  });
+
   it('picks spawn points inside spawn areas, and near point spawns', () => {
     expect(pickSpawnPoint({ x: 100, y: 100, width: 64, height: 32 }, () => 0.5)).toEqual({ x: 132, y: 116 });
     expect(pickSpawnPoint({ x: 100, y: 100, width: 0, height: 0 }, () => 0)).toEqual({ x: 88, y: 88 });

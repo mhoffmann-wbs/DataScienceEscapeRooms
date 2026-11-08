@@ -395,5 +395,161 @@
         "de": "Edwina Tabula, die das Hotel 1898 gegründet hat. Auf einem Messingschild darunter steht: \"Jeder Gast ist eine Zeile in meinem Buch.\""
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "The night manager's SQL folder",
+      "de": "Die SQL-Mappe des Nachtmanagers"
+    },
+    "intro": {
+      "en": "A leather folder on a reading stand, stamped HOTEL TABULA · IT. Otto keeps it for the nights when the database needs asking something. Each page links to the official SQLite documentation.",
+      "de": "Eine Ledermappe auf einem Lesepult, geprägt mit HOTEL TABULA · IT. Otto hat sie für die Nächte, in denen er die Datenbank etwas fragen muss. Jede Seite verweist auf die offizielle SQLite-Dokumentation."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Reading a table",
+          "de": "Eine Tabelle lesen"
+        },
+        "entries": [
+          {
+            "name": "SELECT columns FROM table",
+            "text": {
+              "en": "The basic query: which columns, from which table. `SELECT *` takes every column. Separate several columns with commas: `SELECT name, room FROM guests`. The tables and their columns are listed next to the editor.",
+              "de": "Die Grundform einer Abfrage: welche Spalten, aus welcher Tabelle. `SELECT *` nimmt alle Spalten. Mehrere Spalten trennst du mit Kommas: `SELECT name, room FROM guests`. Die Tabellen und ihre Spalten stehen neben dem Editor."
+            },
+            "link": "https://www.sqlite.org/lang_select.html"
+          },
+          {
+            "name": "LIMIT n",
+            "text": {
+              "en": "Shows only the first `n` rows. Handy for a first look at a table: `SELECT * FROM guests LIMIT 5;`",
+              "de": "Zeigt nur die ersten `n` Zeilen. Praktisch für einen ersten Blick auf eine Tabelle: `SELECT * FROM guests LIMIT 5;`"
+            },
+            "link": "https://www.sqlite.org/lang_select.html#the_limit_clause"
+          },
+          {
+            "name": "expression AS name",
+            "text": {
+              "en": "Gives a result column a name of your own: `SELECT COUNT(*) AS visits`. You can then use that name in `ORDER BY`.",
+              "de": "Gibt einer Ergebnisspalte einen eigenen Namen: `SELECT COUNT(*) AS visits`. Diesen Namen kannst du dann in `ORDER BY` verwenden."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#resultset"
+          },
+          {
+            "name": "statement;",
+            "text": {
+              "en": "A semicolon ends a statement. If the editor holds several statements, only the last one's result is shown and checked.",
+              "de": "Ein Semikolon beendet eine Anweisung. Stehen mehrere Anweisungen im Editor, wird nur das Ergebnis der letzten angezeigt und geprüft."
+            },
+            "link": "https://www.sqlite.org/lang.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Filtering rows",
+          "de": "Zeilen filtern"
+        },
+        "entries": [
+          {
+            "name": "WHERE condition",
+            "text": {
+              "en": "Keeps only the rows for which the condition is true: `WHERE room = 101`. Text values go in single quotes: `WHERE name = 'Ada'`.",
+              "de": "Behält nur die Zeilen, für die die Bedingung wahr ist: `WHERE room = 101`. Textwerte stehen in einfachen Anführungszeichen: `WHERE name = 'Ada'`."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#whereclause"
+          },
+          {
+            "name": "=  <>  <  <=  >  >=",
+            "text": {
+              "en": "Comparisons. `=` is equal (one equals sign in SQL), `<>` or `!=` is not equal. They work on numbers and on text.",
+              "de": "Vergleiche. `=` heißt gleich (in SQL ein einziges Gleichheitszeichen), `<>` oder `!=` heißt ungleich. Sie funktionieren mit Zahlen und mit Text."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#binaryops"
+          },
+          {
+            "name": "AND  OR  NOT",
+            "text": {
+              "en": "Combine conditions. `AND` needs both to be true, `OR` either one. When you mix them, use brackets: `WHERE a = 1 AND (b = 2 OR b = 3)`.",
+              "de": "Verknüpfen Bedingungen. Bei `AND` müssen beide wahr sein, bei `OR` reicht eine. Wenn du sie mischst, setze Klammern: `WHERE a = 1 AND (b = 2 OR b = 3)`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#binaryops"
+          },
+          {
+            "name": "x BETWEEN low AND high",
+            "text": {
+              "en": "Short for `x >= low AND x <= high`. Both ends are included: `room BETWEEN 101 AND 104` keeps 101, 102, 103 and 104.",
+              "de": "Kurz für `x >= low AND x <= high`. Beide Enden zählen mit: `room BETWEEN 101 AND 104` behält 101, 102, 103 und 104."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#between"
+          },
+          {
+            "name": "'YYYY-MM-DD HH:MM'",
+            "text": {
+              "en": "SQLite has no separate date type: dates and times are stored as text, like `'2025-01-31'` or `'2025-01-31 23:15'`. Because the biggest unit comes first and every part has a fixed width, text comparison puts them in time order. So `<`, `>=` and `BETWEEN` work on them, as long as you write the value in exactly the same form.",
+              "de": "SQLite hat keinen eigenen Datumstyp: Datum und Uhrzeit sind Text, etwa `'2025-01-31'` oder `'2025-01-31 23:15'`. Weil die größte Einheit vorne steht und jeder Teil eine feste Breite hat, bringt ein Textvergleich sie in zeitliche Reihenfolge. `<`, `>=` und `BETWEEN` funktionieren also, solange du den Wert genau in derselben Form schreibst."
+            },
+            "link": "https://www.sqlite.org/lang_datefunc.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Sorting and counting",
+          "de": "Sortieren und Zählen"
+        },
+        "entries": [
+          {
+            "name": "ORDER BY column [DESC]",
+            "text": {
+              "en": "Sorts the result, smallest or earliest first. Add `DESC` for largest first. Several columns sort by the first, then the next: `ORDER BY room, time`. Without `ORDER BY` the order of the rows is not guaranteed.",
+              "de": "Sortiert das Ergebnis, kleinster oder frühester Wert zuerst. Mit `DESC` kommt der größte zuerst. Mehrere Spalten sortieren erst nach der ersten, dann nach der nächsten: `ORDER BY room, time`. Ohne `ORDER BY` ist die Reihenfolge der Zeilen nicht festgelegt."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#the_order_by_clause"
+          },
+          {
+            "name": "COUNT(*)",
+            "text": {
+              "en": "Counts rows. On its own it counts the whole (filtered) table: `SELECT COUNT(*) FROM guests WHERE room > 300`. With `GROUP BY` it counts per group.",
+              "de": "Zählt Zeilen. Allein zählt es die ganze (gefilterte) Tabelle: `SELECT COUNT(*) FROM guests WHERE room > 300`. Mit `GROUP BY` zählt es pro Gruppe."
+            },
+            "link": "https://www.sqlite.org/lang_aggfunc.html#count"
+          },
+          {
+            "name": "GROUP BY column",
+            "text": {
+              "en": "Collapses the rows into one row per distinct value, so `COUNT(*)` counts each group: `SELECT room, COUNT(*) FROM visits GROUP BY room`. Select only the grouped columns and counts. `WHERE` filters the rows before they are grouped.",
+              "de": "Fasst die Zeilen zu einer Zeile pro Wert zusammen, sodass `COUNT(*)` jede Gruppe zählt: `SELECT room, COUNT(*) FROM visits GROUP BY room`. Wähle nur die gruppierten Spalten und die Zählung aus. `WHERE` filtert die Zeilen, bevor sie gruppiert werden."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#resultset"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Joining tables",
+          "de": "Tabellen verbinden"
+        },
+        "entries": [
+          {
+            "name": "JOIN other ON a.col = b.col",
+            "text": {
+              "en": "Puts rows of two tables side by side wherever the condition matches, typically a shared id: `FROM orders JOIN customers ON orders.customer_id = customers.customer_id`. Rows without a partner drop out.",
+              "de": "Stellt Zeilen zweier Tabellen nebeneinander, wo die Bedingung passt, meist über eine gemeinsame ID: `FROM orders JOIN customers ON orders.customer_id = customers.customer_id`. Zeilen ohne Partner fallen weg."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#fromclause"
+          },
+          {
+            "name": "FROM table AS t",
+            "text": {
+              "en": "A short alias for a table, so you can write `t.col` instead of the full name. When both tables have a column of the same name, you must say which one you mean (`o.customer_id`), or SQLite reports an ambiguous column.",
+              "de": "Ein kurzer Alias für eine Tabelle, damit du `t.col` statt des vollen Namens schreiben kannst. Haben beide Tabellen eine Spalte gleichen Namens, musst du sagen, welche du meinst (`o.customer_id`), sonst meldet SQLite eine mehrdeutige Spalte (ambiguous column)."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#fromclause"
+          }
+        ]
+      }
+    ]
+  }
 }

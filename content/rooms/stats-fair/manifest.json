@@ -407,5 +407,245 @@
         "de": "KLEEBERGER HERBSTMARKT · Plan\n\nStand 1: Kassenhäuschen\nStand 2: Ententeich\nStand 3: Glückssieben\nStand 4: Limonadenstand\n\nAusgang: das Tor an der Ostseite (schließt um Mitternacht)."
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "The inspector's pocket guide",
+      "de": "Das Taschenbuch für Prüfer"
+    },
+    "intro": {
+      "en": "A worn pocket guide on a stand by the stalls, issued to every inspector of the fair commission. It lists the statistics and the Python you need on an inspection, with a link to the official documentation for each entry.",
+      "de": "Ein abgegriffenes Taschenbuch auf einem Ständer bei den Buden, ausgegeben an alle Prüfer der Festplatzkommission. Es listet die Statistik und das Python, das du bei einer Prüfung brauchst, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Describing data",
+          "de": "Daten beschreiben"
+        },
+        "entries": [
+          {
+            "name": "s.describe()",
+            "text": {
+              "en": "A first look at a pandas Series of numbers: count, mean, standard deviation, minimum, quartiles and maximum. A minimum or maximum that makes no sense is a sign of typos or placeholder values.",
+              "de": "Ein erster Blick auf eine pandas-Series mit Zahlen: Anzahl, Mittelwert, Standardabweichung, Minimum, Quartile und Maximum. Ein Minimum oder Maximum, das keinen Sinn ergibt, deutet auf Tippfehler oder Platzhalterwerte hin."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.describe.html"
+          },
+          {
+            "name": "s.mean()  s.median()",
+            "text": {
+              "en": "The mean adds everything up and divides by the count, so a single extreme value can pull it far away. The median is the middle value after sorting; a few outliers barely move it. If the two differ a lot, look for outliers.",
+              "de": "Der Mittelwert addiert alles und teilt durch die Anzahl, ein einzelner extremer Wert kann ihn also weit verschieben. Der Median ist der mittlere Wert nach dem Sortieren; ein paar Ausreißer bewegen ihn kaum. Liegen beide weit auseinander, such nach Ausreißern."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.median.html"
+          },
+          {
+            "name": "s.std()",
+            "text": {
+              "en": "The standard deviation: how far values typically lie from the mean. pandas divides by n − 1 (`ddof=1`), the **sample** standard deviation, which is right when your data are a sample of something bigger. numpy's `np.std` divides by n (`ddof=0`) unless you say otherwise, so the two can disagree slightly.",
+              "de": "Die Standardabweichung: wie weit die Werte typischerweise vom Mittelwert entfernt liegen. pandas teilt durch n − 1 (`ddof=1`), die **Stichproben**-Standardabweichung, die richtige Wahl, wenn deine Daten eine Stichprobe aus etwas Größerem sind. numpys `np.std` teilt durch n (`ddof=0`), wenn du nichts anderes angibst, daher können beide leicht voneinander abweichen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.std.html"
+          },
+          {
+            "name": "s[(s > a) & (s <= b)]",
+            "text": {
+              "en": "Keeps only the values that meet a condition (a boolean mask). Combine conditions with `&` (and) and `|` (or), and put each one in parentheses. On a DataFrame it works the same way: `df[(df.city == \"Bonn\") & (df.age > 30)]`. `s.sort_values()` with `.head()` or `.tail()` shows the smallest and largest values first.",
+              "de": "Behält nur die Werte, die eine Bedingung erfüllen (eine boolesche Maske). Bedingungen verknüpfst du mit `&` (und) und `|` (oder), jede in eigenen Klammern. Bei einem DataFrame geht es genauso: `df[(df.city == \"Bonn\") & (df.age > 30)]`. `s.sort_values()` mit `.head()` oder `.tail()` zeigt die kleinsten und größten Werte zuerst."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing"
+          },
+          {
+            "name": "from helpers import show_hist",
+            "text": {
+              "en": "A chart helper written for this room, not part of a library: `show_hist(s, title=\"...\")` draws a histogram below your output, so you can see where the values pile up and spot outliers. Several samples share the bins: `show_hist(a, b, labels=[\"a\", \"b\"])`; `bins=` sets their number.",
+              "de": "Ein Diagramm-Helfer für diesen Raum, nicht Teil einer Bibliothek: `show_hist(s, title=\"...\")` zeichnet ein Histogramm unter deine Ausgabe, damit du siehst, wo sich die Werte häufen, und Ausreißer erkennst. Mehrere Stichproben teilen sich die Klassen: `show_hist(a, b, labels=[\"a\", \"b\"])`; `bins=` legt ihre Anzahl fest."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Counting and chance",
+          "de": "Zählen und Wahrscheinlichkeit"
+        },
+        "entries": [
+          {
+            "name": "P = favourable / all",
+            "text": {
+              "en": "When all outcomes are equally likely, the probability of an event is the number of outcomes where it happens divided by the number of all outcomes. With two coins, \"two heads\" is 1 of 4 outcomes: 1/4. List the outcomes first, then count.",
+              "de": "Sind alle Ergebnisse gleich wahrscheinlich, ist die Wahrscheinlichkeit eines Ereignisses die Zahl der Ergebnisse, bei denen es eintritt, geteilt durch die Zahl aller Ergebnisse. Bei zwei Münzen ist „zweimal Kopf“ 1 von 4 Ergebnissen: 1/4. Erst die Ergebnisse auflisten, dann zählen."
+            }
+          },
+          {
+            "name": "itertools.product(values, repeat=k)",
+            "text": {
+              "en": "Every combination of `k` picks from `values`, as tuples: `list(product(\"HT\", repeat=2))` gives `[('H','H'), ('H','T'), ('T','H'), ('T','T')]`. Loop over it with `for a, b in ...` and count the ones you want, e.g. `sum(1 for a, b in outcomes if a == b)`.",
+              "de": "Alle Kombinationen aus `k` Ziehungen aus `values`, als Tupel: `list(product(\"KZ\", repeat=2))` ergibt `[('K','K'), ('K','Z'), ('Z','K'), ('Z','Z')]`. Mit `for a, b in ...` durchlaufen und die gewünschten zählen, z. B. `sum(1 for a, b in outcomes if a == b)`."
+            },
+            "link": "https://docs.python.org/3/library/itertools.html#itertools.product"
+          },
+          {
+            "name": "s.isin(values)",
+            "text": {
+              "en": "`True` wherever a value is one of `values`: `s.isin([2, 3])`. Columns can be combined first: `(df.a + df.b).isin([...])` checks the row sums.",
+              "de": "`True` überall dort, wo ein Wert einer der `values` ist: `s.isin([2, 3])`. Spalten lassen sich vorher verrechnen: `(df.a + df.b).isin([...])` prüft die Zeilensummen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.isin.html"
+          },
+          {
+            "name": "mask.sum()  mask.mean()",
+            "text": {
+              "en": "On a Series of `True`/`False`, `True` counts as 1: `.sum()` counts how often a condition holds, `.mean()` gives the share. `(s >= 3).mean()` is the share of values of at least 3.",
+              "de": "Bei einer Series aus `True`/`False` zählt `True` als 1: `.sum()` zählt, wie oft eine Bedingung zutrifft, `.mean()` liefert den Anteil. `(s >= 3).mean()` ist der Anteil der Werte ab 3."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.sum.html"
+          },
+          {
+            "name": "s.value_counts(normalize=True)",
+            "text": {
+              "en": "How often each value occurs; with `normalize=True` as shares instead of counts. Sort by value with `.sort_index()`; `.reindex(range(7), fill_value=0)` adds values that never occurred, with 0.",
+              "de": "Wie oft jeder Wert vorkommt; mit `normalize=True` als Anteile statt Anzahlen. Nach Wert sortieren mit `.sort_index()`; `.reindex(range(7), fill_value=0)` ergänzt Werte, die nie vorkamen, mit 0."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "The binomial distribution",
+          "de": "Die Binomialverteilung"
+        },
+        "entries": [
+          {
+            "name": "Binomial(n, p)",
+            "text": {
+              "en": "The number of successes in `n` independent tries that each succeed with the same probability `p`: heads in 10 coin flips is Binomial(10, 0.5). In `scipy.stats` it is `stats.binom`, and every function takes `k, n, p`.",
+              "de": "Die Zahl der Erfolge in `n` unabhängigen Versuchen, die jeweils mit derselben Wahrscheinlichkeit `p` gelingen: Kopf bei 10 Münzwürfen ist Binomial(10, 0,5). In `scipy.stats` heißt sie `stats.binom`, und jede Funktion nimmt `k, n, p`."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html"
+          },
+          {
+            "name": "stats.binom.pmf(k, n, p)",
+            "text": {
+              "en": "P(X = k): the chance of exactly `k` successes. Give it a range to get all of them at once: `stats.binom.pmf(range(11), 10, 0.5)`.",
+              "de": "P(X = k): die Wahrscheinlichkeit für genau `k` Erfolge. Mit einem Bereich bekommst du alle auf einmal: `stats.binom.pmf(range(11), 10, 0.5)`."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html"
+          },
+          {
+            "name": "stats.binom.cdf(k, n, p)",
+            "text": {
+              "en": "P(X ≤ k): the chance of **at most** `k` successes, the lower tail.",
+              "de": "P(X ≤ k): die Wahrscheinlichkeit für **höchstens** `k` Erfolge, das untere Ende der Verteilung."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html"
+          },
+          {
+            "name": "stats.binom.sf(k, n, p)",
+            "text": {
+              "en": "P(X > k) = 1 − cdf: the chance of **more than** `k` successes, the upper tail. Careful with \"at least\": P(X ≥ k) is `sf(k - 1, n, p)`.",
+              "de": "P(X > k) = 1 − cdf: die Wahrscheinlichkeit für **mehr als** `k` Erfolge, das obere Ende. Vorsicht bei „mindestens“: P(X ≥ k) ist `sf(k - 1, n, p)`."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html"
+          },
+          {
+            "name": "Unlikely if fair?",
+            "text": {
+              "en": "To judge a result, assume the game is fair and ask how likely a result this extreme (or more) would be. That tail probability is the **p-value**. If it is below the limit you set in advance, chance alone is a poor explanation, and the game is suspicious. A large p-value doesn't prove a game fair; it only finds no evidence against it.",
+              "de": "Um ein Ergebnis zu beurteilen, nimm an, das Spiel sei fair, und frag, wie wahrscheinlich ein so extremes (oder extremeres) Ergebnis wäre. Diese Randwahrscheinlichkeit ist der **p-Wert**. Liegt er unter der vorher festgelegten Grenze, taugt der Zufall allein schlecht als Erklärung, und das Spiel ist verdächtig. Ein großer p-Wert beweist nicht, dass ein Spiel fair ist; er findet nur keine Hinweise dagegen."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html"
+          },
+          {
+            "name": "Expected value",
+            "text": {
+              "en": "The long-run average of a game: every possible amount times its probability, added up. A stall that takes €1 and pays out €4 with probability 0.2 earns 1 − 4 · 0.2 = €0.20 per game on average.",
+              "de": "Der langfristige Durchschnitt eines Spiels: jeder mögliche Betrag mal seine Wahrscheinlichkeit, aufaddiert. Eine Bude, die 1 € kassiert und mit Wahrscheinlichkeit 0,2 4 € auszahlt, verdient im Schnitt 1 − 4 · 0,2 = 0,20 € pro Spiel."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_discrete.expect.html"
+          },
+          {
+            "name": "from helpers import show_bars",
+            "text": {
+              "en": "A chart helper written for this room, not part of a library: draws one or more series as bars below your output, e.g. theory next to what happened: `show_bars(theory, observed, x=range(11), labels=[\"theory\", \"observed\"])`. A Series' index labels the bars, otherwise pass `x=`.",
+              "de": "Ein Diagramm-Helfer für diesen Raum, nicht Teil einer Bibliothek: zeichnet eine oder mehrere Reihen als Balken unter deine Ausgabe, z. B. Theorie neben dem, was passiert ist: `show_bars(theory, observed, x=range(11), labels=[\"Theorie\", \"beobachtet\"])`. Der Index einer Series beschriftet die Balken, sonst gib `x=` an."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "The normal distribution",
+          "de": "Die Normalverteilung"
+        },
+        "entries": [
+          {
+            "name": "z = (x - mu) / sigma",
+            "text": {
+              "en": "The z-score: how many standard deviations a value lies from the mean. Negative means below the mean. About 95 % of a normal distribution lies within z = ±1.96.",
+              "de": "Der z-Wert: wie viele Standardabweichungen ein Wert vom Mittelwert entfernt liegt. Negativ heißt unter dem Mittelwert. Etwa 95 % einer Normalverteilung liegen innerhalb von z = ±1,96."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html"
+          },
+          {
+            "name": "stats.norm.cdf(x, loc=mu, scale=sigma)",
+            "text": {
+              "en": "P(X < x) for a normal distribution with mean `loc` and standard deviation `scale`: the share of values below `x`. Without `loc` and `scale` it is the standard normal, so `stats.norm.cdf(z)` works on a z-score.",
+              "de": "P(X < x) für eine Normalverteilung mit Mittelwert `loc` und Standardabweichung `scale`: der Anteil der Werte unter `x`. Ohne `loc` und `scale` ist es die Standardnormalverteilung, `stats.norm.cdf(z)` funktioniert also mit einem z-Wert."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html"
+          },
+          {
+            "name": "stats.norm.ppf(q, loc=mu, scale=sigma)",
+            "text": {
+              "en": "The reverse of `cdf`: the value with a share `q` of the distribution below it. `stats.norm.ppf(0.1)` is about −1.28: 10 % of the standard normal lies below z = −1.28. Useful to work backwards from an allowed share to a limit or a setting.",
+              "de": "Die Umkehrung von `cdf`: der Wert, unter dem ein Anteil `q` der Verteilung liegt. `stats.norm.ppf(0.1)` ist etwa −1,28: 10 % der Standardnormalverteilung liegen unter z = −1,28. Praktisch, um von einem erlaubten Anteil auf eine Grenze oder Einstellung zurückzurechnen."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Populations and samples",
+          "de": "Grundgesamtheit und Stichprobe"
+        },
+        "entries": [
+          {
+            "name": "Population vs. sample",
+            "text": {
+              "en": "The **population** is everyone you want to know about; its mean is a fixed **parameter**. A **sample** is the part you actually measured; its mean is an **estimate**, which changes from sample to sample. An estimate is only trustworthy if the sample was drawn at random.",
+              "de": "Die **Grundgesamtheit** sind alle, über die du etwas wissen willst; ihr Mittelwert ist ein fester **Parameter**. Eine **Stichprobe** ist der Teil, den du tatsächlich gemessen hast; ihr Mittelwert ist eine **Schätzung**, die sich von Stichprobe zu Stichprobe ändert. Vertrauenswürdig ist eine Schätzung nur, wenn die Stichprobe zufällig gezogen wurde."
+            },
+            "link": "https://docs.python.org/3/library/statistics.html#statistics.pstdev"
+          },
+          {
+            "name": "s.sample(n, random_state=seed)",
+            "text": {
+              "en": "Draws `n` values at random, without replacement. The same `random_state` always gives the same sample; leave it out to get a new one each time.",
+              "de": "Zieht `n` Werte zufällig, ohne Zurücklegen. Derselbe `random_state` ergibt immer dieselbe Stichprobe; lass ihn weg, um jedes Mal eine neue zu bekommen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.sample.html"
+          },
+          {
+            "name": "Sampling bias",
+            "text": {
+              "en": "A sample that only asks some kinds of people, such as fans after a won match or guests at one expensive place, says nothing reliable about everyone, however carefully it is computed. Always ask who was asked, where and when. `df.groupby([\"place\", \"day\"]).size()` shows how many rows come from each group.",
+              "de": "Eine Stichprobe, die nur bestimmte Leute befragt, etwa Fans nach einem gewonnenen Spiel oder Gäste an einem teuren Ort, sagt nichts Verlässliches über alle aus, so sorgfältig sie auch ausgewertet wird. Frag immer: wer wurde befragt, wo und wann? `df.groupby([\"place\", \"day\"]).size()` zeigt, wie viele Zeilen aus jeder Gruppe stammen."
+            }
+          },
+          {
+            "name": "[expr for i in range(1000)]",
+            "text": {
+              "en": "A list comprehension repeats an expression and collects the results: `[s.sample(20).mean() for i in range(1000)]` gives 1,000 sample means. Their spread shows how much an honest random sample can vary by chance; draw it with `show_hist`.",
+              "de": "Eine List Comprehension wiederholt einen Ausdruck und sammelt die Ergebnisse: `[s.sample(20).mean() for i in range(1000)]` ergibt 1.000 Stichprobenmittelwerte. Ihre Streuung zeigt, wie stark eine ehrliche Zufallsstichprobe allein durch Zufall schwanken kann; zeichne sie mit `show_hist`."
+            },
+            "link": "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions"
+          }
+        ]
+      }
+    ]
+  }
 }

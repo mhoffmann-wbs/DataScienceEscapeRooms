@@ -385,3 +385,13 @@ ORDER BY openings DESC;
 *Gebraucht von: nur Atmosphäre*
 
 > Edwina Tabula, die das Hotel 1898 gegründet hat. Auf einem Messingschild darunter steht: "Jeder Gast ist eine Zeile in meinem Buch."
+
+## Handbuch im Raum: 📖 Die SQL-Mappe des Nachtmanagers
+
+**Eine Tabelle lesen:** [`SELECT columns FROM table`](https://www.sqlite.org/lang_select.html), [`LIMIT n`](https://www.sqlite.org/lang_select.html#the_limit_clause), [`expression AS name`](https://www.sqlite.org/lang_select.html#resultset), [`statement;`](https://www.sqlite.org/lang.html)
+
+**Zeilen filtern:** [`WHERE condition`](https://www.sqlite.org/lang_select.html#whereclause), [`=  <>  <  <=  >  >=`](https://www.sqlite.org/lang_expr.html#binaryops), [`AND  OR  NOT`](https://www.sqlite.org/lang_expr.html#binaryops), [`x BETWEEN low AND high`](https://www.sqlite.org/lang_expr.html#between), [`'YYYY-MM-DD HH:MM'`](https://www.sqlite.org/lang_datefunc.html)
+
+**Sortieren und Zählen:** [`ORDER BY column [DESC]`](https://www.sqlite.org/lang_select.html#the_order_by_clause), [`COUNT(*)`](https://www.sqlite.org/lang_aggfunc.html#count), [`GROUP BY column`](https://www.sqlite.org/lang_select.html#resultset)
+
+**Tabellen verbinden:** [`JOIN other ON a.col = b.col`](https://www.sqlite.org/lang_select.html#fromclause), [`FROM table AS t`](https://www.sqlite.org/lang_select.html#fromclause)

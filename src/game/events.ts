@@ -2,8 +2,8 @@
 // Neither side reaches into the other's internals; everything crosses here.
 import { Emitter } from '../lib/emitter';
 
-/** Something the player can use with E: a door (to a roomId or 'lobby'), a puzzle object or a clue to look at. */
-export type Interactable = { kind: 'door'; doorTo: string } | { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string };
+/** Something the player can use with E: a door (to a roomId or 'lobby'), a puzzle object, a clue to look at or the room's handbook. */
+export type Interactable = { kind: 'door'; doorTo: string } | { kind: 'puzzle'; puzzleId: string } | { kind: 'clue'; clueId: string } | { kind: 'reference' };
 
 export interface GameEvents {
   /** The World scene finished building `mapKey`; React re-sends state the scene displays. */

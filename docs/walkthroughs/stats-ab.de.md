@@ -427,3 +427,15 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 > 2. Neues Rezept
 > 3. Verpackungslinie
 > 4. Umsatzberichte
+
+## Handbuch im Raum: 📖 Anas Test-Ordner
+
+**Ein Experiment planen:** `Randomised controlled experiment`, [`alpha, power, two-sided`](https://docs.scipy.org/doc/scipy/tutorial/stats/hypothesis_tests.html), [`stats.norm.ppf(q)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`Sample size and math.ceil(x)`](https://docs.python.org/3/library/math.html#math.ceil)
+
+**Stichprobenmittel und der ZGS:** `Central limit theorem`, [`stats.skew(x)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html), [`rng = np.random.default_rng(seed)`](https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.choice.html), [`np.sqrt(x)  np.std(x)`](https://numpy.org/doc/stable/reference/generated/numpy.std.html), `from helpers import show_hist`
+
+**Konfidenzintervalle und t-Tests:** [`stats.sem(x)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.sem.html), [`stats.t.interval(confidence, df, loc=mean, scale=se)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.t.html), [`stats.ttest_1samp(x, popmean)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_1samp.html), [`stats.ttest_ind(a, b, equal_var=False)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html), [`p < alpha`](https://docs.scipy.org/doc/scipy/tutorial/stats/hypothesis_tests.html)
+
+**Häufigkeiten: Chi-Quadrat-Tests:** [`stats.chisquare(observed, f_exp=None)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chisquare.html), [`stats.chi2_contingency(table)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html), `Conversion rate`
+
+**pandas für die Auswertung:** [`df[df.col == value].other`](https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing), [`df.groupby(key)[[a, b]].sum()`](https://pandas.pydata.org/docs/user_guide/groupby.html), [`pd.DataFrame({"x": s1, "y": s2})`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html), [`s.idxmax()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmax.html)

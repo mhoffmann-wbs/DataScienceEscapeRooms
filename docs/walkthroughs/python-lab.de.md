@@ -436,3 +436,17 @@ print("Total:", total)
 *Gebraucht von: nur Atmosphäre*
 
 > Dutzende Gläser mit sanft grün leuchtenden Pilzen. Auf einem Etikett steht: "NICHT essen. Im Ernst, Tobias."
+
+## Handbuch im Raum: 📖 Idas Python-Spickzettel
+
+**Werte und Typen:** [`name = value`](https://docs.python.org/3/tutorial/introduction.html), [`str(x)  int(x)`](https://docs.python.org/3/library/functions.html#func-str), [`None`](https://docs.python.org/3/library/constants.html#None), [`print(a, b, ...)`](https://docs.python.org/3/library/functions.html#print)
+
+**Text (Strings):** [`a + b`](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str), [`len(x)`](https://docs.python.org/3/library/functions.html#len), [`s.upper()  s.lower()`](https://docs.python.org/3/library/stdtypes.html#str.upper), [`s.startswith(prefix)`](https://docs.python.org/3/library/stdtypes.html#str.startswith), [`s[start:stop:step]`](https://docs.python.org/3/tutorial/introduction.html#text)
+
+**Listen und Schleifen:** [`for item in items:`](https://docs.python.org/3/tutorial/controlflow.html#for-statements), [`enumerate(items)`](https://docs.python.org/3/library/functions.html#enumerate), [`total += x`](https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements)
+
+**Entscheidungen:** [`if / elif / else`](https://docs.python.org/3/tutorial/controlflow.html#if-statements), [`<  >  <=  >=  ==  !=`](https://docs.python.org/3/library/stdtypes.html#comparisons)
+
+**Dictionaries:** [`d[key]`](https://docs.python.org/3/tutorial/datastructures.html#dictionaries), [`d.items()  d.values()  d.keys()`](https://docs.python.org/3/library/stdtypes.html#dict.items)
+
+**Funktionen und Fehler:** [`def name(arg): ... return x`](https://docs.python.org/3/tutorial/controlflow.html#defining-functions), `from helpers import unshift`, [`Tracebacks`](https://docs.python.org/3/tutorial/errors.html)

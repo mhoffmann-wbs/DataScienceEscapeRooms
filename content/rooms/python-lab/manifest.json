@@ -384,5 +384,216 @@
         "de": "Dutzende Gläser mit sanft grün leuchtenden Pilzen. Auf einem Etikett steht: \"NICHT essen. Im Ernst, Tobias.\""
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "Ida's Python cheat sheet",
+      "de": "Idas Python-Spickzettel"
+    },
+    "intro": {
+      "en": "A dog-eared booklet on a reading stand. Ida wrote down the Python she keeps forgetting, with a link to the official documentation for each entry.",
+      "de": "Ein abgegriffenes Heft auf einem Lesepult. Ida hat das Python aufgeschrieben, das sie immer wieder vergisst, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Values and types",
+          "de": "Werte und Typen"
+        },
+        "entries": [
+          {
+            "name": "name = value",
+            "text": {
+              "en": "Stores a value under a name. Text goes in quotes (`\"Moss\"`, a `str`), whole numbers don't (`1998`, an `int`). `\"1998\"` and `1998` are different things.",
+              "de": "Speichert einen Wert unter einem Namen. Text steht in Anführungszeichen (`\"Moss\"`, ein `str`), ganze Zahlen nicht (`1998`, ein `int`). `\"1998\"` und `1998` sind zwei verschiedene Dinge."
+            },
+            "link": "https://docs.python.org/3/tutorial/introduction.html"
+          },
+          {
+            "name": "str(x)  int(x)",
+            "text": {
+              "en": "Convert between types. `str(42)` gives the text `\"42\"`, `int(\"42\")` the number `42`. You can only add text to text: `\"A\" + 1` is a `TypeError`, `\"A\" + str(1)` is `\"A1\"`. Text that holds a number must become an `int` before you compare it with numbers.",
+              "de": "Wandeln zwischen Typen um. `str(42)` ergibt den Text `\"42\"`, `int(\"42\")` die Zahl `42`. Text lässt sich nur mit Text verketten: `\"A\" + 1` ist ein `TypeError`, `\"A\" + str(1)` ergibt `\"A1\"`. Text, der eine Zahl enthält, muss erst ein `int` werden, bevor du ihn mit Zahlen vergleichst."
+            },
+            "link": "https://docs.python.org/3/library/functions.html#func-str"
+          },
+          {
+            "name": "None",
+            "text": {
+              "en": "Python's value for \"nothing here\". Test for it with `is None` or `is not None`, not with `==`. A list may contain `None` where a value is missing.",
+              "de": "Pythons Wert für „hier ist nichts“. Prüfe darauf mit `is None` oder `is not None`, nicht mit `==`. Eine Liste kann `None` enthalten, wo ein Wert fehlt."
+            },
+            "link": "https://docs.python.org/3/library/constants.html#None"
+          },
+          {
+            "name": "print(a, b, ...)",
+            "text": {
+              "en": "Shows values in the output panel, separated by spaces. Your best debugging tool: print a variable to see what it really holds.",
+              "de": "Zeigt Werte im Ausgabefeld an, durch Leerzeichen getrennt. Dein bestes Werkzeug beim Debuggen: Gib eine Variable aus, um zu sehen, was sie wirklich enthält."
+            },
+            "link": "https://docs.python.org/3/library/functions.html#print"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Text (strings)",
+          "de": "Text (Strings)"
+        },
+        "entries": [
+          {
+            "name": "a + b",
+            "text": {
+              "en": "Joins two strings: `\"ab\" + \"cd\"` is `\"abcd\"`. Both sides must be strings.",
+              "de": "Verkettet zwei Strings: `\"ab\" + \"cd\"` ergibt `\"abcd\"`. Beide Seiten müssen Strings sein."
+            },
+            "link": "https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str"
+          },
+          {
+            "name": "len(x)",
+            "text": {
+              "en": "The number of items: letters in a string, elements in a list, keys in a dictionary. `len(\"Ida\")` is `3`, and it is an `int`.",
+              "de": "Die Anzahl der Elemente: Buchstaben in einem String, Einträge in einer Liste, Schlüssel in einem Dictionary. `len(\"Ida\")` ist `3`, und zwar ein `int`."
+            },
+            "link": "https://docs.python.org/3/library/functions.html#len"
+          },
+          {
+            "name": "s.upper()  s.lower()",
+            "text": {
+              "en": "Return a copy of the string in capitals or small letters: `\"Moss\".upper()` is `\"MOSS\"`. The original string stays as it was.",
+              "de": "Geben eine Kopie des Strings in Groß- oder Kleinbuchstaben zurück: `\"Moos\".upper()` ist `\"MOOS\"`. Der ursprüngliche String bleibt unverändert."
+            },
+            "link": "https://docs.python.org/3/library/stdtypes.html#str.upper"
+          },
+          {
+            "name": "s.startswith(prefix)",
+            "text": {
+              "en": "`True` if the string begins with `prefix`: `\"M-12\".startswith(\"M-1\")` is `True`.",
+              "de": "`True`, wenn der String mit `prefix` beginnt: `\"M-12\".startswith(\"M-1\")` ist `True`."
+            },
+            "link": "https://docs.python.org/3/library/stdtypes.html#str.startswith"
+          },
+          {
+            "name": "s[start:stop:step]",
+            "text": {
+              "en": "Slicing: takes part of a string (or list). `s[0]` is the first letter, `s[-1]` the last, `s[1:3]` letters 1 and 2. A negative step walks backwards, so `s[::-1]` is the whole string reversed.",
+              "de": "Slicing: nimmt einen Teil eines Strings (oder einer Liste). `s[0]` ist der erste Buchstabe, `s[-1]` der letzte, `s[1:3]` die Buchstaben 1 und 2. Ein negativer Schritt läuft rückwärts, `s[::-1]` ist also der ganze String umgedreht."
+            },
+            "link": "https://docs.python.org/3/tutorial/introduction.html#text"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Lists and loops",
+          "de": "Listen und Schleifen"
+        },
+        "entries": [
+          {
+            "name": "for item in items:",
+            "text": {
+              "en": "Runs the indented block once per element, with `item` set to each element in turn. Works on lists, strings (letter by letter) and dictionaries (key by key). The line ends with a colon, and the block must be indented.",
+              "de": "Führt den eingerückten Block einmal pro Element aus, `item` ist dabei der Reihe nach jedes Element. Funktioniert mit Listen, Strings (Buchstabe für Buchstabe) und Dictionaries (Schlüssel für Schlüssel). Die Zeile endet mit einem Doppelpunkt, und der Block muss eingerückt sein."
+            },
+            "link": "https://docs.python.org/3/tutorial/controlflow.html#for-statements"
+          },
+          {
+            "name": "enumerate(items)",
+            "text": {
+              "en": "Counts while you loop: `for i, item in enumerate(items):` gives the position (starting at 0) and the element together.",
+              "de": "Zählt beim Durchlaufen mit: `for i, item in enumerate(items):` liefert die Position (ab 0) und das Element zusammen."
+            },
+            "link": "https://docs.python.org/3/library/functions.html#enumerate"
+          },
+          {
+            "name": "total += x",
+            "text": {
+              "en": "Short for `total = total + x`. The usual way to count or sum inside a loop; start with `total = 0` before the loop. Plain `total = x` would overwrite the value each time instead.",
+              "de": "Kurz für `total = total + x`. So zählt oder summiert man in einer Schleife; vor der Schleife mit `total = 0` beginnen. Ein einfaches `total = x` würde den Wert jedes Mal überschreiben."
+            },
+            "link": "https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Decisions",
+          "de": "Entscheidungen"
+        },
+        "entries": [
+          {
+            "name": "if / elif / else",
+            "text": {
+              "en": "Runs the first block whose condition is true, `else` if none is. Python checks the conditions from top to bottom, so put the strictest one first. Every line ends with a colon, every block is indented.",
+              "de": "Führt den ersten Block aus, dessen Bedingung wahr ist, sonst den `else`-Block. Python prüft die Bedingungen von oben nach unten, die strengste gehört also nach oben. Jede Zeile endet mit einem Doppelpunkt, jeder Block ist eingerückt."
+            },
+            "link": "https://docs.python.org/3/tutorial/controlflow.html#if-statements"
+          },
+          {
+            "name": "<  >  <=  >=  ==  !=",
+            "text": {
+              "en": "Comparisons; each gives `True` or `False`. Combine them with `and`, `or` and `not`: `t < 20 or t > 26` is true outside the range 20 to 26.",
+              "de": "Vergleiche; jeder ergibt `True` oder `False`. Mit `and`, `or` und `not` kombinierbar: `t < 20 or t > 26` ist außerhalb des Bereichs 20 bis 26 wahr."
+            },
+            "link": "https://docs.python.org/3/library/stdtypes.html#comparisons"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Dictionaries",
+          "de": "Dictionaries"
+        },
+        "entries": [
+          {
+            "name": "d[key]",
+            "text": {
+              "en": "Looks up the value stored under `key`: `ages[\"Ida\"]`. A missing key raises a `KeyError`. Values can be dictionaries themselves, so lookups chain: `d[\"a\"][\"b\"]`. `d[key] = value` stores or replaces a value.",
+              "de": "Holt den Wert, der unter `key` gespeichert ist: `ages[\"Ida\"]`. Ein fehlender Schlüssel löst einen `KeyError` aus. Werte können selbst Dictionaries sein, Zugriffe lassen sich also verketten: `d[\"a\"][\"b\"]`. `d[key] = value` speichert oder ersetzt einen Wert."
+            },
+            "link": "https://docs.python.org/3/tutorial/datastructures.html#dictionaries"
+          },
+          {
+            "name": "d.items()  d.values()  d.keys()",
+            "text": {
+              "en": "Loop over a dictionary's pairs, values or keys: `for key, value in d.items():`.",
+              "de": "Durchlaufen die Paare, Werte oder Schlüssel eines Dictionaries: `for key, value in d.items():`."
+            },
+            "link": "https://docs.python.org/3/library/stdtypes.html#dict.items"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Functions and errors",
+          "de": "Funktionen und Fehler"
+        },
+        "entries": [
+          {
+            "name": "def name(arg): ... return x",
+            "text": {
+              "en": "Defines a function. The indented body runs when you call `name(...)`, and `return` hands a value back to the caller. A function without `return` gives `None`.",
+              "de": "Definiert eine Funktion. Der eingerückte Rumpf läuft, wenn du `name(...)` aufrufst, und `return` gibt einen Wert an den Aufrufer zurück. Eine Funktion ohne `return` liefert `None`."
+            },
+            "link": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"
+          },
+          {
+            "name": "from helpers import unshift",
+            "text": {
+              "en": "A helper written for this room, not part of Python: `unshift(letter, n)` moves one letter `n` places back in the alphabet, wrapping round from a to z (`unshift(\"b\", 3)` is `\"y\"`), and leaves other characters alone.",
+              "de": "Ein Helfer für diesen Raum, nicht Teil von Python: `unshift(letter, n)` schiebt einen Buchstaben `n` Stellen im Alphabet zurück, von a geht es bei z weiter (`unshift(\"b\", 3)` ist `\"y\"`), und lässt andere Zeichen unverändert."
+            }
+          },
+          {
+            "name": "Tracebacks",
+            "text": {
+              "en": "Read an error message from the bottom up: the last line names the error (`SyntaxError`, `TypeError`, `KeyError`, `IndentationError`), the lines above say where it happened. Fix the first error, run again, repeat.",
+              "de": "Lies eine Fehlermeldung von unten nach oben: Die letzte Zeile nennt den Fehler (`SyntaxError`, `TypeError`, `KeyError`, `IndentationError`), die Zeilen darüber sagen, wo er passiert ist. Behebe den ersten Fehler, führe erneut aus, wiederhole."
+            },
+            "link": "https://docs.python.org/3/tutorial/errors.html"
+          }
+        ]
+      }
+    ]
+  }
 }

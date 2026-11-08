@@ -409,5 +409,239 @@
         "de": "Grüne und violette Lichter wogen über die Polarnacht. Nordlys: Nordlicht. Jemand hat eine Sinuskurve ins Eis gemalt und \"Saisonalität!\" daneben geschrieben."
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "Station forecasting binder",
+      "de": "Prognose-Ordner der Station"
+    },
+    "intro": {
+      "en": "A thick binder on a reading stand, its pages stiff with frost. The station's data team collected the time series tools they rely on, each with a link to the official documentation.",
+      "de": "Ein dicker Ordner auf einem Lesepult, die Seiten steif vom Frost. Das Datenteam der Station hat die Zeitreihen-Werkzeuge gesammelt, auf die es sich verlässt, jedes mit einem Link zur offiziellen Dokumentation."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Series with a date index",
+          "de": "Reihen mit Datumsindex"
+        },
+        "entries": [
+          {
+            "name": "s[\"2020-03\"]  s[:\"2020-12\"]  s[\"2021-01\":]",
+            "text": {
+              "en": "A Series indexed by dates can be sliced with date strings. A partial date selects a whole period (`s[\"2020\"]` is all of 2020), and both ends of a date slice are included, so `s[:\"2020-12\"]` and `s[\"2021-01\":]` split the series without overlap.",
+              "de": "Eine Series mit Datumsindex lässt sich mit Datums-Strings schneiden. Ein unvollständiges Datum wählt einen ganzen Zeitraum (`s[\"2020\"]` ist das ganze Jahr 2020), und beide Enden eines Datums-Slices sind eingeschlossen: `s[:\"2020-12\"]` und `s[\"2021-01\":]` teilen die Reihe also ohne Überlappung."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/timeseries.html"
+          },
+          {
+            "name": "s.iloc[-1]  s.iloc[-12:]",
+            "text": {
+              "en": "Selects by position instead of by date: `s.iloc[-1]` is the last value, `s.iloc[-12:]` the last twelve.",
+              "de": "Wählt nach Position statt nach Datum: `s.iloc[-1]` ist der letzte Wert, `s.iloc[-12:]` die letzten zwölf."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.iloc.html"
+          },
+          {
+            "name": "s.isna()",
+            "text": {
+              "en": "`True` wherever a value is missing (`NaN` or `None`). `s.isna().sum()` counts the gaps, `s[s.isna()]` shows where they are.",
+              "de": "`True` überall dort, wo ein Wert fehlt (`NaN` oder `None`). `s.isna().sum()` zählt die Lücken, `s[s.isna()]` zeigt, wo sie liegen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.isna.html"
+          },
+          {
+            "name": "s.interpolate(method=\"time\")",
+            "text": {
+              "en": "Fills gaps from the values on either side. `method=\"time\"` weighs them by the time between the dates, which matters when the steps aren't equally long (months have 28 to 31 days); the default `\"linear\"` treats every step as equal. Differencing, ADF tests and ACF plots need a series without gaps.",
+              "de": "Füllt Lücken aus den Werten links und rechts davon. `method=\"time\"` gewichtet sie nach der Zeit zwischen den Daten, was zählt, wenn die Abstände ungleich lang sind (Monate haben 28 bis 31 Tage); der Standard `\"linear\"` behandelt jeden Schritt gleich. Differenzen, ADF-Tests und ACF-Diagramme brauchen eine Reihe ohne Lücken."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.interpolate.html"
+          },
+          {
+            "name": "s.dropna()",
+            "text": {
+              "en": "Drops the rows without a value, for example the first rows that differencing leaves empty.",
+              "de": "Entfernt die Zeilen ohne Wert, zum Beispiel die ersten Zeilen, die beim Differenzieren leer bleiben."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.dropna.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Transformations",
+          "de": "Transformationen"
+        },
+        "entries": [
+          {
+            "name": "np.log(s)  np.exp(x)",
+            "text": {
+              "en": "When a series swings more the higher it gets, its log swings evenly. Model and forecast on `np.log(s)`, then turn the forecast back into the original units with `np.exp`. Errors and orders must be on the original scale, never in log units.",
+              "de": "Wenn eine Reihe umso stärker schwankt, je höher sie liegt, schwankt ihr Logarithmus gleichmäßig. Modelliere und prognostiziere auf `np.log(s)` und rechne die Prognose mit `np.exp` in die ursprünglichen Einheiten zurück. Fehler und Bestellungen gehören auf die ursprüngliche Skala, nie in Log-Einheiten."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.log.html"
+          },
+          {
+            "name": "s.diff(k)",
+            "text": {
+              "en": "The change from `k` steps earlier: `s - s.shift(k)`. `diff(1)` removes a wandering level, `diff(12)` on monthly data removes a pattern that repeats every year. Differences can be chained, `s.diff(12).diff(1)`. The first `k` rows become empty.",
+              "de": "Die Änderung gegenüber `k` Schritten vorher: `s - s.shift(k)`. `diff(1)` entfernt ein wanderndes Niveau, `diff(12)` entfernt bei Monatsdaten ein Muster, das sich jedes Jahr wiederholt. Differenzen lassen sich verketten, `s.diff(12).diff(1)`. Die ersten `k` Zeilen werden leer."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.diff.html"
+          },
+          {
+            "name": "np.polyfit(x, y, 1)",
+            "text": {
+              "en": "Fits a straight line and returns `slope, intercept`. With `x = np.arange(len(y))` (0, 1, 2, …), `y - (slope * x + intercept)` is the series with its linear trend removed: detrending. Detrending and differencing are not interchangeable: differencing also changes how each value depends on the previous ones.",
+              "de": "Passt eine Gerade an und gibt `slope, intercept` zurück. Mit `x = np.arange(len(y))` (0, 1, 2, …) ist `y - (slope * x + intercept)` die Reihe ohne ihren linearen Trend: Trendbereinigung. Trendbereinigung und Differenzieren sind nicht austauschbar: Differenzieren verändert auch, wie jeder Wert von den vorherigen abhängt."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Baselines and errors",
+          "de": "Baselines und Fehler"
+        },
+        "entries": [
+          {
+            "name": "Train and test",
+            "text": {
+              "en": "Split the series by date: fit on everything before the test period, forecast the test period, compare with what really happened. Never let the test period leak into the training data.",
+              "de": "Teile die Reihe nach Datum: Passe alles vor dem Testzeitraum an, prognostiziere den Testzeitraum und vergleiche mit dem, was wirklich passiert ist. Der Testzeitraum darf nie in die Trainingsdaten gelangen."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/timeseries.html"
+          },
+          {
+            "name": "Naive and seasonal naive forecasts",
+            "text": {
+              "en": "The baselines every model must beat. Naive: every future step equals the last known value. Seasonal naive: every future step equals the value one season earlier (for monthly data, the same month a year before). `pd.Series(values, index=test.index)` turns a forecast into a Series that lines up with the test data.",
+              "de": "Die Baselines, die jedes Modell schlagen muss. Naiv: Jeder künftige Schritt ist gleich dem letzten bekannten Wert. Saisonal naiv: Jeder künftige Schritt ist gleich dem Wert eine Saison früher (bei Monatsdaten derselbe Monat im Vorjahr). `pd.Series(values, index=test.index)` macht aus einer Prognose eine Series, die zu den Testdaten passt."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.html"
+          },
+          {
+            "name": "np.tile(values, n)",
+            "text": {
+              "en": "Repeats an array `n` times: `np.tile([1, 2, 3], 2)` is `[1, 2, 3, 1, 2, 3]`. Handy for repeating the last season over a longer test period.",
+              "de": "Wiederholt ein Array `n`-mal: `np.tile([1, 2, 3], 2)` ist `[1, 2, 3, 1, 2, 3]`. Praktisch, um die letzte Saison über einen längeren Testzeitraum zu wiederholen."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.tile.html"
+          },
+          {
+            "name": "(forecast - actual).abs().mean()",
+            "text": {
+              "en": "The mean absolute error (MAE): how far off a forecast is on average, in the series' own units. Lower is better. Both Series need the same index, otherwise pandas aligns them by date and leaves `NaN` where they don't match.",
+              "de": "Der mittlere absolute Fehler (MAE): wie weit eine Prognose im Schnitt danebenliegt, in den Einheiten der Reihe. Kleiner ist besser. Beide Series brauchen denselben Index, sonst richtet pandas sie nach Datum aus und lässt `NaN`, wo sie nicht zusammenpassen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.abs.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Stationarity and correlation",
+          "de": "Stationarität und Korrelation"
+        },
+        "entries": [
+          {
+            "name": "adfuller(x)",
+            "text": {
+              "en": "The augmented Dickey-Fuller test, from `statsmodels.tsa.stattools`. Its null hypothesis is that the series is not stationary (it has a unit root). It returns a tuple; `adfuller(x)[1]` is the p-value, and a small p-value (below 0.05) suggests the series is stationary. The series must not contain `NaN`.",
+              "de": "Der erweiterte Dickey-Fuller-Test aus `statsmodels.tsa.stattools`. Seine Nullhypothese: Die Reihe ist nicht stationär (sie hat eine Einheitswurzel). Er gibt ein Tupel zurück; `adfuller(x)[1]` ist der p-Wert, und ein kleiner p-Wert (unter 0,05) spricht für eine stationäre Reihe. Die Reihe darf kein `NaN` enthalten."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.adfuller.html"
+          },
+          {
+            "name": "ACF",
+            "text": {
+              "en": "The autocorrelation function: at lag k, how strongly the series correlates with itself k steps earlier, counting indirect paths through the steps in between. Read it on a stationary series.",
+              "de": "Die Autokorrelationsfunktion: bei Lag k, wie stark die Reihe mit sich selbst k Schritte vorher korreliert, einschließlich indirekter Wege über die Schritte dazwischen. Lies sie an einer stationären Reihe ab."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.acf.html"
+          },
+          {
+            "name": "PACF",
+            "text": {
+              "en": "The partial autocorrelation function: the correlation at lag k after removing what the lags in between already explain. Where the ACF and PACF cut off or fade out tells AR terms from MA terms, at short lags and at seasonal lags.",
+              "de": "Die partielle Autokorrelationsfunktion: die Korrelation bei Lag k, nachdem herausgerechnet ist, was die Lags dazwischen schon erklären. Wo ACF und PACF abbrechen oder abklingen, unterscheidet AR- von MA-Termen, bei kurzen Lags und bei saisonalen Lags."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.pacf.html"
+          },
+          {
+            "name": "from helpers import plot_acf, plot_pacf",
+            "text": {
+              "en": "Helpers written for this station, not part of statsmodels: `plot_acf(series, lags=24)` and `plot_pacf(series, lags=24)` draw the bars for lags 1 to `lags` with the 95 % band. Bars inside the band are indistinguishable from noise.",
+              "de": "Helfer für diese Station, nicht Teil von statsmodels: `plot_acf(series, lags=24)` und `plot_pacf(series, lags=24)` zeichnen die Balken für die Lags 1 bis `lags` mit dem 95-%-Band. Balken innerhalb des Bands sind nicht von Rauschen zu unterscheiden."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Models (statsmodels)",
+          "de": "Modelle (statsmodels)"
+        },
+        "entries": [
+          {
+            "name": "sm.tsa.ARIMA(y, order=(p, d, q), trend=\"n\")",
+            "text": {
+              "en": "An ARIMA model: `p` AR terms (the value depends on its own past), `d` differences taken inside the model, `q` MA terms (it depends on past shocks). `order=(2, 0, 0)` is a plain AR(2); `trend=\"n\"` leaves out the constant, for a series already centred on zero. `.fit()` estimates it.",
+              "de": "Ein ARIMA-Modell: `p` AR-Terme (der Wert hängt von seiner eigenen Vergangenheit ab), `d` Differenzen innerhalb des Modells, `q` MA-Terme (er hängt von vergangenen Schocks ab). `order=(2, 0, 0)` ist ein reines AR(2); `trend=\"n\"` lässt die Konstante weg, für eine Reihe, die schon um null liegt. `.fit()` schätzt es."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html"
+          },
+          {
+            "name": "result.params",
+            "text": {
+              "en": "The fitted coefficients, in order: AR terms (`ar.L1`, `ar.L2`, …), MA terms (`ma.L1`, …), seasonal terms, and last the noise variance `sigma2`. Fitted on a Series it is a labelled Series, fitted on a plain array an array in the same order.",
+              "de": "Die geschätzten Koeffizienten, der Reihe nach: AR-Terme (`ar.L1`, `ar.L2`, …), MA-Terme (`ma.L1`, …), saisonale Terme und zuletzt die Rauschvarianz `sigma2`. Bei einer Series als Eingabe ist es eine beschriftete Series, bei einem einfachen Array ein Array in derselben Reihenfolge."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html"
+          },
+          {
+            "name": "sm.tsa.SARIMAX(y, order=(p, d, q), seasonal_order=(P, D, Q, s))",
+            "text": {
+              "en": "ARIMA with a seasonal part: `P`, `D`, `Q` are the AR terms, differences and MA terms at multiples of the season length `s` (12 for monthly data). Fit it on the undifferenced series and let `d` and `D` do the differencing; never difference the data and the model both. `.fit(disp=False)` fits without printing progress.",
+              "de": "ARIMA mit saisonalem Teil: `P`, `D`, `Q` sind AR-Terme, Differenzen und MA-Terme bei Vielfachen der Saisonlänge `s` (12 bei Monatsdaten). Passe es an die nicht differenzierte Reihe an und lass `d` und `D` differenzieren; nie die Daten und das Modell zugleich. `.fit(disp=False)` passt an, ohne den Fortschritt auszugeben."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAX.html"
+          },
+          {
+            "name": "result.aic",
+            "text": {
+              "en": "Akaike's information criterion: how well the model fits, with a penalty for every extra parameter. Lower is better. Only compare AICs of models fitted on the same data with the same differencing.",
+              "de": "Akaikes Informationskriterium: wie gut das Modell passt, mit einem Abzug für jeden zusätzlichen Parameter. Kleiner ist besser. Vergleiche AICs nur zwischen Modellen, die auf denselben Daten mit derselben Differenzierung angepasst wurden."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAXResults.aic.html"
+          },
+          {
+            "name": "result.forecast(steps)",
+            "text": {
+              "en": "Forecasts the next `steps` periods after the end of the data the model was fitted on, as a Series with future dates. A model fitted on log values forecasts log values.",
+              "de": "Prognostiziert die nächsten `steps` Perioden nach dem Ende der Daten, auf die das Modell angepasst wurde, als Series mit künftigen Daten. Ein Modell auf Log-Werten prognostiziert Log-Werte."
+            },
+            "link": "https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAXResults.forecast.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Charts",
+          "de": "Diagramme"
+        },
+        "entries": [
+          {
+            "name": "from helpers import show_plot",
+            "text": {
+              "en": "A helper written for these rooms, not part of pandas: `show_plot(s1, s2, labels=[\"a\", \"b\"], title=\"…\")` draws one or more series as lines below your output. A date index becomes the x axis, so a training series and its forecast line up.",
+              "de": "Ein Helfer für diese Räume, nicht Teil von pandas: `show_plot(s1, s2, labels=[\"a\", \"b\"], title=\"…\")` zeichnet eine oder mehrere Reihen als Linien unter deiner Ausgabe. Ein Datumsindex wird zur x-Achse, sodass eine Trainingsreihe und ihre Prognose zusammenpassen."
+            }
+          }
+        ]
+      }
+    ]
+  }
 }

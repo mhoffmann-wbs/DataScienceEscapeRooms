@@ -31,6 +31,10 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
     expect(objects.clues.map((c) => c.clueId).sort()).toEqual(manifest.clues.map((c) => c.id).sort());
   });
 
+  it('places the handbook on the map exactly once', () => {
+    expect(objects.references).toHaveLength(1);
+  });
+
   it('has every referenced data file', async () => {
     for (const p of manifest.puzzles) if (p.data) await expect(loadDataFile(roomId, p.data)).resolves.toBeTypeOf('string');
   });

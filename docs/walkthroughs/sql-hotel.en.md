@@ -385,3 +385,13 @@ ORDER BY openings DESC;
 *Used by: flavour only*
 
 > Edwina Tabula, who founded the hotel in 1898. A brass plate below reads: "Every guest is a row in my book."
+
+## Handbook in the room: 📖 The night manager's SQL folder
+
+**Reading a table:** [`SELECT columns FROM table`](https://www.sqlite.org/lang_select.html), [`LIMIT n`](https://www.sqlite.org/lang_select.html#the_limit_clause), [`expression AS name`](https://www.sqlite.org/lang_select.html#resultset), [`statement;`](https://www.sqlite.org/lang.html)
+
+**Filtering rows:** [`WHERE condition`](https://www.sqlite.org/lang_select.html#whereclause), [`=  <>  <  <=  >  >=`](https://www.sqlite.org/lang_expr.html#binaryops), [`AND  OR  NOT`](https://www.sqlite.org/lang_expr.html#binaryops), [`x BETWEEN low AND high`](https://www.sqlite.org/lang_expr.html#between), [`'YYYY-MM-DD HH:MM'`](https://www.sqlite.org/lang_datefunc.html)
+
+**Sorting and counting:** [`ORDER BY column [DESC]`](https://www.sqlite.org/lang_select.html#the_order_by_clause), [`COUNT(*)`](https://www.sqlite.org/lang_aggfunc.html#count), [`GROUP BY column`](https://www.sqlite.org/lang_select.html#resultset)
+
+**Joining tables:** [`JOIN other ON a.col = b.col`](https://www.sqlite.org/lang_select.html#fromclause), [`FROM table AS t`](https://www.sqlite.org/lang_select.html#fromclause)

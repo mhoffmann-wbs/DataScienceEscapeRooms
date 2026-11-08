@@ -45,6 +45,45 @@ export function ClueDialog({ roomId, clueId, notebook, onClose }: { roomId: stri
   );
 }
 
+/** The room's handbook: what this room's puzzles need, with links to the official documentation. */
+export function ReferenceDialog({ roomId, onClose }: { roomId: string; onClose: () => void }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const { reference } = ROOMS[roomId]!;
+  return (
+    <Modal title={`📖 ${loc(reference.title, lang)}`} onClose={onClose} wide>
+      {reference.intro && <RichText text={loc(reference.intro, lang)} />}
+      {reference.sections.map((section, i) => (
+        <section key={i} className="reference-section">
+          <h3>{loc(section.title, lang)}</h3>
+          <dl>
+            {section.entries.map((entry) => (
+              <div key={entry.name} className="reference-entry">
+                <dt>
+                  <code>{entry.name}</code>
+                  {entry.link && (
+                    <a href={entry.link} target="_blank" rel="noopener noreferrer" aria-label={t('reference.docsLabel', { name: entry.name })}>
+                      {t('reference.docs')}
+                    </a>
+                  )}
+                </dt>
+                <dd>
+                  <RichText text={loc(entry.text, lang)} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+      <div className="modal-actions">
+        <button type="button" onClick={onClose}>
+          {t('puzzle.close')}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 /** Shown when the final puzzle is solved: the team's result and, per puzzle, what it practised and a model solution. */
 export function DebriefDialog({ roomId, state, onLobby, onClose }: { roomId: string; state: RunState; onLobby: () => void; onClose: () => void }) {
   const { t, i18n } = useTranslation();

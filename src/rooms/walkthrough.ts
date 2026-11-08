@@ -41,6 +41,7 @@ const LABELS = {
     reveal: 'Reveals when solved',
     hints: 'Hints',
     clues: 'Clues in the room',
+    reference: 'Handbook in the room',
     usedBy: 'Used by',
     lock: 'Code lock',
     lockCode: 'opens with',
@@ -71,6 +72,7 @@ const LABELS = {
     reveal: 'Zeigt nach dem Lösen',
     hints: 'Hinweise',
     clues: 'Hinweise im Raum',
+    reference: 'Handbuch im Raum',
     usedBy: 'Gebraucht von',
     lock: 'Zahlenschloss',
     lockCode: 'öffnet mit',
@@ -155,6 +157,12 @@ export function renderWalkthrough(roomId: string, manifest: Manifest, lang: Lang
       const users = manifest.puzzles.filter((p) => p.clues.includes(c.id)).map((p) => `${number.get(p.id)}. ${tr(p.title)}`);
       out.push(`### 🔎 ${tr(c.title)}`, `*${t.usedBy}: ${users.length ? users.join(', ') : t.unused}*`, quote(tr(c.text)));
     }
+  }
+
+  const { reference } = manifest;
+  out.push(`## ${t.reference}: 📖 ${tr(reference.title)}`);
+  for (const s of reference.sections) {
+    out.push(`**${tr(s.title)}:** ${s.entries.map((e) => (e.link ? `[\`${e.name}\`](${e.link})` : `\`${e.name}\``)).join(', ')}`);
   }
 
   return out.join('\n\n') + '\n';

@@ -17,7 +17,7 @@ export function Modal({ title, onClose, children, wide = false }: { title: strin
 
   useEffect(() => {
     const before = document.activeElement;
-    ref.current?.querySelector<HTMLElement>('button:not([disabled])')?.focus();
+    ref.current?.querySelector<HTMLElement>('button:not([disabled])')?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       // Only the topmost dialog answers, and not to keys the code editor already used (Tab indents there).
       const dialogs = document.querySelectorAll('[aria-modal="true"]');

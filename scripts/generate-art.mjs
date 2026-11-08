@@ -1315,6 +1315,29 @@ drawTile(76, (g, { obj }) => {
   });
 });
 
+// --- Every room ----------------------------------------------------------------
+// 77 handbook on a lectern: an open book with a ribbon on a wooden reading stand
+drawTile(77, (g, { obj, shadow }) => {
+  shadow(16, 29, 10, 2);
+  obj((o) => {
+    o.box(9, 26, 14, 3, WOOD_DARK);
+    o.rect(14, 17, 4, 10, WOOD_DARK);
+    o.rect(14, 17, 1, 10, sh(WOOD_DARK, 1.2));
+    o.box(3, 10, 26, 9, WOOD, 1.3);
+    o.rect(4, 15, 24, 3, [52, 84, 150]);
+    const page = [250, 248, 238];
+    o.box(5, 4, 11, 12, page, 1, 0.9);
+    o.box(16, 4, 11, 12, page, 1, 0.9);
+    o.rect(15, 4, 2, 12, [206, 196, 176]);
+    for (let y = 6; y < 14; y += 2) {
+      o.rect(7, y, y === 6 ? 5 : 7, 1, [130, 132, 150]);
+      o.rect(18, y, y === 12 ? 4 : 7, 1, [130, 132, 150]);
+    }
+    o.rect(22, 15, 2, 6, [210, 50, 60]);
+    o.set(22, 21, [160, 34, 44]);
+  });
+});
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:

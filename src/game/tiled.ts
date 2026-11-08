@@ -81,6 +81,8 @@ export interface MapObjects {
   puzzles: PuzzleSpot[];
   /** Things to look at (class `clue`, property `clueId`), shaped like puzzle spots. */
   clues: ClueSpot[];
+  /** Where the room's handbook stands (class `reference`, no properties); one per room map, none in the lobby. */
+  references: Rect[];
   /** Private areas (class `area`): inside one, "nearby" means everyone in the same area. */
   areas: AreaSpot[];
 }
@@ -126,9 +128,11 @@ export function parseMapObjects(map: TiledMap): MapObjects {
       return { clueId, x: o.x, y: o.y, width: o.width, height: o.height };
     });
 
+  const references = objects.filter((o) => objectClass(o) === 'reference').map((o) => ({ x: o.x, y: o.y, width: o.width, height: o.height }));
+
   const areas = objects.filter((o) => objectClass(o) === 'area').map((o) => ({ id: o.name || `area-${o.id}`, x: o.x, y: o.y, width: o.width, height: o.height }));
 
-  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles, clues, areas };
+  return { spawn: { x: spawnObj.x, y: spawnObj.y, width: spawnObj.width, height: spawnObj.height }, doors, puzzles, clues, references, areas };
 }
 
 /** Max offset (px) around a point spawn, so arriving players don't stack exactly on top of each other. */

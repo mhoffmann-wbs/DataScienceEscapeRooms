@@ -32,7 +32,7 @@ interface Spot {
 
 function keyOf(t: Interactable | null): string | null {
   if (t === null) return null;
-  return t.kind === 'door' ? `door:${t.doorTo}` : t.kind === 'puzzle' ? `puzzle:${t.puzzleId}` : `clue:${t.clueId}`;
+  return t.kind === 'door' ? `door:${t.doorTo}` : t.kind === 'puzzle' ? `puzzle:${t.puzzleId}` : t.kind === 'clue' ? `clue:${t.clueId}` : 'reference';
 }
 
 /** True while the user is typing in an HTML field, so movement keys don't leak into the game. */
@@ -69,13 +69,14 @@ export class WorldScene extends Phaser.Scene {
     const profile = getProfile(this);
     this.presence = getPresence(this);
     const mapKey = getMapKey(this);
-    const { spawn, doors, puzzles, clues, areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
+    const { spawn, doors, puzzles, clues, references, areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
     this.areas = areas;
     this.currentArea = undefined;
     this.spots = [
       ...doors.map((d) => ({ rect: d, target: { kind: 'door', doorTo: d.doorTo } as const })),
       ...puzzles.map((p) => ({ rect: p, target: { kind: 'puzzle', puzzleId: p.puzzleId } as const })),
       ...clues.map((c) => ({ rect: c, target: { kind: 'clue', clueId: c.clueId } as const })),
+      ...references.map((r) => ({ rect: r, target: { kind: 'reference' } as const })),
     ];
     this.current = null;
     this.solvedMarks.clear();

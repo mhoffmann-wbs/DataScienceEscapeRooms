@@ -401,5 +401,222 @@
         "de": "BÜHNENBESTELLUNG · Sommerfestival 2026\n\nErwartete Besucher, Eröffnungswochenende, **Freitag, 19., bis Sonntag, 21. Juni 2026**: die Summe aller drei Tage, aus dem Prognosemodell des Büros.\n\nWird nur angenommen von einem Modell, das die beste einfache Regel auf Juni bis September 2025 schlägt."
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "The forecasting office's manual",
+      "de": "Handbuch des Prognosebüros"
+    },
+    "intro": {
+      "en": "A spiral-bound manual on a lectern, coffee rings on the cover. Since the server died, it is all that's left of the office's know-how: the pandas steps for preparing the data, and the full documentation of the office's Prophet-style model.\n\nThe model is a small stand-in written for the browser. It copies the API of the Prophet library, but it is not Prophet, so its pages here are its documentation. Everything else links to the official docs.",
+      "de": "Ein Handbuch mit Spiralbindung auf einem Lesepult, Kaffeeringe auf dem Umschlag. Seit der Server tot ist, ist es alles, was vom Wissen des Büros übrig ist: die pandas-Schritte, um die Daten vorzubereiten, und die vollständige Dokumentation des Prophet-artigen Modells des Büros.\n\nDas Modell ist ein kleiner Ersatz, geschrieben für den Browser. Es übernimmt die API der Bibliothek Prophet, ist aber nicht Prophet; seine Seiten hier sind deshalb seine Dokumentation. Alles andere verlinkt die offizielle Doku."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Preparing the data",
+          "de": "Daten vorbereiten"
+        },
+        "entries": [
+          {
+            "name": "df = s.reset_index()",
+            "text": {
+              "en": "Turns a Series with a date index into a DataFrame with two columns: the dates and the values. Then `df.columns = [\"ds\", \"y\"]` gives them the names a Prophet-style model expects. `df.set_index(\"ds\")[\"y\"]` goes back to a Series with dates as its index.",
+              "de": "Macht aus einer Series mit Datumsindex einen DataFrame mit zwei Spalten: den Daten und den Werten. Danach gibt `df.columns = [\"ds\", \"y\"]` ihnen die Namen, die ein Prophet-artiges Modell erwartet. `df.set_index(\"ds\")[\"y\"]` führt zurück zu einer Series mit den Daten als Index."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reset_index.html"
+          },
+          {
+            "name": "df.loc[condition, \"y\"] = None",
+            "text": {
+              "en": "Empties `y` in every row where the condition holds, but keeps the rows. Conditions can compare dates with strings: `(df[\"ds\"] >= \"2022-01-01\") & (df[\"ds\"] <= \"2022-01-31\")`. Put each part in brackets and combine them with `&` (and) or `|` (or).",
+              "de": "Leert `y` in jeder Zeile, in der die Bedingung gilt, behält die Zeilen aber. Bedingungen können Daten mit Strings vergleichen: `(df[\"ds\"] >= \"2022-01-01\") & (df[\"ds\"] <= \"2022-01-31\")`. Setze jeden Teil in Klammern und verbinde sie mit `&` (und) oder `|` (oder)."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html"
+          },
+          {
+            "name": "Gaps: empty, not filled",
+            "text": {
+              "en": "A Prophet-style model fits on the rows that have a `y` and simply skips the empty ones, so it needs no interpolation. Filling a gap would invent data; a wrong value such as a 0 for a day nobody counted pulls the fit down. `df[\"y\"].isna().sum()` counts the empty days.",
+              "de": "Ein Prophet-artiges Modell passt sich an die Zeilen mit einem `y` an und überspringt die leeren einfach; es braucht also keine Interpolation. Eine Lücke zu füllen hieße Daten zu erfinden; ein falscher Wert wie eine 0 für einen Tag, an dem niemand gezählt hat, zieht die Anpassung nach unten. `df[\"y\"].isna().sum()` zählt die leeren Tage."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.isna.html"
+          },
+          {
+            "name": "pd.to_datetime([...])  pd.concat([a, b], ignore_index=True)",
+            "text": {
+              "en": "`pd.to_datetime` turns date strings into dates. `pd.concat` stacks DataFrames with the same columns on top of each other; `ignore_index=True` numbers the rows afresh.",
+              "de": "`pd.to_datetime` macht aus Datums-Strings echte Daten. `pd.concat` stapelt DataFrames mit denselben Spalten übereinander; `ignore_index=True` nummeriert die Zeilen neu."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.concat.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Baselines and errors",
+          "de": "Baselines und Fehler"
+        },
+        "entries": [
+          {
+            "name": "y[:\"2022-05-31\"]  y[\"2022-06-01\":]",
+            "text": {
+              "en": "Slicing a Series with a date index by date strings; both ends are included. This splits a series into training and test data. On a DataFrame with a `ds` column, filter instead: `df[df[\"ds\"] <= \"2022-05-31\"]`.",
+              "de": "Schneidet eine Series mit Datumsindex mit Datums-Strings; beide Enden sind eingeschlossen. So teilst du eine Reihe in Trainings- und Testdaten. Bei einem DataFrame mit Spalte `ds` filterst du stattdessen: `df[df[\"ds\"] <= \"2022-05-31\"]`."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/timeseries.html"
+          },
+          {
+            "name": "Naive forecasts",
+            "text": {
+              "en": "The simple rules every model must beat on the same test days. Naive: every test day equals the last training day. Repeating a season: the last week (or year) of training data, repeated. `pd.Series(values, index=test.index)` lines a forecast up with the test data; `np.tile(values, n)` repeats an array `n` times.",
+              "de": "Die einfachen Regeln, die jedes Modell an denselben Testtagen schlagen muss. Naiv: Jeder Testtag ist gleich dem letzten Trainingstag. Eine Saison wiederholen: die letzte Woche (oder das letzte Jahr) der Trainingsdaten, wiederholt. `pd.Series(values, index=test.index)` richtet eine Prognose an den Testdaten aus; `np.tile(values, n)` wiederholt ein Array `n`-mal."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.tile.html"
+          },
+          {
+            "name": "y.shift(k)",
+            "text": {
+              "en": "Moves the values `k` rows later, so each row holds the value from `k` rows before. On daily data, `y.shift(7)` puts the same weekday of the previous week next to each day. The first `k` rows become empty.",
+              "de": "Verschiebt die Werte um `k` Zeilen nach hinten, sodass jede Zeile den Wert von `k` Zeilen vorher enthält. Bei Tagesdaten steht mit `y.shift(7)` neben jedem Tag derselbe Wochentag der Vorwoche. Die ersten `k` Zeilen werden leer."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.shift.html"
+          },
+          {
+            "name": "(forecast - actual).abs().mean()",
+            "text": {
+              "en": "The mean absolute error (MAE): how far off a forecast is on average, in the series' own units (here: visitors per day). Lower is better. Empty test days are skipped by `.mean()`. Both Series need the same index, or pandas aligns them by label.",
+              "de": "Der mittlere absolute Fehler (MAE): wie weit eine Prognose im Schnitt danebenliegt, in den Einheiten der Reihe (hier: Besucher pro Tag). Kleiner ist besser. Leere Testtage überspringt `.mean()`. Beide Series brauchen denselben Index, sonst richtet pandas sie nach Beschriftung aus."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.abs.html"
+          },
+          {
+            "name": "np.log(y)  np.exp(yhat)",
+            "text": {
+              "en": "When the swings grow with the level, a model can be fitted on `np.log(y)`. Its forecast is then in log units: take `np.exp` of it before you compare it with real numbers. `df.assign(y=np.log(df[\"y\"]))` makes a copy with the log in `y`.",
+              "de": "Wenn die Schwankungen mit dem Niveau wachsen, kann ein Modell auf `np.log(y)` angepasst werden. Seine Prognose ist dann in Log-Einheiten: Nimm davon `np.exp`, bevor du sie mit echten Zahlen vergleichst. `df.assign(y=np.log(df[\"y\"]))` erstellt eine Kopie mit dem Logarithmus in `y`."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.log.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "The Prophet-style model",
+          "de": "Das Prophet-artige Modell"
+        },
+        "entries": [
+          {
+            "name": "from prophet import Prophet",
+            "text": {
+              "en": "Imports the office's model. It mimics Prophet: a trend that may bend at changepoints, plus yearly and weekly seasonality, plus holidays, fitted in the same way and with the same names. It is not the real library: it has only linear growth, no extra regressors, no country holidays, no cross-validation and no plots of its own, and its numbers won't match Prophet's to the decimal. The real Prophet's documentation (linked) explains the ideas behind every setting here.",
+              "de": "Importiert das Modell des Büros. Es ahmt Prophet nach: ein Trend, der an Changepoints abknicken kann, dazu jährliche und wöchentliche Saisonalität und Feiertage, angepasst auf dieselbe Weise und mit denselben Namen. Es ist nicht die echte Bibliothek: Es kennt nur lineares Wachstum, keine zusätzlichen Regressoren, keine Länderfeiertage, keine Kreuzvalidierung und keine eigenen Diagramme, und seine Zahlen stimmen nicht bis auf die letzte Stelle mit Prophet überein. Die Dokumentation des echten Prophet (verlinkt) erklärt die Ideen hinter jeder Einstellung hier."
+            },
+            "link": "https://facebook.github.io/prophet/docs/quick_start.html"
+          },
+          {
+            "name": "Prophet(seasonality_mode=\"additive\", holidays=None, changepoints=None, ...)",
+            "text": {
+              "en": "Creates an unfitted model. The settings, with their defaults:\n`seasonality_mode=\"additive\"`: how seasonality and holidays act on the trend (see below)\n`holidays=None`: a holidays table (see below)\n`changepoints=None`: a list of dates where the trend may bend; `None` places them automatically\n`n_changepoints=25` and `changepoint_range=0.8`: how many automatic changepoints, spread evenly over the first 80 % of the history\n`changepoint_prior_scale=0.05`: how freely the trend may bend; larger means bendier\n`yearly_seasonality=\"auto\"`, `weekly_seasonality=\"auto\"`: on, off, or a number (the Fourier order); `\"auto\"` turns yearly on with two years of data and weekly on for daily data",
+              "de": "Erstellt ein noch nicht angepasstes Modell. Die Einstellungen mit ihren Standardwerten:\n`seasonality_mode=\"additive\"`: wie Saisonalität und Feiertage auf den Trend wirken (siehe unten)\n`holidays=None`: eine Feiertagstabelle (siehe unten)\n`changepoints=None`: eine Liste von Daten, an denen der Trend abknicken darf; `None` setzt sie automatisch\n`n_changepoints=25` und `changepoint_range=0.8`: wie viele automatische Changepoints, gleichmäßig verteilt über die ersten 80 % der Historie\n`changepoint_prior_scale=0.05`: wie frei der Trend abknicken darf; größer heißt knickfreudiger\n`yearly_seasonality=\"auto\"`, `weekly_seasonality=\"auto\"`: an, aus oder eine Zahl (die Fourier-Ordnung); `\"auto\"` schaltet die jährliche ab zwei Jahren Daten ein und die wöchentliche bei Tagesdaten"
+            }
+          },
+          {
+            "name": "m.fit(df)",
+            "text": {
+              "en": "Fits the model to a DataFrame with the columns `ds` (dates) and `y` (values) and returns the model, so `m = Prophet().fit(df)` works. Rows with an empty `y` are skipped. A model can be fitted only once: for other data or other settings, create a new `Prophet(...)`.",
+              "de": "Passt das Modell an einen DataFrame mit den Spalten `ds` (Daten) und `y` (Werte) an und gibt das Modell zurück, `m = Prophet().fit(df)` funktioniert also. Zeilen mit leerem `y` werden übersprungen. Ein Modell lässt sich nur einmal anpassen: Für andere Daten oder andere Einstellungen erstellst du ein neues `Prophet(...)`."
+            }
+          },
+          {
+            "name": "m.make_future_dataframe(periods, freq=\"D\", include_history=True)",
+            "text": {
+              "en": "A DataFrame with one column `ds`: all dates of the fitted history plus `periods` new dates after its last one, `freq` apart (`\"D\"`: days). Count `periods` from the last date in the data, not from today. With `include_history=False` it holds only the new dates.",
+              "de": "Ein DataFrame mit einer Spalte `ds`: alle Daten der angepassten Historie plus `periods` neue Daten nach dem letzten, im Abstand `freq` (`\"D\"`: Tage). Zähle `periods` ab dem letzten Datum in den Daten, nicht ab heute. Mit `include_history=False` enthält er nur die neuen Daten."
+            }
+          },
+          {
+            "name": "forecast = m.predict(df)",
+            "text": {
+              "en": "Forecasts every date in the `ds` column of `df` (any other columns, even `y`, are ignored). Without an argument it predicts the history. The result has one row per date, in the same order, with a fresh index 0, 1, 2, …, so `forecast.set_index(\"ds\")` is handy for looking up dates.",
+              "de": "Prognostiziert jedes Datum in der Spalte `ds` von `df` (andere Spalten, selbst `y`, werden ignoriert). Ohne Argument sagt es die Historie vorher. Das Ergebnis hat eine Zeile pro Datum in derselben Reihenfolge, mit einem neuen Index 0, 1, 2, …; zum Nachschlagen von Daten hilft deshalb `forecast.set_index(\"ds\")`."
+            }
+          },
+          {
+            "name": "forecast columns",
+            "text": {
+              "en": "`yhat`: the forecast; `yhat_lower`, `yhat_upper`: its 80 % interval\n`trend` (with `trend_lower`, `trend_upper`): the trend alone, in the units of `y`\n`yearly`, `weekly`: each seasonality's effect\none column per holiday name, plus `holidays`: all holidays together\n`additive_terms`, `multiplicative_terms`: the components summed by mode\n\nIn additive mode, the components are in the units of `y` and `yhat = trend + components`. In multiplicative mode, they are shares of the trend and `yhat = trend × (1 + components)`.",
+              "de": "`yhat`: die Prognose; `yhat_lower`, `yhat_upper`: ihr 80-%-Intervall\n`trend` (mit `trend_lower`, `trend_upper`): der Trend allein, in den Einheiten von `y`\n`yearly`, `weekly`: die Wirkung jeder Saisonalität\neine Spalte pro Feiertagsname, dazu `holidays`: alle Feiertage zusammen\n`additive_terms`, `multiplicative_terms`: die Komponenten nach Modus summiert\n\nIm additiven Modus sind die Komponenten in den Einheiten von `y`, und `yhat = trend + Komponenten`. Im multiplikativen Modus sind sie Anteile am Trend, und `yhat = trend × (1 + Komponenten)`."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Trend and changepoints",
+          "de": "Trend und Changepoints"
+        },
+        "entries": [
+          {
+            "name": "m.changepoints",
+            "text": {
+              "en": "After fitting: a Series of the dates where the trend was allowed to change its slope, either placed automatically or the ones you passed with `changepoints=[...]`. Dates you pass must lie inside the training data.",
+              "de": "Nach dem Anpassen: eine Series der Daten, an denen der Trend seine Steigung ändern durfte, entweder automatisch gesetzt oder die, die du mit `changepoints=[...]` übergeben hast. Übergebene Daten müssen innerhalb der Trainingsdaten liegen."
+            }
+          },
+          {
+            "name": "m.params[\"delta\"][0]",
+            "text": {
+              "en": "After fitting: an array with one number per changepoint, in the same order as `m.changepoints`: how much the trend's slope changes there. Most are close to zero, since the fit only bends where the data insist. `pd.Series(m.params[\"delta\"][0], index=m.changepoints)` pairs them with their dates. The units are scaled internally, so compare the deltas with each other, and read real growth from the `trend` column instead.",
+              "de": "Nach dem Anpassen: ein Array mit einer Zahl pro Changepoint, in derselben Reihenfolge wie `m.changepoints`: wie stark sich die Steigung des Trends dort ändert. Die meisten liegen nahe null, denn die Anpassung knickt nur, wo die Daten darauf bestehen. `pd.Series(m.params[\"delta\"][0], index=m.changepoints)` ordnet sie ihren Daten zu. Die Einheiten sind intern skaliert: Vergleiche die Deltas untereinander, und lies echtes Wachstum stattdessen aus der Spalte `trend` ab."
+            }
+          },
+          {
+            "name": "Reading growth from the trend",
+            "text": {
+              "en": "`trend = m.predict(df).set_index(\"ds\")[\"trend\"]` gives the trend per date; the difference between two dates, such as `trend[\"2022-06-01\"] - trend[\"2021-06-01\"]`, is how much the level grew in that time, free of seasonal ups and downs.",
+              "de": "`trend = m.predict(df).set_index(\"ds\")[\"trend\"]` liefert den Trend pro Datum; die Differenz zwischen zwei Daten, etwa `trend[\"2022-06-01\"] - trend[\"2021-06-01\"]`, ist, wie stark das Niveau in dieser Zeit gewachsen ist, ohne saisonales Auf und Ab."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Seasonality and holidays",
+          "de": "Saisonalität und Feiertage"
+        },
+        "entries": [
+          {
+            "name": "seasonality_mode=\"multiplicative\"",
+            "text": {
+              "en": "Additive (the default): the seasons add the same number of visitors whatever the level. Multiplicative: they add a share of the trend, so the swings grow as the trend grows. A component of 0.5 then means +50 % of the trend. Holidays follow the same mode.",
+              "de": "Additiv (der Standard): Die Saisons bringen gleich viele Besucher dazu, egal wie hoch das Niveau ist. Multiplikativ: Sie bringen einen Anteil des Trends dazu, die Schwankungen wachsen also mit dem Trend. Eine Komponente von 0,5 heißt dann +50 % des Trends. Feiertage folgen demselben Modus."
+            }
+          },
+          {
+            "name": "holidays: holiday, ds, lower_window, upper_window",
+            "text": {
+              "en": "A DataFrame with one row per occurrence of a special day: `holiday` (its name, which becomes a forecast column), `ds` (its date), and optionally `lower_window` (0 or less: how many days before also belong to it) and `upper_window` (0 or more: how many days after). `lower_window=-1, upper_window=0` covers the day before and the day itself. Pass it as `Prophet(holidays=table)`. Include the future dates too: a holiday the table doesn't list for the forecast period has no effect there.",
+              "de": "Ein DataFrame mit einer Zeile pro Vorkommen eines besonderen Tages: `holiday` (sein Name, der zur Spalte der Prognose wird), `ds` (sein Datum) und optional `lower_window` (0 oder weniger: wie viele Tage davor dazugehören) und `upper_window` (0 oder mehr: wie viele Tage danach). `lower_window=-1, upper_window=0` umfasst den Vortag und den Tag selbst. Übergib ihn als `Prophet(holidays=table)`. Nimm auch die künftigen Daten auf: Ein Feiertag, den die Tabelle für den Prognosezeitraum nicht nennt, wirkt dort nicht."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Charts",
+          "de": "Diagramme"
+        },
+        "entries": [
+          {
+            "name": "from helpers import show_plot",
+            "text": {
+              "en": "A helper written for these rooms, not part of pandas or Prophet: `show_plot(s1, s2, labels=[\"a\", \"b\"], title=\"…\")` draws one or more series as lines below your output. A date index becomes the x axis, so `show_plot(df.set_index(\"ds\")[\"y\"], forecast.set_index(\"ds\")[\"yhat\"])` lays a forecast over the data.",
+              "de": "Ein Helfer für diese Räume, nicht Teil von pandas oder Prophet: `show_plot(s1, s2, labels=[\"a\", \"b\"], title=\"…\")` zeichnet eine oder mehrere Reihen als Linien unter deiner Ausgabe. Ein Datumsindex wird zur x-Achse, sodass `show_plot(df.set_index(\"ds\")[\"y\"], forecast.set_index(\"ds\")[\"yhat\"])` eine Prognose über die Daten legt."
+            }
+          }
+        ]
+      }
+    ]
+  }
 }

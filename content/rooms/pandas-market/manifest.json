@@ -375,5 +375,209 @@
         "de": "MARKTHILFEN · Samstag\n\nAusweis 3: Greta Vogel (Marktleitung)\n\nAusweis 5: Jule Arslan\n\nAusweis 7: Tobi Wendt\n\nAusweis 9: Ben Schuster\n\nAusweis 12: Mia Roth\n\nJeder Ausweis holt um 14:00 Uhr die Bargeldumschläge seiner Stände ab."
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "The market office's pandas binder",
+      "de": "Der pandas-Ordner des Marktbüros"
+    },
+    "intro": {
+      "en": "A ring binder on a stand by the office computer, labelled \"For the volunteers who do the numbers\". Each page explains one pandas tool and links to the official documentation.",
+      "de": "Ein Ringordner auf einem Ständer neben dem Bürocomputer, beschriftet mit „Für die Ehrenamtlichen, die die Zahlen machen“. Jede Seite erklärt ein pandas-Werkzeug und verweist auf die offizielle Dokumentation."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Loading and looking",
+          "de": "Laden und ansehen"
+        },
+        "entries": [
+          {
+            "name": "pd.read_csv(\"file.csv\")",
+            "text": {
+              "en": "Reads a CSV file into a DataFrame, a table with named columns. Start every script with `import pandas as pd`. Every value in a column gets one type, so a column with a single non-number in it is read as text (shown as `object`).",
+              "de": "Liest eine CSV-Datei in einen DataFrame ein, eine Tabelle mit benannten Spalten. Beginne jedes Skript mit `import pandas as pd`. Jede Spalte bekommt einen einzigen Typ: Steht auch nur ein Nicht-Zahlenwert darin, wird sie als Text gelesen (angezeigt als `object`)."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html"
+          },
+          {
+            "name": "df.head(n)  df.dtypes  len(df)",
+            "text": {
+              "en": "First looks at a table: `df.head(10)` shows the first 10 rows, `df.dtypes` the type of every column, `len(df)` the number of rows.",
+              "de": "Erste Blicke auf eine Tabelle: `df.head(10)` zeigt die ersten 10 Zeilen, `df.dtypes` den Typ jeder Spalte, `len(df)` die Anzahl der Zeilen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html"
+          },
+          {
+            "name": "s.unique()  s.nunique()  s.value_counts()",
+            "text": {
+              "en": "What is in a column: `unique()` lists the distinct values, `nunique()` counts them, `value_counts()` counts how often each one occurs. The fastest way to spot spellings that differ only by a capital letter or a space.",
+              "de": "Was steht in einer Spalte: `unique()` listet die verschiedenen Werte, `nunique()` zählt sie, `value_counts()` zählt, wie oft jeder vorkommt. Der schnellste Weg, Schreibweisen zu finden, die sich nur durch einen Großbuchstaben oder ein Leerzeichen unterscheiden."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Selecting and filtering",
+          "de": "Auswählen und filtern"
+        },
+        "entries": [
+          {
+            "name": "df[\"col\"]  df[[\"a\", \"b\"]]",
+            "text": {
+              "en": "One column in single brackets gives a Series; a list of columns in double brackets gives a smaller DataFrame.",
+              "de": "Eine Spalte in einfachen Klammern ergibt eine Series; eine Liste von Spalten in doppelten Klammern ergibt einen kleineren DataFrame."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/indexing.html#basics"
+          },
+          {
+            "name": "df[df[\"col\"] == value]",
+            "text": {
+              "en": "Boolean filtering: the comparison gives a column of `True`/`False`, and the outer brackets keep the rows that are `True`. Combine conditions with `&` (and) and `|` (or), each in brackets: `df[(df[\"qty\"] > 2) & (df[\"kind\"] == \"pear\")]`.",
+              "de": "Boolesches Filtern: Der Vergleich ergibt eine Spalte aus `True`/`False`, und die äußeren Klammern behalten die Zeilen mit `True`. Bedingungen verknüpfst du mit `&` (und) und `|` (oder), jede in Klammern: `df[(df[\"qty\"] > 2) & (df[\"kind\"] == \"pear\")]`."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing"
+          },
+          {
+            "name": "s.isin([a, b])",
+            "text": {
+              "en": "`True` where the value is one of the listed ones. Shorter than several `==` joined with `|`.",
+              "de": "`True`, wo der Wert einer der aufgelisteten ist. Kürzer als mehrere mit `|` verbundene `==`."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.isin.html"
+          },
+          {
+            "name": "s.iloc[0]",
+            "text": {
+              "en": "Picks an element by its position, whatever the index says: `s.iloc[0]` is the first value. Use it to take a single value out of a filtered result.",
+              "de": "Wählt ein Element nach seiner Position, egal was im Index steht: `s.iloc[0]` ist der erste Wert. Damit holst du einen einzelnen Wert aus einem gefilterten Ergebnis."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.iloc.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Cleaning text columns",
+          "de": "Textspalten bereinigen"
+        },
+        "entries": [
+          {
+            "name": "s.str.strip()",
+            "text": {
+              "en": "Removes spaces at the start and end of every value: `\" apple \"` becomes `\"apple\"`. The `.str` part applies a string method to every value of the column at once.",
+              "de": "Entfernt Leerzeichen am Anfang und Ende jedes Werts: `\" apple \"` wird zu `\"apple\"`. Der Teil `.str` wendet eine String-Methode auf jeden Wert der Spalte auf einmal an."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html"
+          },
+          {
+            "name": "s.str.lower()  s.str.upper()",
+            "text": {
+              "en": "Make the case of every value the same, so `\"Pear\"`, `\"PEAR\"` and `\"pear\"` count as one value.",
+              "de": "Bringen jeden Wert auf dieselbe Schreibung, sodass `\"Pear\"`, `\"PEAR\"` und `\"pear\"` als ein Wert zählen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html"
+          },
+          {
+            "name": "s.str.replace(old, new)",
+            "text": {
+              "en": "Replaces a piece of text inside every value: `s.str.replace(\"kg\", \"\")` deletes the unit. Calls can be chained: `s.str.replace(...).str.strip()`.",
+              "de": "Ersetzt ein Stück Text in jedem Wert: `s.str.replace(\"kg\", \"\")` löscht die Einheit. Aufrufe lassen sich verketten: `s.str.replace(...).str.strip()`."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html"
+          },
+          {
+            "name": "s.replace({old: new})",
+            "text": {
+              "en": "Replaces whole values, not pieces of text: `s.replace({\"yes\": True, \"no\": False})`. Values not in the dictionary stay as they are.",
+              "de": "Ersetzt ganze Werte, nicht Textstücke: `s.replace({\"yes\": True, \"no\": False})`. Werte, die nicht im Dictionary stehen, bleiben, wie sie sind."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.replace.html"
+          },
+          {
+            "name": "df[\"col\"] = ...",
+            "text": {
+              "en": "String methods return a new column; nothing changes until you assign it back: `df[\"name\"] = df[\"name\"].str.strip()`. The same syntax with a new name adds a column.",
+              "de": "String-Methoden geben eine neue Spalte zurück; nichts ändert sich, bis du sie zurückschreibst: `df[\"name\"] = df[\"name\"].str.strip()`. Dieselbe Schreibweise mit einem neuen Namen fügt eine Spalte hinzu."
+            },
+            "link": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/05_add_columns.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Numbers",
+          "de": "Zahlen"
+        },
+        "entries": [
+          {
+            "name": "s.astype(float)",
+            "text": {
+              "en": "Converts a column to numbers. It only works once every value looks like a Python number: digits with a decimal point, no units, no spaces. Otherwise you get a `ValueError` that quotes the first bad value.",
+              "de": "Wandelt eine Spalte in Zahlen um. Das klappt erst, wenn jeder Wert wie eine Python-Zahl aussieht: Ziffern mit Dezimalpunkt, keine Einheiten, keine Leerzeichen. Sonst gibt es einen `ValueError`, der den ersten fehlerhaften Wert nennt."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.astype.html"
+          },
+          {
+            "name": "df[\"a\"] * df[\"b\"]",
+            "text": {
+              "en": "Arithmetic on columns works row by row: `df[\"weight\"] * df[\"price_per_kg\"]` multiplies the values of each row.",
+              "de": "Rechnen mit Spalten geht Zeile für Zeile: `df[\"weight\"] * df[\"price_per_kg\"]` multipliziert die Werte jeder Zeile."
+            },
+            "link": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/05_add_columns.html"
+          },
+          {
+            "name": "s.sum()  s.max()  round(x, 2)",
+            "text": {
+              "en": "Total and largest value of a column. On a `True`/`False` column, `sum()` counts the `True` values. Money sums have floating-point noise like `12.000000001`: round them for display.",
+              "de": "Summe und größter Wert einer Spalte. Auf einer `True`/`False`-Spalte zählt `sum()` die `True`-Werte. Geldsummen haben Rundungsrauschen wie `12.000000001`: Runde sie für die Anzeige."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.sum.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Grouping and combining",
+          "de": "Gruppieren und verbinden"
+        },
+        "entries": [
+          {
+            "name": "df.groupby(\"key\")[\"col\"].sum()",
+            "text": {
+              "en": "Splits the rows by the values in `key`, adds up `col` per group and returns a Series with one total per key. Filter the rows first if only some of them should count. Messy keys make separate groups, so clean them before grouping.",
+              "de": "Teilt die Zeilen nach den Werten in `key` auf, summiert `col` pro Gruppe und gibt eine Series mit einer Summe pro Schlüssel zurück. Filtere die Zeilen vorher, wenn nur ein Teil zählen soll. Unsaubere Schlüssel ergeben getrennte Gruppen, bereinige sie also vor dem Gruppieren."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/groupby.html"
+          },
+          {
+            "name": "s.idxmax()",
+            "text": {
+              "en": "The index label of the largest value. After a `groupby`, that is the group with the largest total; `s.max()` gives the total itself.",
+              "de": "Das Index-Label des größten Werts. Nach einem `groupby` ist das die Gruppe mit der größten Summe; `s.max()` liefert die Summe selbst."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmax.html"
+          },
+          {
+            "name": "s.reset_index(name=\"col\")",
+            "text": {
+              "en": "Turns a Series (such as a `groupby` result) back into a DataFrame: the index becomes a column, and the values get the column name you give.",
+              "de": "Macht aus einer Series (etwa einem `groupby`-Ergebnis) wieder einen DataFrame: Der Index wird eine Spalte, und die Werte bekommen den Spaltennamen, den du angibst."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.reset_index.html"
+          },
+          {
+            "name": "pd.merge(left, right, on=\"key\")",
+            "text": {
+              "en": "Joins two tables side by side wherever the `key` column has the same value in both, like a SQL `JOIN`. Both tables need a column of exactly that name, with matching spellings. Rows without a partner drop out, so check `len()` before and after. Chain merges to connect three tables.",
+              "de": "Verbindet zwei Tabellen nebeneinander, wo die Spalte `key` in beiden denselben Wert hat, wie ein SQL-`JOIN`. Beide Tabellen brauchen eine Spalte mit genau diesem Namen und passender Schreibweise. Zeilen ohne Partner fallen weg, prüfe also `len()` vorher und nachher. Mehrere Merges hintereinander verbinden drei Tabellen."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.merge.html"
+          }
+        ]
+      }
+    ]
+  }
 }

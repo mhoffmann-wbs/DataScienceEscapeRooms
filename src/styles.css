@@ -579,6 +579,44 @@ code {
   color: inherit;
 }
 
+/* The modal is a flex column; without this, long handbooks squash their sections instead of scrolling. */
+.reference-section {
+  flex-shrink: 0;
+}
+
+.reference-section h3 {
+  margin: 18px 0 6px;
+  font-size: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 4px;
+}
+
+.reference-section dl {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.reference-entry dt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.reference-entry dt a {
+  color: var(--accent);
+  font-size: 0.85em;
+}
+
+.reference-entry dd {
+  margin: 2px 0 0 14px;
+}
+
+.reference-entry dd p {
+  margin: 0 0 4px;
+}
+
 .debrief-list {
   margin: 0;
   padding-left: 22px;

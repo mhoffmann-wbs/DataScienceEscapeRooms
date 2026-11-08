@@ -79,7 +79,29 @@ export type Puzzle = z.infer<typeof puzzleSchema>;
 export const clueSchema = z.object({ id: clueId, title: localized, text: localized });
 export type Clue = z.infer<typeof clueSchema>;
 
-export const difficulties = ['beginner', 'advanced', 'expert'] as const;
+/** One function, method, attribute or idea in a room's handbook. */
+export const referenceEntrySchema = z.object({
+  /** What students type, e.g. `df.groupby(col)`; shown as code. */
+  name: z.string().min(1),
+  /** A short explanation; manifest text format. */
+  text: localized,
+  /** The official documentation for it. Leave out only for things we wrote ourselves (helpers, the Prophet-style model). */
+  link: z.string().regex(/^https:\/\/\S+$/).optional(),
+});
+export type ReferenceEntry = z.infer<typeof referenceEntrySchema>;
+
+/**
+ * The room's handbook, placed on the map as a `reference` object: the topics, functions and
+ * attributes this room needs (and nothing beyond them), each with a short explanation and a link.
+ */
+export const referenceSchema = z.object({
+  title: localized,
+  intro: localized.optional(),
+  sections: z.array(z.object({ title: localized, entries: z.array(referenceEntrySchema).min(1) })).min(1),
+});
+export type Reference = z.infer<typeof referenceSchema>;
+
+export const difficulties =['beginner', 'advanced', 'expert'] as const;
 export type Difficulty = (typeof difficulties)[number];
 
 /** How a scenario presents itself at the lobby door: the tools it uses, what it practises, its story in one sentence. */
@@ -104,6 +126,8 @@ export const manifestSchema = z
     modules: z.array(z.string().regex(/^[a-z_][a-z0-9_]*$/)).default([]),
     puzzles: z.array(puzzleSchema).min(1),
     clues: z.array(clueSchema).default([]),
+    /** Every room has a handbook. */
+    reference: referenceSchema,
   })
   .superRefine((m, ctx) => {
     const ids = new Set(m.puzzles.map((p) => p.id));

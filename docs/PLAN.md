@@ -182,6 +182,9 @@ A new 📊 **Statistics** door, the first in a side wall: the lobby's left wall,
 - **Flow pages:** ✅ `docs/flows/<roomId>.md` per room (written with the `room-flow` skill): a Mermaid flowchart of every station, clue, data file and the final lock, arrows labelled with the knowledge that moves (hard or context only), and an analysis of phases, chains, clue placement and findings.
 - **Acting on the findings:** ✅ no room uses `requires` any more: stations either need an earlier result (`uses`, with the earlier station's code taken out of the starter) or sit behind a code lock (Market Day's report, The Blue Index's phone, Station Nordlys's supply terminal, The Chocolate Experiment's dashboard). Values that clues carry were taken out of the task texts, so the clues must be read. Station Nordlys now opens 5 stations at the start instead of 2. What each room left on purpose is listed on its flow page. All of it needs a playtest.
 
+### 15. Room handbooks ✅
+Every room has a 📖 handbook on a lectern (tile 77, map object `reference`, manifest `reference`, required): the topics, functions and attributes its puzzles need, each with a short DE/EN explanation and a link to the official documentation (Python, SQLite, pandas, numpy, SciPy, statsmodels). Only what the room needs, at its level: the time series rooms don't re-explain pandas basics. "Festival Season" documents its Prophet-style model itself, since the real Prophet docs describe a different library; one entry links the real docs for background. The walkthroughs list the entries, and the help page mentions the handbook.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
@@ -202,4 +205,6 @@ Add new ideas here before they move into a step.
 - **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.
 - **Scoreboard export:** let the instructor export and import the scoreboard as JSON from the panel, as a backup that doesn't depend on returning browsers.
 - **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
+- **Documentation room:** a room that tests reading documentation. The values a puzzle needs are buried in the official docs (a default parameter, a version note, an example's output), and the room only says where to start looking ("the pandas page for `merge`, the section about suffixes"). Needs a way to check answers that doesn't depend on the docs changing: pin the docs version in the links (e.g. pandas `version/2.2/`, `docs.python.org/3.12/`) and pick facts that are stable.
+- **Handbook from the HUD:** once a team has found the handbook, a 📖 button in the room HUD could reopen it from anywhere, so nobody has to walk back to the lectern mid-puzzle.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.

@@ -375,5 +375,221 @@
         "de": "VORSTANDSSITZUNG · Freitag, 8:00 · Tagesordnung\n\n1. Webshop-Checkout\n2. Neues Rezept\n3. Verpackungslinie\n4. Umsatzberichte"
       }
     }
-  ]
+  ],
+  "reference": {
+    "title": {
+      "en": "Ana's testing binder",
+      "de": "Anas Test-Ordner"
+    },
+    "intro": {
+      "en": "A thick ring binder in the corner, labelled \"A/B tests: how we do it\". Ana collected the statistics and the scipy calls her team uses, with a link to the official documentation for each entry.",
+      "de": "Ein dicker Ringordner in der Ecke, beschriftet mit „A/B-Tests: so machen wir das“. Ana hat die Statistik und die scipy-Aufrufe gesammelt, die ihr Team verwendet, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Planning an experiment",
+          "de": "Ein Experiment planen"
+        },
+        "entries": [
+          {
+            "name": "Randomised controlled experiment",
+            "text": {
+              "en": "Only random assignment makes the groups alike in everything except the treatment, so a difference can be blamed on the treatment. Watch for designs that let something else differ too: different months, people choosing their own group, different kinds of people per group. Blinding (identical packaging) keeps expectations out of the ratings.",
+              "de": "Nur eine zufällige Zuteilung macht die Gruppen in allem gleich außer in der Behandlung, sodass ein Unterschied der Behandlung zugeschrieben werden kann. Achte auf Designs, bei denen sich noch etwas anderes unterscheidet: andere Monate, Leute, die ihre Gruppe selbst wählen, verschiedene Personenkreise je Gruppe. Verblindung (identische Verpackung) hält Erwartungen aus den Bewertungen heraus."
+            }
+          },
+          {
+            "name": "alpha, power, two-sided",
+            "text": {
+              "en": "The significance level **α** is the accepted chance of a false alarm: declaring a difference when there is none (type I error). **Power** is the chance to detect a difference that really exists (1 − β, where β is the type II error). **Two-sided** means a difference in either direction counts. All three are fixed before the data come in.",
+              "de": "Das Signifikanzniveau **α** ist die akzeptierte Wahrscheinlichkeit für einen Fehlalarm: einen Unterschied zu melden, wo keiner ist (Fehler 1. Art). Die **Power** (Teststärke) ist die Wahrscheinlichkeit, einen tatsächlich vorhandenen Unterschied zu entdecken (1 − β, wobei β der Fehler 2. Art ist). **Zweiseitig** heißt, ein Unterschied in beide Richtungen zählt. Alle drei werden festgelegt, bevor die Daten da sind."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/tutorial/stats/hypothesis_tests.html"
+          },
+          {
+            "name": "stats.norm.ppf(q)",
+            "text": {
+              "en": "The quantile of the standard normal distribution: the z value with a share `q` below it. `stats.norm.ppf(0.975)` is 1.96, the z for a two-sided test at α = 0.05 (α/2 in each tail). In sample size formulas, z₁₋α/₂ is `stats.norm.ppf(1 - alpha / 2)` and z_power is `stats.norm.ppf(power)`.",
+              "de": "Das Quantil der Standardnormalverteilung: der z-Wert, unter dem ein Anteil `q` liegt. `stats.norm.ppf(0.975)` ist 1,96, das z für einen zweiseitigen Test mit α = 0,05 (α/2 an jedem Ende). In Fallzahlformeln ist z₁₋α/₂ gleich `stats.norm.ppf(1 - alpha / 2)` und z_power gleich `stats.norm.ppf(power)`."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html"
+          },
+          {
+            "name": "Sample size and math.ceil(x)",
+            "text": {
+              "en": "Smaller α, more power, more spread σ or a smaller difference δ to detect all need more participants. A sample size is always rounded **up** to whole people: `math.ceil(41.2)` is `42`. Plain `round` could leave you one short.",
+              "de": "Ein kleineres α, mehr Power, mehr Streuung σ oder ein kleinerer zu entdeckender Unterschied δ verlangen alle mehr Teilnehmende. Eine Fallzahl wird immer auf ganze Personen **auf**gerundet: `math.ceil(41.2)` ist `42`. Ein einfaches `round` könnte dich einen zu wenig lassen."
+            },
+            "link": "https://docs.python.org/3/library/math.html#math.ceil"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Sample means and the CLT",
+          "de": "Stichprobenmittel und der ZGS"
+        },
+        "entries": [
+          {
+            "name": "Central limit theorem",
+            "text": {
+              "en": "Means of n random values are approximately normal once n is large enough, even when single values are skewed. They spread by the **standard error** σ/√n: four times the sample size halves it. That is why t-tests on means work for skewed data like order values.",
+              "de": "Mittelwerte aus n zufälligen Werten sind annähernd normalverteilt, sobald n groß genug ist, auch wenn die einzelnen Werte schief verteilt sind. Sie streuen um den **Standardfehler** σ/√n: Die vierfache Stichprobengröße halbiert ihn. Deshalb funktionieren t-Tests auf Mittelwerten auch bei schiefen Daten wie Bestellwerten."
+            }
+          },
+          {
+            "name": "stats.skew(x)",
+            "text": {
+              "en": "The skewness of a sample: 0 for a symmetric distribution, positive for a long tail of large values, negative for a long tail of small ones.",
+              "de": "Die Schiefe einer Stichprobe: 0 bei einer symmetrischen Verteilung, positiv bei einem langen Ende großer Werte, negativ bei einem langen Ende kleiner Werte."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html"
+          },
+          {
+            "name": "rng = np.random.default_rng(seed)",
+            "text": {
+              "en": "numpy's random number generator; a fixed `seed` makes runs repeatable. `rng.choice(values, n)` draws `n` values at random **with** replacement, so `[rng.choice(values, n).mean() for i in range(2000)]` simulates 2,000 sample means.",
+              "de": "numpys Zufallszahlengenerator; ein fester `seed` macht Durchläufe wiederholbar. `rng.choice(values, n)` zieht `n` Werte zufällig **mit** Zurücklegen, `[rng.choice(values, n).mean() for i in range(2000)]` simuliert also 2.000 Stichprobenmittelwerte."
+            },
+            "link": "https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.choice.html"
+          },
+          {
+            "name": "np.sqrt(x)  np.std(x)",
+            "text": {
+              "en": "Square root and standard deviation. Watch the `ddof`: `np.std` divides by n by default, a pandas Series' `.std()` by n − 1. For thousands of values the difference hardly matters.",
+              "de": "Quadratwurzel und Standardabweichung. Achte auf `ddof`: `np.std` teilt standardmäßig durch n, die `.std()` einer pandas-Series durch n − 1. Bei Tausenden von Werten macht das kaum einen Unterschied."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.std.html"
+          },
+          {
+            "name": "from helpers import show_hist",
+            "text": {
+              "en": "A chart helper written for this room, not part of a library: `show_hist(values, bins=40, title=\"...\")` draws a histogram below your output. Use it to see whether a distribution looks skewed or normal.",
+              "de": "Ein Diagramm-Helfer für diesen Raum, nicht Teil einer Bibliothek: `show_hist(values, bins=40, title=\"...\")` zeichnet ein Histogramm unter deine Ausgabe. Damit siehst du, ob eine Verteilung schief oder normal aussieht."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Confidence intervals and t-tests",
+          "de": "Konfidenzintervalle und t-Tests"
+        },
+        "entries": [
+          {
+            "name": "stats.sem(x)",
+            "text": {
+              "en": "The standard error of the mean, estimated from the sample: its standard deviation (with n − 1) divided by √n.",
+              "de": "Der Standardfehler des Mittelwerts, geschätzt aus der Stichprobe: ihre Standardabweichung (mit n − 1) geteilt durch √n."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.sem.html"
+          },
+          {
+            "name": "stats.t.interval(confidence, df, loc=mean, scale=se)",
+            "text": {
+              "en": "A confidence interval for a mean from the t distribution, returned as `(low, high)`: `confidence` is the level (0.9 for 90 %), `df` the degrees of freedom (n − 1), `loc` the sample mean and `scale` its standard error. A value outside a 95 % interval is rejected by a two-sided test at α = 0.05, and the other way round.",
+              "de": "Ein Konfidenzintervall für einen Mittelwert aus der t-Verteilung, als `(low, high)`: `confidence` ist das Niveau (0.9 für 90 %), `df` die Freiheitsgrade (n − 1), `loc` der Stichprobenmittelwert und `scale` sein Standardfehler. Ein Wert außerhalb eines 95-%-Intervalls wird von einem zweiseitigen Test mit α = 0,05 verworfen, und umgekehrt."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.t.html"
+          },
+          {
+            "name": "stats.ttest_1samp(x, popmean)",
+            "text": {
+              "en": "One-sample t-test: is the mean of `x` different from a fixed value `popmean`? Two-sided by default. The result has `.statistic` and `.pvalue`.",
+              "de": "t-Test für eine Stichprobe: Weicht der Mittelwert von `x` von einem festen Wert `popmean` ab? Standardmäßig zweiseitig. Das Ergebnis hat `.statistic` und `.pvalue`."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_1samp.html"
+          },
+          {
+            "name": "stats.ttest_ind(a, b, equal_var=False)",
+            "text": {
+              "en": "Two-sample t-test for **independent** groups (different people in each). `equal_var=True` (the default) is Student's test, which assumes both groups spread equally; `equal_var=False` is **Welch's** test, which doesn't. When the same people measured both conditions, the groups are paired, and this is the wrong test.",
+              "de": "t-Test für zwei **unabhängige** Gruppen (in jeder andere Personen). `equal_var=True` (die Voreinstellung) ist der Test nach Student, der gleiche Streuung in beiden Gruppen annimmt; `equal_var=False` ist der **Welch**-Test, der das nicht tut. Haben dieselben Personen beide Bedingungen bewertet, sind die Gruppen verbunden, und dies ist der falsche Test."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html"
+          },
+          {
+            "name": "p < alpha",
+            "text": {
+              "en": "The p-value is the chance of a result at least this extreme if there were no real difference. Compare it with the α registered **before** the experiment, not with a level picked afterwards. \"Not significant\" means the data don't show a difference clearly enough, not that there is none.",
+              "de": "Der p-Wert ist die Wahrscheinlichkeit für ein mindestens so extremes Ergebnis, wenn es keinen echten Unterschied gäbe. Vergleiche ihn mit dem α, das **vor** dem Experiment festgelegt wurde, nicht mit einem nachträglich gewählten. „Nicht signifikant“ heißt, die Daten zeigen keinen Unterschied deutlich genug, nicht, dass es keinen gibt."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/tutorial/stats/hypothesis_tests.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Counts: chi-squared tests",
+          "de": "Häufigkeiten: Chi-Quadrat-Tests"
+        },
+        "entries": [
+          {
+            "name": "stats.chisquare(observed, f_exp=None)",
+            "text": {
+              "en": "Goodness-of-fit test: do the observed counts match the expected ones? Without `f_exp` it expects all categories to be equal. A check A/B testers run first: if visitors were meant to split evenly but didn't (a **sample ratio mismatch**), the assignment is broken and the test results can't be trusted.",
+              "de": "Anpassungstest: Passen die beobachteten Häufigkeiten zu den erwarteten? Ohne `f_exp` erwartet er gleich große Kategorien. Eine Prüfung, die A/B-Tester zuerst machen: Sollten sich die Besucher gleichmäßig aufteilen, taten es aber nicht (ein **Sample Ratio Mismatch**), ist die Zuteilung kaputt und den Testergebnissen nicht zu trauen."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chisquare.html"
+          },
+          {
+            "name": "stats.chi2_contingency(table)",
+            "text": {
+              "en": "Test of independence on a table of counts, e.g. one row per group and one column per outcome. Every cell is a count, and each row's cells must add up to its total, so use \"bought\" and \"didn't buy\", not \"bought\" and \"visited\". Unpack the result as `chi2, p, dof, expected = ...`.",
+              "de": "Unabhängigkeitstest auf einer Tabelle von Häufigkeiten, z. B. eine Zeile pro Gruppe und eine Spalte pro Ergebnis. Jede Zelle ist eine Anzahl, und die Zellen einer Zeile müssen ihre Summe ergeben, also „gekauft“ und „nicht gekauft“, nicht „gekauft“ und „besucht“. Entpacke das Ergebnis als `chi2, p, dof, expected = ...`."
+            },
+            "link": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html"
+          },
+          {
+            "name": "Conversion rate",
+            "text": {
+              "en": "Successes divided by tries, e.g. purchases per visit. Compare variants by their rates, not by raw counts, since the groups are rarely exactly the same size.",
+              "de": "Erfolge geteilt durch Versuche, z. B. Käufe pro Besuch. Vergleiche Varianten über ihre Raten, nicht über absolute Zahlen, denn die Gruppen sind selten genau gleich groß."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "pandas for the analysis",
+          "de": "pandas für die Auswertung"
+        },
+        "entries": [
+          {
+            "name": "df[df.col == value].other",
+            "text": {
+              "en": "Selects the rows that meet a condition, then one column: `df[df.group == \"B\"].score` gives the scores of group B as a Series.",
+              "de": "Wählt die Zeilen, die eine Bedingung erfüllen, dann eine Spalte: `df[df.group == \"B\"].score` liefert die Werte der Gruppe B als Series."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing"
+          },
+          {
+            "name": "df.groupby(key)[[a, b]].sum()",
+            "text": {
+              "en": "Adds up columns `a` and `b` per value of `key`, one row per group. With `.describe()` instead of `.sum()` you get a summary per group.",
+              "de": "Summiert die Spalten `a` und `b` je Wert von `key`, eine Zeile pro Gruppe. Mit `.describe()` statt `.sum()` bekommst du eine Übersicht pro Gruppe."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/groupby.html"
+          },
+          {
+            "name": "pd.DataFrame({\"x\": s1, \"y\": s2})",
+            "text": {
+              "en": "Builds a table from Series that share an index; each key becomes a column. Columns can be computed on the way: `{\"no\": total - yes}`.",
+              "de": "Baut eine Tabelle aus Series mit gemeinsamem Index; jeder Schlüssel wird eine Spalte. Spalten lassen sich dabei berechnen: `{\"nein\": total - ja}`."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html"
+          },
+          {
+            "name": "s.idxmax()",
+            "text": {
+              "en": "The index label of the largest value: on a Series of rates per variant, the name of the best variant.",
+              "de": "Das Index-Label des größten Werts: bei einer Series von Raten pro Variante der Name der besten Variante."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmax.html"
+          }
+        ]
+      }
+    ]
+  }
 }
