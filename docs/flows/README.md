@@ -8,5 +8,6 @@ One page per room with a Mermaid flowchart of every station, clue, data file and
 - [Station Nordlys](ts-nordlys.md) (`ts-nordlys`)
 - [Festival Season](ts-festival.md) (`ts-festival`)
 - [The Silent Archive](python-docs.md) (`python-docs`)
+- [The Butterfly House](python-debug.md) (`python-debug`)
 - [The Rigged Fair](stats-fair.md) (`stats-fair`)
 - [The Chocolate Experiment](stats-ab.md) (`stats-ab`)

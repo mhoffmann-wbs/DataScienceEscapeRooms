@@ -10,6 +10,7 @@
       "order": [
         "python-lab",
         "pandas-market",
+        "python-debug",
         "python-docs"
       ]
     },

@@ -11,6 +11,7 @@ import type { CodeShare } from '../net/codeShare';
 import type { Notebook } from '../net/notebook';
 import type { Presence } from '../net/presence';
 import { CodeEditor, CodeViewer } from './CodeEditor';
+import { foldUnchanged, lineDiff } from './lineDiff';
 import { Modal } from './Modal';
 import { PinButton, plainNote } from './NotesPanel';
 import { RichText } from './RichText';
@@ -21,8 +22,10 @@ type Output = { kind: 'text'; text: string; error?: string; plots: Plot[] } | { 
 const MAX_ROWS = 200;
 const draftKey = (roomId: string, puzzleId: string) => `dser.draft.${roomId}.${puzzleId}`;
 
+const starterOf = (puzzle: Puzzle, lang: string) => (typeof puzzle.starter === 'string' ? puzzle.starter : loc(puzzle.starter, lang));
+
 function loadDraft(roomId: string, puzzle: Puzzle, lang: string): string {
-  const starter = typeof puzzle.starter === 'string' ? puzzle.starter : loc(puzzle.starter, lang);
+  const starter = starterOf(puzzle, lang);
   try {
     return localStorage.getItem(draftKey(roomId, puzzle.id)) ?? starter;
   } catch {
@@ -67,6 +70,8 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
   const [wrong, setWrong] = useState(false);
   const [editorKey, setEditorKey] = useState(0);
   const [watching, setWatching] = useState<string | null>(null);
+  const [showDiff, setShowDiff] = useState(false);
+  const starter = starterOf(puzzle, lang);
 
   // Share our editor with the team while this puzzle is open.
   const sharedCode = useRef(code);
@@ -284,8 +289,14 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
                     {t('puzzle.check')}
                   </button>
                 )}
+                {starter.trim() && (
+                  <button type="button" aria-pressed={showDiff} className={showDiff ? 'active' : undefined} onClick={() => setShowDiff((v) => !v)}>
+                    {t('puzzle.diff')}
+                  </button>
+                )}
                 <small className="muted">{runtimeReady ? t('puzzle.runShortcut') : workspace === 'sql' ? t('puzzle.loadingSql') : packages.length ? t('puzzle.loadingPackages', { list: packages.join(', ') }) : t('puzzle.loadingPython')}</small>
               </div>
+              {showDiff && <DiffView before={starter} after={code} />}
             </div>
             <OutputView output={output} />
           </div>
@@ -330,6 +341,30 @@ function LockDialog({ title, puzzleId, lock, salt, run, onClose }: { title: stri
         </p>
       )}
     </Modal>
+  );
+}
+
+/** What the player changed compared with the starter code: removed lines red, added green, long unchanged runs folded. */
+function DiffView({ before, after }: { before: string; after: string }) {
+  const { t } = useTranslation();
+  const lines = lineDiff(before, after);
+  const changed = lines.filter((l) => l.kind !== 'same').length;
+  if (!changed) return <div className="output muted">{t('puzzle.diffNone')}</div>;
+  return (
+    <pre className="output diff" aria-label={t('puzzle.diffLabel', { count: changed })}>
+      {foldUnchanged(lines).map((l, i) =>
+        l.kind === 'gap' ? (
+          <div key={i} className="diff-gap">
+            {t('puzzle.diffGap', { count: l.count })}
+          </div>
+        ) : (
+          <div key={i} className={`diff-${l.kind}`}>
+            {l.kind === 'removed' ? '- ' : l.kind === 'added' ? '+ ' : '  '}
+            {l.text}
+          </div>
+        ),
+      )}
+    </pre>
   );
 }
 

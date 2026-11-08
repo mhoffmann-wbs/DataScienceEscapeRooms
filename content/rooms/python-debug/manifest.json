@@ -1,0 +1,574 @@
+{
+  "version": 1,
+  "salt": "e3cad265a817b599",
+  "title": {
+    "en": "The Butterfly House",
+    "de": "Das Schmetterlingshaus"
+  },
+  "category": "python",
+  "difficulty": "elementary",
+  "about": {
+    "tools": [
+      "Python"
+    ],
+    "practises": {
+      "en": "Debugging: reading error messages and tracebacks, failing tests, looking inside with `print` and `repr`, bugs without an error (copies, changing a list while looping) and errors hidden by `except: pass`.",
+      "de": "Debugging: Fehlermeldungen und Tracebacks lesen, fehlschlagende Tests, mit `print` und `repr` hineinschauen, Fehler ohne Fehlermeldung (Kopien, eine Liste in der Schleife verändern) und Fehler, die `except: pass` versteckt."
+    },
+    "story": {
+      "en": "An intern's \"clean-up\" broke every script in the botanical garden's butterfly house, and its airlock sealed; fix the bugs to get the systems, and the doors, running again.",
+      "de": "Die „Aufräumaktion“ eines Praktikanten hat jedes Skript im Schmetterlingshaus des Botanischen Gartens kaputt gemacht, und die Schleuse hat sich verriegelt; behebt die Fehler, damit die Systeme und die Türen wieder laufen."
+    }
+  },
+  "intro": {
+    "en": "Kleeberg's botanical garden, on a November evening. Your late tour of the tropical butterfly house had just begun when the lights flickered: the climate control had crashed. Its safety rule is strict. When the climate fails, both airlock doors lock, so that no butterfly escapes into the cold.\n\nOle Brandt, the garden's technician, wrote the scripts that run the house. This afternoon his intern Finn \"tidied them up\" before leaving on holiday, and now none of them work. Ole calls from a traffic jam: **\"The code is all there. Fix Finn's bugs, and every system shows a number when it restarts.\"**\n\nRun the scripts and read what Python tells you: the error messages say more than you'd think. Ole's debugging guide lies on the reading stand.",
+    "de": "Kleebergs Botanischer Garten an einem Novemberabend. Eure späte Führung durchs tropische Schmetterlingshaus hatte gerade begonnen, als das Licht flackerte: Die Klimasteuerung war abgestürzt. Ihre Sicherheitsregel ist streng. Wenn das Klima ausfällt, verriegeln sich beide Schleusentüren, damit kein Schmetterling in die Kälte entkommt.\n\nOle Brandt, der Techniker des Gartens, hat die Skripte geschrieben, die das Haus steuern. Heute Nachmittag hat sein Praktikant Finn sie vor seinem Urlaub „aufgeräumt“, und jetzt funktioniert keins mehr. Ole ruft aus einem Stau an: **„Der Code ist ja noch da. Behebt Finns Fehler, dann zeigt jedes System beim Neustart eine Zahl.“**\n\nLasst die Skripte laufen und lest, was Python euch sagt: Die Fehlermeldungen verraten mehr, als man denkt. Oles Debugging-Leitfaden liegt auf dem Lesepult."
+  },
+  "puzzles": [
+    {
+      "id": "climate",
+      "title": {
+        "en": "Climate controller",
+        "de": "Klimasteuerung"
+      },
+      "text": {
+        "en": "The climate controller crashed when Finn's clean-up went live, and every zone of the house is cooling down. Ole's script sets a heater level and a mister level for each zone, but it doesn't even start.\n\nRun it, read the error, fix it, run it again. When it works, `heater` and `misters` hold one level per zone, and the script prints the sensor hub's PIN.",
+        "de": "Die Klimasteuerung ist abgestürzt, als Finns Aufräumaktion live ging, und jede Zone des Hauses kühlt aus. Oles Skript stellt für jede Zone eine Heizstufe und eine Sprühstufe ein, aber es startet nicht einmal.\n\nLasst es laufen, lest den Fehler, behebt ihn, lasst es wieder laufen. Wenn es funktioniert, enthalten `heater` und `misters` eine Stufe pro Zone, und das Skript gibt die PIN der Sensorzentrale aus."
+      },
+      "workspace": "python",
+      "data": "climate.py",
+      "starter": {
+        "en": "# Ole's climate controller: a heater level and a mister level for every zone.\n# zones is loaded: {\"rainforest\": {\"temp\": 23.4, \"humidity\": 71}, ...}\nTARGETS = {\n    \"rainforest\": (27.0, 85),\n    \"cloud forest\": (21.0, 90),\n    \"meadow\": (25.0, 70),\n    \"nursery\": (26.0, 80),\n}\n\nheater = {}\nmisters = {}\nfor name, reading in zones.items():\n    target_temp, target_humidity = TARGETS[name]\n    heat = round((target_temp - reading[\"temp\"]) * 10)\n    if heat < 0\n        heat = 0\n    heater[name] = heat\n    misters[name] = max(target_humidty - reading[\"humidity\"], 0)\n\nprint(\"Heater levels:\", heater)\nprint(\"Mister levels:\" misters)\npin = sum(heater.values()) * 100 + sum(misters.values())\nprint(\"Sensor hub PIN:\", pin)\n",
+        "de": "# Oles Klimasteuerung: eine Heizstufe und eine Sprühstufe für jede Zone.\n# zones ist geladen: {\"rainforest\": {\"temp\": 23.4, \"humidity\": 71}, ...}\nTARGETS = {\n    \"rainforest\": (27.0, 85),\n    \"cloud forest\": (21.0, 90),\n    \"meadow\": (25.0, 70),\n    \"nursery\": (26.0, 80),\n}\n\nheater = {}\nmisters = {}\nfor name, reading in zones.items():\n    target_temp, target_humidity = TARGETS[name]\n    heat = round((target_temp - reading[\"temp\"]) * 10)\n    if heat < 0\n        heat = 0\n    heater[name] = heat\n    misters[name] = max(target_humidty - reading[\"humidity\"], 0)\n\nprint(\"Heizstufen:\", heater)\nprint(\"Sprühstufen:\" misters)\npin = sum(heater.values()) * 100 + sum(misters.values())\nprint(\"PIN der Sensorzentrale:\", pin)\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[heater, misters]",
+        "hash": "71d6a9beedf83484df69671d29f259d29df3d2044e72b87a3ab5e9ca3dc172df"
+      },
+      "practises": {
+        "en": "Reading error messages: a `SyntaxError` and its caret `^`, fixing one error at a time, `KeyError`, and `NameError` with its \"Did you mean\".",
+        "de": "Fehlermeldungen lesen: ein `SyntaxError` und sein Zeiger `^`, einen Fehler nach dem anderen beheben, `KeyError`, und `NameError` mit seinem „Did you mean“."
+      },
+      "clues": [
+        "intern-note"
+      ],
+      "hints": [
+        {
+          "en": "Read the last line of the error first, then the line it names. Python reports one error at a time, so fix it and run again. Finn's note on the noticeboard explains one of them.",
+          "de": "Lest zuerst die letzte Zeile der Fehlermeldung, dann die Zeile, die sie nennt. Python meldet einen Fehler nach dem anderen, also behebt ihn und lasst das Skript wieder laufen. Finns Zettel an der Pinnwand erklärt einen davon."
+        },
+        {
+          "en": "Four bugs: a missing `:`, a missing `,` in a `print`, a zone name that doesn't match the sensors' names any more (`cloud_forest`), and a misspelt variable.",
+          "de": "Vier Fehler: ein fehlender `:`, ein fehlendes `,` in einem `print`, ein Zonenname, der nicht mehr zu den Namen der Sensoren passt (`cloud_forest`), und eine falsch geschriebene Variable."
+        },
+        {
+          "en": "`if heat < 0:`, `print(\"Mister levels:\", misters)`, the key `\"cloud_forest\"` in `TARGETS`, and `target_humidity`.",
+          "de": "`if heat < 0:`, `print(\"Sprühstufen:\", misters)`, der Schlüssel `\"cloud_forest\"` in `TARGETS`, und `target_humidity`."
+        }
+      ],
+      "reveal": {
+        "en": "Heaters click on, and the misters hiss. The script's last line is the sensor hub's PIN: **7942**",
+        "de": "Die Heizungen klicken an, und die Sprüher zischen. Die letzte Zeile des Skripts ist die PIN der Sensorzentrale: **7942**"
+      }
+    },
+    {
+      "id": "feeding",
+      "title": {
+        "en": "Feeding station",
+        "de": "Futterstation"
+      },
+      "text": {
+        "en": "The nectar dishes are empty, and the feeding script crashes before it mixes a single drop. It works out how much nectar each feeder needs from this morning's count, `census`, which the volunteers typed into their tablet.\n\nEvery error is raised in the same function. That doesn't mean every bug is there. Fix the script so that `refill` holds the ml of nectar for each feeder.",
+        "de": "Die Nektarschalen sind leer, und das Futterskript stürzt ab, bevor es einen einzigen Tropfen anrührt. Es berechnet aus der heutigen Morgenzählung, `census`, die die Freiwilligen in ihr Tablet getippt haben, wie viel Nektar jede Futterstelle braucht.\n\nJeder Fehler tritt in derselben Funktion auf. Das heißt nicht, dass dort auch jeder Fehler steckt. Repariert das Skript, sodass `refill` die ml Nektar für jede Futterstelle enthält."
+      },
+      "workspace": "python",
+      "data": "feeding.py",
+      "starter": {
+        "en": "# Nectar per butterfly per day, in ml.\nNECTAR = {\n    \"blue morpho\": 0.8,\n    \"owl butterfly\": 1.2,\n    \"postman\": 0.5,\n    \"zebra longwing\": 0.4,\n}\n\n\ndef portion(species, count):\n    \"\"\"Nectar for count butterflies of one species.\"\"\"\n    return count * NECTAR[species]\n\n\ndef feeder_total(visitors):\n    \"\"\"Nectar for one feeder: visitors maps species to how many were counted.\"\"\"\n    total = 0\n    for species, count in visitors.items():\n        total += portion(species, count)\n    return round(total, 1)\n\n\n# census is loaded: {\"feeder 1\": {\"Blue Morpho\": \"14\", ...}, ...}\nrefill = {}\nfor feeder, visitors in census.items():\n    refill[feeder] = feeder_total(visitors)\n\nprint(\"Refill (ml):\", refill)\nprint(\"Total nectar to mix:\", round(sum(refill.values()), 1), \"ml\")\n",
+        "de": "# Nektar pro Schmetterling und Tag, in ml.\nNECTAR = {\n    \"blue morpho\": 0.8,\n    \"owl butterfly\": 1.2,\n    \"postman\": 0.5,\n    \"zebra longwing\": 0.4,\n}\n\n\ndef portion(species, count):\n    \"\"\"Nektar für count Schmetterlinge einer Art.\"\"\"\n    return count * NECTAR[species]\n\n\ndef feeder_total(visitors):\n    \"\"\"Nektar für eine Futterstelle: visitors ordnet jeder Art zu, wie viele gezählt wurden.\"\"\"\n    total = 0\n    for species, count in visitors.items():\n        total += portion(species, count)\n    return round(total, 1)\n\n\n# census ist geladen: {\"feeder 1\": {\"Blue Morpho\": \"14\", ...}, ...}\nrefill = {}\nfor feeder, visitors in census.items():\n    refill[feeder] = feeder_total(visitors)\n\nprint(\"Nachfüllen (ml):\", refill)\nprint(\"Nektar insgesamt anzurühren:\", round(sum(refill.values()), 1), \"ml\")\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "refill",
+        "hash": "8099064cbb9929d545b2f53ecf9fb691d743f608164629d7b8f9bf8fad97b14c"
+      },
+      "practises": {
+        "en": "Reading a traceback through several functions: the crash is in `portion()`, the cause in the data that reaches it. `repr()` shows spaces and numbers stored as text; `strip()`, `lower()`, `int()`.",
+        "de": "Einen Traceback durch mehrere Funktionen lesen: Der Absturz passiert in `portion()`, die Ursache steckt in den Daten, die dort ankommen. `repr()` zeigt Leerzeichen und Zahlen, die als Text gespeichert sind; `strip()`, `lower()`, `int()`."
+      },
+      "clues": [
+        "nectar-board"
+      ],
+      "hints": [
+        {
+          "en": "Read the traceback from the bottom up: the last frame is where it crashed (`portion`), the frames above show who called it. Print `repr(species)` and `repr(count)` at the start of `portion` to see what really arrives.",
+          "de": "Lest den Traceback von unten nach oben: Der letzte Eintrag ist die Stelle des Absturzes (`portion`), die darüber zeigen, wer sie aufgerufen hat. Gebt am Anfang von `portion` `repr(species)` und `repr(count)` aus, um zu sehen, was wirklich ankommt."
+        },
+        {
+          "en": "The tablet's values aren't what `NECTAR` expects: names with capitals, a name with a space at the end, a species `NECTAR` doesn't know yet (see the whiteboard), and counts stored as text. `strip()`, `lower()` and `int()` help.",
+          "de": "Die Werte aus dem Tablet sind nicht das, was `NECTAR` erwartet: Namen mit Großbuchstaben, ein Name mit einem Leerzeichen am Ende, eine Art, die `NECTAR` noch nicht kennt (siehe Whiteboard), und Anzahlen, die als Text gespeichert sind. `strip()`, `lower()` und `int()` helfen."
+        },
+        {
+          "en": "Add `\"glasswing\": 0.3` to `NECTAR`, and in `portion` write `return int(count) * NECTAR[species.strip().lower()]`.",
+          "de": "Ergänzt `\"glasswing\": 0.3` in `NECTAR`, und schreibt in `portion` `return int(count) * NECTAR[species.strip().lower()]`."
+        }
+      ],
+      "reveal": {
+        "en": "The pump hums and fills the four dishes. Its display shows: **nectar → 6**",
+        "de": "Die Pumpe summt und füllt die vier Schalen. Ihr Display zeigt: **Nektar → 6**"
+      }
+    },
+    {
+      "id": "hatchery",
+      "title": {
+        "en": "Emergence cabinet",
+        "de": "Schlupfkasten"
+      },
+      "text": {
+        "en": "Butterflies about to hatch need extra humidity, and the emergence cabinet learns which ones from the hatchery script. Finn \"improved\" its two functions, and now Ole's tests fail.\n\nMake the tests pass. Then `tonight` lists the chrysalises that hatch today, and `this_week` those that hatch within the next 7 days, today included.",
+        "de": "Schmetterlinge kurz vor dem Schlüpfen brauchen mehr Feuchtigkeit, und der Schlupfkasten erfährt vom Schlupf-Skript, welche das sind. Finn hat die beiden Funktionen „verbessert“, und jetzt schlagen Oles Tests fehl.\n\nBringt die Tests zum Laufen. Dann listet `tonight` die Puppen, die heute schlüpfen, und `this_week` die, die in den nächsten 7 Tagen schlüpfen, heute eingeschlossen."
+      },
+      "workspace": "python",
+      "data": "hatchery.py",
+      "starter": {
+        "en": "# How many days each species spends as a chrysalis.\nDAYS_AS_CHRYSALIS = {\n    \"blue morpho\": 14,\n    \"owl butterfly\": 12,\n    \"zebra longwing\": 11,\n    \"postman\": 10,\n    \"glasswing\": 9,\n}\n\n\ndef days_left(chrysalis, today):\n    \"\"\"Days until the butterfly hatches: 0 means today, below 0 means it has already hatched.\"\"\"\n    age = chrysalis[\"hung_on\"] - today\n    return DAYS_AS_CHRYSALIS[chrysalis[\"species\"]] - age\n\n\ndef due(chrysalises, today, within):\n    \"\"\"Ids of the chrysalises that hatch within the next `within` days, starting today.\"\"\"\n    ids = []\n    for c in chrysalises:\n        if days_left(c, today) < within:\n            ids.append(c[\"id\"])\n        return ids\n\n\n# Ole's tests. They all passed before the clean-up.\nsample = [\n    {\"id\": \"T1\", \"species\": \"postman\", \"hung_on\": 10},\n    {\"id\": \"T2\", \"species\": \"glasswing\", \"hung_on\": 12},\n    {\"id\": \"T3\", \"species\": \"blue morpho\", \"hung_on\": 1},\n    {\"id\": \"T4\", \"species\": \"owl butterfly\", \"hung_on\": 12},\n]\nassert days_left(sample[0], 20) == 0\nassert days_left(sample[1], 20) == 1\nassert due(sample, 20, 1) == [\"T1\"]\nassert due(sample, 20, 3) == [\"T1\", \"T2\"]\nprint(\"All tests passed.\")\n\n# chrysalises and today are loaded.\ntonight = due(chrysalises, today, 1)\nthis_week = due(chrysalises, today, 7)\nprint(\"Hatching tonight:\", tonight)\nprint(\"Hatching this week:\", this_week)\n",
+        "de": "# Wie viele Tage jede Art als Puppe verbringt.\nDAYS_AS_CHRYSALIS = {\n    \"blue morpho\": 14,\n    \"owl butterfly\": 12,\n    \"zebra longwing\": 11,\n    \"postman\": 10,\n    \"glasswing\": 9,\n}\n\n\ndef days_left(chrysalis, today):\n    \"\"\"Tage, bis der Schmetterling schlüpft: 0 heißt heute, unter 0 heißt, er ist schon geschlüpft.\"\"\"\n    age = chrysalis[\"hung_on\"] - today\n    return DAYS_AS_CHRYSALIS[chrysalis[\"species\"]] - age\n\n\ndef due(chrysalises, today, within):\n    \"\"\"Ids der Puppen, die in den nächsten `within` Tagen schlüpfen, ab heute.\"\"\"\n    ids = []\n    for c in chrysalises:\n        if days_left(c, today) < within:\n            ids.append(c[\"id\"])\n        return ids\n\n\n# Oles Tests. Vor dem Aufräumen liefen sie alle durch.\nsample = [\n    {\"id\": \"T1\", \"species\": \"postman\", \"hung_on\": 10},\n    {\"id\": \"T2\", \"species\": \"glasswing\", \"hung_on\": 12},\n    {\"id\": \"T3\", \"species\": \"blue morpho\", \"hung_on\": 1},\n    {\"id\": \"T4\", \"species\": \"owl butterfly\", \"hung_on\": 12},\n]\nassert days_left(sample[0], 20) == 0\nassert days_left(sample[1], 20) == 1\nassert due(sample, 20, 1) == [\"T1\"]\nassert due(sample, 20, 3) == [\"T1\", \"T2\"]\nprint(\"Alle Tests bestanden.\")\n\n# chrysalises und today sind geladen.\ntonight = due(chrysalises, today, 1)\nthis_week = due(chrysalises, today, 7)\nprint(\"Schlüpfen heute Nacht:\", tonight)\nprint(\"Schlüpfen diese Woche:\", this_week)\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[tonight, this_week]",
+        "hash": "75d75bdba322a0cc87237d6ec6d2447511f7f1fed51bba7058881687600a405e"
+      },
+      "practises": {
+        "en": "Tests with `assert`: when a test fails, print what the function really returns and work out by hand what it should return. A sign error, a `return` inside a loop, a missing lower bound.",
+        "de": "Tests mit `assert`: Wenn ein Test fehlschlägt, gebt aus, was die Funktion wirklich zurückgibt, und rechnet von Hand nach, was sie zurückgeben sollte. Ein Vorzeichenfehler, ein `return` in einer Schleife, eine fehlende untere Grenze."
+      },
+      "clues": [
+        "cabinet-note"
+      ],
+      "hints": [
+        {
+          "en": "An `AssertionError` only says that a test failed. Print what the function really returns, e.g. `print(days_left(sample[0], 20))`, and work out by hand what it should be.",
+          "de": "Ein `AssertionError` sagt nur, dass ein Test fehlgeschlagen ist. Gebt aus, was die Funktion wirklich zurückgibt, z. B. `print(days_left(sample[0], 20))`, und rechnet von Hand nach, was herauskommen sollte."
+        },
+        {
+          "en": "Three bugs: the age of a chrysalis is computed backwards; `due` stops after the first chrysalis (look at how far `return` is indented); and `due` also counts butterflies that have already hatched (days left below 0).",
+          "de": "Drei Fehler: Das Alter einer Puppe wird verkehrt herum berechnet; `due` hört nach der ersten Puppe auf (seht euch an, wie weit `return` eingerückt ist); und `due` zählt auch Schmetterlinge mit, die schon geschlüpft sind (weniger als 0 Tage übrig)."
+        },
+        {
+          "en": "`age = today - chrysalis[\"hung_on\"]`, `if 0 <= days_left(c, today) < within:`, and `return ids` indented like the `for`, not inside it.",
+          "de": "`age = today - chrysalis[\"hung_on\"]`, `if 0 <= days_left(c, today) < within:`, und `return ids` so eingerückt wie das `for`, nicht darin."
+        }
+      ],
+      "reveal": {
+        "en": "The cabinet's misters start, and its display counts the butterflies due this week: **chrysalises → 8**",
+        "de": "Die Sprüher im Kasten springen an, und sein Display zählt die Schmetterlinge, die diese Woche schlüpfen: **Puppen → 8**"
+      }
+    },
+    {
+      "id": "census",
+      "title": {
+        "en": "Census tablet",
+        "de": "Zähl-Tablet"
+      },
+      "text": {
+        "en": "Every evening the volunteers count the butterflies. Their tablet compares the count with yesterday's and orders new butterflies from the breeder for every species that has none left. Finn shortened the script. It runs without a single error. Look at what it prints.\n\nFix it so that `changes` holds the change per species since yesterday, and `order` the species with no butterflies left.",
+        "de": "Jeden Abend zählen die Freiwilligen die Schmetterlinge. Ihr Tablet vergleicht die Zählung mit der von gestern und bestellt bei der Zucht neue Schmetterlinge für jede Art, von der keiner mehr da ist. Finn hat das Skript gekürzt. Es läuft ohne einen einzigen Fehler. Seht euch an, was es ausgibt.\n\nRepariert es, sodass `changes` die Veränderung pro Art seit gestern enthält und `order` die Arten, von denen keine Schmetterlinge mehr da sind."
+      },
+      "workspace": "python",
+      "data": "census.py",
+      "starter": {
+        "en": "# counts (yesterday's count per species) and events (today's log) are loaded.\nyesterday = counts\n\nfor event, species in events:\n    if event == \"hatched\":\n        counts[species] += 1\n    else:  # died or released\n        counts[species] -= 1\n\nchanges = {}\nfor species in counts:\n    changes[species] = counts[species] - yesterday[species]\n\n# Species with no butterflies left go on the order list for the breeder.\norder = list(counts)\nfor species in order:\n    if counts[species] > 0:\n        order.remove(species)\n\nprint(\"Yesterday:\", sum(yesterday.values()), \"butterflies\")\nprint(\"Tonight:  \", sum(counts.values()), \"butterflies\")\nprint(\"Changes:\", changes)\nprint(\"Order from the breeder:\", order)\n",
+        "de": "# counts (gestrige Zählung pro Art) und events (das heutige Protokoll) sind geladen.\nyesterday = counts\n\nfor event, species in events:\n    if event == \"hatched\":\n        counts[species] += 1\n    else:  # gestorben oder freigelassen\n        counts[species] -= 1\n\nchanges = {}\nfor species in counts:\n    changes[species] = counts[species] - yesterday[species]\n\n# Arten ohne Schmetterlinge kommen auf die Bestellliste für die Zucht.\norder = list(counts)\nfor species in order:\n    if counts[species] > 0:\n        order.remove(species)\n\nprint(\"Gestern:\", sum(yesterday.values()), \"Schmetterlinge\")\nprint(\"Heute:  \", sum(counts.values()), \"Schmetterlinge\")\nprint(\"Veränderungen:\", changes)\nprint(\"Bei der Zucht bestellen:\", order)\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[changes, order]",
+        "hash": "6eaf1a196cea0924d77a01eabc129c6c2d4dc5a107a7399f9c84006b08f280fa"
+      },
+      "practises": {
+        "en": "Bugs without an error message: checking output against a known value; `b = a` doesn't copy a dict; removing items from a list while looping over it skips items.",
+        "de": "Fehler ohne Fehlermeldung: die Ausgabe mit einem bekannten Wert vergleichen; `b = a` kopiert kein Dictionary; Elemente aus einer Liste entfernen, während man über sie läuft, überspringt Elemente."
+      },
+      "clues": [
+        "tally-sheet"
+      ],
+      "hints": [
+        {
+          "en": "Compare the output with the volunteers' tally sheet: was yesterday's total really 48? And has the owl butterfly really none left? Print `counts` and `yesterday` right after the first loop.",
+          "de": "Vergleicht die Ausgabe mit der Strichliste der Freiwilligen: War die Summe gestern wirklich 48? Und ist vom Bananenfalter (`owl butterfly`) wirklich keiner mehr da? Gebt `counts` und `yesterday` direkt nach der ersten Schleife aus."
+        },
+        {
+          "en": "`yesterday = counts` doesn't copy anything: both names point to the same dict, so the loop changes \"both\". And removing items from the list you're looping over makes the loop skip the item after each one removed.",
+          "de": "`yesterday = counts` kopiert nichts: Beide Namen zeigen auf dasselbe Dictionary, also verändert die Schleife „beide“. Und wer Elemente aus der Liste entfernt, über die er gerade läuft, lässt die Schleife nach jedem entfernten Element eins überspringen."
+        },
+        {
+          "en": "`yesterday = counts.copy()`, and `order = [species for species in counts if counts[species] == 0]`.",
+          "de": "`yesterday = counts.copy()`, und `order = [species for species in counts if counts[species] == 0]`."
+        }
+      ],
+      "reveal": {
+        "en": "The tablet sends tomorrow's order to the breeder and shows how many species are on it: **count → 3**",
+        "de": "Das Tablet schickt die Bestellung für morgen an die Zucht und zeigt, wie viele Arten darauf stehen: **Zählung → 3**"
+      }
+    },
+    {
+      "id": "sensors",
+      "title": {
+        "en": "Airlock sensor hub",
+        "de": "Sensorzentrale der Schleuse"
+      },
+      "text": {
+        "en": "Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock. Finn made its script \"crash-proof\". Now it never crashes, and it never finds a single reading.\n\nFix it so that `readings` holds every valid air temperature from the log as a float, and `average` their mean.",
+        "de": "Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse. Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.\n\nRepariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält und `average` ihren Mittelwert."
+      },
+      "workspace": "python",
+      "data": "airlock.py",
+      "starter": {
+        "en": "# log is loaded: one line per sensor reading.\n# Finn: crash-proof now, no more errors! :)\nreadings = []\nfor line in log:\n    try:\n        time, sensor, value = line.split(\",\")\n        if sensor == \"air\":\n            readings.append(float(value))\n    except:\n        pass\n\naverage = sum(readings) / len(readings) if readings else 0\nprint(\"Valid readings:\", len(readings))\nprint(\"Average temperature:\", round(average, 2))\n",
+        "de": "# log ist geladen: eine Zeile pro Sensormessung.\n# Finn: jetzt absturzsicher, keine Fehler mehr! :)\nreadings = []\nfor line in log:\n    try:\n        time, sensor, value = line.split(\",\")\n        if sensor == \"air\":\n            readings.append(float(value))\n    except:\n        pass\n\naverage = sum(readings) / len(readings) if readings else 0\nprint(\"Gültige Messungen:\", len(readings))\nprint(\"Durchschnittstemperatur:\", round(average, 2))\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "[len(readings), round(average, 2)]",
+        "hash": "86691653b8c5003ba317f53f3fc186974741fe611f8570405a6b3131234d621e"
+      },
+      "practises": {
+        "en": "Why `except: pass` hides bugs: taking it out to see the real error, then fixing it: `split()` with the right separator, decimal commas, leaving out missing readings instead of counting them as 0.",
+        "de": "Warum `except: pass` Fehler versteckt: es herausnehmen, um den echten Fehler zu sehen, und ihn dann beheben: `split()` mit dem richtigen Trennzeichen, Dezimalkommas, fehlende Messungen weglassen statt sie als 0 zu zählen."
+      },
+      "clues": [
+        "sensor-manual"
+      ],
+      "lock": {
+        "text": {
+          "en": "The sensor hub's screen is locked. It asks for a four-digit PIN.",
+          "de": "Der Bildschirm der Sensorzentrale ist gesperrt. Er fragt nach einer vierstelligen PIN."
+        },
+        "from": "climate",
+        "mode": "number",
+        "hash": "d8a025d2529e0ba333b34f8ca9722527da090306536def92a8adf521ab1f315c"
+      },
+      "hints": [
+        {
+          "en": "The `try` with `except: pass` swallows every error, so you can't see what goes wrong. Take it out (or print the error in the `except`), run, and read the real error.",
+          "de": "Das `try` mit `except: pass` verschluckt jeden Fehler, also seht ihr nicht, was schiefgeht. Nehmt es heraus (oder gebt den Fehler im `except` aus), lasst das Skript laufen und lest den echten Fehler."
+        },
+        {
+          "en": "Three things go wrong: the lines are split at the wrong character, some readings have a decimal comma (`23,8`), and the manual says what `--` means.",
+          "de": "Drei Dinge gehen schief: Die Zeilen werden am falschen Zeichen getrennt, manche Messungen haben ein Dezimalkomma (`23,8`), und das Handbuch sagt, was `--` bedeutet."
+        },
+        {
+          "en": "`time, sensor, value = line.split(\";\")`, skip a reading whose value is `\"--\"`, and `readings.append(float(value.replace(\",\", \".\")))`.",
+          "de": "`time, sensor, value = line.split(\";\")`, eine Messung mit dem Wert `\"--\"` überspringen, und `readings.append(float(value.replace(\",\", \".\")))`."
+        }
+      ],
+      "reveal": {
+        "en": "The hub accepts the readings: 23.8 °C, safe for the butterflies. Its screen shows the number of valid readings: **air → 7**",
+        "de": "Die Zentrale akzeptiert die Messungen: 23,8 °C, sicher für die Schmetterlinge. Ihr Bildschirm zeigt die Zahl der gültigen Messungen: **Luft → 7**"
+      }
+    },
+    {
+      "id": "airlock",
+      "title": {
+        "en": "Airlock door",
+        "de": "Schleusentür"
+      },
+      "text": {
+        "en": "The inner airlock door. Its keypad wants four digits: the numbers the systems show after a restart.",
+        "de": "Die innere Schleusentür. Ihr Tastenfeld will vier Ziffern: die Zahlen, die die Systeme nach einem Neustart anzeigen."
+      },
+      "workspace": "none",
+      "check": {
+        "type": "answer",
+        "mode": "number",
+        "hash": "f25317405c46e5e554ba61219ed0f361c922fa7f34a5a5bf195087f041e8ab39"
+      },
+      "practises": {
+        "en": "Putting the room's results together.",
+        "de": "Die Ergebnisse des Raums zusammensetzen."
+      },
+      "clues": [
+        "checklist"
+      ],
+      "uses": [
+        "sensors",
+        "feeding",
+        "hatchery",
+        "census"
+      ],
+      "hints": [
+        {
+          "en": "Four systems showed a number when they restarted. The checklist next to the door says in which order they go.",
+          "de": "Vier Systeme haben beim Neustart eine Zahl gezeigt. Die Checkliste neben der Tür sagt, in welcher Reihenfolge sie gehören."
+        },
+        {
+          "en": "The order is: air, nectar, chrysalises, count.",
+          "de": "Die Reihenfolge ist: Luft, Nektar, Puppen, Zählung."
+        },
+        {
+          "en": "7683",
+          "de": "7683"
+        }
+      ],
+      "final": true
+    }
+  ],
+  "clues": [
+    {
+      "id": "intern-note",
+      "title": {
+        "en": "Sticky note on the noticeboard",
+        "de": "Klebezettel an der Pinnwand"
+      },
+      "text": {
+        "en": "Ole! I tidied up all your scripts before my holiday 🌴\n- renamed the zones to snake_case, so everything is consistent\n- \"improved\" the hatchery functions\n- shortened the census script\n- made the airlock sensor script crash-proof\nYou're welcome! — Finn\n\nUnderneath, in Ole's handwriting: **Finn. What did you do.**",
+        "de": "Ole! Ich hab vor meinem Urlaub alle deine Skripte aufgeräumt 🌴\n- die Zonen in snake_case umbenannt, damit alles einheitlich ist\n- die Schlupf-Funktionen „verbessert“\n- das Zähl-Skript gekürzt\n- das Sensorskript der Schleuse absturzsicher gemacht\nGern geschehen! — Finn\n\nDarunter, in Oles Handschrift: **Finn. Was hast du getan.**"
+      }
+    },
+    {
+      "id": "nectar-board",
+      "title": {
+        "en": "Whiteboard: feeding",
+        "de": "Whiteboard: Fütterung"
+      },
+      "text": {
+        "en": "NECTAR per butterfly per day\nblue morpho 0.8 ml\nowl butterfly 1.2 ml\npostman 0.5 ml\nzebra longwing 0.4 ml\n\nNEW since Monday: **glasswing, 0.3 ml**. Not in the feeding script yet!",
+        "de": "NEKTAR pro Schmetterling und Tag\nblue morpho (Himmelsfalter) 0,8 ml\nowl butterfly (Bananenfalter) 1,2 ml\npostman (Postbote) 0,5 ml\nzebra longwing (Zebrafalter) 0,4 ml\n\nNEU seit Montag: **glasswing (Glasflügler), 0,3 ml**. Noch nicht im Futterskript!"
+      }
+    },
+    {
+      "id": "cabinet-note",
+      "title": {
+        "en": "Note next to the emergence cabinet",
+        "de": "Notiz neben dem Schlupfkasten"
+      },
+      "text": {
+        "en": "The tests at the end of the hatchery script say what the functions must do, worked out by hand on four test chrysalises. They all passed before Finn touched the code.\n\nIf a test fails, fix the function, not the test. — O. B.",
+        "de": "Die Tests am Ende des Schlupf-Skripts sagen, was die Funktionen tun müssen, von Hand an vier Testpuppen nachgerechnet. Bevor Finn den Code angefasst hat, liefen sie alle durch.\n\nWenn ein Test fehlschlägt, repariert die Funktion, nicht den Test. — O. B."
+      }
+    },
+    {
+      "id": "tally-sheet",
+      "title": {
+        "en": "The volunteers' tally sheet",
+        "de": "Strichliste der Freiwilligen"
+      },
+      "text": {
+        "en": "Evening count, yesterday: **47 butterflies** in total. ✔\n\nToday's hatchings and losses are logged in the tablet. It works out the rest and orders every species that has none left from the breeder.",
+        "de": "Abendzählung gestern: insgesamt **47 Schmetterlinge**. ✔\n\nDie heutigen Schlüpfe und Verluste stehen im Protokoll auf dem Tablet. Es rechnet den Rest aus und bestellt bei der Zucht jede Art, von der keiner mehr da ist."
+      }
+    },
+    {
+      "id": "sensor-manual",
+      "title": {
+        "en": "Sensor hub manual, page 3",
+        "de": "Handbuch der Sensorzentrale, Seite 3"
+      },
+      "text": {
+        "en": "**The log.** One line per reading: time, sensor and value, separated by semicolons.\n\n**`--`** means the sensor was offline for that reading. Leave it out: a missing reading is not 0 °C.\n\nThe inner door opens when the average air temperature lies between 22 and 28 °C.",
+        "de": "**Das Protokoll.** Eine Zeile pro Messung: Uhrzeit, Sensor und Wert, durch Semikolons getrennt.\n\n**`--`** heißt, dass der Sensor bei dieser Messung offline war. Lasst sie weg: Eine fehlende Messung ist nicht 0 °C.\n\nDie innere Tür öffnet sich, wenn die mittlere Lufttemperatur zwischen 22 und 28 °C liegt."
+      }
+    },
+    {
+      "id": "checklist",
+      "title": {
+        "en": "Clipboard next to the airlock",
+        "de": "Klemmbrett neben der Schleuse"
+      },
+      "text": {
+        "en": "RESTART CHECKLIST (airlock override)\n\nAfter a restart every system shows a number. Type them into the airlock keypad in this order:\n1. air (sensor hub)\n2. nectar (feeding station)\n3. chrysalises (emergence cabinet)\n4. count (census tablet)\n\nThe climate controller comes first: without its PIN, the sensor hub stays locked. — O. B.",
+        "de": "NEUSTART-CHECKLISTE (Schleusen-Override)\n\nNach einem Neustart zeigt jedes System eine Zahl. Tippt sie in dieser Reihenfolge ins Tastenfeld der Schleuse:\n1. Luft (Sensorzentrale)\n2. Nektar (Futterstation)\n3. Puppen (Schlupfkasten)\n4. Zählung (Zähl-Tablet)\n\nDie Klimasteuerung kommt zuerst: Ohne ihre PIN bleibt die Sensorzentrale gesperrt. — O. B."
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "Debugging guide",
+      "de": "Debugging-Leitfaden"
+    },
+    "intro": {
+      "en": "Ole's guide for new staff: how to read what Python tells you, and how to find bugs it doesn't tell you about. All links go to the docs for Python 3.14.",
+      "de": "Oles Leitfaden für neue Mitarbeitende: wie man liest, was Python einem sagt, und wie man Fehler findet, über die es nichts sagt. Alle Links führen zur Doku für Python 3.14."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Reading an error",
+          "de": "Eine Fehlermeldung lesen"
+        },
+        "entries": [
+          {
+            "name": "Traceback",
+            "text": {
+              "en": "Read it from the bottom: the last line names the exception and what went wrong. Above it are the calls that led there, from your script's top level down to the line that failed. Each one names a line, with the code and markers under the part that failed.",
+              "de": "Lies ihn von unten: Die letzte Zeile nennt die Exception und was schiefging. Darüber stehen die Aufrufe, die dorthin geführt haben, von der obersten Ebene deines Skripts bis zur Zeile, die fehlschlug. Jeder nennt eine Zeile, mit dem Code und Markierungen unter dem Teil, der fehlschlug."
+            },
+            "link": "https://docs.python.org/3.14/tutorial/errors.html"
+          },
+          {
+            "name": "SyntaxError",
+            "text": {
+              "en": "Python couldn't read the code, so none of it ran. The caret `^` marks where Python noticed; the mistake is there or just before it. Only the first one is reported: fix it and run again.",
+              "de": "Python konnte den Code nicht lesen, also lief gar nichts davon. Der Zeiger `^` markiert, wo Python es bemerkt hat; der Fehler steckt dort oder direkt davor. Nur der erste wird gemeldet: beheben und erneut laufen lassen."
+            },
+            "link": "https://docs.python.org/3.14/library/exceptions.html#SyntaxError"
+          },
+          {
+            "name": "NameError",
+            "text": {
+              "en": "A name that doesn't exist: a typo, or a variable used before it gets a value. Look out for \"Did you mean\" at the end of the message.",
+              "de": "Ein Name, den es nicht gibt: ein Tippfehler, oder eine Variable, die benutzt wird, bevor sie einen Wert bekommt. Achte auf „Did you mean“ am Ende der Meldung."
+            },
+            "link": "https://docs.python.org/3.14/library/exceptions.html#NameError"
+          },
+          {
+            "name": "KeyError",
+            "text": {
+              "en": "A dict has no such key. The message shows the key in quotes, so capitals and spaces are visible: `'Owl '` is not `'owl'`.",
+              "de": "Ein Dictionary hat diesen Schlüssel nicht. Die Meldung zeigt den Schlüssel in Anführungszeichen, also sieht man Großbuchstaben und Leerzeichen: `'Owl '` ist nicht `'owl'`."
+            },
+            "link": "https://docs.python.org/3.14/library/exceptions.html#KeyError"
+          },
+          {
+            "name": "TypeError",
+            "text": {
+              "en": "An operation got a value of the wrong type, such as text where a number belongs. \"can't multiply sequence by non-int\" means one side is a string or a list.",
+              "de": "Eine Operation hat einen Wert vom falschen Typ bekommen, etwa Text, wo eine Zahl hingehört. „can't multiply sequence by non-int“ heißt, eine Seite ist ein String oder eine Liste."
+            },
+            "link": "https://docs.python.org/3.14/library/exceptions.html#TypeError"
+          },
+          {
+            "name": "ValueError",
+            "text": {
+              "en": "The right type with a wrong value: `float('abc')`, or unpacking a list into more or fewer variables than it has items.",
+              "de": "Der richtige Typ mit einem falschen Wert: `float('abc')`, oder eine Liste in mehr oder weniger Variablen entpacken, als sie Elemente hat."
+            },
+            "link": "https://docs.python.org/3.14/library/exceptions.html#ValueError"
+          },
+          {
+            "name": "AssertionError",
+            "text": {
+              "en": "An `assert` failed: the code didn't do what a test expected. The message is often empty, so find out yourself what the code returned instead.",
+              "de": "Ein `assert` ist fehlgeschlagen: Der Code hat nicht getan, was ein Test erwartet hat. Die Meldung ist oft leer, also finde selbst heraus, was der Code stattdessen zurückgegeben hat."
+            },
+            "link": "https://docs.python.org/3.14/library/exceptions.html#AssertionError"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Looking inside",
+          "de": "Hineinschauen"
+        },
+        "entries": [
+          {
+            "name": "print(f\"{x=}\")",
+            "text": {
+              "en": "Prints an expression and its value, e.g. `x=3`. Put prints inside loops and functions to watch values change while the code runs.",
+              "de": "Gibt einen Ausdruck und seinen Wert aus, z. B. `x=3`. Setz `print`s in Schleifen und Funktionen, um zuzusehen, wie sich Werte ändern, während der Code läuft."
+            },
+            "link": "https://docs.python.org/3.14/reference/lexical_analysis.html#f-strings"
+          },
+          {
+            "name": "repr(x)",
+            "text": {
+              "en": "The value as Python would write it in code: strings with their quotes, so `'12'` and `12`, or `'postman '` with its trailing space, look different.",
+              "de": "Der Wert so, wie Python ihn im Code schreiben würde: Strings mit Anführungszeichen, also sehen `'12'` und `12`, oder `'postman '` mit seinem Leerzeichen am Ende, verschieden aus."
+            },
+            "link": "https://docs.python.org/3.14/library/functions.html#repr"
+          },
+          {
+            "name": "type(x)",
+            "text": {
+              "en": "The type of a value: `str`, `int`, `float`, `list`, `dict`… Handy when an error complains about a type.",
+              "de": "Der Typ eines Werts: `str`, `int`, `float`, `list`, `dict`… Praktisch, wenn sich eine Fehlermeldung über einen Typ beschwert."
+            },
+            "link": "https://docs.python.org/3.14/library/functions.html#type"
+          },
+          {
+            "name": "assert condition",
+            "text": {
+              "en": "Stops with an `AssertionError` when the condition is false. A test pins down what a function must return for a small example worked out by hand.",
+              "de": "Bricht mit einem `AssertionError` ab, wenn die Bedingung falsch ist. Ein Test legt fest, was eine Funktion für ein kleines, von Hand nachgerechnetes Beispiel zurückgeben muss."
+            },
+            "link": "https://docs.python.org/3.14/reference/simple_stmts.html#the-assert-statement"
+          },
+          {
+            "name": "Indentation",
+            "text": {
+              "en": "Indentation decides which lines belong to an `if`, a loop or a function. A line moved one level in or out still runs, but at a different moment.",
+              "de": "Die Einrückung entscheidet, welche Zeilen zu einem `if`, einer Schleife oder einer Funktion gehören. Eine Zeile, die eine Ebene weiter rein oder raus rutscht, läuft immer noch, aber zu einem anderen Zeitpunkt."
+            },
+            "link": "https://docs.python.org/3.14/reference/lexical_analysis.html#indentation"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Bugs without an error",
+          "de": "Fehler ohne Fehlermeldung"
+        },
+        "entries": [
+          {
+            "name": "b = a",
+            "text": {
+              "en": "Doesn't copy: both names now point to the same list or dict, so a change through one shows up through the other. Copy with `a.copy()`, `dict(a)` or `list(a)`.",
+              "de": "Kopiert nicht: Beide Namen zeigen jetzt auf dieselbe Liste oder dasselbe Dictionary, also zeigt sich eine Änderung über den einen Namen auch über den anderen. Kopieren mit `a.copy()`, `dict(a)` oder `list(a)`."
+            },
+            "link": "https://docs.python.org/3.14/faq/programming.html#why-did-changing-list-y-also-change-list-x"
+          },
+          {
+            "name": "for item in items: items.remove(…)",
+            "text": {
+              "en": "Changing a list while looping over it makes the loop skip items. Loop over a copy, or build a new list instead.",
+              "de": "Eine Liste zu verändern, während man über sie läuft, lässt die Schleife Elemente überspringen. Lauf über eine Kopie, oder bau stattdessen eine neue Liste."
+            },
+            "link": "https://docs.python.org/3.14/tutorial/controlflow.html#for-statements"
+          },
+          {
+            "name": "try: … except: pass",
+            "text": {
+              "en": "A bare `except:` catches every error, your own bugs included, and `pass` throws it away. Catch only the error you expect (`except ValueError:`), and do something sensible with it.",
+              "de": "Ein nacktes `except:` fängt jeden Fehler, auch deine eigenen Bugs, und `pass` wirft ihn weg. Fang nur den Fehler, den du erwartest (`except ValueError:`), und mach etwas Sinnvolles damit."
+            },
+            "link": "https://docs.python.org/3.14/tutorial/errors.html#handling-exceptions"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Handy for the fixes",
+          "de": "Praktisch für die Reparaturen"
+        },
+        "entries": [
+          {
+            "name": "s.strip(), s.lower()",
+            "text": {
+              "en": "A copy of the string without spaces at the start and end, or in lower case. Strings never change in place, so keep the result.",
+              "de": "Eine Kopie des Strings ohne Leerzeichen am Anfang und Ende, bzw. in Kleinbuchstaben. Strings ändern sich nie an Ort und Stelle, also heb das Ergebnis auf."
+            },
+            "link": "https://docs.python.org/3.14/library/stdtypes.html#str.strip"
+          },
+          {
+            "name": "s.split(sep), s.replace(old, new)",
+            "text": {
+              "en": "`split` cuts a string into a list at every `sep`; `replace` swaps every `old` for `new`.",
+              "de": "`split` zerschneidet einen String an jedem `sep` in eine Liste; `replace` ersetzt jedes `old` durch `new`."
+            },
+            "link": "https://docs.python.org/3.14/library/stdtypes.html#str.split"
+          },
+          {
+            "name": "int(x), float(x)",
+            "text": {
+              "en": "Turn text into a number: `int(\"12\")` is `12`. `float` wants a decimal point, not a comma.",
+              "de": "Machen aus Text eine Zahl: `int(\"12\")` ist `12`. `float` will einen Dezimalpunkt, kein Komma."
+            },
+            "link": "https://docs.python.org/3.14/library/functions.html#float"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -204,6 +204,27 @@ Behind the 🐍 door. It practises finding things in the official Python documen
 
 **Open:** playtest whether 30 minutes is enough when nobody knows the docs; station 3 may need its first hint to name `decimal`. Optional `npm run check-doc-facts` that fetches the pinned pages and checks the quoted facts are still there (needs the network, so not in CI). A pandas docs room would fit behind the 🐍 door too.
 
+### 17. Debugging room "The Butterfly House" ✅ content built (`python-debug`, elementary), playtest pending
+Behind the 🐍 door, between Market Day and The Silent Archive. Every station is a prewritten script with bugs; fixing it lets it run and show its result. Standard library only. Builds on Quarantine's ventilation station (beginner syntax bugs) with the next kinds of bug. New tiles 82–86: greenhouse slate path, plant bed, feeding station, emergence cabinet, greenhouse window.
+
+**Engine:** student code now runs as `script.py` instead of `<exec>`, so every room's tracebacks show the failing line with Python 3.14's markers (`^^^`, "Did you mean", "Perhaps you forgot a comma?").
+
+**Story:** Kleeberg's botanical garden, a November evening. Ole Brandt, the technician, wrote the butterfly house's scripts; his intern Finn "tidied them up" before his holiday. The climate control crashed, and the airlock locks both doors so no butterfly escapes into the cold.
+
+**Stations** (numbers from the reference solutions):
+1. **Climate controller** (reading error messages; open): a missing `:`, a missing `,`, a `NameError` with "Did you mean", a `KeyError: 'cloud_forest'` (Finn renamed the zones). Prints the sensor hub PIN 7942.
+2. **Feeding station** (tracebacks; open): four errors in a row, all raised in `portion()`, all caused by the tablet's data: capitals, a trailing space (`'postman '`), glasswing missing from `NECTAR` (0.3 ml on the whiteboard), counts as text. Reveal: nectar → 6.
+3. **Emergence cabinet** (failing `assert` tests; open): each test exposes one bug: age computed backwards, `return` inside the loop, no lower bound for already-hatched chrysalises. 8 due this week → chrysalises → 8.
+4. **Census tablet** (no error; open): `yesterday = counts` aliases the dict (all changes 0; the tally sheet says 47 yesterday), and removing from the list being looped over keeps owl butterfly and zebra longwing on the order list. 3 species to order → count → 3.
+5. **Airlock sensor hub** (`except: pass`; lock 7942 from 1): Finn's "crash-proof" script finds 0 readings. Without the bare `except`: wrong separator (`;`), decimal commas, `--` for offline (the manual: leave out, not 0). 7 readings, 23.84 °C → air → 7.
+6. **Airlock door** (final): the checklist's order air, nectar, chrysalises, count → 7683.
+
+**± Changes:** every puzzle with starter code has a toggle under the editor that shows the player's edits against the starter (removed lines red, added green, unchanged runs folded), for explaining a fix to the team or to the instructor. Works in every room; the help page mentions it.
+
+**Handbook:** "Debugging guide": reading a traceback, the exceptions the room meets, `print(f"{x=}")`, `repr`, `type`, `assert`, indentation, aliasing, changing a list while looping, bare `except`, and the string and number functions the fixes need.
+
+**Open:** playtest the time budget; "nectar → 6" isn't derived from the script's output like the other digits (see the flow page).
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.

@@ -215,7 +215,13 @@
     "loadingPackages": "Loading Python with {{list}}… the first time downloads several megabytes and takes a little while.",
     "lockCode": "Code",
     "openLock": "Open",
-    "lockWrong": "The lock doesn't open. Look for the code somewhere else in the room."
+    "lockWrong": "The lock doesn't open. Look for the code somewhere else in the room.",
+    "diff": "± Changes",
+    "diffNone": "You haven't changed the original code yet.",
+    "diffLabel_one": "{{count}} changed line compared with the original",
+    "diffLabel_other": "{{count}} changed lines compared with the original",
+    "diffGap_one": "⋯ {{count}} unchanged line",
+    "diffGap_other": "⋯ {{count}} unchanged lines"
   },
   "debrief": {
     "open": "Debrief",
@@ -372,7 +378,7 @@
     },
     "puzzles": {
       "title": "Solving puzzles",
-      "body": "Write your code in the editor, press **Run ▶** to try it as often as you like, then **Check solution**. Each of you has your own editor and sandbox; nothing breaks for the others.\n\nForgot how a function works? Every room has a 📖 **handbook** on a reading stand: the functions and ideas the room needs, each with a short explanation and a link to the official documentation.\n\nSolved puzzles often **reveal** something (a digit, a decoded message) that another puzzle needs.\n\nStuck? Each puzzle has up to 3 **hints**, from a nudge to almost the solution. Hints are shared with your team and count on the scoreboard, so try first, then ask."
+      "body": "Write your code in the editor, press **Run ▶** to try it as often as you like, then **Check solution**. Each of you has your own editor and sandbox; nothing breaks for the others. **± Changes** shows what you changed compared with the original code: handy when you fix someone's broken script, or explain your fix to a teammate.\n\nForgot how a function works? Every room has a 📖 **handbook** on a reading stand: the functions and ideas the room needs, each with a short explanation and a link to the official documentation.\n\nSolved puzzles often **reveal** something (a digit, a decoded message) that another puzzle needs.\n\nStuck? Each puzzle has up to 3 **hints**, from a nudge to almost the solution. Hints are shared with your team and count on the scoreboard, so try first, then ask."
     },
     "together": {
       "title": "Working as a team",

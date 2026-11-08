@@ -1,0 +1,1708 @@
+{
+ "compressionlevel": -1,
+ "width": 22,
+ "height": 15,
+ "infinite": false,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tilewidth": 32,
+ "tileheight": 32,
+ "tiledversion": "1.11.0",
+ "type": "map",
+ "version": "1.10",
+ "nextlayerid": 4,
+ "nextobjectid": 16,
+ "layers": [
+  {
+   "id": 1,
+   "name": "floor",
+   "type": "tilelayer",
+   "width": 22,
+   "height": 15,
+   "x": 0,
+   "y": 0,
+   "opacity": 1,
+   "visible": true,
+   "data": [
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    6,
+    6,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83,
+    83
+   ]
+  },
+  {
+   "id": 2,
+   "name": "walls",
+   "type": "tilelayer",
+   "width": 22,
+   "height": 15,
+   "x": 0,
+   "y": 0,
+   "opacity": 1,
+   "visible": true,
+   "data": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    87,
+    4,
+    10,
+    4,
+    41,
+    4,
+    87,
+    4,
+    4,
+    0,
+    0,
+    14,
+    27,
+    4,
+    87,
+    4,
+    23,
+    4,
+    87,
+    4,
+    3,
+    3,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    78,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    84,
+    0,
+    0,
+    0,
+    0,
+    84,
+    0,
+    0,
+    85,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    86,
+    0,
+    9,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    84,
+    84,
+    84,
+    84,
+    0,
+    84,
+    84,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    84,
+    84,
+    0,
+    84,
+    84,
+    84,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    11,
+    0,
+    9,
+    0,
+    0,
+    0,
+    33,
+    0,
+    36,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    84,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    3,
+    8,
+    84,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    84,
+    0,
+    0,
+    0,
+    0,
+    8,
+    84,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ]
+  },
+  {
+   "id": 3,
+   "name": "objects",
+   "type": "objectgroup",
+   "draworder": "topdown",
+   "x": 0,
+   "y": 0,
+   "opacity": 1,
+   "visible": true,
+   "objects": [
+    {
+     "id": 1,
+     "name": "spawn",
+     "type": "spawn",
+     "x": 352,
+     "y": 150,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 2,
+     "name": "exit",
+     "type": "door",
+     "x": 320,
+     "y": 32,
+     "width": 64,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "doorTo",
+       "type": "string",
+       "value": "lobby"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "airlock-keypad",
+     "type": "puzzle",
+     "x": 384,
+     "y": 32,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "airlock"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "checklist",
+     "type": "clue",
+     "x": 416,
+     "y": 32,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "clueId",
+       "type": "string",
+       "value": "checklist"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "intern-note",
+     "type": "clue",
+     "x": 96,
+     "y": 32,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "clueId",
+       "type": "string",
+       "value": "intern-note"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "climate",
+     "type": "puzzle",
+     "x": 160,
+     "y": 32,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "climate"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "nectar-board",
+     "type": "clue",
+     "x": 544,
+     "y": 32,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "clueId",
+       "type": "string",
+       "value": "nectar-board"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "handbook",
+     "type": "reference",
+     "x": 640,
+     "y": 64,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 9,
+     "name": "hatchery",
+     "type": "puzzle",
+     "x": 96,
+     "y": 160,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "hatchery"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "cabinet-note",
+     "type": "clue",
+     "x": 160,
+     "y": 160,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "clueId",
+       "type": "string",
+       "value": "cabinet-note"
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "name": "feeding",
+     "type": "puzzle",
+     "x": 512,
+     "y": 128,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "feeding"
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "name": "census",
+     "type": "puzzle",
+     "x": 320,
+     "y": 320,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "census"
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "name": "tally-sheet",
+     "type": "clue",
+     "x": 384,
+     "y": 320,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "clueId",
+       "type": "string",
+       "value": "tally-sheet"
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "name": "sensors",
+     "type": "puzzle",
+     "x": 512,
+     "y": 320,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "puzzleId",
+       "type": "string",
+       "value": "sensors"
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "name": "sensor-manual",
+     "type": "clue",
+     "x": 576,
+     "y": 320,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "clueId",
+       "type": "string",
+       "value": "sensor-manual"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "tilesets": [
+  {
+   "firstgid": 1,
+   "name": "tiles",
+   "image": "../../tilesets/tiles.png",
+   "imagewidth": 256,
+   "imageheight": 384,
+   "columns": 8,
+   "tilecount": 96,
+   "tilewidth": 32,
+   "tileheight": 32,
+   "margin": 0,
+   "spacing": 0,
+   "tiles": [
+    {
+     "id": 2,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 26,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 31,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 34,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 35,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 37,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 38,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 39,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 40,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 41,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 45,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 46,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 47,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 48,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 49,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 50,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 52,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 57,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 58,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 59,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 60,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 61,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 62,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 63,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 64,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 65,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 67,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 68,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 69,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 70,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 71,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 72,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 73,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 74,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 75,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 76,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 77,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 78,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 79,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 80,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 81,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 83,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 84,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 85,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 86,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -739,6 +739,30 @@ code {
   white-space: normal;
 }
 
+/* The player's changes compared with the starter code */
+.output.diff {
+  max-height: 260px;
+}
+
+.diff-removed {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fca5a5;
+}
+
+.diff-added {
+  background: rgba(110, 231, 183, 0.14);
+  color: #a7f3d0;
+}
+
+.diff-same {
+  color: #9aa3b8;
+}
+
+.diff-gap {
+  color: #6b7389;
+  font-style: italic;
+}
+
 .table-output table {
   border-collapse: collapse;
 }
@@ -1058,7 +1082,8 @@ code {
   padding: 2px 10px;
 }
 
-.code-tabs button.active {
+.code-tabs button.active,
+.workspace-actions button.active {
   border-color: var(--accent);
   color: var(--accent);
 }

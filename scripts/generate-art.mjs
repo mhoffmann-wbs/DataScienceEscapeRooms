@@ -1410,6 +1410,92 @@ drawTile(81, (g, { obj, shadow }) => {
   });
 });
 
+// --- Butterfly house (python-debug) ----------------------------------------------
+const LEAF = [52, 138, 74];
+/** A small butterfly seen from above: two pairs of wings around a dark body. */
+function butterfly(o, x, y, col) {
+  o.ellipse(x - 1.5, y - 0.5, 1.6, 1.4, col);
+  o.ellipse(x + 2.5, y - 0.5, 1.6, 1.4, col);
+  o.set(x - 1, y + 1, sh(col, 0.8));
+  o.set(x + 2, y + 1, sh(col, 0.8));
+  o.rect(x, y - 1, 1, 3, [40, 30, 36]);
+}
+// 82 greenhouse floor: a damp slate path with moss in the joints
+drawTile(82, (g) => {
+  const slate = [104, 112, 116];
+  g.rect(0, 0, T, T, [84, 104, 84]);
+  for (const [x, y, w, h] of [[1, 1, 14, 9], [16, 1, 15, 13], [1, 11, 9, 9], [11, 11, 4, 9], [16, 15, 15, 8], [1, 21, 13, 10], [15, 24, 16, 7]]) {
+    g.box(x, y, w, h, sh(slate, 0.94 + ((x + y) % 5) * 0.03), 1.06, 0.9);
+  }
+  g.noise(0, 0, T, T, 0.12, 82);
+  const r = rng(82);
+  for (let i = 0; i < 10; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [96, 150, 84]);
+});
+// 83 plant bed: a raised wooden bed of large tropical leaves with a butterfly on top
+drawTile(83, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    o.box(1, 20, T - 2, 9, WOOD, 1.25);
+    o.rect(1, 23, T - 2, 1, sh(WOOD, 0.8));
+    o.rect(3, 19, T - 6, 2, [74, 52, 36]);
+    for (const [x, y, rx, ry, f] of [[8, 13, 7, 6, 1], [22, 12, 7, 7, 0.9], [15, 8, 6, 7, 1.1], [5, 18, 5, 3, 0.8], [26, 18, 4, 3, 0.85]]) {
+      o.ellipse(x, y, rx, ry, sh(LEAF, f));
+      o.rect(x, y - ry + 2, 1, ry * 2 - 3, sh(LEAF, f * 0.7));
+    }
+    o.ellipse(15, 17, 6, 3, sh(LEAF, 0.85));
+    o.ellipse(12, 10, 2, 2, sh(LEAF, 1.35));
+    butterfly(o, 21, 7, [76, 130, 230]);
+  });
+});
+// 84 feeding station: a pedestal with a red nectar dish, orange slices and a visiting butterfly
+drawTile(84, (g, { obj, shadow }) => {
+  shadow(16, 29, 10, 2);
+  obj((o) => {
+    o.box(13, 14, 6, 14, [214, 222, 230], 1.1, 0.8);
+    o.box(9, 26, 14, 3, [170, 178, 190]);
+    o.ellipse(16, 12, 12, 4, [196, 60, 66]);
+    o.ellipse(16, 11, 10, 2.5, [236, 120, 110]);
+    for (const x of [9, 20]) {
+      o.ellipse(x, 10, 3, 2, [244, 156, 40]);
+      o.ellipse(x, 10, 2, 1, [252, 204, 96]);
+    }
+    o.ellipse(15, 10, 2, 1, [250, 220, 120]);
+    butterfly(o, 14, 5, [240, 128, 40]);
+  });
+});
+// 85 emergence cabinet: a glass-fronted wooden cabinet with rows of green chrysalises
+drawTile(85, (g, { obj, shadow }) => {
+  shadow(16, 29, 12, 2);
+  obj((o) => {
+    o.box(3, 2, T - 6, 26, WOOD, 1.25);
+    o.rect(5, 4, T - 10, 21, [196, 222, 214]);
+    for (const y of [5, 13]) {
+      o.rect(5, y, T - 10, 1, WOOD_DARK);
+      for (let x = 7; x < T - 6; x += 4) {
+        o.rect(x, y + 1, 1, 1, [120, 100, 70]);
+        o.ellipse(x + 0.5, y + 4, 1.5, 2.5, (x + y) % 3 ? [110, 170, 80] : [168, 146, 70]);
+      }
+    }
+    butterfly(o, 18, 21, [230, 230, 236]);
+    o.rect(5, 4, 2, 21, alpha([255, 255, 255], 70));
+    o.rect(5, 27, 3, 2, WOOD_DARK);
+    o.rect(T - 8, 27, 3, 2, WOOD_DARK);
+  });
+});
+// 86 greenhouse window: glass panes with leaves pressed against them
+drawTile(86, (g, { obj }) => {
+  wallFront(g, 86);
+  obj((o) => {
+    o.box(3, 3, 26, 22, [200, 208, 214], 1.15);
+    o.rect(5, 5, 22, 18, [150, 196, 176]);
+    for (const [x, y, rx, ry] of [[9, 18, 6, 5], [22, 17, 6, 6], [15, 11, 4, 5], [24, 8, 3, 3]]) o.ellipse(x, y, rx, ry, alpha(LEAF, 210));
+    o.rect(15, 5, 2, 18, [200, 208, 214]);
+    o.rect(5, 13, 22, 1, [200, 208, 214]);
+    o.rect(6, 6, 3, 1, alpha([255, 255, 255], 150));
+    butterfly(o, 9, 8, [250, 210, 60]);
+  });
+});
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:
