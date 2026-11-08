@@ -1199,12 +1199,18 @@ code {
   width: 120px;
 }
 
-/* Charts in the puzzle output (show_plot, plot_acf, plot_pacf). Series colors: validated
-   categorical slots 1–3 for the dark surface (dataviz reference palette). */
+/* Charts in the puzzle output (show_plot, plot_acf, plot_pacf, show_scatter). Series colors:
+   validated categorical slots 1–3 for the dark surface (dataviz reference palette). Scatter groups
+   use all eight slots in fixed order, each with its own marker shape as well. */
 .chart {
   --series-1: #3987e5;
   --series-2: #d95926;
   --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
   margin: 8px 0 0;
   padding: 8px;
   border-radius: 6px;
@@ -1289,6 +1295,36 @@ code {
 .chart rect.series-2 { fill: var(--series-2); }
 .chart rect.series-3 { fill: var(--series-3); }
 .chart rect.hovered { opacity: 0.75; }
+
+.chart .scatter-1 { fill: var(--series-1); }
+.chart .scatter-2 { fill: var(--series-2); }
+.chart .scatter-3 { fill: var(--series-3); }
+.chart .scatter-4 { fill: var(--series-4); }
+.chart .scatter-5 { fill: var(--series-5); }
+.chart .scatter-6 { fill: var(--series-6); }
+.chart .scatter-7 { fill: var(--series-7); }
+.chart .scatter-8 { fill: var(--series-8); }
+.chart .scatter-point { fill-opacity: 0.8; }
+
+.chart svg.chart-marker {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  vertical-align: -1px;
+}
+
+.chart-center line {
+  stroke: #f2f4f8;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.chart-hover-ring {
+  fill: none;
+  stroke: #f2f4f8;
+  stroke-width: 1.5;
+}
 
 .chart-crosshair {
   stroke: rgba(255, 255, 255, 0.4);

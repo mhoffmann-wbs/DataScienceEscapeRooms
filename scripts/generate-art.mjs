@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 23 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 25 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 23;
+const TILESET_ROWS = 25;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -2352,6 +2352,165 @@ drawTile(180, (g, { obj, shadow }) => {
     for (let j = 10; j < 15; j += 2) o.rect(8, j, 16 - ((j * 5) % 6), 1, [170, 174, 186]);
   });
 });
+
+// --- Seed bank in the old salt mine (ml-seeds) --------------------------------------------
+const ML_FRAME = [176, 52, 74];
+const ML_GLOW = [255, 170, 186];
+/** A side door in a map's left wall, and the same door mirrored for a right wall. */
+function sideDoorPair(left, right, frame, glow) {
+  drawTile(left, (g) => sideDoor(g, frame, glow));
+  drawTile(right, (g) => {
+    const leaf = canvas(T, T);
+    sideDoor(leaf, frame, glow);
+    g.paste(leaf, 0, 0, true);
+  });
+}
+// 181 door in a left wall: SQL (amber, like tile 6), 182 the same door in a right wall
+sideDoorPair(181, 182, [168, 108, 36], [255, 200, 100]);
+const STEEL = [168, 176, 186];
+const KRAFT = [204, 170, 120];
+const SEED_COLOURS = [[196, 160, 92], [120, 84, 52], [222, 206, 150], [96, 128, 70], [178, 110, 70]];
+/** A heap of small seeds in an oval, each seed two pixels in one of the seed colours. */
+function seeds(o, cx, cy, rx, ry, seed) {
+  const r = rng(seed);
+  for (let i = 0; i < rx * ry * 1.6; i++) {
+    const a = r() * Math.PI * 2;
+    const d = Math.sqrt(r());
+    const c = SEED_COLOURS[Math.floor(r() * SEED_COLOURS.length)];
+    o.rect(Math.round(cx + Math.cos(a) * d * rx), Math.round(cy + Math.sin(a) * d * ry), 2, 1, c);
+  }
+}
+// 183 seed cabinet: a tall steel cabinet of small drawers, some pulled out with brown envelopes, one soaked label
+drawTile(183, (g, { obj, shadow }) => {
+  shadow(16, 30, 13, 2);
+  obj((o) => {
+    o.box(3, 1, 26, 29, STEEL, 1.15, 0.8);
+    const r = rng(183);
+    for (let row = 0; row < 6; row++)
+      for (let col = 0; col < 3; col++) {
+        const x = 5 + col * 8;
+        const y = 3 + row * 4;
+        o.box(x, y, 7, 3, sh(STEEL, 0.92), 1.1);
+        o.rect(x + 2, y + 1, 3, 1, r() < 0.2 ? [150, 170, 200] : [246, 244, 236]);
+      }
+    o.box(13, 11, 7, 4, sh(STEEL, 1.05), 1.2);
+    o.rect(14, 9, 2, 3, KRAFT);
+    o.rect(17, 9, 2, 3, sh(KRAFT, 0.9));
+    o.rect(3, 27, 26, 3, sh(STEEL, 0.7));
+  });
+});
+// 184 sorting machine: a funnel over a belt that feeds a row of little drawers, with a camera and a green screen
+drawTile(184, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) => {
+    const body = [92, 112, 128];
+    o.box(2, 12, 28, 17, body, 1.2);
+    o.rect(2, 12, 28, 2, ML_FRAME);
+    for (let i = 0; i < 4; i++) o.box(4 + i * 6, 21, 5, 6, sh(body, 1.25), 1.1);
+    for (let i = 0; i < 4; i++) o.rect(5 + i * 6, 23, 3, 1, KRAFT);
+    for (let j = 0; j < 8; j++) o.rect(4 + j, 2 + j, 14 - 2 * j, 1, STEEL);
+    seeds(o, 11, 3, 5, 1.5, 184);
+    o.rect(10, 10, 2, 3, sh(STEEL, 0.8));
+    o.rect(4, 15, 15, 2, [44, 44, 50]);
+    seeds(o, 11, 15, 6, 0.6, 1840);
+    o.box(21, 4, 8, 7, [40, 44, 52], 1.3);
+    o.rect(22, 5, 6, 4, SCREEN);
+    o.rect(23, 6, 1, 2, [20, 90, 60]);
+    o.rect(25, 7, 2, 1, [20, 90, 60]);
+    o.ellipse(19, 15, 1.6, 1.6, [255, 80, 80]);
+  });
+});
+// 185 seed counter: a white bench with a lit tray of sorted seeds, a small balance and a tagged envelope
+drawTile(185, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    benchBase(o);
+    o.box(3, 6, 15, 9, [236, 240, 232], 1.05, 0.85);
+    for (let i = 0; i < 3; i++) o.rect(4 + i * 5, 7, 4, 7, sh([236, 240, 232], 0.93));
+    const r = rng(185);
+    [[120, 84, 52], [222, 206, 150], [96, 128, 70]].forEach((c, i) => {
+      for (let n = 0; n < 7; n++) o.rect(5 + i * 5 + Math.floor(r() * 2), 8 + Math.floor(r() * 5), 2, 1, c);
+    });
+    o.box(20, 9, 9, 5, [60, 64, 74], 1.3);
+    o.rect(21, 7, 7, 2, STEEL);
+    o.rect(22, 10, 5, 2, SCREEN);
+    o.box(21, 2, 7, 5, KRAFT, 1.15, 0.8);
+    o.rect(26, 3, 3, 2, [246, 244, 236]);
+  });
+});
+const SALT = [184, 170, 168];
+// 186 salt-mine floor: pale pinkish rock with dark seams and glints
+drawTile(186, (g) => {
+  g.rect(0, 0, T, T, SALT);
+  g.noise(0, 0, T, T, 0.1, 186);
+  const r = rng(186);
+  for (let i = 0; i < 3; i++) {
+    let x = Math.floor(r() * T);
+    for (let y = 0; y < T; y++) {
+      if (r() < 0.3) x += r() < 0.5 ? -1 : 1;
+      if (r() < 0.7) g.set(((x % T) + T) % T, y, sh(SALT, 0.86));
+    }
+  }
+  for (let i = 0; i < 8; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [236, 230, 228]);
+});
+// 187 salt-mine floor with a puddle of flood water
+drawTile(187, (g) => {
+  g.rect(0, 0, T, T, SALT);
+  g.noise(0, 0, T, T, 0.1, 187);
+  g.ellipse(16, 17, 13, 9, sh(SALT, 0.8));
+  g.ellipse(16, 16, 12, 8, [92, 116, 138, 220]);
+  g.ellipse(13, 13, 5, 2, [150, 178, 200, 200]);
+  g.rect(19, 19, 4, 1, [150, 178, 200, 180]);
+});
+// 188 cold store: a heavy steel door in the wall with a frosted window, a wheel handle and a keypad
+drawTile(188, (g, { obj }) => {
+  wallFront(g, 188);
+  obj((o) => {
+    o.box(4, 1, 24, 26, [150, 166, 182], 1.2, 0.8);
+    o.box(9, 4, 14, 7, [214, 236, 246], 1.05);
+    for (let i = 0; i < 6; i++) o.set(10 + i * 2, 5 + (i % 3), [255, 255, 255]);
+    o.ellipse(16, 18, 4.5, 4.5, [96, 104, 116]);
+    o.ellipse(16, 18, 2.5, 2.5, [150, 166, 182]);
+    o.rect(11, 18, 10, 1, [96, 104, 116]);
+    o.rect(16, 13, 1, 10, [96, 104, 116]);
+    o.box(24, 13, 3, 5, [44, 48, 56], 1.3);
+    o.set(25, 14, SCREEN);
+  });
+  for (let x = 4; x < 28; x += 3) g.set(x, 27, [226, 240, 250]);
+});
+// 189 shelf of seed jars on the wall: glass jars with seeds of different colours and paper labels
+drawTile(189, (g, { obj }) => {
+  wallFront(g, 189);
+  obj((o) => {
+    for (const y of [12, 23]) {
+      o.box(2, y, 28, 3, WOOD, 1.25);
+      for (let i = 0; i < 4; i++) {
+        const c = SEED_COLOURS[(i + (y > 12 ? 2 : 0)) % SEED_COLOURS.length];
+        o.box(4 + i * 7, y - 8, 5, 8, [200, 222, 228], 1.1, 0.8);
+        o.rect(5 + i * 7, y - 5, 3, 4, c);
+        o.rect(4 + i * 7, y - 9, 5, 1, sh(METAL, 0.9));
+        o.rect(5 + i * 7, y - 6, 3, 1, [246, 244, 236]);
+      }
+    }
+  });
+});
+// 190 field map on the wall: a farmers' map with six coloured fields and red pins
+drawTile(190, (g, { obj }) => {
+  wallFront(g, 190);
+  obj((o) => {
+    o.box(3, 3, 26, 19, [236, 230, 204], 1.05, 0.85);
+    const fields = [[120, 160, 80], [206, 184, 96], [150, 124, 84], [98, 140, 96], [214, 200, 140], [132, 168, 110]];
+    fields.forEach((c, i) => o.rect(5 + (i % 3) * 8, 5 + Math.floor(i / 3) * 8, 7, 7, c));
+    for (let i = 0; i < 6; i++) o.set(7 + (i % 3) * 8, 7 + Math.floor(i / 3) * 8, [214, 48, 48]);
+  });
+});
+
+// --- Doors after the lobby's reorder: SQL and time series in the side walls, machine learning and neural networks in the top wall
+// 191 door in a left wall: time series (ice blue, like tile 43), 192 the same door in a right wall
+sideDoorPair(191, 192, [120, 172, 204], [196, 242, 255]);
+// 193 door: machine learning (crimson), 194 door: neural networks (green)
+drawTile(193, (g) => door(g, ML_FRAME, ML_GLOW));
+drawTile(194, (g) => door(g, NEURAL_FRAME, NEURAL_GLOW));
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.

@@ -306,6 +306,7 @@
     "lag": "Lag",
     "data": "Daten anzeigen",
     "image": "Bild {{n}}",
+    "group": "Gruppe",
     "pixel": "Bild {{image}}, Zeile {{row}}, Spalte {{col}}: {{value}}"
   },
   "scores": {

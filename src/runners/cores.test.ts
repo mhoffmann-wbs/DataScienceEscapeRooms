@@ -122,6 +122,20 @@ describe('python plots', () => {
     ]);
   });
 
+  it('draws scatter points in sorted groups with centres, and refuses more than 8 groups', async () => {
+    const code = [
+      'show_scatter([1, 2, float("nan"), 4], [5, 6, 7, 8], c=["b", "a", "a", "b"], centers=[[1.5, 5.5]], xlabel="len")',
+      'show_scatter([1, 2], [3, 4])',
+      'show_scatter(list(range(9)), list(range(9)), c=list(range(9)))',
+    ].join('\n');
+    const out = await runPython(py, code);
+    expect(out).toMatchObject({ ok: false, error: expect.stringContaining('at most 8 groups') });
+    expect(out.plots).toEqual([
+      { title: null, kind: 'scatter', xlabel: 'len', ylabel: null, groups: ['a', 'b'], points: [[1, 5, 1], [2, 6, 0], [4, 8, 1]], centers: [[1.5, 5.5]] },
+      { title: null, kind: 'scatter', xlabel: null, ylabel: null, groups: [], points: [[1, 3, 0], [2, 4, 0]], centers: [] },
+    ]);
+  });
+
   it('keeps charts drawn before an error, and explains when statsmodels is missing', async () => {
     const out = await runPython(py, 'show_plot([1, 2])\nplot_acf([1, 2, 3])');
     expect(out).toMatchObject({ ok: false, error: expect.stringContaining('need statsmodels') });

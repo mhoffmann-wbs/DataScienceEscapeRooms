@@ -3,11 +3,11 @@ import type { PyodideAPI } from 'pyodide';
 // Python execution shared by the worker and Node scripts/tests. Only type imports here.
 
 /**
- * A chart drawn by `show_plot`, `show_hist`, `show_bars`, `plot_acf`, `plot_pacf` or `show_images`
- * (see PRELUDE), rendered by the output panel. `bar` is a correlogram (x = lags), `columns` a
- * histogram or bar chart.
+ * A chart drawn by `show_plot`, `show_hist`, `show_bars`, `plot_acf`, `plot_pacf`, `show_images` or
+ * `show_scatter` (see PRELUDE), rendered by the output panel. `bar` is a correlogram (x = lags),
+ * `columns` a histogram or bar chart.
  */
-export type Plot = SeriesPlot | ImagePlot;
+export type Plot = SeriesPlot | ImagePlot | ScatterPlot;
 
 export interface SeriesPlot {
   title: string | null;
@@ -28,16 +28,42 @@ export interface ImagePlot {
   reversed: boolean;
 }
 
+/** Points from `show_scatter`: `[x, y, group]`, the group an index into `groups` (always 0 when there are none), plus optional cluster centres. */
+export interface ScatterPlot {
+  title: string | null;
+  kind: 'scatter';
+  xlabel: string | null;
+  ylabel: string | null;
+  groups: string[];
+  points: [number, number, number][];
+  centers: [number, number][];
+}
+
 export type PythonOutcome = { ok: true; stdout: string; check: string | null; plots: Plot[] } | { ok: false; stdout: string; error: string; plots: Plot[] };
 
 /** Modules imported once after loading a package, so the first student run doesn't pay for it (statsmodels takes seconds). */
-const PRELOAD: Record<string, string[]> = { statsmodels: ['statsmodels.api'], scipy: ['scipy.optimize', 'scipy.stats'] };
+const PRELOAD: Record<string, string[]> = {
+  statsmodels: ['statsmodels.api'],
+  scipy: ['scipy.optimize', 'scipy.stats'],
+  'scikit-learn': ['sklearn.cluster', 'sklearn.preprocessing', 'sklearn.metrics', 'sklearn.model_selection', 'sklearn.pipeline'],
+};
+
+/**
+ * Run once after loading a package. threadpoolctl (a scikit-learn dependency) calls a JsProxy method
+ * Pyodide has deprecated, which would print a RuntimeWarning into the first student run that fits a model.
+ */
+const AFTER_LOAD: Record<string, string> = {
+  'scikit-learn': 'import warnings\nwarnings.filterwarnings("ignore", message="JsProxy.as_object_map", category=RuntimeWarning)',
+};
 
 /** Loads Pyodide packages (wheels from pyodide-lock.json) and pre-imports their heavy modules. Idempotent. */
 export async function loadPackages(py: PyodideAPI, packages: readonly string[]): Promise<void> {
   if (!packages.length) return;
   await py.loadPackage([...packages], { messageCallback: () => {} });
-  for (const p of packages) for (const mod of PRELOAD[p] ?? [p]) py.runPython(`import ${mod}`);
+  for (const p of packages) {
+    for (const mod of PRELOAD[p] ?? [p]) py.runPython(`import ${mod}`);
+    if (AFTER_LOAD[p]) py.runPython(AFTER_LOAD[p]);
+  }
 }
 
 const MAX_OUTPUT = 20_000;
@@ -67,7 +93,7 @@ def _plot_values(s):
 def _add_plot(plot):
     if len(__plots__) >= 8:
         raise RuntimeError("At most 8 plots per run.")
-    if plot["kind"] != "images" and len(plot["x"]) > 5000:
+    if plot["kind"] not in ("images", "scatter") and len(plot["x"]) > 5000:
         raise ValueError("Too many points to plot (at most 5000).")
     __plots__.append(plot)
 
@@ -165,6 +191,38 @@ def show_images(images, labels=None, title=None, cmap="gray", vmin=None, vmax=No
                "images": [{"label": None if labels is None else str(labels[i].item() if hasattr(labels[i], "item") else labels[i]),
                            "width": int(a.shape[2]), "height": int(a.shape[1]),
                            "pixels": [round(float(v), 4) for v in img.ravel()]} for i, img in enumerate(a)]})
+
+def show_scatter(x, y, c=None, title=None, xlabel=None, ylabel=None, centers=None):
+    """Draws one point per (x, y) pair below your output, e.g. two columns of a DataFrame.
+    c=[...] gives every point a group (a cluster number or a class), drawn in its own colour and shape;
+    at most 8 groups. centers=[[x, y], ...] marks cluster centres with a cross.
+    xlabel and ylabel name the axes (a Series' name by default)."""
+    xs, ys = _plot_values(x)[1], _plot_values(y)[1]
+    if len(xs) != len(ys):
+        raise ValueError(f"show_scatter got {len(xs)} x values but {len(ys)} y values")
+    if len(xs) > 5000:
+        raise ValueError(f"show_scatter draws at most 5000 points, got {len(xs)}.")
+    groups, index = [], [0] * len(xs)
+    if c is not None:
+        cs = [v.item() if hasattr(v, "item") else v for v in (c.tolist() if hasattr(c, "tolist") else list(c))]
+        if len(cs) != len(xs):
+            raise ValueError(f"show_scatter got {len(xs)} points but {len(cs)} values in c")
+        names = sorted(set(cs), key=lambda v: (isinstance(v, str), v if isinstance(v, (int, float, str)) else str(v)))
+        if len(names) > 8:
+            raise ValueError(f"show_scatter colours at most 8 groups, got {len(names)}. Did you pass a measurement instead of labels as c?")
+        pos = {v: i for i, v in enumerate(names)}
+        groups, index = [str(v) for v in names], [pos[v] for v in cs]
+    marks = []
+    if centers is not None:
+        for row in (centers.tolist() if hasattr(centers, "tolist") else list(centers)):
+            row = list(row)
+            if len(row) != 2:
+                raise ValueError("show_scatter: centers needs one [x, y] pair per centre. Pick the same two columns as x and y.")
+            marks.append([round(float(row[0]), 6), round(float(row[1]), 6)])
+    name = lambda s: None if getattr(s, "name", None) is None else str(s.name)
+    _add_plot({"title": title, "kind": "scatter", "xlabel": xlabel if xlabel is not None else name(x),
+               "ylabel": ylabel if ylabel is not None else name(y), "groups": groups,
+               "points": [[a, b, g] for a, b, g in zip(xs, ys, index) if a is not None and b is not None], "centers": marks})
 
 def _correlogram(series, lags, title, partial):
     try:

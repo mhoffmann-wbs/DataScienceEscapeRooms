@@ -58,6 +58,107 @@
         "nn-post",
         "nn-tablets"
       ]
+    },
+    {
+      "id": "ml",
+      "icon": "🤖",
+      "title": {
+        "en": "Machine learning",
+        "de": "Maschinelles Lernen"
+      },
+      "order": [
+        "ml-seeds"
+      ],
+      "upcoming": [
+        {
+          "title": {
+            "en": "Pier 9",
+            "de": "Pier 9"
+          },
+          "difficulty": "intermediate",
+          "about": {
+            "tools": [
+              "Python",
+              "pandas",
+              "scikit-learn"
+            ],
+            "practises": {
+              "en": "Classification with decision trees, logistic regression and k-nearest neighbours: train/test splits, confusion matrices, precision and recall, overfitting and decision thresholds.",
+              "de": "Klassifikation mit Entscheidungsbäumen, logistischer Regression und k-nächsten Nachbarn: Train/Test-Split, Konfusionsmatrix, Precision und Recall, Overfitting und Entscheidungsschwellen."
+            },
+            "story": {
+              "en": "Night shift at the customs office: 40 containers arrive before dawn, and the crew can open only four.",
+              "de": "Nachtschicht beim Zoll: 40 Container kommen vor der Morgendämmerung an, und die Crew kann nur vier öffnen."
+            }
+          }
+        },
+        {
+          "title": {
+            "en": "Going Once",
+            "de": "Zum Ersten"
+          },
+          "difficulty": "intermediate",
+          "about": {
+            "tools": [
+              "Python",
+              "pandas",
+              "scikit-learn"
+            ],
+            "practises": {
+              "en": "Regression: linear models and their coefficients, MAE, RMSE and R² against a baseline, one-hot encoding, a log-transformed target, residuals and polynomial features.",
+              "de": "Regression: lineare Modelle und ihre Koeffizienten, MAE, RMSE und R² gegen eine Baseline, One-Hot-Encoding, ein logarithmiertes Ziel, Residuen und polynomiale Features."
+            },
+            "story": {
+              "en": "An auction house needs reserve prices for Saturday's watches by 6:00, and one past sale was a forgery.",
+              "de": "Ein Auktionshaus braucht bis 6:00 Uhr Mindestpreise für die Uhren am Samstag, und ein früherer Verkauf war eine Fälschung."
+            }
+          }
+        },
+        {
+          "title": {
+            "en": "Rush Hour",
+            "de": "Stoßzeit"
+          },
+          "difficulty": "advanced",
+          "about": {
+            "tools": [
+              "Python",
+              "pandas",
+              "scikit-learn"
+            ],
+            "practises": {
+              "en": "Feature engineering and selection: date features, distances, encoding categories, ColumnTransformer and pipelines, data leakage, and picking the few columns that matter.",
+              "de": "Feature Engineering und Feature-Auswahl: Datumsmerkmale, Distanzen, Kategorien kodieren, ColumnTransformer und Pipelines, Data Leakage und die wenigen Spalten finden, die zählen."
+            },
+            "story": {
+              "en": "A courier service must promise delivery times on marathon night, from a messy order log.",
+              "de": "Ein Kurierdienst muss in der Marathonnacht Lieferzeiten versprechen, aus einem unordentlichen Auftragsprotokoll."
+            }
+          }
+        },
+        {
+          "title": {
+            "en": "The Pass Road",
+            "de": "Die Passstraße"
+          },
+          "difficulty": "advanced",
+          "about": {
+            "tools": [
+              "Python",
+              "pandas",
+              "scikit-learn"
+            ],
+            "practises": {
+              "en": "Ensemble methods: bagging, random forests and out-of-bag scores, boosting and when to stop it, hard and soft voting.",
+              "de": "Ensemble-Methoden: Bagging, Random Forests und Out-of-Bag-Scores, Boosting und wann man es stoppt, hartes und weiches Voting."
+            },
+            "story": {
+              "en": "The avalanche office's 6:00 bulletin decides whether the pass road opens, and the forecaster is snowed in.",
+              "de": "Das Bulletin der Lawinenwarnstelle um 6:00 Uhr entscheidet, ob die Passstraße öffnet, und die Prognostikerin ist eingeschneit."
+            }
+          }
+        }
+      ]
     }
   ]
 }

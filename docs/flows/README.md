@@ -15,3 +15,4 @@ One page per room with a Mermaid flowchart of every station, clue, data file and
 - [The Chocolate Experiment](stats-ab.md) (`stats-ab`)
 - [The Night Post](nn-post.md) (`nn-post`)
 - [The Varda Tablets](nn-tablets.md) (`nn-tablets`)
+- [The Seed Bank](ml-seeds.md) (`ml-seeds`)

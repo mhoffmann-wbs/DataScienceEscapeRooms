@@ -95,7 +95,7 @@ Tiles are 32 px; the map is 22 × 15 tiles.
 
 - Next to their station (1 tile): the logbook page, the chief's notebook, the gauge panel.
 - A short walk: the technician's note stands about 6 tiles from the freezer (north-west of it), the echo manual about 7 tiles from the echo chamber (north-east).
-- Across the room: the order form hangs on the north wall by the exit, about 10 tiles from the supply terminal in the south-east.
+- Across the room: the order form hangs on the north wall, about 10 tiles from the supply terminal in the south-east.
 - The stations that trade results are spread out: logbook (west) → gauge (north), gauge → echo chamber (south centre), chief (north-east) and echo → supply (south-east), so the hand-offs need walking and talking.
 
 ## Findings

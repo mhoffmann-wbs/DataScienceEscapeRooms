@@ -1,4 +1,4 @@
-import type { ImagePlot, Plot, PythonOutcome, SeriesPlot } from './pythonCore';
+import type { ImagePlot, Plot, PythonOutcome, ScatterPlot, SeriesPlot } from './pythonCore';
 import type { SqlOutcome, SqlTable, SqlTableInfo } from './sqlCore';
 
 // Messages between the UI and the runner workers.
@@ -11,4 +11,4 @@ export type WorkerRequest =
 
 export type WorkerResponse = { id: number; result: unknown } | { id: number; crash: string };
 
-export type { ImagePlot, Plot, PythonOutcome, SeriesPlot, SqlOutcome, SqlTable, SqlTableInfo };
+export type { ImagePlot, Plot, PythonOutcome, ScatterPlot, SeriesPlot, SqlOutcome, SqlTable, SqlTableInfo };

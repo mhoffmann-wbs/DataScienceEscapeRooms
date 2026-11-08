@@ -1,0 +1,610 @@
+{
+  "version": 1,
+  "salt": "74b82e43649967ee",
+  "title": {
+    "en": "The Seed Bank",
+    "de": "Die Saatgutbank"
+  },
+  "category": "ml",
+  "difficulty": "intermediate",
+  "about": {
+    "tools": [
+      "Python",
+      "pandas",
+      "scikit-learn"
+    ],
+    "practises": {
+      "en": "Clustering with KMeans: scaling features, choosing k with the elbow and the silhouette, reading cluster centres, starting points and local minima, finding outliers by their distance, and assigning new samples.",
+      "de": "Clustering mit KMeans: Features skalieren, k mit Ellbogen und Silhouette wählen, Clusterzentren deuten, Startpunkte und lokale Minima, Ausreißer über ihren Abstand finden und neue Proben zuordnen."
+    },
+    "story": {
+      "en": "A flood washed the labels off 1,500 seed envelopes in an old salt mine. Sort them by their measurements before the farmers sow on Monday.",
+      "de": "Ein Hochwasser hat in einem alten Salzbergwerk die Etiketten von 1.500 Saatgut-Umschlägen abgelöst. Sortiert sie nach ihren Messwerten, bevor die Bauern am Montag säen."
+    }
+  },
+  "intro": {
+    "en": "Kleeberg's seed bank lies 80 metres down in the old salt mine, safe from everything except, as it turns out, water. Last night a pipe burst on level −2, and by morning the labels had floated off 1,500 envelopes of heritage seed.\n\nThe sorting machine measured every envelope before the water reached it: length, width, weight and how bright the seed looks to its camera. Nobody knows what is what. On Monday six farms of the cooperative sow the seed they ordered, and the order slips are locked in the cold store.\n\nNo labels and no answers to learn from: let the seeds group themselves. This room loads Python with pandas and scikit-learn, so the first puzzle you open takes a little while.",
+    "de": "Die Kleeberger Saatgutbank liegt 80 Meter tief im alten Salzbergwerk, sicher vor allem außer, wie sich zeigt, Wasser. Letzte Nacht ist auf Sohle −2 ein Rohr geplatzt, und bis zum Morgen haben sich die Etiketten von 1.500 Umschlägen mit altem Saatgut abgelöst.\n\nDie Sortiermaschine hat jeden Umschlag gemessen, bevor das Wasser ihn erreichte: Länge, Breite, Gewicht und wie hell der Samen für ihre Kamera aussieht. Niemand weiß, was was ist. Am Montag säen sechs Höfe der Genossenschaft das Saatgut, das sie bestellt haben, und die Bestellzettel liegen im verschlossenen Kühllager.\n\nKeine Etiketten und keine Antworten zum Lernen: Lasst die Samen sich selbst gruppieren. Dieser Raum lädt Python mit pandas und scikit-learn, das erste Rätsel, das ihr öffnet, braucht also einen Moment."
+  },
+  "packages": [
+    "pandas",
+    "scikit-learn"
+  ],
+  "puzzles": [
+    {
+      "id": "tray",
+      "title": {
+        "en": "The test tray",
+        "de": "Das Testtablett"
+      },
+      "text": {
+        "en": "Before the flood, the curator was testing the sorting machine on one shelf: 200 envelopes that, says the shelf label, hold three species. They are loaded as `tray`: length and width in mm, weight in mg, and brightness from 0 (black) to 255 (white). A few envelopes kept their tag; they're pinned on the desk next to the tray.\n\n1. Group the envelopes into three clusters with `KMeans`, and store each envelope's cluster as `labels` (one per row of `tray`, in order).\n2. Check your groups against the tagged envelopes: the same tag belongs together, different tags apart.\n\nKMeans compares distances between rows. Look at the numbers in each column: does every column count the same?",
+        "de": "Vor dem Hochwasser hat die Kuratorin die Sortiermaschine an einem Regal getestet: 200 Umschläge, die laut Regaletikett drei Arten enthalten. Sie sind als `tray` geladen: Länge und Breite in mm, Gewicht in mg und Helligkeit von 0 (schwarz) bis 255 (weiß). Ein paar Umschläge haben ihr Etikett behalten; sie hängen am Schreibtisch neben dem Tablett.\n\n1. Teilt die Umschläge mit `KMeans` in drei Cluster und speichert den Cluster jedes Umschlags als `labels` (einer pro Zeile von `tray`, in dieser Reihenfolge).\n2. Prüft eure Gruppen an den etikettierten Umschlägen: Gleiches Etikett gehört zusammen, verschiedene Etiketten auseinander.\n\nKMeans vergleicht Abstände zwischen Zeilen. Schaut auf die Zahlen in jeder Spalte: Zählt jede Spalte gleich viel?"
+      },
+      "workspace": "python",
+      "data": "tray.py",
+      "starter": {
+        "en": "from sklearn.cluster import KMeans\nfrom helpers import show_scatter\n\n# tray is loaded: 200 envelopes, indexed by envelope number.\nprint(tray.describe().round(1))\n\nkm = KMeans(n_clusters=3, n_init=10, random_state=0)\nlabels = km.fit_predict(tray)\n\nprint(tray.assign(group=labels).head(12))\nshow_scatter(tray.length_mm, tray.width_mm, c=labels, title=\"The tray\")\n",
+        "de": "from sklearn.cluster import KMeans\nfrom helpers import show_scatter\n\n# tray ist geladen: 200 Umschläge, mit der Umschlagnummer als Index.\nprint(tray.describe().round(1))\n\nkm = KMeans(n_clusters=3, n_init=10, random_state=0)\nlabels = km.fit_predict(tray)\n\nprint(tray.assign(group=labels).head(12))\nshow_scatter(tray.length_mm, tray.width_mm, c=labels, title=\"Das Tablett\")\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_tray_check(labels)",
+        "hash": "2bd4a3034fa19e05009553cdb4ce027317edbc85fc6ab0ed23d2cbc070c273ec"
+      },
+      "reveal": {
+        "en": "Once every column is scaled, the tray sorts cleanly: **86** rye, **72** lentils and **42** field beans, each group matching its tags. Without scaling, weight (hundreds of milligrams) drowned out everything else: KMeans split the beans by weight and threw rye and lentils together.\n\nThe rule for the whole archive: **scale first**.",
+        "de": "Sobald jede Spalte skaliert ist, sortiert sich das Tablett sauber: **86** Roggen, **72** Linsen und **42** Ackerbohnen, jede Gruppe passend zu ihren Etiketten. Ohne Skalierung hat das Gewicht (Hunderte Milligramm) alles andere übertönt: KMeans hat die Bohnen nach Gewicht geteilt und Roggen und Linsen zusammengeworfen.\n\nDie Regel für das ganze Archiv: **erst skalieren**."
+      },
+      "practises": {
+        "en": "Why KMeans needs scaled features: distances, units and StandardScaler",
+        "de": "Warum KMeans skalierte Features braucht: Abstände, Einheiten und StandardScaler"
+      },
+      "clues": [
+        "tray-tags"
+      ],
+      "hints": [
+        {
+          "en": "Run the starter and compare the groups with the tags. `tray.describe()` shows how different the columns' ranges are.",
+          "de": "Führt den Startcode aus und vergleicht die Gruppen mit den Etiketten. `tray.describe()` zeigt, wie verschieden die Wertebereiche der Spalten sind."
+        },
+        {
+          "en": "Weight goes up to several hundred milligrams, width only to about 12 mm, so the distances are almost only weight. `StandardScaler` puts every column on the same scale (mean 0, standard deviation 1).",
+          "de": "Das Gewicht reicht bis zu mehreren hundert Milligramm, die Breite nur bis etwa 12 mm, also sind die Abstände fast nur Gewicht. `StandardScaler` bringt jede Spalte auf dieselbe Skala (Mittelwert 0, Standardabweichung 1)."
+        },
+        {
+          "en": "`X = StandardScaler().fit_transform(tray)` (import it from `sklearn.preprocessing`), then `labels = KMeans(n_clusters=3, n_init=10, random_state=0).fit_predict(X)`.",
+          "de": "`X = StandardScaler().fit_transform(tray)` (importiert aus `sklearn.preprocessing`), dann `labels = KMeans(n_clusters=3, n_init=10, random_state=0).fit_predict(X)`."
+        }
+      ]
+    },
+    {
+      "id": "elbow",
+      "title": {
+        "en": "The curator's terminal",
+        "de": "Das Terminal der Kuratorin"
+      },
+      "text": {
+        "en": "The flooded archive is loaded as `archive`: all 1,507 envelopes the machine measured, with the same four columns as the tray. How many species are in it? Nobody wrote it down anywhere dry.\n\n1. Scale the archive and fit `KMeans` for every k from 1 to 10. Store each model's `inertia_` in the list `inertias` (k = 1 first).\n2. Inertia always falls as k grows. Also store the silhouette score for k = 2 to 10 in `silhouettes`.\n3. Plot both, read them as the curator's note says, and store your choice as `k`.",
+        "de": "Das überflutete Archiv ist als `archive` geladen: alle 1.507 Umschläge, die die Maschine gemessen hat, mit denselben vier Spalten wie das Tablett. Wie viele Arten stecken darin? Niemand hat es irgendwo aufgeschrieben, wo es trocken geblieben ist.\n\n1. Skaliert das Archiv und trainiert `KMeans` für jedes k von 1 bis 10. Speichert die `inertia_` jedes Modells in der Liste `inertias` (k = 1 zuerst).\n2. Die Inertia fällt immer, wenn k wächst. Speichert außerdem den Silhouette-Score für k = 2 bis 10 in `silhouettes`.\n3. Zeichnet beides, lest es so, wie die Notiz der Kuratorin sagt, und speichert eure Wahl als `k`."
+      },
+      "workspace": "python",
+      "data": "archive.py",
+      "starter": {
+        "en": "import pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\nfrom helpers import show_plot\n\n# archive is loaded: 1,507 envelopes, indexed by envelope number.\nX = archive          # scale first (the test tray's lesson)\n\ninertias = []        # k = 1 to 10\nsilhouettes = []     # k = 2 to 10\nfor k in range(1, 11):\n    km = KMeans(n_clusters=k, n_init=10, random_state=0).fit(X)\n    # ...\n\nshow_plot(pd.Series(inertias, index=range(1, len(inertias) + 1)), title=\"Inertia\")\nk = None             # your choice\n",
+        "de": "import pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\nfrom helpers import show_plot\n\n# archive ist geladen: 1.507 Umschläge, mit der Umschlagnummer als Index.\nX = archive          # erst skalieren (die Lehre vom Testtablett)\n\ninertias = []        # k = 1 bis 10\nsilhouettes = []     # k = 2 bis 10\nfor k in range(1, 11):\n    km = KMeans(n_clusters=k, n_init=10, random_state=0).fit(X)\n    # ...\n\nshow_plot(pd.Series(inertias, index=range(1, len(inertias) + 1)), title=\"Inertia\")\nk = None             # eure Wahl\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_elbow_check(inertias, silhouettes, k)",
+        "hash": "e3c9469037d5bffcbf938d39a97ae07b458de1865c4e36fb28271ae27a190f26"
+      },
+      "reveal": {
+        "en": "**Six** species. The inertia falls steeply up to k = 6 and hardly at all after it, and the silhouette is highest at k = 6: there the clusters are tight and far apart.\n\nThe curator's card index should have a card for each of them.",
+        "de": "**Sechs** Arten. Die Inertia fällt bis k = 6 steil und danach kaum noch, und die Silhouette ist bei k = 6 am höchsten: Dort sind die Cluster eng und weit voneinander entfernt.\n\nDer Karteikasten der Kuratorin sollte für jede davon eine Karte haben."
+      },
+      "practises": {
+        "en": "Choosing the number of clusters: inertia and the elbow, the silhouette score",
+        "de": "Die Zahl der Cluster wählen: Inertia und Ellbogen, der Silhouette-Score"
+      },
+      "clues": [
+        "curator-note"
+      ],
+      "hints": [
+        {
+          "en": "Scale the archive as on the tray: `X = StandardScaler().fit_transform(archive)`. In the loop, append `km.inertia_` to `inertias`.",
+          "de": "Skaliert das Archiv wie beim Tablett: `X = StandardScaler().fit_transform(archive)`. Hängt in der Schleife `km.inertia_` an `inertias` an."
+        },
+        {
+          "en": "The silhouette needs at least two clusters: `if k > 1: silhouettes.append(silhouette_score(X, km.labels_))`. Plot it like the inertia, with `index=range(2, 11)`.",
+          "de": "Die Silhouette braucht mindestens zwei Cluster: `if k > 1: silhouettes.append(silhouette_score(X, km.labels_))`. Zeichnet sie wie die Inertia, mit `index=range(2, 11)`."
+        },
+        {
+          "en": "Inertia: the elbow is where the steep fall flattens out. Silhouette: the highest point. Both point to the same k; store it.",
+          "de": "Inertia: Der Ellbogen ist da, wo der steile Fall abflacht. Silhouette: der höchste Punkt. Beide zeigen auf dasselbe k; speichert es."
+        }
+      ]
+    },
+    {
+      "id": "sorter",
+      "title": {
+        "en": "The old sorting machine",
+        "de": "Die alte Sortiermaschine"
+      },
+      "text": {
+        "en": "The seed bank has always sorted with this machine, and its drawers never quite matched the curator's cards. It runs KMeans too, but its service sheet says how it starts.\n\n1. Run KMeans on the scaled archive the way the old machine does, as `old`. Pass the starting centres with `init=`: one row per cluster, scaled like the archive.\n2. Run it the modern way as `best`: six clusters, k-means++ starts and `n_init=10`.\n3. Compare `old.inertia_` with `best.inertia_`, and how many envelopes land in each drawer. What went wrong?",
+        "de": "Die Saatgutbank hat schon immer mit dieser Maschine sortiert, und ihre Schubladen haben nie ganz zu den Karten der Kuratorin gepasst. Sie rechnet auch mit KMeans, aber ihr Wartungsblatt sagt, wie sie startet.\n\n1. Lasst KMeans auf dem skalierten Archiv so laufen wie die alte Maschine, als `old`. Übergebt die Startzentren mit `init=`: eine Zeile pro Cluster, skaliert wie das Archiv.\n2. Lasst es auf die moderne Art laufen, als `best`: sechs Cluster, k-means++-Starts und `n_init=10`.\n3. Vergleicht `old.inertia_` mit `best.inertia_` und wie viele Umschläge in jeder Schublade landen. Was ist schiefgegangen?"
+      },
+      "workspace": "python",
+      "data": "archive.py",
+      "starter": {
+        "en": "import numpy as np\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\n\nscaler = StandardScaler()\nX = scaler.fit_transform(archive)\n\nstart = None   # the six start envelopes from the service sheet, scaled\nold = None     # KMeans as the old machine runs it\nbest = None    # KMeans with k-means++ and n_init=10\n\n# print(old.inertia_, best.inertia_)\n# print(np.bincount(old.labels_))\n",
+        "de": "import numpy as np\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\n\nscaler = StandardScaler()\nX = scaler.fit_transform(archive)\n\nstart = None   # die sechs Startumschläge vom Wartungsblatt, skaliert\nold = None     # KMeans so, wie die alte Maschine es laufen lässt\nbest = None    # KMeans mit k-means++ und n_init=10\n\n# print(old.inertia_, best.inertia_)\n# print(np.bincount(old.labels_))\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_sorter_check(old, best)",
+        "hash": "c8fbff3afbb772c702018c88e14f3fe465fff645bb1f8192db64d4246160b0a4"
+      },
+      "reveal": {
+        "en": "Same algorithm, same data, very different drawers. The old machine starts from two beans, two peas, a rye and an oat, and never recovers: it gets stuck in a **local minimum**, splits the beans into two drawers and pours rye and buckwheat into one big one. Its inertia is three times the best.\n\nKMeans only improves the clusters it starts from. k-means++ spreads the starts out, and `n_init=10` tries ten starts and keeps the best.",
+        "de": "Derselbe Algorithmus, dieselben Daten, ganz andere Schubladen. Die alte Maschine startet bei zwei Bohnen, zwei Erbsen, einem Roggen und einem Hafer und erholt sich nie davon: Sie bleibt in einem **lokalen Minimum** hängen, teilt die Bohnen auf zwei Schubladen auf und schüttet Roggen und Buchweizen in eine große. Ihre Inertia ist dreimal so hoch wie die beste.\n\nKMeans verbessert nur die Cluster, mit denen es startet. k-means++ verteilt die Starts, und `n_init=10` probiert zehn Starts und behält den besten."
+      },
+      "practises": {
+        "en": "How KMeans starts: init, local minima, k-means++ and n_init",
+        "de": "Wie KMeans startet: init, lokale Minima, k-means++ und n_init"
+      },
+      "clues": [
+        "service-sheet"
+      ],
+      "hints": [
+        {
+          "en": "The service sheet lists six envelope numbers. `archive.loc[[2, 3, 4, 8, 1, 7]]` picks those rows by envelope number, and `scaler.transform(...)` scales them like the rest.",
+          "de": "Das Wartungsblatt nennt sechs Umschlagnummern. `archive.loc[[2, 3, 4, 8, 1, 7]]` wählt diese Zeilen über die Umschlagnummer aus, und `scaler.transform(...)` skaliert sie wie den Rest."
+        },
+        {
+          "en": "`old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)`. With fixed start points nothing in the run is random.",
+          "de": "`old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)`. Mit festen Startpunkten ist an diesem Lauf nichts zufällig."
+        },
+        {
+          "en": "`best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. Compare the inertias; `np.bincount(old.labels_)` counts the envelopes in each drawer.",
+          "de": "`best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. Vergleicht die Inertias; `np.bincount(old.labels_)` zählt die Umschläge in jeder Schublade."
+        }
+      ]
+    },
+    {
+      "id": "cards",
+      "title": {
+        "en": "The card index",
+        "de": "Der Karteikasten"
+      },
+      "text": {
+        "en": "The clusters are there, but which is which? KMeans numbers its clusters in no particular order, and the numbers can change from one fit to the next. The farmers order by the **catalogue numbers** on the curator's species cards.\n\n1. Fit `KMeans` on the scaled archive with as many clusters as there are species, as `km`, and keep its `scaler`.\n2. Turn the cluster centres back into millimetres, milligrams and brightness with `scaler.inverse_transform`, and compare them with the species cards.\n3. Store the result as `catalogue`: a dict from each cluster number to its catalogue number, like `{0: 3, 1: 5, ...}`.",
+        "de": "Die Cluster sind da, aber welcher ist welcher? KMeans nummeriert seine Cluster in keiner bestimmten Reihenfolge, und die Nummern können sich von einem Training zum nächsten ändern. Die Bauern bestellen nach den **Katalognummern** auf den Artenkarten der Kuratorin.\n\n1. Trainiert `KMeans` auf dem skalierten Archiv mit so vielen Clustern, wie es Arten gibt, als `km`, und behaltet seinen `scaler`.\n2. Rechnet die Clusterzentren mit `scaler.inverse_transform` in Millimeter, Milligramm und Helligkeit zurück und vergleicht sie mit den Artenkarten.\n3. Speichert das Ergebnis als `catalogue`: ein Dict von jeder Clusternummer zu ihrer Katalognummer, etwa `{0: 3, 1: 5, ...}`."
+      },
+      "workspace": "python",
+      "data": "archive.py",
+      "starter": {
+        "en": "import numpy as np\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\n\nscaler = StandardScaler()\nX = scaler.fit_transform(archive)\nkm = KMeans(n_clusters=2, n_init=10, random_state=0).fit(X)   # how many species?\n\ncentres = pd.DataFrame(km.cluster_centers_, columns=archive.columns)   # still scaled\ncentres[\"envelopes\"] = np.bincount(km.labels_)\nprint(centres.round(2))\n\ncatalogue = {}   # cluster number -> catalogue number on the species cards\n",
+        "de": "import numpy as np\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\n\nscaler = StandardScaler()\nX = scaler.fit_transform(archive)\nkm = KMeans(n_clusters=2, n_init=10, random_state=0).fit(X)   # wie viele Arten?\n\ncentres = pd.DataFrame(km.cluster_centers_, columns=archive.columns)   # noch skaliert\ncentres[\"envelopes\"] = np.bincount(km.labels_)\nprint(centres.round(2))\n\ncatalogue = {}   # Clusternummer -> Katalognummer auf den Artenkarten\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_card_check(km, scaler, catalogue)",
+        "hash": "9fb461b88a55a70b00c1e62cb3cf5d7938c518d5843e6fac30f01ee0d5d652a5"
+      },
+      "lock": {
+        "text": {
+          "en": "The steel cabinet with the curator's working card index has a six-digit combination lock. A sticky note: \"Combination = how many field beans, lentils and rye are on the test tray, two digits each.\"",
+          "de": "Der Stahlschrank mit dem Arbeitskarteikasten der Kuratorin hat ein sechsstelliges Zahlenschloss. Ein Klebezettel: „Kombination = wie viele Ackerbohnen, Linsen und Roggen auf dem Testtablett liegen, je zwei Ziffern.“"
+        },
+        "from": "tray",
+        "mode": "caseless",
+        "hash": "fd02238d1d1a33ba5289073f15d0c0bad4186be70aff5979b83f6d5e942d0228"
+      },
+      "reveal": {
+        "en": "Every cluster has its card: **302** envelopes of rye, 282 of oat, 260 of buckwheat, 240 of lentils, 232 of peas and 183 of field beans. A few clusters hold an envelope or two more than their species really has.\n\nKeep your mapping with your code: the cluster numbers belong to one fit, the catalogue numbers never change.",
+        "de": "Jeder Cluster hat seine Karte: **302** Umschläge Roggen, 282 Hafer, 260 Buchweizen, 240 Linsen, 232 Erbsen und 183 Ackerbohnen. Ein paar Cluster enthalten ein, zwei Umschläge mehr, als ihre Art wirklich hat.\n\nBehaltet eure Zuordnung bei eurem Code: Die Clusternummern gehören zu einem Training, die Katalognummern ändern sich nie."
+      },
+      "practises": {
+        "en": "Interpreting clusters: centres in the original units with inverse_transform; cluster numbers are arbitrary",
+        "de": "Cluster deuten: Zentren in den ursprünglichen Einheiten mit inverse_transform; Clusternummern sind beliebig"
+      },
+      "clues": [
+        "species-cards"
+      ],
+      "uses": [
+        "elbow"
+      ],
+      "hints": [
+        {
+          "en": "Set `n_clusters` to the number of species the terminal found. The centres in `km.cluster_centers_` are in scaled units, which mean nothing on the cards.",
+          "de": "Setzt `n_clusters` auf die Zahl der Arten, die das Terminal gefunden hat. Die Zentren in `km.cluster_centers_` sind in skalierten Einheiten, die auf den Karten nichts bedeuten."
+        },
+        {
+          "en": "`scaler.inverse_transform(km.cluster_centers_)` turns them back into mm, mg and brightness. Put them in a DataFrame with the archive's columns, then find each centre's card.",
+          "de": "`scaler.inverse_transform(km.cluster_centers_)` rechnet sie in mm, mg und Helligkeit zurück. Steckt sie in einen DataFrame mit den Spalten des Archivs und sucht dann zu jedem Zentrum seine Karte."
+        },
+        {
+          "en": "Pick for each centre the card with the closest length, width, weight and brightness: a centre of about 15 mm and 600 mg is the field bean, catalogue 4. Then write `catalogue = {0: ..., 1: ..., ...}` with your own cluster numbers.",
+          "de": "Wählt für jedes Zentrum die Karte mit der nächsten Länge, Breite, Gewicht und Helligkeit: Ein Zentrum mit etwa 15 mm und 600 mg ist die Ackerbohne, Katalognummer 4. Schreibt dann `catalogue = {0: ..., 1: ..., ...}` mit euren eigenen Clusternummern."
+        }
+      ]
+    },
+    {
+      "id": "foreign",
+      "title": {
+        "en": "The stereo microscope",
+        "de": "Das Stereomikroskop"
+      },
+      "text": {
+        "en": "The flood didn't only wash labels off; it washed things in. KMeans puts every envelope into some cluster, but a seed can be nearest to the rye without being rye.\n\n1. Fit `KMeans` on the scaled archive, with one cluster per species.\n2. `km.transform(X)` gives each envelope's distance to every centre. Work out each envelope's distance to its **nearest** centre.\n3. Apply the inspection rule and store the envelope numbers of the foreign seeds as the list `foreign`.",
+        "de": "Das Hochwasser hat nicht nur Etiketten abgelöst, es hat auch etwas hereingespült. KMeans steckt jeden Umschlag in irgendeinen Cluster, aber ein Samen kann dem Roggen am nächsten liegen, ohne Roggen zu sein.\n\n1. Trainiert `KMeans` auf dem skalierten Archiv, mit einem Cluster pro Art.\n2. `km.transform(X)` gibt den Abstand jedes Umschlags zu jedem Zentrum. Bestimmt für jeden Umschlag den Abstand zu seinem **nächsten** Zentrum.\n3. Wendet die Prüfregel an und speichert die Umschlagnummern der fremden Samen als Liste `foreign`."
+      },
+      "workspace": "python",
+      "data": "archive.py",
+      "starter": {
+        "en": "from sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nfrom helpers import show_hist\n\nscaler = StandardScaler()\nX = scaler.fit_transform(archive)\nkm = None        # one cluster per species, on the scaled archive\n\ndistance = None  # each envelope's distance to its nearest centre\n# show_hist(distance, bins=40, title=\"Distance to the nearest centre\")\n\nforeign = []     # envelope numbers (the archive's index) of the foreign seeds\n",
+        "de": "from sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nfrom helpers import show_hist\n\nscaler = StandardScaler()\nX = scaler.fit_transform(archive)\nkm = None        # ein Cluster pro Art, auf dem skalierten Archiv\n\ndistance = None  # Abstand jedes Umschlags zu seinem nächsten Zentrum\n# show_hist(distance, bins=40, title=\"Abstand zum nächsten Zentrum\")\n\nforeign = []     # Umschlagnummern (der Index des Archivs) der fremden Samen\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_foreign_check(foreign)",
+        "hash": "000ed8f241a7c453746667e93af0b84e67b39235f6da3204351f39ad9f89947c"
+      },
+      "reveal": {
+        "en": "Seven foreign envelopes: burrs, wild oats, dock and other weed seeds the water carried in. They went into clusters like everything else; only their distance gave them away. They're in quarantine now.\n\nThe rule holds for new seeds too: check the distance before you trust a cluster.",
+        "de": "Sieben fremde Umschläge: Kletten, Flughafer, Ampfer und andere Unkrautsamen, die das Wasser hereingetragen hat. Sie sind wie alles andere in Cluster geraten; nur ihr Abstand hat sie verraten. Jetzt sind sie in Quarantäne.\n\nDie Regel gilt auch für neue Samen: Prüft den Abstand, bevor ihr einem Cluster traut."
+      },
+      "practises": {
+        "en": "Outliers in clustering: distances to the centres with transform, and a threshold",
+        "de": "Ausreißer beim Clustering: Abstände zu den Zentren mit transform und ein Schwellenwert"
+      },
+      "clues": [
+        "inspector-rule"
+      ],
+      "uses": [
+        "elbow"
+      ],
+      "hints": [
+        {
+          "en": "`km.transform(X)` has one row per envelope and one column per centre. The nearest centre is the smallest number in each row: `.min(axis=1)`.",
+          "de": "`km.transform(X)` hat eine Zeile pro Umschlag und eine Spalte pro Zentrum. Das nächste Zentrum ist die kleinste Zahl in jeder Zeile: `.min(axis=1)`."
+        },
+        {
+          "en": "The histogram shows a big heap of small distances and a few far out. The inspection rule on the noticeboard gives the limit.",
+          "de": "Das Histogramm zeigt einen großen Haufen kleiner Abstände und ein paar weit draußen. Die Prüfregel am Schwarzen Brett nennt die Grenze."
+        },
+        {
+          "en": "`foreign = archive.index[distance > 2].tolist()`: the index holds the envelope numbers, not the row positions.",
+          "de": "`foreign = archive.index[distance > 2].tolist()`: Der Index enthält die Umschlagnummern, nicht die Zeilenpositionen."
+        }
+      ]
+    },
+    {
+      "id": "sowing",
+      "title": {
+        "en": "The cold store",
+        "de": "Das Kühllager"
+      },
+      "text": {
+        "en": "Behind the door wait the cooperative's six order slips, loaded as `orders`, one per field. Every farm sent last year's sample seed with its order, and the machine measured each one: the same four columns as the archive. Sow each field with its species, by catalogue number.\n\n1. Assign each sample to a species with the archive's scaler and KMeans model.\n2. The field map says what to do with a sample that isn't one of ours.\n3. Store `fields`: six catalogue numbers, field 1 first.",
+        "de": "Hinter der Tür warten die sechs Bestellzettel der Genossenschaft, geladen als `orders`, einer pro Feld. Jeder Hof hat mit seiner Bestellung den Probensamen vom letzten Jahr geschickt, und die Maschine hat jeden gemessen: dieselben vier Spalten wie im Archiv. Besät jedes Feld mit seiner Art, nach Katalognummer.\n\n1. Ordnet jede Probe mit dem Scaler und dem KMeans-Modell des Archivs einer Art zu.\n2. Die Feldkarte sagt, was mit einer Probe geschieht, die keine von unseren ist.\n3. Speichert `fields`: sechs Katalognummern, Feld 1 zuerst."
+      },
+      "workspace": "python",
+      "data": "archive.py",
+      "starter": {
+        "en": "import numpy as np\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\n\nprint(orders)   # one sample seed per field, measured like the archive\n\n# The archive's scaler and KMeans model, and your catalogue from the card index:\nscaler = None\nkm = None\ncatalogue = {}\n\nfields = []     # one catalogue number per field, field 1 first\n",
+        "de": "import numpy as np\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\n\nprint(orders)   # ein Probensamen pro Feld, gemessen wie das Archiv\n\n# Der Scaler und das KMeans-Modell des Archivs, und euer catalogue vom Karteikasten:\nscaler = None\nkm = None\ncatalogue = {}\n\nfields = []     # eine Katalognummer pro Feld, Feld 1 zuerst\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_sowing_check(fields)",
+        "hash": "1a75ac4ac08a5c8bb8c63e6845c1bb8efd5cca092a080a63b3d6a5b42d2b11ac"
+      },
+      "lock": {
+        "text": {
+          "en": "The cold store's steel door has a six-digit keypad. Taped next to it: \"PIN = how many envelopes the old sorting machine puts in its biggest drawer, then how many envelopes of rye the card index counts.\"",
+          "de": "Die Stahltür des Kühllagers hat ein sechsstelliges Tastenfeld. Daneben klebt: „PIN = wie viele Umschläge die alte Sortiermaschine in ihre größte Schublade steckt, dann wie viele Umschläge Roggen der Karteikasten zählt.“"
+        },
+        "from": "sorter",
+        "mode": "number",
+        "hash": "7508a68c886fcfe9f4034d6587334b3f04b2cc8f9d666ed6d31526e5a661d1ce"
+      },
+      "final": true,
+      "uses": [
+        "cards",
+        "foreign"
+      ],
+      "reveal": {
+        "en": "Six fields, five species and one stranger: field 3's sample was a wild oat, so that field stays fallow this year. The cooperative's tractors roll on Monday, and the seed bank has its drawers back, each one checked against its card.",
+        "de": "Sechs Felder, fünf Arten und ein Fremdling: Die Probe von Feld 3 war Flughafer, also bleibt dieses Feld dieses Jahr brach. Am Montag rollen die Traktoren der Genossenschaft, und die Saatgutbank hat ihre Schubladen zurück, jede an ihrer Karte geprüft."
+      },
+      "practises": {
+        "en": "Putting it together: assigning new samples with the fitted scaler and model, catalogue numbers instead of cluster numbers, rejecting outliers",
+        "de": "Alles zusammen: neue Proben mit dem trainierten Scaler und Modell zuordnen, Katalognummern statt Clusternummern, Ausreißer zurückweisen"
+      },
+      "clues": [
+        "field-map",
+        "species-cards",
+        "inspector-rule"
+      ],
+      "hints": [
+        {
+          "en": "Fit the scaler and the KMeans model on the archive, as before. New samples are only scaled, with `scaler.transform(orders)`: never fit the scaler on them.",
+          "de": "Trainiert den Scaler und das KMeans-Modell auf dem Archiv, wie zuvor. Neue Proben werden nur skaliert, mit `scaler.transform(orders)`: Trainiert den Scaler nie auf ihnen."
+        },
+        {
+          "en": "`km.transform(scaler.transform(orders))` gives each sample's distance to every centre: the smallest one is its cluster (`argmin`), and its size says whether to trust it.",
+          "de": "`km.transform(scaler.transform(orders))` gibt den Abstand jeder Probe zu jedem Zentrum: Der kleinste ist ihr Cluster (`argmin`), und seine Größe sagt, ob man ihm trauen kann."
+        },
+        {
+          "en": "For each field: if the nearest distance is above 2, enter 0; otherwise `catalogue[nearest cluster]`. Cluster numbers belong to one fit, so build `catalogue` for this `km` (the card index's code with the same `random_state` gives the same numbers).",
+          "de": "Für jedes Feld: Ist der nächste Abstand größer als 2, tragt 0 ein; sonst `catalogue[nächster Cluster]`. Clusternummern gehören zu einem Training, also baut `catalogue` für dieses `km` (der Code vom Karteikasten mit demselben `random_state` ergibt dieselben Nummern)."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "tray-tags",
+      "title": {
+        "en": "Tags pinned next to the tray",
+        "de": "Etiketten neben dem Tablett"
+      },
+      "text": {
+        "en": "Envelopes on the test tray that kept their tags:\n\nRye: 3, 5, 9, 12\nLentil: 2, 4, 6, 7\nField bean: 1, 10, 13, 17",
+        "de": "Umschläge auf dem Testtablett, die ihr Etikett behalten haben:\n\nRoggen: 3, 5, 9, 12\nLinse: 2, 4, 6, 7\nAckerbohne: 1, 10, 13, 17"
+      }
+    },
+    {
+      "id": "curator-note",
+      "title": {
+        "en": "The curator's whiteboard",
+        "de": "Das Whiteboard der Kuratorin"
+      },
+      "text": {
+        "en": "**Choosing k** (Dr. Ilse Brandt)\n\nInertia always falls as k grows, down to 0 when every seed is its own cluster. Look for the **elbow**: the k after which more clusters barely help.\n\nElbows can be soft, so I check the **silhouette** too (from −1 to 1, higher is better): is each seed close to its own cluster and far from the next one? I trust a k when both agree.",
+        "de": "**k wählen** (Dr. Ilse Brandt)\n\nDie Inertia fällt immer, wenn k wächst, bis auf 0, wenn jeder Samen sein eigener Cluster ist. Sucht den **Ellbogen**: das k, nach dem mehr Cluster kaum noch helfen.\n\nEllbogen können weich sein, deshalb prüfe ich auch die **Silhouette** (von −1 bis 1, höher ist besser): Liegt jeder Samen nah an seinem eigenen Cluster und weit weg vom nächsten? Ich traue einem k, wenn beide übereinstimmen."
+      }
+    },
+    {
+      "id": "species-cards",
+      "title": {
+        "en": "The curator's species cards",
+        "de": "Die Artenkarten der Kuratorin"
+      },
+      "text": {
+        "en": "A typical seed of each species, as the sorting machine measures it (length × width, weight, brightness from 0 to 255):\n\n**1 Buckwheat**: 5.5 × 4.0 mm, 25 mg, very dark (45)\n**2 Pea**: 7.5 × 7.0 mm, 240 mg, pale (175)\n**3 Rye**: 7.0 × 2.3 mm, 30 mg, mid-brown (140)\n**4 Field bean**: 15 × 10 mm, 600 mg, dark (85)\n**5 Oat**: 10.5 × 2.8 mm, 33 mg, very pale (205)\n**6 Lentil**: 5.0 × 5.2 mm, 55 mg, brown (125)",
+        "de": "Ein typischer Samen jeder Art, wie die Sortiermaschine ihn misst (Länge × Breite, Gewicht, Helligkeit von 0 bis 255):\n\n**1 Buchweizen**: 5,5 × 4,0 mm, 25 mg, sehr dunkel (45)\n**2 Erbse**: 7,5 × 7,0 mm, 240 mg, hell (175)\n**3 Roggen**: 7,0 × 2,3 mm, 30 mg, mittelbraun (140)\n**4 Ackerbohne**: 15 × 10 mm, 600 mg, dunkel (85)\n**5 Hafer**: 10,5 × 2,8 mm, 33 mg, sehr hell (205)\n**6 Linse**: 5,0 × 5,2 mm, 55 mg, braun (125)"
+      }
+    },
+    {
+      "id": "service-sheet",
+      "title": {
+        "en": "The old sorter's service sheet",
+        "de": "Das Wartungsblatt der alten Sortiermaschine"
+      },
+      "text": {
+        "en": "SORTER 2000 · service sheet\n\nClusters: 6\nStart centres: envelopes 2, 3, 4, 8, 1, 7 (in this order)\nRestarts: none, saves time! (n_init = 1)\nScaling: standard, like the archive\n\nLast service: 2009",
+        "de": "SORTER 2000 · Wartungsblatt\n\nCluster: 6\nStartzentren: Umschläge 2, 3, 4, 8, 1, 7 (in dieser Reihenfolge)\nNeustarts: keine, spart Zeit! (n_init = 1)\nSkalierung: Standard, wie das Archiv\n\nLetzte Wartung: 2009"
+      }
+    },
+    {
+      "id": "inspector-rule",
+      "title": {
+        "en": "Notice from the plant health inspection",
+        "de": "Aushang der Pflanzengesundheitsprüfung"
+      },
+      "text": {
+        "en": "PLANT HEALTH INSPECTION · rule 4\n\nA seed whose distance to the nearest cluster centre is more than **2** (in scaled units: all four measurements standardised on the whole archive) is foreign to the collection. Quarantine it.",
+        "de": "PFLANZENGESUNDHEITSPRÜFUNG · Regel 4\n\nEin Samen, dessen Abstand zum nächsten Clusterzentrum größer als **2** ist (in skalierten Einheiten: alle vier Messwerte auf dem ganzen Archiv standardisiert), ist der Sammlung fremd. In Quarantäne stellen."
+      }
+    },
+    {
+      "id": "field-map",
+      "title": {
+        "en": "The cooperative's field map",
+        "de": "Die Feldkarte der Genossenschaft"
+      },
+      "text": {
+        "en": "Six fields, numbered 1 to 6 as on the order slips. Each field is sown with the catalogue number of its sample's species.\n\nA sample that is foreign to the collection (inspection rule 4) gets no seed: that field stays fallow. Write **0** for it.",
+        "de": "Sechs Felder, nummeriert von 1 bis 6 wie auf den Bestellzetteln. Jedes Feld wird mit der Katalognummer der Art seiner Probe besät.\n\nEine Probe, die der Sammlung fremd ist (Prüfregel 4), bekommt kein Saatgut: Das Feld bleibt brach. Tragt **0** dafür ein."
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "The seed bank's clustering binder",
+      "de": "Der Clustering-Ordner der Saatgutbank"
+    },
+    "intro": {
+      "en": "A ring binder on a lectern by the door, left by the curator for whoever sorts the archive. It lists the scikit-learn, pandas and NumPy you need to cluster seeds, with a link to the official documentation for each entry.",
+      "de": "Ein Ringordner auf einem Pult an der Tür, von der Kuratorin für alle hinterlassen, die das Archiv sortieren. Er listet das scikit-learn, pandas und NumPy, das man zum Clustern von Samen braucht, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Scaling",
+          "de": "Skalieren"
+        },
+        "entries": [
+          {
+            "name": "StandardScaler()  scaler.fit_transform(X)",
+            "text": {
+              "en": "Learns each column's mean and standard deviation, then rescales every column to mean 0 and standard deviation 1, so no column outweighs the others just because of its unit. Import it from `sklearn.preprocessing`. Returns a NumPy array.",
+              "de": "Lernt Mittelwert und Standardabweichung jeder Spalte und skaliert dann jede Spalte auf Mittelwert 0 und Standardabweichung 1, damit keine Spalte die anderen nur wegen ihrer Einheit überwiegt. Importiert aus `sklearn.preprocessing`. Gibt ein NumPy-Array zurück."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html"
+          },
+          {
+            "name": "scaler.transform(X)",
+            "text": {
+              "en": "Scales rows with the mean and standard deviation learned by `fit`. Use it for anything you compare with the fitted data, such as new samples: fitting again on them would scale them differently.",
+              "de": "Skaliert Zeilen mit dem Mittelwert und der Standardabweichung, die `fit` gelernt hat. Nutzt es für alles, was ihr mit den trainierten Daten vergleicht, etwa neue Proben: Ein neues Training auf ihnen würde sie anders skalieren."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html#sklearn.preprocessing.StandardScaler.transform"
+          },
+          {
+            "name": "scaler.inverse_transform(Xs)",
+            "text": {
+              "en": "The way back: turns scaled values into the original units. Handy for reading cluster centres.",
+              "de": "Der Rückweg: rechnet skalierte Werte in die ursprünglichen Einheiten zurück. Praktisch, um Clusterzentren zu lesen."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html#sklearn.preprocessing.StandardScaler.inverse_transform"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "KMeans",
+          "de": "KMeans"
+        },
+        "entries": [
+          {
+            "name": "KMeans(n_clusters=k, n_init=10, random_state=0)",
+            "text": {
+              "en": "Splits rows into k clusters, each around a centre, so that every row is close to its own centre. It measures plain distances between rows, so scale first. `random_state` fixes the random starts, so a run can be repeated. Import it from `sklearn.cluster`.",
+              "de": "Teilt Zeilen in k Cluster, jeder um ein Zentrum, sodass jede Zeile nah an ihrem eigenen Zentrum liegt. Es misst einfache Abstände zwischen Zeilen, also vorher skalieren. `random_state` legt die zufälligen Starts fest, damit sich ein Lauf wiederholen lässt. Importiert aus `sklearn.cluster`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html"
+          },
+          {
+            "name": "km.fit(X)  km.fit_predict(X)  km.labels_",
+            "text": {
+              "en": "`fit` finds the clusters; `labels_` then holds each row's cluster number. `fit_predict` does both and returns the labels. The numbers are only names: which cluster is called 0 is arbitrary.",
+              "de": "`fit` findet die Cluster; `labels_` enthält dann die Clusternummer jeder Zeile. `fit_predict` macht beides und gibt die Labels zurück. Die Nummern sind nur Namen: Welcher Cluster 0 heißt, ist beliebig."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html#sklearn.cluster.KMeans.fit_predict"
+          },
+          {
+            "name": "km.cluster_centers_",
+            "text": {
+              "en": "The centres, one row per cluster, in the same units as the data `km` was fitted on.",
+              "de": "Die Zentren, eine Zeile pro Cluster, in denselben Einheiten wie die Daten, auf denen `km` trainiert wurde."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html"
+          },
+          {
+            "name": "km.inertia_",
+            "text": {
+              "en": "The sum of squared distances from every row to its centre: lower means tighter clusters. It always falls when k grows, so it can't pick k on its own.",
+              "de": "Die Summe der quadrierten Abstände jeder Zeile zu ihrem Zentrum: niedriger heißt engere Cluster. Sie fällt immer, wenn k wächst, kann k also nicht allein bestimmen."
+            },
+            "link": "https://scikit-learn.org/stable/modules/clustering.html#k-means"
+          },
+          {
+            "name": "init=  n_init=",
+            "text": {
+              "en": "How KMeans starts. By default (`init=\"k-means++\"`) it picks spread-out random rows as starting centres; an array gives fixed starting centres instead. KMeans only improves from its start and can get stuck in a **local minimum**. `n_init` runs several starts and keeps the one with the lowest inertia.",
+              "de": "Wie KMeans startet. Standardmäßig (`init=\"k-means++\"`) wählt es weit verteilte zufällige Zeilen als Startzentren; ein Array gibt stattdessen feste Startzentren vor. KMeans verbessert nur von seinem Start aus und kann in einem **lokalen Minimum** hängen bleiben. `n_init` probiert mehrere Starts und behält den mit der niedrigsten Inertia."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html"
+          },
+          {
+            "name": "km.predict(X)  km.transform(X)",
+            "text": {
+              "en": "For rows scaled like the training data: `predict` gives each row's nearest cluster, `transform` its distance to every centre (one column per cluster). Every row gets a cluster, however far away it is.",
+              "de": "Für Zeilen, die wie die Trainingsdaten skaliert sind: `predict` gibt den nächsten Cluster jeder Zeile, `transform` ihren Abstand zu jedem Zentrum (eine Spalte pro Cluster). Jede Zeile bekommt einen Cluster, egal wie weit weg sie liegt."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html#sklearn.cluster.KMeans.transform"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "How many clusters?",
+          "de": "Wie viele Cluster?"
+        },
+        "entries": [
+          {
+            "name": "the elbow",
+            "text": {
+              "en": "Plot the inertia for k = 1, 2, 3, …: it falls steeply while new clusters split real groups, then flattens once they only cut groups in pieces. The bend is the elbow.",
+              "de": "Zeichnet die Inertia für k = 1, 2, 3, …: Sie fällt steil, solange neue Cluster echte Gruppen trennen, und flacht ab, sobald sie Gruppen nur noch zerschneiden. Der Knick ist der Ellbogen."
+            },
+            "link": "https://scikit-learn.org/stable/modules/clustering.html#k-means"
+          },
+          {
+            "name": "silhouette_score(X, labels)",
+            "text": {
+              "en": "How well each row fits its own cluster compared with the next one, averaged: from −1 to 1, higher is better. Needs at least two clusters. Import it from `sklearn.metrics`.",
+              "de": "Wie gut jede Zeile zu ihrem eigenen Cluster passt, verglichen mit dem nächsten, gemittelt: von −1 bis 1, höher ist besser. Braucht mindestens zwei Cluster. Importiert aus `sklearn.metrics`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "pandas and NumPy",
+          "de": "pandas und NumPy"
+        },
+        "entries": [
+          {
+            "name": "df.loc[[2, 3, 4]]",
+            "text": {
+              "en": "Rows by their index labels (here envelope numbers), not by position. A list gives several rows in that order.",
+              "de": "Zeilen über ihre Index-Labels (hier Umschlagnummern), nicht über die Position. Eine Liste ergibt mehrere Zeilen in dieser Reihenfolge."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html"
+          },
+          {
+            "name": "df.index[mask].tolist()",
+            "text": {
+              "en": "The index labels of the rows where a True/False array is True, as a list.",
+              "de": "Die Index-Labels der Zeilen, an denen ein True/False-Array True ist, als Liste."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Index.html"
+          },
+          {
+            "name": "df.assign(group=labels)",
+            "text": {
+              "en": "A copy of the DataFrame with a new column, e.g. to print rows next to their cluster.",
+              "de": "Eine Kopie des DataFrames mit einer neuen Spalte, etwa um Zeilen neben ihrem Cluster auszugeben."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.assign.html"
+          },
+          {
+            "name": "a.min(axis=1)  a.argmin(axis=1)",
+            "text": {
+              "en": "For a 2-D array: the smallest value in each row, or its column position.",
+              "de": "Für ein 2-D-Array: der kleinste Wert jeder Zeile oder seine Spaltenposition."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.ndarray.min.html"
+          },
+          {
+            "name": "np.bincount(labels)",
+            "text": {
+              "en": "Counts how often each whole number 0, 1, 2, … appears: with cluster labels, the size of each cluster.",
+              "de": "Zählt, wie oft jede ganze Zahl 0, 1, 2, … vorkommt: bei Clusterlabels die Größe jedes Clusters."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.bincount.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Charts",
+          "de": "Diagramme"
+        },
+        "entries": [
+          {
+            "name": "show_scatter(x, y, c=labels, centers=...)",
+            "text": {
+              "en": "Our helper (`from helpers import show_scatter`): one point per row, e.g. `show_scatter(df.length_mm, df.width_mm, c=labels)`. `c` colours the points by group (at most 8 groups); `centers` marks centres with a cross and takes the same two columns as x and y.",
+              "de": "Unser Helfer (`from helpers import show_scatter`): ein Punkt pro Zeile, etwa `show_scatter(df.length_mm, df.width_mm, c=labels)`. `c` färbt die Punkte nach Gruppe (höchstens 8 Gruppen); `centers` markiert Zentren mit einem Kreuz und nimmt dieselben zwei Spalten wie x und y."
+            }
+          },
+          {
+            "name": "show_plot(series)  show_hist(values, bins=40)",
+            "text": {
+              "en": "Our helpers: a line chart (a Series' index becomes the x axis) and a histogram.",
+              "de": "Unsere Helfer: ein Liniendiagramm (der Index einer Series wird zur x-Achse) und ein Histogramm."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
