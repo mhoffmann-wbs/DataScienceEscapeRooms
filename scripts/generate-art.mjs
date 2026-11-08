@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 22 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 23 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 22;
+const TILESET_ROWS = 23;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -2216,6 +2216,142 @@ for (let mask = 0; mask < 16; mask++) rugTile(144 + mask, RUNNER, RUNNER_BORDER,
 [['n', 'w'], ['n'], ['n', 'e'], ['w'], [], ['e'], ['s', 'w'], ['s'], ['s', 'e']].forEach((sides, i) =>
   rugTile(164 + i, LOUNGE, LOUNGE_BORDER, sides),
 );
+
+// --- Museum restoration lab (nn-tablets) ---------------------------------------------
+const CLAY = [182, 116, 74];
+const INK_BROWN = [92, 56, 34];
+/** A small clay tablet seen from above, with a few pressed signs. */
+function tablet(o, x, y, w, h, seed) {
+  o.box(x, y, w, h, CLAY, 1.15, 0.75);
+  const r = rng(seed);
+  for (let j = y + 2; j < y + h - 1; j += 3)
+    for (let i = x + 2; i < x + w - 2; i += 3) if (r() < 0.6) o.rect(i, j, 2, 1, sh(CLAY, 0.7));
+}
+// 173 light table: a lit white table top with a clay tablet, and a lamp on an arm shining at it from the side
+drawTile(173, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    const glow = [238, 244, 236];
+    o.box(1, 13, T - 2, 10, glow, 1.05, 0.85);
+    o.rect(1, 15, T - 2, 1, [214, 222, 214]);
+    o.rect(3, 23, 3, 7, METAL);
+    o.rect(T - 6, 23, 3, 7, METAL);
+    tablet(o, 10, 8, 13, 9, 173);
+    o.rect(3, 2, 2, 13, METAL);
+    o.rect(3, 2, 8, 2, METAL);
+    o.box(9, 2, 5, 4, [60, 64, 74], 1.3);
+  });
+  for (let j = 0; j < 7; j++) g.rect(11 + j, 6 + j, 6 - Math.floor(j / 2), 1, [255, 236, 170, 70]);
+});
+// 174 seal case: a glass case on a pedestal, holding a stone cylinder seal and the clay strip it rolled out
+drawTile(174, (g, { obj, shadow }) => {
+  shadow(16, 29, 11, 2);
+  obj((o) => {
+    o.box(7, 17, 18, 12, WOOD, 1.2);
+    o.rect(9, 20, 14, 1, sh(WOOD, 0.8));
+    o.box(4, 3, 24, 15, [200, 226, 236], 1.2, 0.8);
+    o.rect(5, 4, 22, 13, [170, 206, 220]);
+    o.rect(5, 4, 22, 1, [236, 248, 252]);
+    o.box(8, 9, 7, 5, [128, 132, 138], 1.3);
+    o.rect(9, 10, 5, 1, [100, 104, 110]);
+    o.box(16, 10, 9, 4, CLAY, 1.15);
+    for (let i = 17; i < 24; i += 2) o.set(i, 11, sh(CLAY, 0.65));
+    o.rect(6, 5, 2, 6, [236, 248, 252, 140]);
+  });
+});
+// 175 jar cabinet: a tall locked display case of dark wood and glass with a terracotta jar inside and a keypad
+drawTile(175, (g, { obj, shadow }) => {
+  shadow(16, 30, 12, 2);
+  obj((o) => {
+    o.box(5, 1, 22, 29, WOOD_DARK, 1.3);
+    o.rect(7, 3, 18, 22, [150, 186, 196]);
+    o.rect(7, 3, 18, 1, [214, 236, 242]);
+    o.ellipse(16, 17, 6, 6.5, [176, 98, 56]);
+    o.ellipse(15, 15, 3, 3, [204, 128, 80]);
+    o.rect(13, 8, 6, 4, [160, 88, 50]);
+    o.box(12, 6, 8, 3, [190, 120, 76], 1.2);
+    for (let i = 12; i < 21; i += 3) o.rect(i, 18, 2, 1, [110, 60, 36]);
+    o.rect(7, 25, 18, 3, sh(WOOD_DARK, 1.2));
+    o.box(22, 14, 4, 5, [44, 48, 56], 1.3);
+    o.set(23, 15, SCREEN);
+    o.rect(8, 4, 2, 9, [236, 248, 252, 120]);
+  });
+});
+// 176 tablet shelf on the wall: two wooden boards with clay tablets standing and lying on them
+drawTile(176, (g, { obj }) => {
+  wallFront(g, 176);
+  obj((o) => {
+    const r = rng(176);
+    for (const y of [11, 22]) {
+      o.box(2, y, 28, 3, WOOD, 1.25);
+      for (let x = 4; x < 27; ) {
+        const w = 3 + Math.floor(r() * 4);
+        const h = 4 + Math.floor(r() * 4);
+        if (x + w > 28) break;
+        o.box(x, y - h, w, h, sh(CLAY, 0.85 + r() * 0.3), 1.2, 0.75);
+        x += w + 1;
+      }
+    }
+  });
+});
+// 177 laser scanner on a bench: a steel gantry over a clay tablet, drawing a red line across it, and a small screen
+drawTile(177, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    benchBase(o);
+    tablet(o, 9, 8, 12, 7, 177);
+    o.rect(5, 1, 2, 13, METAL);
+    o.rect(23, 1, 2, 13, METAL);
+    o.box(4, 1, 22, 3, [120, 128, 142], 1.3);
+    o.box(13, 3, 4, 3, [60, 64, 74], 1.3);
+    o.rect(15, 6, 1, 4, [255, 70, 60, 150]);
+    o.rect(9, 10, 12, 1, [255, 70, 60]);
+    o.box(26, 6, 5, 6, [40, 44, 52], 1.3);
+    o.rect(27, 8, 3, 2, SCREEN);
+  });
+});
+// 178 packing crate: a pale wooden crate with slats, a stencilled arrow and a white shipping label
+drawTile(178, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    const pine = [196, 158, 104];
+    o.box(2, 6, 28, 22, pine, 1.15, 0.75);
+    o.noise(2, 6, 28, 22, 0.1, 178);
+    for (const y of [12, 19]) o.rect(3, y, 26, 1, sh(pine, 0.8));
+    o.rect(2, 6, 3, 22, sh(pine, 0.88));
+    o.rect(27, 6, 3, 22, sh(pine, 0.88));
+    o.box(8, 14, 12, 8, [246, 244, 236], 1, 0.85);
+    for (let j = 16; j < 21; j += 2) o.rect(10, j, 8 - ((j * 3) % 4), 1, [130, 130, 145]);
+    o.rect(23, 9, 1, 4, [60, 52, 44]);
+    o.rect(22, 10, 3, 1, [60, 52, 44]);
+  });
+});
+// 179 numeral chart: a parchment poster on the wall with tall bars, circles and wedges in brown ink
+drawTile(179, (g, { obj }) => {
+  wallFront(g, 179);
+  obj((o) => {
+    o.box(4, 2, 24, 21, [234, 216, 172], 1.05, 0.85);
+    o.rect(6, 4, 20, 1, INK_BROWN);
+    o.rect(8, 7, 2, 8, INK_BROWN);
+    o.rect(12, 7, 2, 8, INK_BROWN);
+    for (const [x, y] of [[18, 9], [23, 9]]) {
+      o.ellipse(x, y, 2.2, 2.2, INK_BROWN);
+      o.ellipse(x, y, 1, 1, [234, 216, 172]);
+    }
+    for (const x of [8, 13, 18, 23]) for (let j = 0; j < 3; j++) o.rect(x - 2 + j, 17 + j, 5 - 2 * j, 1, INK_BROWN);
+  });
+});
+// 180 museum label: a dark plaque with lines of white text, slanted on a short steel post
+drawTile(180, (g, { obj, shadow }) => {
+  shadow(16, 29, 7, 2);
+  obj((o) => {
+    o.rect(15, 15, 2, 13, METAL);
+    o.box(11, 27, 10, 2, sh(METAL, 0.8));
+    o.box(6, 6, 20, 10, [44, 48, 58], 1.4);
+    o.rect(8, 8, 9, 1, [236, 236, 230]);
+    for (let j = 10; j < 15; j += 2) o.rect(8, j, 16 - ((j * 5) % 6), 1, [170, 174, 186]);
+  });
+});
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.

@@ -1,0 +1,660 @@
+{
+  "version": 1,
+  "salt": "fbb1c33fdd8ff92e",
+  "title": {
+    "en": "The Varda Tablets",
+    "de": "Die Tafeln von Varda"
+  },
+  "category": "neural",
+  "difficulty": "advanced",
+  "about": {
+    "tools": [
+      "Python",
+      "NumPy",
+      "Keras (TensorFlow-style)"
+    ],
+    "practises": {
+      "en": "What a convolution computes, Conv2D kernels and channels, output shapes and padding, counting parameters, pooling and global max pooling, why convolutional networks find shapes anywhere and dense networks don't, training and debugging a CNN.",
+      "de": "Was eine Faltung rechnet, Conv2D-Kernel und Kanäle, Ausgabeformen und Padding, Parameter zählen, Pooling und Global Max Pooling, warum Faltungsnetze Formen überall finden und dichte Netze nicht, ein CNN trainieren und reparieren."
+    },
+    "story": {
+      "en": "One night in a museum's restoration lab to read an unknown script on clay fragments, with a convolutional network that finds each sign wherever it was pressed.",
+      "de": "Eine Nacht im Restaurierungslabor eines Museums, um eine unbekannte Schrift auf Tonscherben zu lesen, mit einem Faltungsnetz, das jedes Zeichen findet, wo auch immer es eingedrückt wurde."
+    }
+  },
+  "intro": {
+    "en": "Hallberg City Museum, Sunday night, ten past eleven, in the restoration lab in the basement. On the tables lie 2,400 clay fragments from the dig at Tell Varda, each with one sign of the Varda script, a script nobody has read yet. At 06:00 the crates are sealed and flown back to the excavation, and with them the Varda jar, whose lid carries six signs.\n\nProf. Amara Okafor, who knows the script best, is stuck at the airport. Her notes, her student assistant's half-finished code and a laser scanner are all you have: teach a convolutional network to read the signs, and read the lid before the crates leave. Python here runs a TensorFlow-style model: a small library with TensorFlow's names (`import tensorflow as tf`), written for this room because the real TensorFlow can't run in a browser. The first puzzle you open takes a little while to load.",
+    "de": "Stadtmuseum Hallberg, Sonntagnacht, zehn nach elf, im Restaurierungslabor im Keller. Auf den Tischen liegen 2.400 Tonscherben von der Grabung in Tell Varda, jede mit einem Zeichen der Varda-Schrift, einer Schrift, die noch niemand gelesen hat. Um 06:00 werden die Kisten versiegelt und zurück zur Grabung geflogen, und mit ihnen der Krug von Varda, dessen Deckel sechs Zeichen trägt.\n\nProf. Amara Okafor, die die Schrift am besten kennt, sitzt am Flughafen fest. Ihre Notizen, der halbfertige Code ihrer studentischen Hilfskraft und ein Laserscanner sind alles, was ihr habt: Bringt einem Faltungsnetz bei, die Zeichen zu lesen, und lest den Deckel, bevor die Kisten abfahren. Python läuft hier mit einem TensorFlow-artigen Modell: einer kleinen Bibliothek mit den Namen von TensorFlow (`import tensorflow as tf`), für diesen Raum geschrieben, weil das echte TensorFlow nicht im Browser läuft. Das erste Rätsel, das ihr öffnet, braucht einen Moment zum Laden."
+  },
+  "packages": [
+    "numpy"
+  ],
+  "modules": [
+    "tensorflow"
+  ],
+  "puzzles": [
+    {
+      "id": "tally",
+      "title": {
+        "en": "The raking light",
+        "de": "Das Streiflicht"
+      },
+      "text": {
+        "en": "Theo's light table holds tablet V-17, a tally so worn that nobody can read it any more. The laser scanner measured its surface anyway: `scan`, the height of every point in millimetres. Theo's note says how restorers make worn signs visible.\n\n1. Filter the scan by hand with Theo's kernel: for every position, take the 3 × 3 window of `scan`, multiply it by the kernel point by point, and add it all up. Store the result as `edges`.\n2. Do the same with Keras: `raking`, a model with one `Conv2D` layer (one 3 × 3 filter, no bias) and Theo's kernel loaded with `set_weights`. Check that `raking(scan[None, :, :, None])` gives your `edges`.\n3. Look at `edges` with `show_images` and store the tally as `number`.",
+        "de": "Auf Theos Leuchttisch liegt Tafel V-17, eine Strichliste, so abgegriffen, dass niemand sie mehr lesen kann. Der Laserscanner hat ihre Oberfläche trotzdem vermessen: `scan`, die Höhe jedes Punkts in Millimetern. Theos Notiz sagt, wie Restauratoren abgenutzte Zeichen sichtbar machen.\n\n1. Filtert den Scan von Hand mit Theos Kernel: Nehmt für jede Position das 3 × 3-Fenster von `scan`, multipliziert es Punkt für Punkt mit dem Kernel und addiert alles. Speichert das Ergebnis als `edges`.\n2. Dasselbe mit Keras: `raking`, ein Modell mit einer `Conv2D`-Schicht (ein 3 × 3-Filter, kein Bias) und Theos Kernel, mit `set_weights` geladen. Prüft, dass `raking(scan[None, :, :, None])` eure `edges` ergibt.\n3. Schaut euch `edges` mit `show_images` an und speichert die Zahl auf der Tafel als `number`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\nshow_images(scan, title=\"Tablet V-17\")\nprint(scan.shape)\n\nkernel = None   # Theo's 3 x 3 kernel, as a NumPy array\nedges = None    # the scan filtered by hand: one number per 3 x 3 window\nraking = None   # tf.keras.Sequential([...]) with one Conv2D layer, then set_weights\nnumber = None   # the tally on the tablet\n",
+        "de": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\nshow_images(scan, title=\"Tafel V-17\")\nprint(scan.shape)\n\nkernel = None   # Theos 3 x 3-Kernel, als NumPy-Array\nedges = None    # der Scan, von Hand gefiltert: eine Zahl pro 3 x 3-Fenster\nraking = None   # tf.keras.Sequential([...]) mit einer Conv2D-Schicht, dann set_weights\nnumber = None   # die Zahl auf der Tafel\n"
+      },
+      "data": "tally.py",
+      "check": {
+        "type": "python",
+        "expr": "_tally_check(edges, raking, number)",
+        "hash": "e9311e964c85a60efdcfe62f948cb5e83772c2e223919e5a0dc98ac6e5b96ad8"
+      },
+      "reveal": {
+        "en": "Tablet V-17 counts **246**: two hundreds, four tens and six ones.\n\nTheo's kernel compares every point with its four neighbours, so the tablet's gentle curve comes out as almost 0 and only the sharp dents light up. A `Conv2D` layer does exactly this: it slides a small kernel over the image and adds up products. A trained network learns its kernels itself.",
+        "de": "Tafel V-17 zählt **246**: zwei Hunderter, vier Zehner und sechs Einer.\n\nTheos Kernel vergleicht jeden Punkt mit seinen vier Nachbarn, also wird die sanfte Wölbung der Tafel fast 0 und nur die scharfen Kerben leuchten auf. Eine `Conv2D`-Schicht tut genau das: Sie schiebt einen kleinen Kernel über das Bild und addiert Produkte. Ein trainiertes Netz lernt seine Kernel selbst."
+      },
+      "practises": {
+        "en": "What a convolution computes: a sliding 3 × 3 window, point-by-point product and sum; how much smaller the result is; the same filter as a Keras Conv2D with set_weights; images with a channel axis",
+        "de": "Was eine Faltung rechnet: ein gleitendes 3 × 3-Fenster, punktweises Produkt und Summe; wie viel kleiner das Ergebnis ist; derselbe Filter als Keras-Conv2D mit set_weights; Bilder mit einer Kanal-Achse"
+      },
+      "clues": [
+        "theo-note",
+        "numerals"
+      ],
+      "hints": [
+        {
+          "en": "Two loops over the rows and columns of the result: `scan[i:i + 3, j:j + 3]` is the window at row `i`, column `j`. A 3 × 3 window fits 28 × 94 times into the 30 × 96 scan, so `edges` has the shape `(28, 94)`.",
+          "de": "Zwei Schleifen über die Zeilen und Spalten des Ergebnisses: `scan[i:i + 3, j:j + 3]` ist das Fenster in Zeile `i`, Spalte `j`. Ein 3 × 3-Fenster passt 28 × 94 Mal in den 30 × 96 großen Scan, also hat `edges` die Form `(28, 94)`."
+        },
+        {
+          "en": "`(scan[i:i + 3, j:j + 3] * kernel).sum()` is one value. In Keras: `raking = tf.keras.Sequential([tf.keras.Input(shape=(30, 96, 1)), layers.Conv2D(1, 3, use_bias=False)])`. Its kernel has the shape `(3, 3, 1, 1)`: rows, columns, channels in, filters.",
+          "de": "`(scan[i:i + 3, j:j + 3] * kernel).sum()` ist ein Wert. In Keras: `raking = tf.keras.Sequential([tf.keras.Input(shape=(30, 96, 1)), layers.Conv2D(1, 3, use_bias=False)])`. Sein Kernel hat die Form `(3, 3, 1, 1)`: Zeilen, Spalten, Kanäle rein, Filter."
+        },
+        {
+          "en": "`edges = np.array([[(scan[i:i + 3, j:j + 3] * kernel).sum() for j in range(94)] for i in range(28)])`, then `raking.set_weights([kernel.reshape(3, 3, 1, 1)])`. Two tall bars, four circles, six wedges: `number = 246`.",
+          "de": "`edges = np.array([[(scan[i:i + 3, j:j + 3] * kernel).sum() for j in range(94)] for i in range(28)])`, dann `raking.set_weights([kernel.reshape(3, 3, 1, 1)])`. Zwei hohe Striche, vier Kreise, sechs Keile: `number = 246`."
+        }
+      ]
+    },
+    {
+      "id": "seal",
+      "title": {
+        "en": "The cylinder seal",
+        "de": "Das Rollsiegel"
+      },
+      "text": {
+        "en": "In the glass case lies the only bilingual find from Tell Varda: a cylinder seal, rolled out on fresh clay. Its impression shows eight Varda signs side by side, `impressions`, one 24 × 24 depth scan each, and someone scratched their sounds below it. Amara cut a stamp for each sign of her sign list: `templates`, eight filters of 11 × 11.\n\n1. Build `finder`, a Keras model that looks for every stamp anywhere in an impression: a `Conv2D` layer with 8 filters of 11 × 11 and no bias, then `GlobalMaxPooling2D`. Load the stamps as its filters: filter number `i` is `templates[i]`.\n2. `finder.predict` gives 8 scores per impression, one per stamp. Store the sign number of each impression, left to right, as `order`.\n3. Line the signs up with the caption: `values`, a dict from every sign number (0 to 7) to its sound, e.g. `{0: \"ba\", ...}`.",
+        "de": "In der Vitrine liegt der einzige zweisprachige Fund aus Tell Varda: ein Rollsiegel, auf frischem Ton abgerollt. Sein Abdruck zeigt acht Varda-Zeichen nebeneinander, `impressions`, je ein 24 × 24-Tiefenscan, und jemand hat ihre Laute darunter geritzt. Amara hat für jedes Zeichen ihrer Zeichenliste einen Stempel geschnitten: `templates`, acht Filter von 11 × 11.\n\n1. Baut `finder`, ein Keras-Modell, das jeden Stempel irgendwo in einem Abdruck sucht: eine `Conv2D`-Schicht mit 8 Filtern von 11 × 11 und ohne Bias, dann `GlobalMaxPooling2D`. Ladet die Stempel als seine Filter: Filter Nummer `i` ist `templates[i]`.\n2. `finder.predict` gibt 8 Werte pro Abdruck, einen je Stempel. Speichert die Zeichennummer jedes Abdrucks, von links nach rechts, als `order`.\n3. Bringt die Zeichen mit der Beischrift zusammen: `values`, ein Dict von jeder Zeichennummer (0 bis 7) zu ihrem Laut, z. B. `{0: \"ba\", ...}`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\nshow_images(impressions, labels=[1, 2, 3, 4, 5, 6, 7, 8], title=\"The seal's impression\")\nshow_images(templates, labels=list(range(8)), title=\"Amara's stamps\")\nprint(impressions.shape, templates.shape)\n\nfinder = None   # Conv2D with the 8 stamps as filters, then GlobalMaxPooling2D\norder = None    # the sign number of each impression, left to right\nvalues = None   # {sign number: sound}\n",
+        "de": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\nshow_images(impressions, labels=[1, 2, 3, 4, 5, 6, 7, 8], title=\"Der Abdruck des Siegels\")\nshow_images(templates, labels=list(range(8)), title=\"Amaras Stempel\")\nprint(impressions.shape, templates.shape)\n\nfinder = None   # Conv2D mit den 8 Stempeln als Filter, dann GlobalMaxPooling2D\norder = None    # die Zeichennummer jedes Abdrucks, von links nach rechts\nvalues = None   # {Zeichennummer: Laut}\n"
+      },
+      "data": "seal.py",
+      "check": {
+        "type": "python",
+        "expr": "_seal_check(finder, order, values)",
+        "hash": "6f9af8ca849537ab5ff25cc261c1e0e881c8bb333d9b706b5d73c84c55ab2d23"
+      },
+      "reveal": {
+        "en": "The seal's signs are 5, 0, 7, 2, 6, 4, 1, 3, so the eight sounds are: 0 **ra** (sun), 1 **mi** (water), 2 **ko** (mountain), 3 **ta** (tree), 4 **re** (house), 5 **lu** (star), 6 **ne** (comb), 7 **sa** (eye).\n\nYour finder is a small convolutional network built by hand: each filter is a picture of what it looks for, the convolution scores every position, and global max pooling keeps the best score, wherever it was. A trained network works the same way, but it learns its filters, and they are smaller and stacked in layers.",
+        "de": "Die Zeichen des Siegels sind 5, 0, 7, 2, 6, 4, 1, 3, also klingen die acht Zeichen so: 0 **ra** (Sonne), 1 **mi** (Wasser), 2 **ko** (Berg), 3 **ta** (Baum), 4 **re** (Haus), 5 **lu** (Stern), 6 **ne** (Kamm), 7 **sa** (Auge).\n\nEuer finder ist ein kleines Faltungsnetz, von Hand gebaut: Jeder Filter ist ein Bild dessen, was er sucht, die Faltung bewertet jede Position, und Global Max Pooling behält den besten Wert, wo auch immer er war. Ein trainiertes Netz arbeitet genauso, lernt seine Filter aber selbst, und sie sind kleiner und in Schichten gestapelt."
+      },
+      "practises": {
+        "en": "A convolution as a search for a pattern; the kernel layout of Conv2D (rows, columns, channels in, filters); GlobalMaxPooling2D: the best match anywhere; scores and argmax",
+        "de": "Eine Faltung als Suche nach einem Muster; der Kernel-Aufbau von Conv2D (Zeilen, Spalten, Kanäle rein, Filter); GlobalMaxPooling2D: die beste Übereinstimmung irgendwo; Werte und argmax"
+      },
+      "clues": [
+        "sign-list",
+        "seal-caption"
+      ],
+      "hints": [
+        {
+          "en": "A Sequential model: `tf.keras.Input(shape=(24, 24, 1))`, `layers.Conv2D(8, 11, use_bias=False)`, `layers.GlobalMaxPooling2D()`. The Conv2D's kernel has the shape `(11, 11, 1, 8)`: rows, columns, channels in, filters. `templates` has the shape `(8, 11, 11)`: there the filters come first.",
+          "de": "Ein Sequential-Modell: `tf.keras.Input(shape=(24, 24, 1))`, `layers.Conv2D(8, 11, use_bias=False)`, `layers.GlobalMaxPooling2D()`. Der Kernel der Conv2D-Schicht hat die Form `(11, 11, 1, 8)`: Zeilen, Spalten, Kanäle rein, Filter. `templates` hat die Form `(8, 11, 11)`: Dort kommen die Filter zuerst."
+        },
+        {
+          "en": "`templates.reshape(11, 11, 1, 8)` has the right shape but scrambles the stamps. Move the axis instead: `templates.transpose(1, 2, 0)` has the shape `(11, 11, 8)`, and `[:, :, None, :]` adds the channel axis. The impressions need a channel axis too: `impressions[..., None]`.",
+          "de": "`templates.reshape(11, 11, 1, 8)` hat die richtige Form, wirbelt die Stempel aber durcheinander. Verschiebt stattdessen die Achse: `templates.transpose(1, 2, 0)` hat die Form `(11, 11, 8)`, und `[:, :, None, :]` fügt die Kanal-Achse ein. Auch die Abdrücke brauchen eine Kanal-Achse: `impressions[..., None]`."
+        },
+        {
+          "en": "`finder.set_weights([templates.transpose(1, 2, 0)[:, :, None, :]])`, then `order = finder.predict(impressions[..., None]).argmax(axis=1)` gives `[5, 0, 7, 2, 6, 4, 1, 3]`. With the caption: `values = {5: \"lu\", 0: \"ra\", 7: \"sa\", 2: \"ko\", 6: \"ne\", 4: \"re\", 1: \"mi\", 3: \"ta\"}`.",
+          "de": "`finder.set_weights([templates.transpose(1, 2, 0)[:, :, None, :]])`, dann ergibt `order = finder.predict(impressions[..., None]).argmax(axis=1)` die Liste `[5, 0, 7, 2, 6, 4, 1, 3]`. Mit der Beischrift: `values = {5: \"lu\", 0: \"ra\", 7: \"sa\", 2: \"ko\", 6: \"ne\", 4: \"re\", 1: \"mi\", 3: \"ta\"}`."
+        }
+      ]
+    },
+    {
+      "id": "blueprint",
+      "title": {
+        "en": "The stained blueprint",
+        "de": "Der fleckige Bauplan"
+      },
+      "text": {
+        "en": "Amara's blueprint for the reader hangs above the computer: draft 3, a small convolutional network. Someone put a coffee cup on it, and several numbers are gone.\n\n1. Work out the missing pieces from what is still legible: the output shapes and the numbers of parameters.\n2. Build draft 3 as a Keras model, `model`, so that `model.summary()` matches every number on the blueprint.",
+        "de": "Amaras Bauplan für den Leser hängt über dem Computer: Entwurf 3, ein kleines Faltungsnetz. Jemand hat eine Kaffeetasse daraufgestellt, und einige Zahlen sind weg.\n\n1. Erschließt die fehlenden Teile aus dem, was noch lesbar ist: den Ausgabeformen und den Parameterzahlen.\n2. Baut Entwurf 3 als Keras-Modell, `model`, sodass `model.summary()` zu jeder Zahl auf dem Bauplan passt."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    # ... the layers of draft 3\n])\nmodel.summary()\n",
+        "de": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    # ... die Schichten von Entwurf 3\n])\nmodel.summary()\n"
+      },
+      "data": "blueprint.py",
+      "check": {
+        "type": "python",
+        "expr": "_blueprint_check(model)",
+        "hash": "a59faadcf4b82e935fb0daa53dbc3d41d26b14420a0fad03ee23de09ba9371ce"
+      },
+      "reveal": {
+        "en": "Draft 3 has **1,384** parameters. The first Conv2D keeps the size with `padding=\"same\"`, the second has 16 filters of 3 × 3 (3 · 3 · 8 · 16 + 16 = 1,168) and no padding, and the stain hid a `GlobalMaxPooling2D`: it keeps each filter's strongest response, wherever it was.\n\nA dense network with 64 neurons would need 37,448 parameters for the same 24 × 24 fragments. A convolution uses the same small kernel at every position.",
+        "de": "Entwurf 3 hat **1.384** Parameter. Die erste Conv2D-Schicht behält mit `padding=\"same\"` die Größe, die zweite hat 16 Filter von 3 × 3 (3 · 3 · 8 · 16 + 16 = 1.168) und kein Padding, und der Fleck hat ein `GlobalMaxPooling2D` verdeckt: Es behält die stärkste Antwort jedes Filters, wo auch immer sie war.\n\nEin dichtes Netz mit 64 Neuronen bräuchte für dieselben 24 × 24-Fragmente 37.448 Parameter. Eine Faltung benutzt an jeder Position denselben kleinen Kernel."
+      },
+      "practises": {
+        "en": "Output shapes of Conv2D and MaxPooling2D, valid vs. same padding, counting a convolution's parameters (kernel × kernel × channels in × filters + one bias per filter), GlobalMaxPooling2D vs. Flatten, summary()",
+        "de": "Ausgabeformen von Conv2D und MaxPooling2D, Padding valid vs. same, die Parameter einer Faltung zählen (Kernel × Kernel × Kanäle rein × Filter + ein Bias pro Filter), GlobalMaxPooling2D vs. Flatten, summary()"
+      },
+      "clues": [
+        "blueprint-sheet"
+      ],
+      "hints": [
+        {
+          "en": "A Conv2D layer has kernel × kernel × channels in × filters weights, plus one bias per filter. A 3 × 3 kernel without padding makes the image 2 pixels smaller; `padding=\"same\"` keeps its size. `MaxPooling2D()` halves it.",
+          "de": "Eine Conv2D-Schicht hat Kernel × Kernel × Kanäle rein × Filter Gewichte, plus einen Bias pro Filter. Ein 3 × 3-Kernel ohne Padding macht das Bild 2 Pixel kleiner; `padding=\"same\"` behält seine Größe. `MaxPooling2D()` halbiert sie."
+        },
+        {
+          "en": "The first Conv2D stays at 24 × 24, so it has `padding=\"same\"`. For the second, (k · k · 8 + 1) · 16 = 1,168 gives k = 3, and 12 → 10 means no padding. The stained layer turns `(None, 10, 10, 16)` into `(None, 16)` without parameters; Amara's margin note says which one.",
+          "de": "Die erste Conv2D-Schicht bleibt bei 24 × 24, also hat sie `padding=\"same\"`. Für die zweite ergibt (k · k · 8 + 1) · 16 = 1.168 k = 3, und 12 → 10 heißt kein Padding. Die verschmierte Schicht macht aus `(None, 10, 10, 16)` ohne Parameter `(None, 16)`; Amaras Randnotiz sagt, welche."
+        },
+        {
+          "en": "`layers.Conv2D(8, 3, padding=\"same\", activation=\"relu\")`, `layers.MaxPooling2D()`, `layers.Conv2D(16, 3, activation=\"relu\")`, `layers.GlobalMaxPooling2D()`, `layers.Dense(8, activation=\"softmax\")`: 1,384 parameters.",
+          "de": "`layers.Conv2D(8, 3, padding=\"same\", activation=\"relu\")`, `layers.MaxPooling2D()`, `layers.Conv2D(16, 3, activation=\"relu\")`, `layers.GlobalMaxPooling2D()`, `layers.Dense(8, activation=\"softmax\")`: 1.384 Parameter."
+        }
+      ]
+    },
+    {
+      "id": "notebook",
+      "title": {
+        "en": "Mika's notebook",
+        "de": "Mikas Notebook"
+      },
+      "text": {
+        "en": "Mika, Amara's student assistant, tried to train the reader on the archive: `x_train` and `y_train` to learn from, `x_test` and `y_test` to test with. The script crashed again and again, and Mika went home.\n\nFix the script. The reader is ready when it reads at least 85 % of the test fragments.",
+        "de": "Mika, Amaras studentische Hilfskraft, hat versucht, den Leser mit dem Archiv zu trainieren: `x_train` und `y_train` zum Lernen, `x_test` und `y_test` zum Testen. Das Skript ist immer wieder abgestürzt, und Mika ist nach Hause gegangen.\n\nRepariert das Skript. Der Leser ist bereit, wenn er mindestens 85 % der Testfragmente richtig liest."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Mika: the reader from Amara's blueprint. Why does it crash every time?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    layers.Conv2D(8, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Conv2D(16, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Dense(8, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n# only 2 epochs, or it takes forever\nhistory = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test / 255, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n",
+        "de": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Mika: der Leser aus Amaras Bauplan. Warum stürzt das jedes Mal ab?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    layers.Conv2D(8, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Conv2D(16, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Dense(8, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n# nur 2 Epochen, sonst dauert es ewig\nhistory = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test / 255, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n"
+      },
+      "data": "archive.py",
+      "check": {
+        "type": "python",
+        "expr": "_notebook_check(model)",
+        "hash": "78f86443cbcd0b31eb356861e39254240178a1b562fce13ca754fb98b4596e87"
+      },
+      "lock": {
+        "text": {
+          "en": "Mika's laptop is locked. A sticky note on the lid: \"Password: the number of parameters of the reader (draft 3).\"",
+          "de": "Mikas Laptop ist gesperrt. Ein Zettel auf dem Deckel: „Passwort: die Zahl der Parameter des Lesers (Entwurf 3).“"
+        },
+        "from": "blueprint",
+        "mode": "number",
+        "hash": "e6aeaff998b110b2b133c1700455a36b5994c284a007cf5368bceeca149956a7"
+      },
+      "uses": [
+        "blueprint"
+      ],
+      "reveal": {
+        "en": "The reader reads about **95 %** of the test fragments. Mika made three mistakes: two poolings of 4 × 4 shrank the fragments to nothing (Keras says the output size would be negative), the fragments had no channel axis (Conv2D wants `(24, 24, 1)`, not `(24, 24)`), and after 2 epochs the reader was still learning. Here an epoch takes well under a second, so 6 to 8 are fine.",
+        "de": "Der Leser liest etwa **95 %** der Testfragmente richtig. Mika hat drei Fehler gemacht: Zwei Poolings von 4 × 4 haben die Fragmente auf nichts geschrumpft (Keras sagt, die Ausgabegröße würde negativ), die Fragmente hatten keine Kanal-Achse (Conv2D will `(24, 24, 1)`, nicht `(24, 24)`), und nach 2 Epochen lernte der Leser noch. Hier dauert eine Epoche deutlich unter einer Sekunde, also sind 6 bis 8 in Ordnung."
+      },
+      "practises": {
+        "en": "Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN",
+        "de": "Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN"
+      },
+      "clues": [
+        "mika-note",
+        "archive-label",
+        "blueprint-sheet"
+      ],
+      "hints": [
+        {
+          "en": "Read the first error: the second `MaxPooling2D` has nothing left to pool. Follow the shapes through the layers and compare them with the blueprint; `model.summary()` shows them once the model builds.",
+          "de": "Lest den ersten Fehler: Für das zweite `MaxPooling2D` ist nichts mehr zum Poolen übrig. Verfolgt die Formen durch die Schichten und vergleicht sie mit dem Bauplan; `model.summary()` zeigt sie, sobald das Modell sich bauen lässt."
+        },
+        {
+          "en": "Conv2D wants every fragment with a channel axis: `(24, 24, 1)`, not `(24, 24)`. `x_train[..., None]` adds it, and `x_test` needs it too. Then look at the accuracy after the last epoch: is it still climbing?",
+          "de": "Conv2D will jedes Fragment mit einer Kanal-Achse: `(24, 24, 1)`, nicht `(24, 24)`. `x_train[..., None]` fügt sie ein, und `x_test` braucht sie auch. Schaut dann auf die accuracy nach der letzten Epoche: Steigt sie noch?"
+        },
+        {
+          "en": "The layers from the blueprint, then `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` and `model.evaluate(x_test[..., None] / 255, y_test)`.",
+          "de": "Die Schichten aus dem Bauplan, dann `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` und `model.evaluate(x_test[..., None] / 255, y_test)`."
+        }
+      ]
+    },
+    {
+      "id": "laptop",
+      "title": {
+        "en": "Amara's laptop",
+        "de": "Amaras Laptop"
+      },
+      "text": {
+        "en": "Amara's laptop holds her old reader, `old_reader`, a dense network, and `prototype`, a first try of draft 3. Both learned from the dig's photo set, where every sign sits in the middle of its fragment. The 100 fragments that came in last week, `x_new` with their sign numbers `y_new`, have their signs anywhere.\n\n1. How many of the 100 new fragments does each reader read right? Store the counts as `old_right` and `proto_right`. Prepare the fragments the way the readers expect them.\n2. Test both readers on `probe`, a fragment with a star (5) in the middle: shift it 0, 1, 2, ... pixels to the right with `np.roll(probe, shift, axis=1)` and plot each reader's probability for the star. `first_miss`: the smallest shift at which the old reader no longer reads a star.",
+        "de": "Auf Amaras Laptop sind ihr alter Leser, `old_reader`, ein dichtes Netz, und `prototype`, ein erster Versuch von Entwurf 3. Beide haben mit dem Fotosatz der Grabung gelernt, in dem jedes Zeichen in der Mitte seines Fragments sitzt. Bei den 100 Fragmenten, die letzte Woche kamen, `x_new` mit ihren Zeichennummern `y_new`, sitzen die Zeichen irgendwo.\n\n1. Wie viele der 100 neuen Fragmente liest jeder Leser richtig? Speichert die Anzahlen als `old_right` und `proto_right`. Bereitet die Fragmente so vor, wie die Leser sie erwarten.\n2. Testet beide Leser mit `probe`, einem Fragment mit einem Stern (5) in der Mitte: Verschiebt es um 0, 1, 2, ... Pixel nach rechts mit `np.roll(probe, shift, axis=1)` und zeichnet die Wahrscheinlichkeit jedes Lesers für den Stern. `first_miss`: die kleinste Verschiebung, bei der der alte Leser keinen Stern mehr liest."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nfrom helpers import show_images, show_plot\n\nold_reader.summary()\nprototype.summary()\nshow_images(x_new[:10], labels=list(y_new[:10]), title=\"New fragments\")\n\nold_right = None     # how many of the 100 new fragments the old reader reads right\nproto_right = None   # ... and the prototype\nfirst_miss = None    # the smallest shift at which the old reader misses the star\n\n# shifted = np.roll(probe, 1, axis=1)\n",
+        "de": "import numpy as np\nfrom helpers import show_images, show_plot\n\nold_reader.summary()\nprototype.summary()\nshow_images(x_new[:10], labels=list(y_new[:10]), title=\"Neue Fragmente\")\n\nold_right = None     # wie viele der 100 neuen Fragmente der alte Leser richtig liest\nproto_right = None   # ... und der Prototyp\nfirst_miss = None    # die kleinste Verschiebung, bei der der alte Leser den Stern verfehlt\n\n# shifted = np.roll(probe, 1, axis=1)\n"
+      },
+      "data": "laptop.py",
+      "check": {
+        "type": "python",
+        "expr": "_laptop_check(old_right, proto_right, first_miss)",
+        "hash": "710fea0929e497cd00d8ae4b3b6e02c48a3c955692242f06eed4a0708cddf108"
+      },
+      "lock": {
+        "text": {
+          "en": "Amara's laptop asks for a password. On the lid, in her handwriting: \"The first tablet I ever read: the tally on V-17.\"",
+          "de": "Amaras Laptop verlangt ein Passwort. Auf dem Deckel, in ihrer Handschrift: „Die erste Tafel, die ich je gelesen habe: die Zahl auf V-17.“"
+        },
+        "from": "tally",
+        "mode": "number",
+        "hash": "ff637dd9d856235d04da1005747fcd82fbc1b31d5d9fa37b4c1b4b676ad28c15"
+      },
+      "reveal": {
+        "en": "The old reader gets **18** of the 100 new fragments right, little better than guessing; the prototype gets **98**. Move the star 3 pixels and the old reader loses it: a dense layer has one weight per pixel, so it learned where a star's strokes lie, not what a star looks like. The prototype's filters slide over the whole fragment, and global max pooling keeps their best match wherever it is.",
+        "de": "Der alte Leser liest **18** der 100 neuen Fragmente richtig, kaum besser als Raten; der Prototyp **98**. Verschiebt den Stern um 3 Pixel, und der alte Leser verliert ihn: Eine Dense-Schicht hat ein Gewicht pro Pixel, also hat er gelernt, wo die Striche eines Sterns liegen, nicht wie ein Stern aussieht. Die Filter des Prototyps gleiten über das ganze Fragment, und Global Max Pooling behält ihre beste Übereinstimmung, wo auch immer sie ist."
+      },
+      "practises": {
+        "en": "Evaluating models with predict, argmax and a count; why a dense network is tied to pixel positions; translation invariance from convolution and global pooling; np.roll",
+        "de": "Modelle mit predict, argmax und Zählen bewerten; warum ein dichtes Netz an Pixelpositionen gebunden ist; Verschiebungsinvarianz durch Faltung und globales Pooling; np.roll"
+      },
+      "clues": [
+        "amara-mail"
+      ],
+      "hints": [
+        {
+          "en": "Both readers expect `(n, 24, 24, 1)` with values from 0.0 to 1.0: `x_new[..., None] / 255`. `predict` gives 8 probabilities per fragment, `.argmax(axis=1)` the sign; compare with `y_new` and count with `.sum()`.",
+          "de": "Beide Leser erwarten `(n, 24, 24, 1)` mit Werten von 0.0 bis 1.0: `x_new[..., None] / 255`. `predict` gibt 8 Wahrscheinlichkeiten pro Fragment, `.argmax(axis=1)` das Zeichen; vergleicht mit `y_new` und zählt mit `.sum()`."
+        },
+        {
+          "en": "`shifted = np.stack([np.roll(probe, s, axis=1) for s in range(9)])`, prepared the same way. Column 5 of `old_reader.predict(...)` is the old reader's probability for the star at each shift; `show_plot` draws both readers' lines.",
+          "de": "`shifted = np.stack([np.roll(probe, s, axis=1) for s in range(9)])`, genauso vorbereitet. Spalte 5 von `old_reader.predict(...)` ist die Wahrscheinlichkeit des alten Lesers für den Stern bei jeder Verschiebung; `show_plot` zeichnet die Linien beider Leser."
+        },
+        {
+          "en": "`old_right = 18`, `proto_right = 98`, `first_miss = 3`.",
+          "de": "`old_right = 18`, `proto_right = 98`, `first_miss = 3`."
+        }
+      ]
+    },
+    {
+      "id": "jar",
+      "title": {
+        "en": "The Varda jar",
+        "de": "Der Krug von Varda"
+      },
+      "text": {
+        "en": "The lid of the Varda jar carries six signs in a scribe's hand: `jar`, a depth scan of 24 rows × 144 columns, one sign in each 24 × 24 field. The crates leave at 06:00.\n\n1. Train the reader on the archive, the way the blueprint and the fixed notebook say. It needs at least 85 % on the test fragments.\n2. Let it read the lid: `signs`, the six sign numbers from left to right.\n3. `word`: how the lid sounds, one syllable per sign, e.g. `\"ba-de-fo-gu-hi-jo\"`.",
+        "de": "Der Deckel des Krugs von Varda trägt sechs Zeichen in der Hand eines Schreibers: `jar`, ein Tiefenscan aus 24 Zeilen × 144 Spalten, ein Zeichen in jedem 24 × 24-Feld. Die Kisten gehen um 06:00.\n\n1. Trainiert den Leser mit dem Archiv, so wie es der Bauplan und das reparierte Notebook sagen. Er braucht mindestens 85 % auf den Testfragmenten.\n2. Lasst ihn den Deckel lesen: `signs`, die sechs Zeichennummern von links nach rechts.\n3. `word`: wie der Deckel klingt, eine Silbe pro Zeichen, z. B. `\"ba-de-fo-gu-hi-jo\"`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\ntf.keras.utils.set_random_seed(1)\nshow_images(jar, title=\"The jar's lid\")\n\nmodel = None       # the reader, trained on the archive\n# model.compile(...), model.fit(...), model.evaluate(...)\n\nfragments = None   # the lid's six fields, ready for the reader\nsigns = None       # e.g. [0, 1, 2, 3, 4, 5]\nword = None        # e.g. \"ba-de-fo-gu-hi-jo\"\n",
+        "de": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\ntf.keras.utils.set_random_seed(1)\nshow_images(jar, title=\"Der Deckel des Krugs\")\n\nmodel = None       # der Leser, mit dem Archiv trainiert\n# model.compile(...), model.fit(...), model.evaluate(...)\n\nfragments = None   # die sechs Felder des Deckels, bereit für den Leser\nsigns = None       # z. B. [0, 1, 2, 3, 4, 5]\nword = None        # z. B. \"ba-de-fo-gu-hi-jo\"\n"
+      },
+      "data": "archive.py",
+      "check": {
+        "type": "python",
+        "expr": "_jar_check(model, signs, word)",
+        "hash": "d95492bae8a3f5ea98ff079985b367a93893390bcdca265ec3e7b5d017e70815"
+      },
+      "lock": {
+        "text": {
+          "en": "The jar stands in a locked display cabinet with a four-digit lock. Amara's mail says how the code is made.",
+          "de": "Der Krug steht in einer verschlossenen Vitrine mit einem vierstelligen Schloss. Amaras Mail sagt, wie sich der Code zusammensetzt."
+        },
+        "from": "laptop",
+        "mode": "caseless",
+        "hash": "62791f54868e58f02a2719bfaff720c1f8bd452c2bce8d794879ee3ace714e7c"
+      },
+      "final": true,
+      "uses": [
+        "seal",
+        "blueprint",
+        "notebook"
+      ],
+      "reveal": {
+        "en": "The reader reads the lid: **ta-lu-mi-ra-ko-ne**. At 05:52 you send it to Amara, and her answer comes from the airport: \"Talumi Rakone. A name, the potter who made the jar or the one who owned it. It's the first word anyone has read in the Varda script in three thousand years.\"\n\nYour reader learned eight signs from 2,400 fragments with 1,384 parameters, because a convolution looks for the same small shapes everywhere, and global pooling doesn't care where it found them.",
+        "de": "Der Leser liest den Deckel: **ta-lu-mi-ra-ko-ne**. Um 05:52 schickt ihr es Amara, und ihre Antwort kommt vom Flughafen: „Talumi Rakone. Ein Name, der Töpfer, der den Krug gemacht hat, oder wem er gehörte. Es ist das erste Wort, das seit dreitausend Jahren jemand in der Varda-Schrift gelesen hat.“\n\nEuer Leser hat acht Zeichen aus 2.400 Fragmenten mit 1.384 Parametern gelernt, weil eine Faltung überall nach denselben kleinen Formen sucht und globales Pooling sich nicht dafür interessiert, wo sie sie gefunden hat."
+      },
+      "practises": {
+        "en": "The whole workflow for a CNN: architecture, channel axis and scaling, compile, fit, evaluate; cutting an image into fields; predicting new data prepared like the training data",
+        "de": "Der ganze Ablauf für ein CNN: Architektur, Kanal-Achse und Skalierung, compile, fit, evaluate; ein Bild in Felder schneiden; neue Daten vorhersagen, die wie die Trainingsdaten vorbereitet sind"
+      },
+      "clues": [
+        "archive-label",
+        "amara-mail"
+      ],
+      "hints": [
+        {
+          "en": "The reader is the fixed notebook's model, trained the same way. The lid is six 24 × 24 fields side by side: `np.hsplit(jar, 6)` cuts it, and `np.stack(...)` makes one array of shape `(6, 24, 24)`.",
+          "de": "Der Leser ist das Modell aus dem reparierten Notebook, genauso trainiert. Der Deckel besteht aus sechs 24 × 24-Feldern nebeneinander: `np.hsplit(jar, 6)` schneidet ihn, und `np.stack(...)` macht daraus ein Array der Form `(6, 24, 24)`."
+        },
+        {
+          "en": "Prepare the fields exactly like `x_train`: channel axis and `/ 255`. `model.predict(fragments).argmax(axis=1)` gives the sign numbers; the seal's reveal gives the sound of each number.",
+          "de": "Bereitet die Felder genau wie `x_train` vor: Kanal-Achse und `/ 255`. `model.predict(fragments).argmax(axis=1)` ergibt die Zeichennummern; die Auflösung des Siegels nennt den Laut jeder Nummer."
+        },
+        {
+          "en": "`fragments = np.stack(np.hsplit(jar, 6))[..., None] / 255`. The signs are `[3, 5, 1, 0, 2, 6]`, the word is `\"ta-lu-mi-ra-ko-ne\"`.",
+          "de": "`fragments = np.stack(np.hsplit(jar, 6))[..., None] / 255`. Die Zeichen sind `[3, 5, 1, 0, 2, 6]`, das Wort ist `\"ta-lu-mi-ra-ko-ne\"`."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "theo-note",
+      "title": {
+        "en": "Theo's note",
+        "de": "Theos Notiz"
+      },
+      "text": {
+        "en": "Raking light, the digital way (T. Brandt, restorer)\n\nWorn signs are dents a few hundredths of a millimetre deep, on a tablet that curves by several millimetres. To see them, compare every point with its four neighbours, using this 3 × 3 kernel:\n\n`0   1   0`\n`1  -4   1`\n`0   1   0`\n\nLay the kernel on a 3 × 3 window of the scan, multiply point by point and add it all up: one number. Move one point further and repeat. Smooth curves come out close to 0; sharp dents light up.\n\nThe result loses one point on every side.",
+        "de": "Streiflicht, digital (T. Brandt, Restaurator)\n\nAbgenutzte Zeichen sind Kerben von wenigen hundertstel Millimetern, auf einer Tafel, die sich um mehrere Millimeter wölbt. Um sie zu sehen, vergleicht man jeden Punkt mit seinen vier Nachbarn, mit diesem 3 × 3-Kernel:\n\n`0   1   0`\n`1  -4   1`\n`0   1   0`\n\nDen Kernel auf ein 3 × 3-Fenster des Scans legen, Punkt für Punkt multiplizieren und alles addieren: eine Zahl. Einen Punkt weiterrücken und wiederholen. Sanfte Wölbungen ergeben fast 0; scharfe Kerben leuchten auf.\n\nDas Ergebnis verliert an jeder Seite einen Punkt."
+      }
+    },
+    {
+      "id": "numerals",
+      "title": {
+        "en": "Chart: Varda numerals",
+        "de": "Schautafel: Varda-Zahlzeichen"
+      },
+      "text": {
+        "en": "HOW THE VARDA SCRIBES COUNTED\n\nA tall bar: one hundred\nA circle: ten\nA wedge (a small triangle): one\n\nThe scribes pressed as many of each as they needed, hundreds first. Add them up.",
+        "de": "WIE DIE SCHREIBER VON VARDA ZÄHLTEN\n\nEin hoher Strich: hundert\nEin Kreis: zehn\nEin Keil (ein kleines Dreieck): eins\n\nDie Schreiber drückten von jedem so viele ein, wie sie brauchten, die Hunderter zuerst. Zählt sie zusammen."
+      }
+    },
+    {
+      "id": "sign-list",
+      "title": {
+        "en": "Amara's sign list",
+        "de": "Amaras Zeichenliste"
+      },
+      "text": {
+        "en": "THE VARDA SCRIPT · 8 signs · A. Okafor\n\n0 sun: a circle with a dot\n1 water: two zigzag lines\n2 mountain: two peaks\n3 tree: a trunk with two pairs of branches\n4 house: a box under a roof\n5 star: three crossed lines\n6 comb: a bar with four teeth\n7 eye: an almond with a pupil\n\nThe numbers are the labels in the archive and the order of my stamps. How the signs sound: unknown.",
+        "de": "DIE VARDA-SCHRIFT · 8 Zeichen · A. Okafor\n\n0 Sonne: ein Kreis mit einem Punkt\n1 Wasser: zwei Zickzacklinien\n2 Berg: zwei Gipfel\n3 Baum: ein Stamm mit zwei Paar Ästen\n4 Haus: ein Kasten unter einem Dach\n5 Stern: drei gekreuzte Linien\n6 Kamm: ein Balken mit vier Zinken\n7 Auge: eine Mandel mit einer Pupille\n\nDie Nummern sind die Labels im Archiv und die Reihenfolge meiner Stempel. Wie die Zeichen klingen: unbekannt."
+      }
+    },
+    {
+      "id": "seal-caption",
+      "title": {
+        "en": "The label in the glass case",
+        "de": "Das Schild in der Vitrine"
+      },
+      "text": {
+        "en": "Cylinder seal, Tell Varda, about 1200 BCE. The only bilingual find of the dig.\n\nBelow the impression's eight Varda signs, a later hand scratched their sounds in the coast script, which can be read: one syllable under each sign, from left to right:\n\n**LU · RA · SA · KO · NE · RE · MI · TA**\n\n\"Lurasa Konere, of Mita\"",
+        "de": "Rollsiegel, Tell Varda, um 1200 v. Chr. Der einzige zweisprachige Fund der Grabung.\n\nUnter die acht Varda-Zeichen des Abdrucks hat eine spätere Hand ihre Laute in der Küstenschrift geritzt, die man lesen kann: eine Silbe unter jedem Zeichen, von links nach rechts:\n\n**LU · RA · SA · KO · NE · RE · MI · TA**\n\n„Lurasa Konere, aus Mita“"
+      }
+    },
+    {
+      "id": "blueprint-sheet",
+      "title": {
+        "en": "Blueprint: the reader",
+        "de": "Bauplan: der Leser"
+      },
+      "text": {
+        "en": "READER · draft 3 · A. Okafor\n\nInput: one fragment, 24 × 24, 1 channel\n\nConv2D: 8 filters, 3 × 3, ReLU → (None, 24, 24, 8) · 80 parameters\nMaxPooling2D: 2 × 2 → (None, 12, 12, ▒▒) · 0\nConv2D: ▒▒ filters, ▒ × ▒, ReLU → (None, 10, 10, 16) · 1,168\n▒▒▒▒▒▒▒▒▒▒ → (None, 16) · 0\nDense: 8, softmax → (None, 8) · ▒▒▒\n\nTotal: ▒▒▒▒▒ (a coffee stain)\n\nIn the margin: \"No Flatten! Flatten keeps where every pixel was. Keep only the strongest response of each filter, wherever it is.\"",
+        "de": "LESER · Entwurf 3 · A. Okafor\n\nEingabe: ein Fragment, 24 × 24, 1 Kanal\n\nConv2D: 8 Filter, 3 × 3, ReLU → (None, 24, 24, 8) · 80 Parameter\nMaxPooling2D: 2 × 2 → (None, 12, 12, ▒▒) · 0\nConv2D: ▒▒ Filter, ▒ × ▒, ReLU → (None, 10, 10, 16) · 1.168\n▒▒▒▒▒▒▒▒▒▒ → (None, 16) · 0\nDense: 8, Softmax → (None, 8) · ▒▒▒\n\nSumme: ▒▒▒▒▒ (ein Kaffeefleck)\n\nAm Rand: „Kein Flatten! Flatten merkt sich, wo jedes Pixel war. Nur die stärkste Antwort jedes Filters behalten, egal wo sie ist.“"
+      }
+    },
+    {
+      "id": "mika-note",
+      "title": {
+        "en": "A note from Mika",
+        "de": "Ein Zettel von Mika"
+      },
+      "text": {
+        "en": "Amara, I tried to train the reader on the archive, but Keras keeps crashing: first something about a negative size, then something about the shape?! I kept it at 2 epochs, more takes forever. I've gone home, sorry.\n\nMika\n\nP.S. My laptop password is the number of parameters of the reader.",
+        "de": "Amara, ich habe versucht, den Leser mit dem Archiv zu trainieren, aber Keras stürzt immer wieder ab: erst irgendwas mit einer negativen Größe, dann irgendwas mit der Form?! Ich bin bei 2 Epochen geblieben, mehr dauert ewig. Ich bin nach Hause gegangen, sorry.\n\nMika\n\nPS: Mein Laptop-Passwort ist die Zahl der Parameter des Lesers."
+      }
+    },
+    {
+      "id": "archive-label",
+      "title": {
+        "en": "The label on the crates",
+        "de": "Das Etikett der Kisten"
+      },
+      "text": {
+        "en": "VARDA ARCHIVE · fragments, signs sorted by hand\n\n2,400 fragments to learn from (`x_train`, `y_train`) and 600 to test with (`x_test`, `y_test`).\n\nEvery fragment is a depth scan of 24 × 24 points, stored as bytes: **0 = the clay's surface, 255 = deepest**. One sign on each, anywhere. Labels: the sign's number from the sign list, 0 to 7.\n\nThe reader wants every point from 0.0 to 1.0.",
+        "de": "VARDA-ARCHIV · Fragmente, Zeichen von Hand sortiert\n\n2.400 Fragmente zum Lernen (`x_train`, `y_train`) und 600 zum Testen (`x_test`, `y_test`).\n\nJedes Fragment ist ein Tiefenscan aus 24 × 24 Punkten, gespeichert als Bytes: **0 = Oberfläche des Tons, 255 = am tiefsten**. Auf jedem ein Zeichen, irgendwo. Labels: die Nummer des Zeichens aus der Zeichenliste, 0 bis 7.\n\nDer Leser will jeden Punkt von 0.0 bis 1.0."
+      }
+    },
+    {
+      "id": "amara-mail",
+      "title": {
+        "en": "Amara's mail, printed out",
+        "de": "Amaras Mail, ausgedruckt"
+      },
+      "text": {
+        "en": "From: Amara Okafor · Sunday, 19:48\n\nStuck at the airport, fog. My old reader read the photo set perfectly, but the new fragments from last week look like noise to it. On my laptop you'll find it and a prototype of draft 3, both trained on the photo set (every sign in the middle). Please compare them on the 100 new fragments. If draft 3 wins, train it on the whole archive and read the jar!\n\nThe jar's cabinet: the code is how many of the 100 the old reader gets right, then how many the prototype gets right.\n\nA.",
+        "de": "Von: Amara Okafor · Sonntag, 19:48\n\nFestgesteckt am Flughafen, Nebel. Mein alter Leser hat den Fotosatz perfekt gelesen, aber die neuen Fragmente von letzter Woche sehen für ihn aus wie Rauschen. Auf meinem Laptop findet ihr ihn und einen Prototyp von Entwurf 3, beide mit dem Fotosatz trainiert (jedes Zeichen in der Mitte). Bitte vergleicht sie an den 100 neuen Fragmenten. Wenn Entwurf 3 gewinnt, trainiert ihn mit dem ganzen Archiv und lest den Krug!\n\nDie Vitrine des Krugs: Der Code ist, wie viele der 100 der alte Leser richtig liest, dann wie viele der Prototyp richtig liest.\n\nA."
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "The lab binder",
+      "de": "Der Laborordner"
+    },
+    "intro": {
+      "en": "A heavy binder on a lectern: Theo's and Amara's notes on everything the reader is made of, with a link to the official documentation for each entry. Python here runs a TensorFlow-style model: a small library written for this room with TensorFlow's names, because the real TensorFlow can't run in a browser. Code you write here also works with the real TensorFlow.",
+      "de": "Ein schwerer Ordner auf einem Lesepult: Theos und Amaras Notizen zu allem, woraus der Leser besteht, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag. Python läuft hier mit einem TensorFlow-artigen Modell: einer kleinen Bibliothek mit den Namen von TensorFlow, für diesen Raum geschrieben, weil das echte TensorFlow nicht im Browser läuft. Code, den ihr hier schreibt, funktioniert auch mit dem echten TensorFlow."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Images as arrays",
+          "de": "Bilder als Arrays"
+        },
+        "entries": [
+          {
+            "name": "a[i:i + 3, j:j + 3]",
+            "text": {
+              "en": "The 3 × 3 window of a 2D array whose top-left corner is at row `i`, column `j`. Arithmetic on two arrays of the same shape works point by point; `.sum()` adds up all values.",
+              "de": "Das 3 × 3-Fenster eines 2D-Arrays, dessen linke obere Ecke in Zeile `i`, Spalte `j` liegt. Rechnen mit zwei Arrays gleicher Form wirkt Punkt für Punkt; `.sum()` addiert alle Werte."
+            },
+            "link": "https://numpy.org/doc/stable/user/basics.indexing.html"
+          },
+          {
+            "name": "x[..., None]",
+            "text": {
+              "en": "Adds an axis of size 1 at the end: a stack of fragments `(n, 24, 24)` becomes `(n, 24, 24, 1)`, one channel per image, as Conv2D wants it. `x[None]` adds one at the front instead (a batch of one image).",
+              "de": "Fügt am Ende eine Achse der Größe 1 an: Ein Stapel Fragmente `(n, 24, 24)` wird zu `(n, 24, 24, 1)`, ein Kanal pro Bild, so wie Conv2D es will. `x[None]` fügt sie stattdessen vorne an (ein Stapel aus einem Bild)."
+            },
+            "link": "https://numpy.org/doc/stable/user/basics.indexing.html#dimensional-indexing-tools"
+          },
+          {
+            "name": "a.transpose(axes)",
+            "text": {
+              "en": "Reorders the axes: for an array of shape `(8, 11, 11)`, `a.transpose(1, 2, 0)` has the shape `(11, 11, 8)`, and `a.transpose(1, 2, 0)[:, :, k]` is `a[k]`. `reshape` would keep the numbers in their order instead and mix up what belongs together.",
+              "de": "Ordnet die Achsen neu: Für ein Array der Form `(8, 11, 11)` hat `a.transpose(1, 2, 0)` die Form `(11, 11, 8)`, und `a.transpose(1, 2, 0)[:, :, k]` ist `a[k]`. `reshape` würde die Zahlen dagegen in ihrer Reihenfolge lassen und durcheinanderbringen, was zusammengehört."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.transpose.html"
+          },
+          {
+            "name": "np.hsplit(a, n)  np.stack(arrays)",
+            "text": {
+              "en": "`np.hsplit` cuts an array into `n` equal pieces from left to right; `np.stack` puts a list of equal-sized arrays on top of each other, along a new first axis.",
+              "de": "`np.hsplit` schneidet ein Array von links nach rechts in `n` gleiche Stücke; `np.stack` legt eine Liste gleich großer Arrays entlang einer neuen ersten Achse aufeinander."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.hsplit.html"
+          },
+          {
+            "name": "np.roll(a, shift, axis)",
+            "text": {
+              "en": "Shifts the values along an axis; what falls off one end comes back at the other. For a 2D image, `axis=1` shifts it to the right (by `shift` columns).",
+              "de": "Verschiebt die Werte entlang einer Achse; was an einem Ende herausfällt, kommt am anderen wieder herein. Bei einem 2D-Bild verschiebt `axis=1` nach rechts (um `shift` Spalten)."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.roll.html"
+          },
+          {
+            "name": "show_images(images, labels=None, title=None)",
+            "text": {
+              "en": "Draws one image (rows × columns) or a stack of them (n × rows × columns) in grey, below your output: the smallest value black, the largest white. Hover over a pixel to see its value. `labels=[...]` puts a caption under each image.",
+              "de": "Zeichnet ein Bild (Zeilen × Spalten) oder einen Stapel davon (n × Zeilen × Spalten) in Grau unter eure Ausgabe: den kleinsten Wert schwarz, den größten weiß. Fahrt über ein Pixel, um seinen Wert zu sehen. `labels=[...]` setzt eine Beschriftung unter jedes Bild."
+            }
+          },
+          {
+            "name": "show_plot(*series, labels=None, title=None)",
+            "text": {
+              "en": "Draws lists or arrays as lines below your output; the x axis counts from 0.",
+              "de": "Zeichnet Listen oder Arrays als Linien unter eure Ausgabe; die x-Achse zählt ab 0."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Convolution",
+          "de": "Faltung"
+        },
+        "entries": [
+          {
+            "name": "layers.Conv2D(filters, kernel_size, padding=\"valid\", activation=None, use_bias=True)",
+            "text": {
+              "en": "Slides `filters` small kernels of `kernel_size` × `kernel_size` over the image. At each position: the window times the kernel, point by point, summed over all channels, plus a bias. Each filter makes one feature map. (Strictly, it doesn't flip the kernel, so mathematicians call it a cross-correlation.)",
+              "de": "Schiebt `filters` kleine Kernel von `kernel_size` × `kernel_size` über das Bild. An jeder Position: das Fenster mal den Kernel, Punkt für Punkt, über alle Kanäle summiert, plus ein Bias. Jeder Filter erzeugt eine Feature Map. (Genau genommen dreht sie den Kernel nicht um, deshalb nennen Mathematiker es eine Kreuzkorrelation.)"
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D"
+          },
+          {
+            "name": "images: (samples, rows, columns, channels)",
+            "text": {
+              "en": "Conv2D and the pooling layers want 4 axes, the channels last: greyscale fragments have 1 channel, so `tf.keras.Input(shape=(24, 24, 1))`. After a Conv2D, the channels are its feature maps.",
+              "de": "Conv2D und die Pooling-Schichten wollen 4 Achsen, die Kanäle zuletzt: Graustufen-Fragmente haben 1 Kanal, also `tf.keras.Input(shape=(24, 24, 1))`. Nach einer Conv2D-Schicht sind die Kanäle ihre Feature Maps."
+            },
+            "link": "https://www.tensorflow.org/tutorials/images/cnn"
+          },
+          {
+            "name": "padding=\"valid\"  padding=\"same\"",
+            "text": {
+              "en": "With `\"valid\"` (the default) the kernel only goes where it fits completely: a 3 × 3 kernel turns 24 × 24 into 22 × 22. `\"same\"` adds a border of zeros so the output keeps the input's size.",
+              "de": "Mit `\"valid\"` (Standard) geht der Kernel nur dorthin, wo er ganz hineinpasst: Ein 3 × 3-Kernel macht aus 24 × 24 22 × 22. `\"same\"` fügt einen Rand aus Nullen hinzu, sodass die Ausgabe die Größe der Eingabe behält."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D"
+          },
+          {
+            "name": "Conv2D parameters",
+            "text": {
+              "en": "Kernel × kernel × channels in × filters weights, plus one bias per filter. The same kernel is used at every position, so the count doesn't depend on the image size.",
+              "de": "Kernel × Kernel × Kanäle rein × Filter Gewichte, plus ein Bias pro Filter. Derselbe Kernel wird an jeder Position benutzt, also hängt die Zahl nicht von der Bildgröße ab."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D"
+          },
+          {
+            "name": "set_weights([kernel])",
+            "text": {
+              "en": "Loads weights into a model, layer by layer. A Conv2D kernel has the shape `(rows, columns, channels in, filters)`; with `use_bias=False` that is all, otherwise its biases follow. `get_weights()` returns them in the same order.",
+              "de": "Lädt Gewichte in ein Modell, Schicht für Schicht. Ein Conv2D-Kernel hat die Form `(Zeilen, Spalten, Kanäle rein, Filter)`; mit `use_bias=False` ist das alles, sonst folgen seine Biases. `get_weights()` gibt sie in derselben Reihenfolge zurück."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#set_weights"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Pooling",
+          "de": "Pooling"
+        },
+        "entries": [
+          {
+            "name": "layers.MaxPooling2D(pool_size=2)",
+            "text": {
+              "en": "Keeps the largest value of each 2 × 2 window, per channel: 24 × 24 becomes 12 × 12. Odd leftovers are dropped (11 → 5). No parameters.",
+              "de": "Behält den größten Wert jedes 2 × 2-Fensters, pro Kanal: Aus 24 × 24 wird 12 × 12. Ungerade Reste fallen weg (11 → 5). Keine Parameter."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/MaxPool2D"
+          },
+          {
+            "name": "layers.GlobalMaxPooling2D()",
+            "text": {
+              "en": "Keeps one number per channel: the largest value anywhere in its feature map. `(None, 10, 10, 16)` becomes `(None, 16)`. It says how strongly each filter found its shape, not where.",
+              "de": "Behält eine Zahl pro Kanal: den größten Wert irgendwo in seiner Feature Map. Aus `(None, 10, 10, 16)` wird `(None, 16)`. Sie sagt, wie stark jeder Filter seine Form gefunden hat, nicht wo."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/GlobalMaxPool2D"
+          },
+          {
+            "name": "layers.Flatten()",
+            "text": {
+              "en": "Turns each sample into one long row, e.g. `(None, 5, 5, 16)` into `(None, 400)`. A Dense layer after it has one weight per position, so it still cares where things are.",
+              "de": "Macht aus jeder Probe eine lange Zeile, z. B. aus `(None, 5, 5, 16)` `(None, 400)`. Eine Dense-Schicht danach hat ein Gewicht pro Position, achtet also weiter darauf, wo etwas ist."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Flatten"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Building and training",
+          "de": "Bauen und trainieren"
+        },
+        "entries": [
+          {
+            "name": "tf.keras.Sequential([...])  model.summary()",
+            "text": {
+              "en": "A stack of layers, each feeding the next, starting with `tf.keras.Input(shape=...)`: one sample's shape, without the number of samples. `summary()` prints each layer's output shape and parameters, and the total.",
+              "de": "Ein Stapel von Schichten, jede speist die nächste, beginnend mit `tf.keras.Input(shape=...)`: der Form einer Probe, ohne die Anzahl der Proben. `summary()` gibt die Ausgabeform und die Parameter jeder Schicht aus, dazu die Summe."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Sequential"
+          },
+          {
+            "name": "layers.Dense(units, activation=\"softmax\")",
+            "text": {
+              "en": "A fully connected layer. As the last layer with `\"softmax\"`, it turns its inputs into one probability per class.",
+              "de": "Eine vollständig verbundene Schicht. Als letzte Schicht mit `\"softmax\"` macht sie aus ihren Eingaben eine Wahrscheinlichkeit pro Klasse."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dense"
+          },
+          {
+            "name": "model.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])",
+            "text": {
+              "en": "Chooses how the model learns: the optimizer, the loss for class labels that are numbers (0, 1, 2, ...), and what to report while training.",
+              "de": "Legt fest, wie das Modell lernt: den Optimierer, den Loss für Klassenlabels, die Zahlen sind (0, 1, 2, ...), und was beim Training berichtet wird."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile"
+          },
+          {
+            "name": "model.fit(x, y, epochs, validation_split)",
+            "text": {
+              "en": "Trains the model: each epoch is one pass over the training data. When the accuracy is still climbing after the last epoch, the model hasn't finished learning. `validation_split=0.2` keeps the last 20 % aside to check on.",
+              "de": "Trainiert das Modell: Jede Epoche ist ein Durchgang durch die Trainingsdaten. Steigt die accuracy nach der letzten Epoche noch, ist das Modell nicht fertig mit Lernen. `validation_split=0.2` legt die letzten 20 % zum Prüfen beiseite."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit"
+          },
+          {
+            "name": "model.evaluate(x, y)  model.predict(x)",
+            "text": {
+              "en": "`evaluate` returns the loss and accuracy on data the model hasn't trained on; `predict` returns one row of probabilities per sample, and `.argmax(axis=1)` picks each row's class. New data must be prepared exactly like the training data.",
+              "de": "`evaluate` gibt Loss und accuracy auf Daten zurück, mit denen das Modell nicht trainiert hat; `predict` gibt eine Zeile mit Wahrscheinlichkeiten pro Probe zurück, und `.argmax(axis=1)` wählt die Klasse jeder Zeile. Neue Daten müssen genauso vorbereitet sein wie die Trainingsdaten."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#predict"
+          },
+          {
+            "name": "tf.keras.utils.set_random_seed(n)",
+            "text": {
+              "en": "Makes the random starting weights and the shuffling the same in every run, so results can be repeated.",
+              "de": "Macht die zufälligen Startgewichte und das Mischen in jedem Lauf gleich, damit sich Ergebnisse wiederholen lassen."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/utils/set_random_seed"
+          }
+        ]
+      }
+    ]
+  }
+}

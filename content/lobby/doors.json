@@ -55,31 +55,8 @@
         "de": "Neuronale Netze"
       },
       "order": [
-        "nn-post"
-      ],
-      "upcoming": [
-        {
-          "title": {
-            "en": "Convolutional networks",
-            "de": "Faltungsnetze"
-          },
-          "difficulty": "advanced",
-          "about": {
-            "tools": [
-              "Python",
-              "NumPy",
-              "Keras (TensorFlow-style)"
-            ],
-            "practises": {
-              "en": "Convolutional neural networks for images: Conv2D, pooling, filters and feature maps, and why they beat dense networks on shifted pictures.",
-              "de": "Faltungsnetze für Bilder: Conv2D, Pooling, Filter und Feature Maps, und warum sie dichte Netze bei verschobenen Bildern schlagen."
-            },
-            "story": {
-              "en": "A follow-up to The Night Post: letters written anywhere on the envelope, where convolutions see what dense layers miss.",
-              "de": "Eine Fortsetzung der Nachtpost: Briefe, die irgendwo auf den Umschlag geschrieben sind, wo Faltungen sehen, was dichte Schichten übersehen."
-            }
-          }
-        }
+        "nn-post",
+        "nn-tablets"
       ]
     }
   ]

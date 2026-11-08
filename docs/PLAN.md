@@ -259,15 +259,16 @@ Behind the 🗄️ door, between The Blue Index and Night Train: `HAVING`, condi
 
 **Open:** playtest the time budget; the data file is 380 KB (6,000 tickets), larger than the other SQL rooms, so check that runs stay quick on slow laptops.
 
-### 20. Neural network rooms: NN1 ✅ content built (`nn-post`, intermediate), playtest pending
-A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring the statistics door: at (30, 4), `facing: left`, tile 55; its rooms have their exit in the left wall. Two rooms on image classification: first a dense network, then a convolutional one (listed as `upcoming` until built).
+### 20. Neural network rooms: ✅ content built (`nn-post`, intermediate; `nn-tablets`, advanced), playtests pending
+A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring the statistics door: at (30, 4), `facing: left`, tile 55; its rooms have their exit in the left wall. Two rooms on image classification, with separate stories: first a dense network, then a convolutional one.
 
 **TensorFlow:** the course teaches TensorFlow, which can't run in the browser: Pyodide ships no TensorFlow (nor Keras or PyTorch) and TensorFlow has no WebAssembly build. Decided: as with Prophet, a small module named `tensorflow` with TensorFlow's API names, written with numpy only, so students type the code from the course (`import tensorflow as tf`, `tf.keras.Sequential`, `from tensorflow.keras import layers`). Rooms call it "a TensorFlow-style model". Unlike Prophet, the maths can match the real library (Glorot init, ReLU/softmax, cross-entropy, SGD/Adam with Keras defaults); only the exact numbers differ. Scope in [docs/tensorflow-lite.md](tensorflow-lite.md). Measured in Pyodide (Node), plain-numpy training: 2000 images of 16×16, 256→64→10, 10 epochs in 0.36 s; 5000 of 28×28, 784→128→10, 5 epochs in 2.7 s. Budget per run: 16×16 images, at most about 3000 training images and 20 epochs.
 
 **Infrastructure:**
 - ✅ `content/python/tensorflow.py`, registering `tensorflow.keras`, `tensorflow.keras.layers` etc. in `sys.modules` itself (no engine change), with tests: gradients against finite differences, Adam steps against the formula, a toy problem that converges.
 - ✅ `show_images(images, labels=, cmap=)`: greyscale images in the output panel, with a pixel readout on hover.
-- ✅ The door (tiles 105/106, a green side door), its sign and the CNN room listed as upcoming.
+- ✅ The door (tiles 105/106, a green side door) and its sign.
+- ✅ `Conv2D` (im2col), `MaxPooling2D`, `AveragePooling2D`, `GlobalMaxPooling2D`, `GlobalAveragePooling2D` and `Reshape`, with gradient tests. Pyodide's numpy has no BLAS, so convolutions run about 5× slower than native numpy: the weight gradient uses `einsum` (twice as fast there as `cols.T @ gz`), max pooling compares slices instead of an `argmax` over windows, and a model's first layer skips the gradient of its input.
 
 **Checks:** training results differ slightly between CPython and Pyodide, so exact answers only come from deterministic steps (forward passes with given weights, parameter counts, a recorded training log); anything trained is checked by a grader with a threshold, or by predictions on clearly drawn images.
 
@@ -281,7 +282,15 @@ A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring th
 
 **Open:** playtest the time budget, and how long training takes on slow laptops (the final trains in about 3 s in Node's Pyodide).
 
-**NN2** (convolutional; not designed yet): adds `Conv2D` and `MaxPooling2D` (im2col) to the module.
+**NN2 "The Varda Tablets"** ✅ content built (`nn-tablets`, advanced), playtest pending. Its own story: the basement restoration lab of Hallberg City Museum, Sunday night. 2,400 clay fragments from the dig at Tell Varda, each with one sign of an unread 8-sign script pressed in anywhere, go back to the excavation at 06:00 with the Varda jar, whose lid carries six signs; Prof. Amara Okafor is stuck at the airport. Data from `generate_data.py`: 24 × 24 depth scans of signs drawn from strokes, 8 depth levels, zlib-packed (the archive, 2,400 + 600 fragments, is 321 KB). Prototype measurements decided the reader: trained on signs anywhere, draft 3 (Conv2D 8 same → MaxPooling2D → Conv2D 16 → GlobalMaxPooling2D → Dense 8, 1,384 parameters) reaches 91–98 % in 6 epochs over 6 seeds, a dense net about 70 %; trained only on centred signs, a dense net reads 19 % of shifted ones, a CNN with Flatten 30 %, draft 3 94–98 %. 6 epochs on 1,920 fragments take about 4 s in Node's Pyodide. Eight new tiles (173–180): light table, seal case, jar cabinet, tablet shelf, laser scanner, packing crate, numeral chart, museum label; the tileset grows to 8 × 23. Numbers from the reference solutions:
+1. **Raking light** (open): a laser scan of worn tablet V-17 (30 × 96, heights in mm); the numerals are 0.03 mm grooves on a 3 mm dome, invisible until filtered with Theo's Laplacian kernel. A convolution by hand with two loops (28 × 94), then the same as a Keras `Conv2D` with `set_weights`: 2 bars, 4 circles, 6 wedges = **246**. Clues: Theo's note (the kernel), the numeral chart.
+2. **The cylinder seal** (open): eight stamped signs anywhere in 24 × 24 impressions and Amara's 11 × 11 stamps (zero-mean filters). A hand-built CNN: `Conv2D(8, 11, use_bias=False)` with the stamps as kernel (`templates.transpose(1, 2, 0)[:, :, None, :]`; `reshape` scrambles them) and `GlobalMaxPooling2D`; the order 5, 0, 7, 2, 6, 4, 1, 3 lines up with the caption LU RA SA KO NE RE MI TA, giving each sign's sound.
+3. **The stained blueprint** (open): draft 3 with coffee over some numbers: `padding="same"` from 24 → 24, a 3 × 3 kernel from 1,168 parameters, `GlobalMaxPooling2D` from (None, 16) and the margin note. Total **1,384**.
+4. **Mika's notebook** (lock 1384 from 3): two `MaxPooling2D(4)` shrink the image to nothing (error at build), no channel axis (`expected shape=(None, 24, 24, 1), found shape=(2400, 24, 24)`), and 2 epochs give 62 %; 4 epochs pass the 85 % (87 %), 6 give 98 %. Leaving out the pooling gives Keras's target/output shape error.
+5. **Amara's laptop** (lock 246 from 1): her old dense reader and a prototype of draft 3, both trained on centred photos, on 100 new fragments with signs anywhere: **18** vs **98** right; the old reader loses a centred star from a shift of **3** pixels (`np.roll`), the prototype never does.
+6. **The Varda jar** (final; lock 1898 from 5, "old reader's count, then the prototype's"): train draft 3 on the archive (85 % needed), cut the lid into six fields, predict: signs 3, 5, 1, 0, 2, 6, which the seal's sounds turn into **ta-lu-mi-ra-ko-ne**. Every reference reader (8 seeds, 5–10 epochs) reads each lid sign right with a lead of at least 0.2.
+
+**Open:** playtest the time budget and training speed on slow laptops (4 s in Node; the run limit is 10 s); whether advanced teams find the seal's kernel layout too fiddly; the archive (321 KB) is larger than the Night Post's.
 
 ## Known limits
 
@@ -305,3 +314,6 @@ Add new ideas here before they move into a step.
 - **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
 - **Handbook from the HUD:** once a team has found the handbook, a 📖 button in the room HUD could reopen it from anywhere, so nobody has to walk back to the lectern mid-puzzle.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.
+- **Run limit per room:** a manifest `runTimeout` (e.g. 20 s) for rooms that train networks, so slow laptops don't hit the 10 s limit in `nn-tablets`; the worker already restarts after a timeout, so only the limit would change.
+- **Feature maps station:** `model.layers[0](x)` on a sign and on the same sign shifted shows that a convolution's maps move with the sign (equivariance) while global pooling's numbers stay put (invariance). Would fit a third neural network room, or a harder variant of `nn-tablets`' laptop.
+- **Data augmentation:** `RandomTranslation` / `RandomFlip` layers in the TensorFlow-style model, for a room where a dense net learns to cope with shifted images only from augmented training data.

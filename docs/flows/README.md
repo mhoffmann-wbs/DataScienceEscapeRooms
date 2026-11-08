@@ -14,3 +14,4 @@ One page per room with a Mermaid flowchart of every station, clue, data file and
 - [The Rigged Fair](stats-fair.md) (`stats-fair`)
 - [The Chocolate Experiment](stats-ab.md) (`stats-ab`)
 - [The Night Post](nn-post.md) (`nn-post`)
+- [The Varda Tablets](nn-tablets.md) (`nn-tablets`)
