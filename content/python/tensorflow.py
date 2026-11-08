@@ -275,6 +275,7 @@ def InputLayer(shape=None, batch_size=None, name=None, dtype=None, input_shape=N
 class Layer:
     """The base class of all layers."""
     _base = "layer"
+    _input_grad = True  # False for a model's first layer while training: nothing needs the gradient of the data
 
     def __init__(self, name=None, input_shape=None, input_dim=None, trainable=True, dtype=None, **kwargs):
         if kwargs:
@@ -471,6 +472,298 @@ class Rescaling(Layer):
 
     def backward(self, g):
         return g * self.scale
+
+
+class Reshape(Layer):
+    """Gives each sample a new shape, e.g. Reshape((16, 16, 1)) adds a channel axis; -1 means "work it out"."""
+    _base = "reshape"
+
+    def __init__(self, target_shape, **kwargs):
+        super().__init__(**kwargs)
+        self.target_shape = tuple(int(d) for d in target_shape)
+
+    def compute_output_shape(self, input_shape):
+        size = int(np.prod(input_shape[1:], dtype=np.int64))
+        known = int(np.prod([d for d in self.target_shape if d != -1], dtype=np.int64))
+        shape = tuple(size // known if d == -1 else d for d in self.target_shape)
+        if int(np.prod(shape, dtype=np.int64)) != size:
+            raise ValueError(f"The total size of the target_shape {self.target_shape} doesn't match the input shape {_shape(input_shape)}.")
+        return (input_shape[0],) + shape
+
+    def forward(self, x, training):
+        self._in_shape = x.shape
+        return x.reshape((len(x),) + self.output_shape[1:])
+
+    def backward(self, g):
+        return g.reshape(self._in_shape)
+
+
+# ---- convolution and pooling (images as (samples, rows, columns, channels), channels last) ----
+
+def _pair(value, name):
+    pair = (value, value) if isinstance(value, (int, np.integer)) else tuple(value)
+    if len(pair) != 2 or not all(isinstance(v, (int, np.integer)) and v > 0 for v in pair):
+        raise ValueError(f"The `{name}` argument must be a tuple of 2 positive integers. Received: {name}={value!r}")
+    return int(pair[0]), int(pair[1])
+
+
+def _padding(padding):
+    padding = str(padding).lower()
+    if padding not in ("valid", "same"):
+        raise ValueError(f"The `padding` argument must be one of 'valid', 'same'. Received: padding={padding!r}")
+    return padding
+
+
+def _out_size(size, window, stride, padding):
+    """Output length along one axis, and the zeros added before and after (TensorFlow puts the extra one after)."""
+    if padding == "same":
+        out = -(-size // stride)
+        total = max((out - 1) * stride + window - size, 0)
+        return out, total // 2, total - total // 2
+    return (size - window) // stride + 1, 0, 0
+
+
+def _image_input(layer, input_shape):
+    if len(input_shape) != 4:
+        raise ValueError(
+            f'Input 0 of layer "{layer.name}" is incompatible with the layer: expected ndim=4, found ndim={len(input_shape)}. '
+            f"Full shape received: {_shape(input_shape)}"
+        )
+
+
+class _Windows(Layer):
+    """Shared by Conv2D and the pooling layers: slides a window over the rows and columns of each image."""
+
+    def _setup(self, window, strides, padding):
+        self._window, self._strides, self.padding = window, strides, _padding(padding)
+
+    def _geometry(self, input_shape):
+        (kh, kw), (sh, sw) = self._window, self._strides
+        oh, top, bottom = _out_size(input_shape[1], kh, sh, self.padding)
+        ow, left, right = _out_size(input_shape[2], kw, sw, self.padding)
+        if oh <= 0 or ow <= 0:
+            raise ValueError(
+                f"Computed output size would be negative. Received: `inputs.shape={_shape(input_shape)}` and "
+                f"window {self._window} of layer \"{self.name}\". The images have become smaller than the window."
+            )
+        return oh, ow, ((0, 0), (top, bottom), (left, right), (0, 0))
+
+    def _slice(self, i, j, oh, ow):
+        (sh, sw) = self._strides
+        return (slice(None), slice(i, i + sh * (oh - 1) + 1, sh), slice(j, j + sw * (ow - 1) + 1, sw), slice(None))
+
+    def _windows(self, x, fill):
+        """x as windows, one contiguous copy: (samples, out rows, out columns, window position, channels),
+        the window positions row by row (as a kernel is laid out)."""
+        oh, ow, pads = self._geometry(x.shape)
+        self._pads, self._in_shape = pads, x.shape
+        if any(p for pad in pads for p in pad):
+            x = np.pad(x, pads, constant_values=fill)
+        kh, kw = self._window
+        return np.stack([x[self._slice(i, j, oh, ow)] for i in range(kh) for j in range(kw)], axis=3)
+
+    def _scatter(self, gw):
+        """The way back: adds window gradients, laid out like _windows, into the input's places."""
+        kh, kw = self._window
+        n, oh, ow, _, c = gw.shape
+        (_, _), (top, bottom), (left, right), _ = self._pads
+        _, h, w, _ = self._in_shape
+        gx = np.zeros((n, h + top + bottom, w + left + right, c), dtype=gw.dtype)
+        for i in range(kh):
+            for j in range(kw):
+                gx[self._slice(i, j, oh, ow)] += gw[:, :, :, i * kw + j]
+        return gx[:, top:top + h, left:left + w, :]
+
+
+class Conv2D(_Windows):
+    """A 2D convolution: `filters` small kernels slide over the image, each making one feature map."""
+    _base = "conv2d"
+
+    def __init__(self, filters, kernel_size, strides=(1, 1), padding="valid", data_format=None, dilation_rate=(1, 1),
+                 activation=None, use_bias=True, kernel_initializer="glorot_uniform", bias_initializer="zeros", **kwargs):
+        super().__init__(**kwargs)
+        if not isinstance(filters, (int, np.integer)) or filters < 1:
+            raise ValueError(f"Invalid value for argument `filters`. Expected a strictly positive value. Received filters={filters!r}.")
+        if data_format not in (None, "channels_last"):
+            raise NotImplementedError("This TensorFlow-style model only knows data_format=\"channels_last\": images as (rows, columns, channels).")
+        if _pair(dilation_rate, "dilation_rate") != (1, 1):
+            raise NotImplementedError("This TensorFlow-style model has no dilated convolutions.")
+        self.filters = int(filters)
+        self.kernel_size, self.strides = _pair(kernel_size, "kernel_size"), _pair(strides, "strides")
+        self._setup(self.kernel_size, self.strides, padding)
+        self._act = _activation(activation)
+        self.activation = _public_activation(self._act)
+        self.use_bias = use_bias
+        self.kernel_initializer, self.bias_initializer = kernel_initializer, bias_initializer
+
+    def build(self, input_shape):
+        _image_input(self, input_shape)
+        if input_shape[-1] is None:
+            raise ValueError("The channel dimension of the inputs to a Conv2D layer should be defined. Found None.")
+        kh, kw = self.kernel_size
+        c = int(input_shape[-1])
+        self._kernel = _init(self.kernel_initializer, (kh, kw, c, self.filters), kh * kw * c, kh * kw * self.filters)
+        self._vars = [self._kernel]
+        if self.use_bias:
+            self._bias = _init(self.bias_initializer, (self.filters,), kh * kw * c, kh * kw * self.filters)
+            self._vars.append(self._bias)
+        super().build(input_shape)
+
+    @property
+    def kernel(self):
+        return _tensor(self._kernel)
+
+    @property
+    def bias(self):
+        return _tensor(self._bias) if self.use_bias else None
+
+    def compute_output_shape(self, input_shape):
+        oh, ow, _ = self._geometry(input_shape)
+        return (input_shape[0], oh, ow, self.filters)
+
+    def forward(self, x, training):
+        if x.ndim != 4 or x.shape[-1] != self._kernel.shape[2]:
+            raise ValueError(
+                f'Input 0 of layer "{self.name}" is incompatible with the layer: expected shape={_shape(self.input_shape)}, '
+                f"found shape={_shape(x.shape)}"
+            )
+        w = self._windows(x, 0)
+        n, oh, ow = w.shape[:3]
+        # One row per output pixel, its window in the kernel's order: rows, columns, channels.
+        cols = w.reshape(n * oh * ow, -1)
+        z = (cols @ self._kernel.reshape(-1, self.filters)).reshape(n, oh, ow, self.filters)
+        if self.use_bias:
+            z = z + self._bias
+        a = _ACTIVATIONS[self._act](z)
+        if training:
+            self._cache = (cols, z, a)
+        return a
+
+    def backward(self, g):
+        cols, z, a = self._cache
+        n, oh, ow, f = z.shape
+        gz = _act_grad(self._act, g, z, a).reshape(-1, f)
+        # einsum rather than cols.T @ gz: twice as fast in Pyodide, whose numpy has no BLAS.
+        self._grads = [np.einsum("mk,mf->kf", cols, gz).reshape(self._kernel.shape)] + ([gz.sum(axis=0)] if self.use_bias else [])
+        if not self._input_grad:
+            return None
+        kh, kw, c, _ = self._kernel.shape
+        return self._scatter((gz @ self._kernel.reshape(-1, f).T).reshape(n, oh, ow, kh * kw, c))
+
+
+class _Pooling2D(_Windows):
+    _reduce = None
+
+    def __init__(self, pool_size=(2, 2), strides=None, padding="valid", data_format=None, **kwargs):
+        super().__init__(**kwargs)
+        if data_format not in (None, "channels_last"):
+            raise NotImplementedError("This TensorFlow-style model only knows data_format=\"channels_last\": images as (rows, columns, channels).")
+        self.pool_size = _pair(pool_size, "pool_size")
+        self.strides = self.pool_size if strides is None else _pair(strides, "strides")
+        self._setup(self.pool_size, self.strides, padding)
+
+    def build(self, input_shape):
+        _image_input(self, input_shape)
+        super().build(input_shape)
+
+    def compute_output_shape(self, input_shape):
+        oh, ow, _ = self._geometry(input_shape)
+        return (input_shape[0], oh, ow, input_shape[3])
+
+
+class MaxPooling2D(_Pooling2D):
+    """Keeps the largest value of each pool_size window (by default 2 x 2, without overlap), per channel."""
+    _base = "max_pooling2d"
+
+    def forward(self, x, training):
+        oh, ow, pads = self._geometry(x.shape)
+        self._pads, self._in_shape = pads, x.shape
+        if any(p for pad in pads for p in pad):
+            x = np.pad(x, pads, constant_values=-np.inf)
+        kh, kw = self._window
+        out = x[self._slice(0, 0, oh, ow)]
+        for i in range(kh):
+            for j in range(kw):
+                out = np.maximum(out, x[self._slice(i, j, oh, ow)])
+        if training:
+            self._cache = (x, out)
+        return out
+
+    def backward(self, g):
+        # Like TensorFlow, each window's gradient goes to its first largest value.
+        x, out = self._cache
+        n, oh, ow, c = g.shape
+        (_, _), (top, bottom), (left, right), _ = self._pads
+        _, h, w, _ = self._in_shape
+        gx = np.zeros(x.shape, dtype=g.dtype)
+        taken = np.zeros(out.shape, dtype=bool)
+        for i in range(self._window[0]):
+            for j in range(self._window[1]):
+                where = self._slice(i, j, oh, ow)
+                hit = (x[where] == out) & ~taken
+                taken |= hit
+                gx[where] += g * hit
+        return gx[:, top:top + h, left:left + w, :]
+
+
+class AveragePooling2D(_Pooling2D):
+    """Averages each pool_size window (by default 2 x 2, without overlap), per channel."""
+    _base = "average_pooling2d"
+
+    def forward(self, x, training):
+        w = self._windows(x, 0)
+        if self.padding == "same":
+            # Like TensorFlow: the padding doesn't count, so border windows average fewer values.
+            ones = np.ones((1,) + x.shape[1:3] + (1,), dtype=x.dtype)
+            self._counts = self._windows(ones, 0).sum(axis=3)
+            self._in_shape = x.shape
+            return w.sum(axis=3) / self._counts
+        self._counts = float(w.shape[3])
+        return w.mean(axis=3)
+
+    def backward(self, g):
+        g = g / self._counts
+        n, oh, ow, c = g.shape
+        return self._scatter(np.broadcast_to(g[:, :, :, None], (n, oh, ow, self._window[0] * self._window[1], c)))
+
+
+class _GlobalPooling2D(Layer):
+    def __init__(self, data_format=None, keepdims=False, **kwargs):
+        super().__init__(**kwargs)
+        self.keepdims = keepdims
+
+    def build(self, input_shape):
+        _image_input(self, input_shape)
+        super().build(input_shape)
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], 1, 1, input_shape[3]) if self.keepdims else (input_shape[0], input_shape[3])
+
+    def backward(self, g):
+        g = g.reshape(len(g), 1, 1, -1)
+        return g * self._share
+
+
+class GlobalMaxPooling2D(_GlobalPooling2D):
+    """The largest value of each feature map: one number per channel, wherever in the image it is."""
+    _base = "global_max_pooling2d"
+
+    def forward(self, x, training):
+        out = x.max(axis=(1, 2), keepdims=True)
+        if training:
+            hit = (x == out).astype(x.dtype)
+            self._share = hit / hit.sum(axis=(1, 2), keepdims=True)
+        return out if self.keepdims else out[:, 0, 0, :]
+
+
+class GlobalAveragePooling2D(_GlobalPooling2D):
+    """The mean of each feature map: one number per channel."""
+    _base = "global_average_pooling2d"
+
+    def forward(self, x, training):
+        self._share = np.full((1, 1, 1, 1), 1 / (x.shape[1] * x.shape[2]), dtype=x.dtype)
+        out = x.mean(axis=(1, 2), keepdims=True)
+        return out if self.keepdims else out[:, 0, 0, :]
 
 
 # ---- losses ----
@@ -953,7 +1246,11 @@ class Sequential:
         for i, layer in enumerate(self.layers):
             shape = _shape(layer.output_shape) if layer.built else "?"
             params = f"{layer.count_params():,}" if layer.built else "0 (unbuilt)"
-            out.append(row((f"{layer.name} ({type(layer).__name__})", shape, params)))
+            name = f"{layer.name} ({type(layer).__name__})"
+            if len(name) > widths[0] - 2:  # like Keras, the class name goes on a line of its own
+                out += [row((layer.name, shape, params)), row((f"({type(layer).__name__})", "", ""))]
+            else:
+                out.append(row((name, shape, params)))
             if i < len(self.layers) - 1:
                 out.append(line("├", "┼", "┤"))
         out.append(line("└", "┴", "┘"))
@@ -1013,7 +1310,8 @@ class Sequential:
     def _train_step(self, x, y):
         out = self._forward(x, True)
         loss, g = self.loss._compute(y, out)
-        for layer in reversed(self.layers):
+        for i, layer in reversed(list(enumerate(self.layers))):
+            layer._input_grad = i > 0
             g = layer.backward(g)
         variables = [v for layer in self.layers if layer.trainable for v in layer._vars]
         grads = [g for layer in self.layers if layer.trainable for g in layer._grads]
@@ -1167,7 +1465,11 @@ math = _submodule("math", "Elementwise maths.", exp=exp, log=_log, abs=_abs, squ
 nn.__dict__.update(log_softmax=lambda x, axis=-1: _tensor(np.log(softmax(x, axis))))
 
 layers = _submodule("keras.layers", "Layers.", Layer=Layer, Input=Input, InputLayer=InputLayer, Dense=Dense, Flatten=Flatten,
-                    Activation=Activation, Dropout=Dropout, Rescaling=Rescaling)
+                    Activation=Activation, Dropout=Dropout, Rescaling=Rescaling, Reshape=Reshape,
+                    Conv2D=Conv2D, Convolution2D=Conv2D, MaxPooling2D=MaxPooling2D, MaxPool2D=MaxPooling2D,
+                    AveragePooling2D=AveragePooling2D, AvgPool2D=AveragePooling2D,
+                    GlobalMaxPooling2D=GlobalMaxPooling2D, GlobalMaxPool2D=GlobalMaxPooling2D,
+                    GlobalAveragePooling2D=GlobalAveragePooling2D, GlobalAvgPool2D=GlobalAveragePooling2D)
 activations = _submodule("keras.activations", "Activation functions.", relu=nn.relu, sigmoid=nn.sigmoid, softmax=nn.softmax,
                          tanh=nn.tanh, linear=_public_activation("linear"))
 losses = _submodule("keras.losses", "Loss functions.", Loss=Loss, SparseCategoricalCrossentropy=SparseCategoricalCrossentropy,

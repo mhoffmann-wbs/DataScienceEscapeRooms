@@ -58,6 +58,87 @@ errors = [
     expect(result).toEqual([true, true, true, true]);
   });
 
+  it('computes the gradients of convolution and pooling layers like finite differences', async () => {
+    // In float64, so the differences are exact enough to compare every weight and input.
+    const result = await run(
+      `
+def grad_error(model, x, y):
+    for layer in model.layers:
+        layer._vars[:] = [v.astype(np.float64) for v in layer._vars]
+        if hasattr(layer, "_kernel"):
+            layer._kernel, layer._bias = layer._vars[0], layer._vars[-1]
+    model.compile(optimizer="sgd", loss="sparse_categorical_crossentropy")
+    out = model._forward(x, True)
+    _, g = model.loss._compute(y, out)
+    for layer in reversed(model.layers):
+        g = layer.backward(g)
+    loss = lambda: model.loss._compute(y, model._forward(x, False))[0]
+    worst = 0.0
+    for v, grad in [(v, gr) for layer in model.layers for v, gr in zip(layer._vars, layer._grads)] + [(x, g)]:
+        for idx in list(np.ndindex(v.shape))[::7]:
+            old = v[idx]
+            v[idx] = old + 1e-6
+            up = loss()
+            v[idx] = old - 1e-6
+            down = loss()
+            v[idx] = old
+            worst = max(worst, abs((up - down) / 2e-6 - grad[idx]))
+    return worst
+
+tf.keras.utils.set_random_seed(3)
+rng = np.random.default_rng(0)
+x = rng.normal(size=(3, 7, 6, 2))
+y = rng.integers(0, 3, 3)
+nets = [
+    [layers.Conv2D(3, (3, 2), activation="tanh"), layers.MaxPooling2D(2), layers.Flatten()],
+    [layers.Conv2D(3, 3, strides=2, padding="same", activation="relu"), layers.AveragePooling2D((2, 1), padding="same"), layers.Flatten()],
+    [layers.Conv2D(4, 2, padding="same", activation="tanh"), layers.MaxPooling2D(3, strides=2, padding="same"), layers.Conv2D(2, 2), layers.GlobalMaxPooling2D()],
+    [layers.Reshape((6, 7, 2)), layers.Conv2D(4, 3, activation="sigmoid"), layers.GlobalAveragePooling2D()],
+]
+errors = [grad_error(tf.keras.Sequential([tf.keras.Input((7, 6, 2))] + net + [layers.Dense(3, activation="softmax")]), x.copy(), y) for net in nets]`,
+      `[bool(e < 1e-6) for e in errors]`,
+    );
+    expect(result).toEqual([true, true, true, true]);
+  });
+
+  it('convolves like a sliding window, with Keras shapes, parameters and errors', async () => {
+    const result = await run(
+      `
+rng = np.random.default_rng(1)
+image = rng.normal(size=(9, 8)).astype("float32")
+kernel = rng.normal(size=(3, 3)).astype("float32")
+model = tf.keras.Sequential([tf.keras.Input((9, 8, 1)), layers.Conv2D(1, 3, use_bias=False)])
+model.set_weights([kernel.reshape(3, 3, 1, 1)])
+by_hand = np.array([[(image[i:i + 3, j:j + 3] * kernel).sum() for j in range(6)] for i in range(7)])
+same_values = bool(np.allclose(model(image[None, :, :, None])[0, :, :, 0], by_hand, atol=1e-5))
+
+reader = tf.keras.Sequential([tf.keras.Input((24, 24, 1)), layers.Conv2D(8, 3, padding="same", activation="relu"), layers.MaxPooling2D(),
+                              layers.Conv2D(16, 3, activation="relu"), layers.GlobalMaxPooling2D(), layers.Dense(8, activation="softmax")])
+shapes = [list(l.output_shape) for l in reader.layers]
+# Global max pooling forgets where a shape was: moving it (by whole pooling windows, away from the border) changes nothing.
+spot = np.zeros((2, 24, 24, 1), dtype="float32")
+spot[0, 5:8, 6:9, 0] = spot[1, 15:18, 14:17, 0] = rng.random((3, 3))
+moved = reader.predict(spot, verbose=0)
+errors = []
+for code in ["tf.keras.Sequential([tf.keras.Input((24, 24)), layers.Conv2D(8, 3)])",
+             "tf.keras.Sequential([tf.keras.Input((8, 8, 1)), layers.Conv2D(4, 3), layers.MaxPooling2D(4), layers.MaxPooling2D(2)])",
+             "reader.predict(np.zeros((2, 24, 24)))"]:
+    try:
+        exec(code)
+        errors.append(None)
+    except ValueError as e:
+        errors.append(str(e))`,
+      `[same_values, shapes, reader.count_params(), bool(np.allclose(moved[0], moved[1], atol=1e-6)), ["expected ndim=4, found ndim=3" in errors[0], "Computed output size would be negative" in errors[1], "expected shape=(None, 24, 24, 1), found shape=(2, 24, 24)" in errors[2]]]`,
+    );
+    expect(result).toEqual([
+      true,
+      [[null, 24, 24, 8], [null, 12, 12, 8], [null, 10, 10, 16], [null, 16], [null, 8]],
+      1384,
+      true,
+      [true, true, true],
+    ]);
+  });
+
   it('takes Adam steps like Keras', async () => {
     const result = await run(
       `
