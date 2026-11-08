@@ -22,7 +22,7 @@ CREATE TABLE passengers (
   name TEXT NOT NULL,
   car INTEGER NOT NULL,
   compartment INTEGER NOT NULL,
-  card TEXT NOT NULL,  -- the card that opens the compartment
+  card TEXT NOT NULL UNIQUE,  -- the card that opens the compartment
   board TEXT NOT NULL,
   alight TEXT NOT NULL
 );
@@ -54,7 +54,7 @@ INSERT INTO passengers (ticket_id, name, car, compartment, card, board, alight) 
 CREATE TABLE scans (
   scan_id INTEGER PRIMARY KEY,
   time TEXT NOT NULL,
-  ticket_id TEXT NOT NULL
+  ticket_id TEXT NOT NULL REFERENCES passengers (ticket_id)
 );
 
 INSERT INTO scans (scan_id, time, ticket_id) VALUES
@@ -287,7 +287,7 @@ INSERT INTO doors (event_id, time, car, door, event) VALUES
 CREATE TABLE taps (
   tap_id INTEGER PRIMARY KEY,
   time TEXT NOT NULL,
-  card TEXT NOT NULL,  -- compartment card, or S-.. for staff
+  card TEXT NOT NULL REFERENCES passengers (card),  -- compartment card, or S-.. for staff
   car INTEGER NOT NULL,
   reader TEXT NOT NULL
 );
@@ -437,7 +437,7 @@ INSERT INTO taps (tap_id, time, card, car, reader) VALUES
 CREATE TABLE orders (
   order_id INTEGER PRIMARY KEY,
   time TEXT NOT NULL,
-  card TEXT NOT NULL,  -- the tab it went on
+  card TEXT NOT NULL REFERENCES passengers (card),  -- the tab it went on
   item TEXT NOT NULL,
   price REAL NOT NULL,
   payer TEXT NOT NULL  -- name on the bank card that paid

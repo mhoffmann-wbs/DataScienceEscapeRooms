@@ -1,5 +1,5 @@
 import type { Plot, PythonOutcome } from './pythonCore';
-import type { SqlOutcome, SqlTable } from './sqlCore';
+import type { SqlOutcome, SqlTable, SqlTableInfo } from './sqlCore';
 
 // Messages between the UI and the runner workers.
 
@@ -11,4 +11,4 @@ export type WorkerRequest =
 
 export type WorkerResponse = { id: number; result: unknown } | { id: number; crash: string };
 
-export type { Plot, PythonOutcome, SqlOutcome, SqlTable };
+export type { Plot, PythonOutcome, SqlOutcome, SqlTable, SqlTableInfo };

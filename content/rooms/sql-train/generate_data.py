@@ -320,20 +320,20 @@ def main():
         insert("stations", ["seq", "station", "km", "arrival", "departure"],
                [(s, n, k, ts(a), ts(d) if d else None) for s, n, k, a, d in STATIONS]),
         "CREATE TABLE passengers (\n  ticket_id TEXT PRIMARY KEY,\n  name TEXT NOT NULL,\n  car INTEGER NOT NULL,\n"
-        "  compartment INTEGER NOT NULL,\n  card TEXT NOT NULL,  -- the card that opens the compartment\n"
+        "  compartment INTEGER NOT NULL,\n  card TEXT NOT NULL UNIQUE,  -- the card that opens the compartment\n"
         "  board TEXT NOT NULL,\n  alight TEXT NOT NULL\n);\n",
         insert("passengers", ["ticket_id", "name", "car", "compartment", "card", "board", "alight"], passenger_rows()),
-        "CREATE TABLE scans (\n  scan_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  ticket_id TEXT NOT NULL\n);\n",
+        "CREATE TABLE scans (\n  scan_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  ticket_id TEXT NOT NULL REFERENCES passengers (ticket_id)\n);\n",
         insert("scans", ["scan_id", "time", "ticket_id"], scan_rows()),
         "CREATE TABLE speed (\n  time TEXT PRIMARY KEY,\n  km REAL NOT NULL,\n  kmh INTEGER NOT NULL\n);\n",
         insert("speed", ["time", "km", "kmh"], speed_rows()),
         "CREATE TABLE doors (\n  event_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  car INTEGER NOT NULL,\n"
         "  door TEXT NOT NULL,  -- 'A' left, 'B' right\n  event TEXT NOT NULL  -- 'open' or 'close'\n);\n",
         insert("doors", ["event_id", "time", "car", "door", "event"], door_rows()),
-        "CREATE TABLE taps (\n  tap_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  card TEXT NOT NULL,  -- compartment card, or S-.. for staff\n"
+        "CREATE TABLE taps (\n  tap_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  card TEXT NOT NULL REFERENCES passengers (card),  -- compartment card, or S-.. for staff\n"
         "  car INTEGER NOT NULL,\n  reader TEXT NOT NULL\n);\n",
         insert("taps", ["tap_id", "time", "card", "car", "reader"], tap_rows()),
-        "CREATE TABLE orders (\n  order_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  card TEXT NOT NULL,  -- the tab it went on\n"
+        "CREATE TABLE orders (\n  order_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,\n  card TEXT NOT NULL REFERENCES passengers (card),  -- the tab it went on\n"
         "  item TEXT NOT NULL,\n  price REAL NOT NULL,\n  payer TEXT NOT NULL  -- name on the bank card that paid\n);\n",
         insert("orders", ["order_id", "time", "card", "item", "price", "payer"], order_rows()),
     ]

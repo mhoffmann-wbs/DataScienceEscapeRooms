@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
 import { nodePyodide } from './nodePython';
 import { runPython } from './pythonCore';
-import { runSql } from './sqlCore';
+import { describeSetup, runSql } from './sqlCore';
 
 describe('answers', () => {
   it('normalizes per mode', () => {
@@ -33,7 +33,20 @@ describe('sql runner', () => {
   it('returns the last result and the schema', async () => {
     const SQL = await initSqlJs();
     const out = runSql(SQL, setup, "SELECT 1; SELECT name FROM guests WHERE room = 404");
-    expect(out).toEqual({ ok: true, result: { columns: ['name'], rows: [['Ada']] }, tables: [{ name: 'guests', columns: ['id', 'name', 'room'] }] });
+    expect(out).toEqual({ ok: true, result: { columns: ['name'], rows: [['Ada']] }, tables: [{ name: 'guests', columns: ['id', 'name', 'room'], types: ['INTEGER', 'TEXT', 'INTEGER'], pk: [], refs: [] }] });
+  });
+
+  it('describes primary keys and declared foreign keys', async () => {
+    const SQL = await initSqlJs();
+    const tables = describeSetup(
+      SQL,
+      `CREATE TABLE rooms (floor INTEGER, nr INTEGER, PRIMARY KEY (floor, nr));
+       CREATE TABLE guests (id INTEGER PRIMARY KEY, room INTEGER REFERENCES rooms, card TEXT REFERENCES cards (code));`,
+    );
+    expect(tables.map((t) => [t.name, t.pk, t.refs])).toEqual([
+      ['guests', ['id'], [{ from: 'card', table: 'cards', to: 'code' }, { from: 'room', table: 'rooms', to: '' }]],
+      ['rooms', ['floor', 'nr'], []],
+    ]);
   });
 
   it('isolates runs: a DROP does not leak into the next run', async () => {

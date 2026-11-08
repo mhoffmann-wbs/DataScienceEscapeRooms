@@ -665,6 +665,78 @@ code {
   font-size: 0.9rem;
 }
 
+.schema-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.schema-head button {
+  padding: 2px 10px;
+}
+
+.schema-diagram {
+  overflow-x: auto;
+}
+
+.schema-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+}
+
+.schema-box {
+  fill: #1f2433;
+  stroke: #3d465e;
+}
+
+.schema-table.focus .schema-box {
+  stroke: var(--accent);
+}
+
+.schema-rule {
+  stroke: #3d465e;
+}
+
+.schema-name {
+  fill: var(--accent);
+  font-weight: 700;
+}
+
+.schema-col {
+  fill: var(--text);
+}
+
+.schema-col.fk {
+  fill: #93c5fd;
+}
+
+.schema-mark {
+  font-size: 11px;
+  fill: #93c5fd;
+}
+
+.schema-link {
+  fill: none;
+  stroke: #93c5fd;
+  stroke-width: 1.5;
+  opacity: 0.7;
+}
+
+.schema-link.focus {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  opacity: 1;
+}
+
+.schema-arrowhead {
+  fill: #93c5fd;
+}
+
 .lock-icon {
   font-size: 2rem;
   margin: 0;

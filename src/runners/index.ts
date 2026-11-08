@@ -1,4 +1,4 @@
-import type { PythonOutcome, SqlOutcome, WorkerRequest, WorkerResponse } from './protocol';
+import type { PythonOutcome, SqlOutcome, SqlTableInfo, WorkerRequest, WorkerResponse } from './protocol';
 
 type Request = WorkerRequest extends infer R ? (R extends { id: number } ? Omit<R, 'id'> : never) : never;
 
@@ -94,5 +94,5 @@ export const runners = {
   warmUp: (kind: 'python' | 'sql', packages: readonly string[] = []) => (kind === 'python' ? python.warmUp(packages) : sql.warmUp()),
   python: (code: string, setup: string, checkExpr?: string) => python.request<PythonOutcome>({ type: 'python', code, setup, checkExpr }),
   sql: (setup: string, query: string) => sql.request<SqlOutcome>({ type: 'sql', setup, query }),
-  sqlSchema: (setup: string) => sql.request<{ name: string; columns: string[] }[]>({ type: 'sql-schema', setup }),
+  sqlSchema: (setup: string) => sql.request<SqlTableInfo[]>({ type: 'sql-schema', setup }),
 };

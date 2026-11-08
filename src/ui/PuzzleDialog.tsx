@@ -5,7 +5,7 @@ import { canonicalRows, hashAnswer, normalizeAnswer } from '../rooms/answers';
 import { getPuzzle, isUnlocked, loadSetup, loc, ROOMS } from '../rooms';
 import { lockKey, type Puzzle } from '../rooms/manifest';
 import { RUN_TIMEOUT_MS, RunTimeout, runners } from '../runners';
-import type { Plot, SqlTable } from '../runners/protocol';
+import type { Plot, SqlTable, SqlTableInfo } from '../runners/protocol';
 import { Chart } from './Chart';
 import type { CodeShare } from '../net/codeShare';
 import type { Notebook } from '../net/notebook';
@@ -15,6 +15,7 @@ import { foldUnchanged, lineDiff } from './lineDiff';
 import { Modal } from './Modal';
 import { PinButton, plainNote } from './NotesPanel';
 import { RichText } from './RichText';
+import { SchemaDiagram } from './SchemaDiagram';
 import { useEmitterValue } from './useStore';
 
 type Output = { kind: 'text'; text: string; error?: string; plots: Plot[] } | { kind: 'table'; table: SqlTable | null; error?: string } | { kind: 'error'; error: string };
@@ -62,7 +63,8 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
 
   const [code, setCode] = useState(() => loadDraft(roomId, puzzle, lang));
   const [setup, setSetup] = useState<string | null>(hasSetup ? null : '');
-  const [schema, setSchema] = useState<{ name: string; columns: string[] }[]>([]);
+  const [schema, setSchema] = useState<SqlTableInfo[]>([]);
+  const [showSchema, setShowSchema] = useState(false);
   const [runtimeReady, setRuntimeReady] = useState(workspace === null);
   const [output, setOutput] = useState<Output | null>(null);
   const [busy, setBusy] = useState(false);
@@ -241,7 +243,12 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
 
           {workspace === 'sql' && schema.length > 0 && (
             <section aria-label={t('puzzle.tables')}>
-              <h3>{t('puzzle.tables')}</h3>
+              <div className="schema-head">
+                <h3>{t('puzzle.tables')}</h3>
+                <button type="button" onClick={() => setShowSchema(true)}>
+                  {t('puzzle.diagram')}
+                </button>
+              </div>
               <ul className="schema-list">
                 {schema.map((tbl) => (
                   <li key={tbl.name}>
@@ -249,6 +256,11 @@ export function PuzzleDialog({ roomId, puzzle, run, author, notebook, codeShare,
                   </li>
                 ))}
               </ul>
+              {showSchema && (
+                <Modal title={t('puzzle.diagramTitle')} onClose={() => setShowSchema(false)} wide>
+                  <SchemaDiagram tables={schema} />
+                </Modal>
+              )}
             </section>
           )}
         </div>
