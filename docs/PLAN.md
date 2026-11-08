@@ -185,6 +185,32 @@ A new 📊 **Statistics** door, the first in a side wall: the lobby's left wall,
 ### 15. Room handbooks ✅
 Every room has a 📖 handbook on a lectern (tile 77, map object `reference`, manifest `reference`, required): the topics, functions and attributes its puzzles need, each with a short DE/EN explanation and a link to the official documentation (Python, SQLite, pandas, numpy, SciPy, statsmodels). Only what the room needs, at its level: the time series rooms don't re-explain pandas basics. "Festival Season" documents its Prophet-style model itself, since the real Prophet docs describe a different library; one entry links the real docs for background. The walkthroughs list the entries, and the help page mentions the handbook.
 
+### 16. Documentation room "The Silent Archive" (planned)
+`python-docs`, advanced, behind the 🐍 door (listed there as "Coming soon"). It practises finding things in the official Python documentation: the puzzles need facts that are in the docs and nowhere in the room. Clues only say **where** to look ("the sorting HOWTO, the part about stability"), never what is there. Standard library only, no packages.
+
+**Story:** Kleeberg's city library, after closing. Margarete Holm, the archivist, retired last week and left the archive's scripts half-finished. During the team's evening tour the fire-safety system seals the archive. Her rule, framed above her desk: "I never write down what the documentation already says." Her notes only point into the docs.
+
+**Docs version:** every link and fact is pinned to `https://docs.python.org/3.14/`, the Python that Pyodide 0.29 runs (3.14.2), so what the docs say is what the code does. When Pyodide moves to a new Python, re-check the facts and move the pin.
+
+**Stations** (facts checked on the 3.14 pages and in Python 3.14):
+1. **Returns cart** (a HOWTO; open): sort the returned books by shelf, and by title within a shelf. Clue: a sticky note "Sort twice, the sorting HOWTO says so. But which pass first?" The HOWTO's section on stability says sorts are guaranteed stable and shows sorting on several keys in several passes, secondary key first. Check: the sorted list (`python`).
+2. **Packing table** (find a function from a description; open): pack the book ids into boxes of n (n on the box label clue). Margarete's note: "itertools has a tool for this; I never write that loop." That is `itertools.batched(iterable, n)`, whose last batch may be shorter (`strict=True` raises instead). Check: the number of boxes and the last box (`python`). Its reveal gives a digit.
+3. **Late fees ledger** (notes and warnings; open): the ledger's total is a few cents off because the script uses `round()`. The note under `round()` says `round(2.675, 2)` gives `2.67` and explains why (floats). The library's fee rules clue says half a cent rounds up, so the fix is `decimal.Decimal` with `quantize(..., rounding=ROUND_HALF_UP)`, found by following the docs from that note to the `decimal` page. Fees must be built from strings, not floats. Check: the total as a string (`python`). Reveal: a digit.
+4. **The old terminal** (version notes; open): the reading-room terminal runs Python 3.8. Margarete's script list uses `str.removeprefix`, `itertools.pairwise`, `itertools.batched` and `math.dist`. Which ones break there? The "Added in version" notes say 3.9, 3.10, 3.12 and 3.8. The terminal's admin code is the minor versions of the ones that fail, in script order: `91012` (`answer`). Its reveal is the PIN of the date-stamp machine.
+5. **Date-stamp machine** (a format-code table; lock: the PIN from 4): stamp the returns with ISO week stamps like `2026-W45-3`. The `strftime` format-code table has `%G`, `%V` and `%u`, and a note that `%G` belongs with `%V`, not `%Y`. The data include dates between December 29 and January 3, where `%Y-W%V` gives the wrong year. Check: the stamps (`python`). Reveal: a digit.
+6. **Archive door** (final): the digits from 2, 3 and 5 plus one from 1, in the order on the catalogue card clue.
+
+**Handbook:** this room's handbook doesn't list functions, since that would give the room away. It is "How to read the Python docs", with links to the landmarks: the Library Reference, the module index, the general index, the search page, the Glossary, the HOWTOs, how to read a signature (defaults, `*` and `/`), "Added / Changed / Deprecated in version" notes, note and warning boxes, tables, and examples and recipes.
+
+**Rules for this room:**
+- Prefer `python` checks, so Python's behaviour decides, not the wording of the docs. Use typed answers only for facts that never change, such as "Added in version".
+- Each task must need the doc fact: the data contain the case that breaks the obvious guess (a half cent, a year boundary, a short last box).
+- Hints go from a narrower location (section name) to a quote from the docs, to nearly the solution.
+- Optional tool: `npm run check-doc-facts`, which fetches the pinned pages and checks that each quoted fact is still there. It needs the network, so it is not part of CI.
+- No engine changes needed: clues name pages, and the handbook links get the team into the docs.
+
+**Open:** playtest whether 30 minutes is enough when nobody knows the docs. Station 3 may need its hint 1 to name the `decimal` module. A later pandas docs room would fit behind the 🐍 door too.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
@@ -205,6 +231,5 @@ Add new ideas here before they move into a step.
 - **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.
 - **Scoreboard export:** let the instructor export and import the scoreboard as JSON from the panel, as a backup that doesn't depend on returning browsers.
 - **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
-- **Documentation room:** a room that tests reading documentation. The values a puzzle needs are buried in the official docs (a default parameter, a version note, an example's output), and the room only says where to start looking ("the pandas page for `merge`, the section about suffixes"). Needs a way to check answers that doesn't depend on the docs changing: pin the docs version in the links (e.g. pandas `version/2.2/`, `docs.python.org/3.12/`) and pick facts that are stable.
 - **Handbook from the HUD:** once a team has found the handbook, a 📖 button in the room HUD could reopen it from anywhere, so nobody has to walk back to the lectern mid-puzzle.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.

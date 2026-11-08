@@ -4,7 +4,7 @@ import { DOORS, scenariosAt } from './doors';
 
 describe('scenariosAt', () => {
   it('lists Quarantine before Market Day at the Python door', () => {
-    expect(scenariosAt('python').map((s) => s.roomId)).toEqual(['python-lab', 'pandas-market']);
+    expect(scenariosAt('python').flatMap((s) => (s.roomId ? [s.roomId] : []))).toEqual(['python-lab', 'pandas-market']);
   });
 
   it('only orders rooms that exist at that door', () => {
