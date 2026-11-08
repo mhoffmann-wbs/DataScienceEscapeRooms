@@ -259,6 +259,30 @@ Behind the 🗄️ door, between The Blue Index and Night Train: `HAVING`, condi
 
 **Open:** playtest the time budget; the data file is 380 KB (6,000 tickets), larger than the other SQL rooms, so check that runs stay quick on slow laptops.
 
+### 20. Neural network rooms (planned)
+A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring the statistics door: at (30, 4), `facing: left`, tile 55; its rooms have their exit in the left wall. Two rooms on image classification: first a dense network, then a convolutional one (listed as `upcoming` until built).
+
+**TensorFlow:** the course teaches TensorFlow, which can't run in the browser: Pyodide ships no TensorFlow (nor Keras or PyTorch) and TensorFlow has no WebAssembly build. Decided: as with Prophet, a small module named `tensorflow` with TensorFlow's API names, written with numpy only, so students type the code from the course (`import tensorflow as tf`, `tf.keras.Sequential`, `from tensorflow.keras import layers`). Rooms call it "a TensorFlow-style model". Unlike Prophet, the maths can match the real library (Glorot init, ReLU/softmax, cross-entropy, SGD/Adam with Keras defaults); only the exact numbers differ. Scope in [docs/tensorflow-lite.md](tensorflow-lite.md). Measured in Pyodide (Node), plain-numpy training: 2000 images of 16×16, 256→64→10, 10 epochs in 0.36 s; 5000 of 28×28, 784→128→10, 5 epochs in 2.7 s. Budget per run: 16×16 images, at most about 3000 training images and 20 epochs.
+
+**Infrastructure:**
+- `content/python/tensorflow.py`, registering `tensorflow.keras`, `tensorflow.keras.layers` etc. in `sys.modules` itself (no engine change), with tests: gradients against finite differences, Adam steps against the formula, a toy problem that converges.
+- `show_images(images, labels=, cols=)`: a grid of greyscale images in the output panel.
+- The door, its sign and an exit in the left wall of the room maps.
+
+**Checks:** training results differ slightly between CPython and Pyodide, so exact answers only come from deterministic steps (forward passes with given weights, parameter counts, a recorded training log); anything trained is checked by a grader with a threshold, or by predictions on clearly drawn images.
+
+**NN1 "The Night Post"** (`nn-post`, elementary/intermediate; draft). A train station's postal sorting office at night; a power cut wiped "Iris", the machine that reads handwritten postcodes, and the mail train leaves at 00:40. Data: 16×16 greyscale handwritten digits drawn as jittered strokes by `generate_data.py` (no MNIST licence, small files).
+1. **Scanner tray** (open): a flat pixel stream of 4 envelopes; `reshape`, scaling 0–255 to 0–1, `show_images`; the digits are a reveal for the final.
+2. **Iris's old wiring** (open): weights of the old 256→16→10 net; the forward pass by hand (`x @ W + b`, ReLU, softmax, `argmax`); exact answer.
+3. **Blueprint** (open; clue on the wall): build the new architecture with `Sequential`, `Input`, `Flatten`, `Dense`; `summary()`, parameters = in·out + out; the count opens a lock.
+4. **The apprentice's script** (uses 1): a training script with three bugs: no scaling (training stalls), ReLU on the output layer, `categorical_crossentropy` with integer labels; grader: accuracy ≥ 0.9.
+5. **Training logbook** (open): a recorded `history` of 200 epochs on 300 images; overfitting, train vs val loss with `show_plot`, `validation_split`, `EarlyStopping(patience, restore_best_weights)`; answer from the fixed log.
+6. **Midnight sort** (final; uses 1, 3, 4, 5): fit, `evaluate`, `predict`, the most-confused digit pair; the bins of the 6 urgent letters form the mail-car code.
+
+Debrief lead-in to NN2: a few test envelopes shifted by 3 pixels fool the dense net, which motivates convolutions.
+
+**NN2** (convolutional; not designed yet): adds `Conv2D` and `MaxPooling2D` (im2col) to the module.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.
