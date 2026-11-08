@@ -71,10 +71,13 @@ describe('python runner', () => {
     expect(await runPython(py, 'from helpers import unshift')).toMatchObject({ ok: false, error: expect.stringContaining('ImportError') });
   });
 
-  it('shows only the student-facing traceback and blocks input()', async () => {
+  it('shows only the student-facing traceback, with source lines, and blocks input()', async () => {
     const out = await runPython(py, 'x = 1\nx = x + "a"');
     expect(out).toMatchObject({ ok: false, error: expect.stringMatching(/^Traceback[\s\S]*line 2[\s\S]*TypeError/) });
     expect(out.ok || out.error).not.toContain('_pyodide');
+    expect(out.ok || out.error).toContain('x = x + "a"');
+    const syntax = await runPython(py, 'vals = [1, 2,\ny = 2');
+    expect(syntax).toMatchObject({ ok: false, error: expect.stringMatching(/^Traceback[\s\S]*line 1\n {4}vals = \[1, 2,[\s\S]*SyntaxError/) });
     expect(await runPython(py, 'input()')).toMatchObject({ ok: false, error: expect.stringContaining('input() is not available') });
   });
 });

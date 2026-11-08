@@ -174,6 +174,9 @@ del __sys, __types, __module
     .join('');
 }
 
+/** File name the student's code runs under. A real name (not `<exec>`) makes tracebacks show the failing source line. */
+const STUDENT_FILE = 'script.py';
+
 /**
  * Runs `setup` then the student's `code` in a fresh namespace and, if given, evaluates
  * `checkExpr` there, returning it as canonical JSON (sorted keys) for answer hashing.
@@ -190,7 +193,7 @@ export async function runPython(py: PyodideAPI, code: string, setup = '', checkE
     py.runPython(PRELUDE, { globals: ns });
     if (setup) py.runPython(setup, { globals: ns });
     py.runPython(HELPERS, { globals: ns });
-    await py.runPythonAsync(code, { globals: ns });
+    await py.runPythonAsync(code, { globals: ns, filename: STUDENT_FILE });
     let check: string | null = null;
     if (checkExpr) {
       ns.set('__check_expr__', checkExpr);
@@ -217,9 +220,9 @@ function trim(s: string): string {
   return s.length >= MAX_OUTPUT ? s.slice(0, MAX_OUTPUT) + '\n… (output truncated)' : s.replace(/\n$/, '');
 }
 
-/** Drops Pyodide's internal frames so students see only their own code's error. */
+/** Drops Pyodide's internal frames so students see only their own code's error (or a data file's, which run as `<exec>`). */
 function cleanTraceback(message: string): string {
   const lines = message.split('\n');
-  const firstUser = lines.findIndex((l) => l.includes('File "<exec>"'));
+  const firstUser = lines.findIndex((l) => l.includes(`File "${STUDENT_FILE}"`) || l.includes('File "<exec>"'));
   return firstUser > 0 ? ['Traceback (most recent call last):', ...lines.slice(firstUser)].join('\n') : message;
 }
