@@ -58,7 +58,18 @@ function PixelCanvas({ image, plot, label, onHover }: { image: ImagePlot['images
     const row = Math.floor(((e.clientY - box.top) / box.height) * image.height);
     onHover(col >= 0 && col < image.width && row >= 0 && row < image.height ? row * image.width + col : null);
   };
-  return <canvas ref={ref} width={image.width} height={image.height} role="img" aria-label={label} onMouseMove={onMove} onMouseLeave={() => onHover(null)} />;
+  return (
+    <canvas
+      ref={ref}
+      width={image.width}
+      height={image.height}
+      style={{ aspectRatio: `${image.width} / ${image.height}` }}
+      role="img"
+      aria-label={label}
+      onMouseMove={onMove}
+      onMouseLeave={() => onHover(null)}
+    />
+  );
 }
 
 function ImageGrid({ plot }: { plot: ImagePlot }) {

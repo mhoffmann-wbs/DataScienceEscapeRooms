@@ -69,7 +69,7 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
       const solution = solutionsFor(roomId)![puzzle.id];
       expect(solution, `no reference solution for ${puzzle.id}`).toBeDefined();
       expect(await solutionHash(manifest, puzzle, solution!, engines)).toBe(puzzle.check.hash);
-    });
+    }, 30_000);
 
     it('has an up-to-date walkthrough (run `npm run walkthrough` to regenerate)', async () => {
       const solved: Record<string, SolvedPuzzle> = {};
@@ -78,6 +78,6 @@ describe.each(ROOM_IDS)('room %s', (roomId) => {
         solved[p.id] = { solution, result: await canonicalSolution(p, solution, engines), lock: lockCode(p, solutionsFor(roomId)!) };
       }
       for (const lang of LANGUAGES) expect(walkthroughs[`../../${walkthroughPath(roomId, lang)}`]).toBe(renderWalkthrough(roomId, manifest, lang, solved));
-    });
+    }, 60_000); // runs every solution of the room; the neural network rooms train models in theirs
   });
 });

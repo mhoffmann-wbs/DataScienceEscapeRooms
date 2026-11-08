@@ -1768,6 +1768,112 @@ drawTile(104, (g, { obj }) => {
   });
 });
 
+// --- Station post office at night (nn-post) --------------------------------------
+const NEURAL_FRAME = [40, 132, 104];
+const NEURAL_GLOW = [176, 255, 214];
+// 105 door in a left wall: neural networks (green), 106 the same door in a right wall
+drawTile(105, (g) => sideDoor(g, NEURAL_FRAME, NEURAL_GLOW));
+drawTile(106, (g) => {
+  const leaf = canvas(T, T);
+  sideDoor(leaf, NEURAL_FRAME, NEURAL_GLOW);
+  g.paste(leaf, 0, 0, true);
+});
+const POST_YELLOW = [242, 196, 48];
+const ENVELOPE = [246, 240, 224];
+/** A small envelope with a flap line and a stamp. */
+function envelope(o, x, y, w = 7, h = 5) {
+  o.box(x, y, w, h, ENVELOPE, 1, 0.85);
+  o.set(x + 1, y + 1, [190, 184, 170]);
+  o.set(x + w - 2, y + 1, [190, 184, 170]);
+  o.rect(x + 2, y + 2, w - 4, 1, [200, 194, 180]);
+  o.set(x + w - 2, y + h - 2, [200, 60, 56]);
+}
+// 107 Iris, the letter reader: a grey-green cabinet with a round lens, a screen and a belt of letters
+drawTile(107, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    const body = [104, 128, 118];
+    o.box(2, 2, 28, 22, body, 1.2);
+    o.rect(2, 2, 28, 3, POST_YELLOW);
+    o.rect(2, 4, 28, 1, sh(POST_YELLOW, 0.8));
+    o.ellipse(10, 13, 5, 5, [44, 48, 56]);
+    o.ellipse(10, 13, 3.5, 3.5, [60, 150, 200]);
+    o.ellipse(10, 13, 1.5, 1.5, [20, 30, 50]);
+    o.set(9, 11, [220, 240, 255]);
+    o.box(17, 8, 10, 7, [30, 40, 36], 1.4);
+    for (let i = 0; i < 3; i++) o.rect(19 + i * 3, 11, 2, 2, SCREEN);
+    o.rect(18, 17, 9, 2, [44, 48, 56]);
+    o.box(0, 24, T, 5, [70, 74, 84], 1.3);
+    for (let x = 2; x < T; x += 4) o.set(x, 26, [40, 42, 48]);
+    envelope(o, 3, 21, 8, 4);
+    envelope(o, 20, 21, 8, 4);
+  });
+});
+// 108 pigeonhole rack: wooden sorting shelves on the wall, some holes holding letters
+drawTile(108, (g, { obj }) => {
+  wallFront(g, 108);
+  obj((o) => {
+    o.box(2, 2, 28, 24, WOOD, 1.2);
+    const r = rng(108);
+    for (let j = 0; j < 3; j++)
+      for (let i = 0; i < 4; i++) {
+        const x = 4 + i * 6.5;
+        const y = 4 + j * 7;
+        o.rect(Math.round(x), y, 5, 6, [60, 40, 26]);
+        if (r() < 0.6) o.rect(Math.round(x), y + 2, 5, 4, r() < 0.3 ? [214, 196, 150] : ENVELOPE);
+      }
+  });
+});
+// 109 envelope scanner on a desk: a flat grey scanner with a red scan line and a letter going in
+drawTile(109, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    deskBase(o);
+    o.box(3, 6, 26, 8, [176, 182, 192], 1.15);
+    o.rect(5, 8, 22, 3, [40, 44, 52]);
+    o.rect(5, 9, 22, 1, [240, 60, 60]);
+    o.rect(5, 10, 22, 1, alpha([240, 60, 60], 100));
+    envelope(o, 12, 2, 9, 6);
+    o.rect(24, 12, 3, 1, SCREEN);
+  });
+});
+// 110 blueprint on the wall: a blue sheet with a network of circles and lines
+drawTile(110, (g, { obj }) => {
+  wallFront(g, 110);
+  obj((o) => {
+    const blue = [44, 86, 160];
+    o.box(3, 2, 26, 22, blue, 1.15);
+    const ink = [214, 230, 250];
+    const cols = [[7, [6, 10, 14, 18]], [16, [8, 13, 18]], [25, [10, 16]]];
+    for (let c = 0; c < cols.length - 1; c++)
+      for (const y1 of cols[c][1])
+        for (const y2 of cols[c + 1][1]) {
+          const [x1, x2] = [cols[c][0], cols[c + 1][0]];
+          for (let x = x1; x <= x2; x++) o.set(x, Math.round(y1 + ((y2 - y1) * (x - x1)) / (x2 - x1)), alpha(ink, 90));
+        }
+    for (const [x, ys] of cols) for (const y of ys) o.ellipse(x, y, 1.6, 1.6, ink);
+    o.rect(5, 21, 10, 1, ink);
+    o.rect(3, 2, 26, 1, [250, 250, 250]);
+  });
+});
+// 111 departure board: a black board with yellow lines of departures and a small clock
+drawTile(111, (g, { obj }) => {
+  wallFront(g, 111);
+  obj((o) => {
+    o.box(2, 4, 28, 18, [30, 32, 38], 1.3);
+    o.rect(2, 4, 28, 3, [60, 64, 74]);
+    for (let j = 0; j < 4; j++) {
+      const y = 9 + j * 3;
+      o.rect(4, y, 5, 1, j === 0 ? [255, 214, 80] : [214, 176, 70]);
+      o.rect(11, y, 12 - ((j * 5) % 7), 1, j === 0 ? [255, 214, 80] : [214, 176, 70]);
+      o.rect(25, y, 3, 1, [214, 176, 70]);
+    }
+    o.ellipse(16, 3, 3, 3, [240, 240, 236]);
+    o.rect(16, 1, 1, 2, [30, 32, 38]);
+    o.rect(16, 3, 2, 1, [30, 32, 38]);
+  });
+});
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:

@@ -11,6 +11,10 @@ describe('scenariosAt', () => {
     expect(scenariosAt('sql').map((s) => s.roomId)).toEqual(['sql-hotel', 'sql-cinema', 'sql-train']);
   });
 
+  it('lists The Night Post at the neural networks door, before the convolutional room that is still to come', () => {
+    expect(scenariosAt('neural').map((s) => s.roomId ?? s.title.en)).toEqual(['nn-post', 'Convolutional networks']);
+  });
+
   it('only orders rooms that exist at that door', () => {
     for (const door of DOORS) for (const id of door.order) expect(ROOMS[id]?.category).toBe(door.id);
   });

@@ -493,12 +493,14 @@ def _check_same_shape(y, p):
 def _normalised_probs(p):
     """Keras divides probabilities by their sum and clips them to [eps, 1 - eps] before taking the log."""
     s = p.sum(axis=-1, keepdims=True)
-    q = p / s
+    with np.errstate(divide="ignore", invalid="ignore"):
+        q = p / s
     return s, q, np.clip(q, _EPSILON, 1 - _EPSILON), (q > _EPSILON) & (q < 1 - _EPSILON)
 
 
 def _through_normalisation(gq, q, s):
-    return (gq - (gq * q).sum(axis=-1, keepdims=True)) / s
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return (gq - (gq * q).sum(axis=-1, keepdims=True)) / s
 
 
 class Loss:

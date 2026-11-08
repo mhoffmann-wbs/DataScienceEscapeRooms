@@ -1,0 +1,684 @@
+{
+  "version": 1,
+  "salt": "ee69debd43ff9724",
+  "title": {
+    "en": "The Night Post",
+    "de": "Die Nachtpost"
+  },
+  "category": "neural",
+  "difficulty": "intermediate",
+  "about": {
+    "tools": [
+      "Python",
+      "NumPy",
+      "Keras (TensorFlow-style)"
+    ],
+    "practises": {
+      "en": "Images as arrays, what a dense layer computes (matrix product, ReLU, softmax), building, compiling and training a Keras model, the loss for class labels, scaling inputs, overfitting and early stopping.",
+      "de": "Bilder als Arrays, was eine Dense-Schicht berechnet (Matrixprodukt, ReLU, Softmax), ein Keras-Modell bauen, kompilieren und trainieren, der Loss für Klassenlabels, Eingaben skalieren, Overfitting und Early Stopping."
+    },
+    "story": {
+      "en": "A power cut wiped the station post office's letter reader. Teach her to read handwritten digits again before the night mail train leaves.",
+      "de": "Ein Stromausfall hat den Briefleser des Bahnhofspostamts gelöscht. Bringt ihm wieder bei, handgeschriebene Ziffern zu lesen, bevor der Nachtpostzug abfährt."
+    }
+  },
+  "intro": {
+    "en": "Kleeberg station post office, Friday night, ten past eleven. A power cut has wiped Iris, the machine that reads the handwritten postcodes on letters, and the night mail train leaves at 00:40. Ferdinand Kowalski, who built Iris, is on holiday; his apprentice Jonas tried to retrain her and gave up.\n\nRebuild Iris's network, train it on her archive of digit cards, and sort the urgent letters before the train leaves. Python here runs a TensorFlow-style model: a small library with TensorFlow's names (`import tensorflow as tf`), written for this room because the real TensorFlow can't run in a browser. The first puzzle you open takes a little while to load.",
+    "de": "Bahnhofspostamt Kleeberg, Freitagnacht, zehn nach elf. Ein Stromausfall hat Iris gelöscht, die Maschine, die die handgeschriebenen Postleitzahlen auf Briefen liest, und der Nachtpostzug fährt um 00:40 ab. Ferdinand Kowalski, der Iris gebaut hat, ist im Urlaub; sein Azubi Jonas hat versucht, sie neu anzulernen, und aufgegeben.\n\nBaut Iris' Netz neu auf, trainiert es mit ihrem Archiv aus Ziffernkarten und sortiert die Eilbriefe, bevor der Zug abfährt. Python läuft hier mit einem TensorFlow-artigen Modell: einer kleinen Bibliothek mit den Namen von TensorFlow (`import tensorflow as tf`), für diesen Raum geschrieben, weil das echte TensorFlow nicht im Browser läuft. Das erste Rätsel, das ihr öffnet, braucht einen Moment zum Laden."
+  },
+  "packages": [
+    "numpy"
+  ],
+  "modules": [
+    "tensorflow"
+  ],
+  "puzzles": [
+    {
+      "id": "scanner",
+      "title": {
+        "en": "The envelope scanner",
+        "de": "Der Umschlagscanner"
+      },
+      "text": {
+        "en": "Before anything else, Iris has to see. The scanner by the door still works: a test envelope lies in it, and its output is loaded as `stream`, one long row of numbers.\n\n1. Turn `stream` into the five digit images of the postcode: `digits`, with the shape `(5, 16, 16)`. The scanner's manual says how it reads an envelope.\n2. Iris wants every pixel the way her type plate says. Convert `digits` to that.\n3. Look at the digits with `show_images` and store the postcode as `postcode`, a string such as `\"12345\"`.",
+        "de": "Zuerst muss Iris sehen können. Der Scanner an der Tür funktioniert noch: Ein Testumschlag liegt darin, und seine Ausgabe ist als `stream` geladen, eine lange Reihe von Zahlen.\n\n1. Macht aus `stream` die fünf Ziffernbilder der Postleitzahl: `digits`, mit der Form `(5, 16, 16)`. Das Handbuch des Scanners sagt, wie er einen Umschlag liest.\n2. Iris will jedes Pixel so, wie ihr Typenschild es sagt. Rechnet `digits` darauf um.\n3. Schaut euch die Ziffern mit `show_images` an und speichert die Postleitzahl als `postcode`, als Text wie `\"12345\"`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nfrom helpers import show_images\n\nprint(stream.shape, stream.min(), stream.max())\n\ndigits = None     # shape (5, 16, 16), in Iris's format\npostcode = None   # e.g. \"12345\"\n\n# show_images(digits, labels=[1, 2, 3, 4, 5])\n",
+        "de": "import numpy as np\nfrom helpers import show_images\n\nprint(stream.shape, stream.min(), stream.max())\n\ndigits = None     # Form (5, 16, 16), in Iris' Format\npostcode = None   # z. B. \"12345\"\n\n# show_images(digits, labels=[1, 2, 3, 4, 5])\n"
+      },
+      "data": "scanner.py",
+      "check": {
+        "type": "python",
+        "expr": "_scanner_check(digits, postcode)",
+        "hash": "8e97cad0d2d86c7fb25d3dbfe39e1d592165369f7e3c755f2855f6e0aedf5ea8"
+      },
+      "reveal": {
+        "en": "The test envelope goes to **35781**, Kleeberg itself. Now you can read Ferdinand's sticker on the scanner too: \"Scanner: 0 = ink, 255 = paper. Iris: ink 1.0, paper 0.0. Convert everything that comes out of here before Iris sees it!\"",
+        "de": "Der Testumschlag geht an **35781**, Kleeberg selbst. Jetzt könnt ihr auch Ferdinands Aufkleber auf dem Scanner lesen: „Scanner: 0 = Tinte, 255 = Papier. Iris: Tinte 1.0, Papier 0.0. Alles, was hier herauskommt, umrechnen, bevor Iris es sieht!“"
+      },
+      "practises": {
+        "en": "NumPy arrays as images: shapes, reshaping in the right order, splitting and stacking, scaling and inverting pixel values",
+        "de": "NumPy-Arrays als Bilder: Formen, Umformen in der richtigen Reihenfolge, Teilen und Stapeln, Pixelwerte skalieren und umkehren"
+      },
+      "clues": [
+        "scanner-manual",
+        "iris-plate"
+      ],
+      "hints": [
+        {
+          "en": "`stream.reshape(5, 16, 16)` gives stripes, not digits: the scanner doesn't store one digit after the other. Reshape it to what it really reads first, and look at that with `show_images`.",
+          "de": "`stream.reshape(5, 16, 16)` ergibt Streifen, keine Ziffern: Der Scanner speichert nicht eine Ziffer nach der anderen. Formt es zuerst so um, wie er wirklich liest, und schaut euch das mit `show_images` an."
+        },
+        {
+          "en": "The scanner reads 16 lines of 80 pixels: `strip = stream.reshape(16, 80)`. `np.hsplit(strip, 5)` cuts it into five 16 × 16 pieces, and `np.stack(...)` makes them one array. The scanner's 0 is black ink; Iris's ink is 1.0.",
+          "de": "Der Scanner liest 16 Zeilen mit 80 Pixeln: `strip = stream.reshape(16, 80)`. `np.hsplit(strip, 5)` schneidet das in fünf Stücke von 16 × 16, und `np.stack(...)` macht daraus ein Array. Die 0 des Scanners ist schwarze Tinte; Iris' Tinte ist 1.0."
+        },
+        {
+          "en": "`digits = 1 - np.stack(np.hsplit(stream.reshape(16, 80), 5)) / 255`. The postcode is `\"35781\"`.",
+          "de": "`digits = 1 - np.stack(np.hsplit(stream.reshape(16, 80), 5)) / 255`. Die Postleitzahl ist `\"35781\"`."
+        }
+      ]
+    },
+    {
+      "id": "wiring",
+      "title": {
+        "en": "Iris's last backup",
+        "de": "Iris' letztes Backup"
+      },
+      "text": {
+        "en": "Ferdinand's old terminal still holds old Iris's network: `W1`, `b1`, `W2`, `b2`, and her six self-test cards, `cards`, already in her format. Every morning she read these cards and printed her reading on a slip.\n\n1. Do by hand, with NumPy, what her network does. Each card as a row of 256 pixels, times `W1`, plus `b1`, then ReLU: `hidden`. Then times `W2`, plus `b2`, then softmax: `probs`, a row of 10 probabilities per card.\n2. Her reading, `reading`: for each card the digit with the highest probability, as one string of six digits.\n3. Rebuild old Iris as a Keras model, `old_iris`, with the same layers. Load her weights with `set_weights` and check that `old_iris.predict(cards)` gives your `probs`.",
+        "de": "Ferdinands altes Terminal enthält noch das Netz der alten Iris: `W1`, `b1`, `W2`, `b2`, und ihre sechs Selbsttestkarten, `cards`, schon in ihrem Format. Jeden Morgen hat sie diese Karten gelesen und ihr Ergebnis auf einen Zettel gedruckt.\n\n1. Rechnet mit NumPy von Hand, was ihr Netz tut. Jede Karte als Zeile aus 256 Pixeln, mal `W1`, plus `b1`, dann ReLU: `hidden`. Dann mal `W2`, plus `b2`, dann Softmax: `probs`, eine Zeile mit 10 Wahrscheinlichkeiten pro Karte.\n2. Ihr Ergebnis, `reading`: für jede Karte die Ziffer mit der höchsten Wahrscheinlichkeit, als ein Text aus sechs Ziffern.\n3. Baut die alte Iris als Keras-Modell nach, `old_iris`, mit denselben Schichten. Ladet ihre Gewichte mit `set_weights` und prüft, dass `old_iris.predict(cards)` eure `probs` ergibt."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\nshow_images(cards, title=\"Self-test cards\")\nprint(W1.shape, b1.shape, W2.shape, b2.shape)\n\nhidden = None    # (6, 16): ReLU(cards as rows @ W1 + b1)\nprobs = None     # (6, 10): softmax(hidden @ W2 + b2)\nreading = None   # e.g. \"123456\"\n\nold_iris = None  # tf.keras.Sequential([...]) with old Iris's layers, then set_weights\n",
+        "de": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\nshow_images(cards, title=\"Selbsttestkarten\")\nprint(W1.shape, b1.shape, W2.shape, b2.shape)\n\nhidden = None    # (6, 16): ReLU(Karten als Zeilen @ W1 + b1)\nprobs = None     # (6, 10): Softmax(hidden @ W2 + b2)\nreading = None   # z. B. \"123456\"\n\nold_iris = None  # tf.keras.Sequential([...]) mit den Schichten der alten Iris, dann set_weights\n"
+      },
+      "data": "wiring.py",
+      "check": {
+        "type": "python",
+        "expr": "_wiring_check(hidden, probs, reading, old_iris)",
+        "hash": "cc8d504d2797848e9f0de250d386f1b0dc357a39af12d221cee076a16979f4b6"
+      },
+      "reveal": {
+        "en": "Old Iris reads **305118**. Look at the fourth card: it's a crossed 7, and she was sure it's a 1. With only 16 hidden neurons she learned too little.\n\nYour hand calculation and Keras agree: a Dense layer is a matrix product, a bias and an activation, nothing more.",
+        "de": "Die alte Iris liest **305118**. Schaut euch die vierte Karte an: Sie ist eine durchgestrichene 7, und Iris war sich sicher, dass es eine 1 ist. Mit nur 16 versteckten Neuronen hat sie zu wenig gelernt.\n\nEure Handrechnung und Keras stimmen überein: Eine Dense-Schicht ist ein Matrixprodukt, ein Bias und eine Aktivierung, mehr nicht."
+      },
+      "practises": {
+        "en": "What a dense layer computes: matrix product, bias, ReLU, softmax; argmax as the prediction; the same network as Keras layers with set_weights",
+        "de": "Was eine Dense-Schicht berechnet: Matrixprodukt, Bias, ReLU, Softmax; argmax als Vorhersage; dasselbe Netz als Keras-Schichten mit set_weights"
+      },
+      "clues": [],
+      "hints": [
+        {
+          "en": "`cards.reshape(6, 256)` puts each card in one row. `@` multiplies matrices, and `np.maximum(x, 0)` is ReLU. Softmax: `np.exp(s)` divided by its sum in each row, `np.exp(s).sum(axis=1, keepdims=True)`.",
+          "de": "`cards.reshape(6, 256)` legt jede Karte in eine Zeile. `@` multipliziert Matrizen, und `np.maximum(x, 0)` ist ReLU. Softmax: `np.exp(s)` geteilt durch seine Summe in jeder Zeile, `np.exp(s).sum(axis=1, keepdims=True)`."
+        },
+        {
+          "en": "`probs.argmax(axis=1)` gives the digit for each card; `\"\".join(...)` makes a string. Old Iris in Keras: `Input(shape=(16, 16))`, `Flatten()`, `Dense(16, activation=\"relu\")`, `Dense(10, activation=\"softmax\")`; then `old_iris.set_weights([W1, b1, W2, b2])`.",
+          "de": "`probs.argmax(axis=1)` gibt die Ziffer für jede Karte; `\"\".join(...)` macht einen Text daraus. Die alte Iris in Keras: `Input(shape=(16, 16))`, `Flatten()`, `Dense(16, activation=\"relu\")`, `Dense(10, activation=\"softmax\")`; dann `old_iris.set_weights([W1, b1, W2, b2])`."
+        },
+        {
+          "en": "`hidden = np.maximum(cards.reshape(6, 256) @ W1 + b1, 0)`, `scores = hidden @ W2 + b2`, `probs = np.exp(scores) / np.exp(scores).sum(axis=1, keepdims=True)`. She reads `\"305118\"`, although the fourth card is a 7.",
+          "de": "`hidden = np.maximum(cards.reshape(6, 256) @ W1 + b1, 0)`, `scores = hidden @ W2 + b2`, `probs = np.exp(scores) / np.exp(scores).sum(axis=1, keepdims=True)`. Sie liest `\"305118\"`, obwohl die vierte Karte eine 7 ist."
+        }
+      ]
+    },
+    {
+      "id": "blueprint",
+      "title": {
+        "en": "The blueprint",
+        "de": "Der Bauplan"
+      },
+      "text": {
+        "en": "Ferdinand pinned three drafts for a new Iris to the wall. Only one of them fits on her memory chip.\n\n1. Build the drafts as Keras models and let Keras count their parameters, with `summary()` or `count_params()`.\n2. Store the draft that fits as `model`.",
+        "de": "Ferdinand hat drei Entwürfe für eine neue Iris an die Wand gepinnt. Nur einer davon passt auf ihren Speicherchip.\n\n1. Baut die Entwürfe als Keras-Modelle und lasst Keras ihre Parameter zählen, mit `summary()` oder `count_params()`.\n2. Speichert den Entwurf, der passt, als `model`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(16, 16)),\n    # ... the layers of a draft\n])\nmodel.summary()\n",
+        "de": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(16, 16)),\n    # ... die Schichten eines Entwurfs\n])\nmodel.summary()\n"
+      },
+      "data": "blueprint.py",
+      "check": {
+        "type": "python",
+        "expr": "_blueprint_check(model)",
+        "hash": "f0930afbb974a52abc2e0c20341d3290992d9a76c79389bb328c980dbede5019"
+      },
+      "reveal": {
+        "en": "Draft C fits: **18,858** parameters, below the chip's 20,000. Its first layer alone has 256 × 64 + 64 = 16,448: in a dense network, most parameters sit where the pixels come in.",
+        "de": "Entwurf C passt: **18.858** Parameter, unter den 20.000 des Chips. Seine erste Schicht allein hat 256 × 64 + 64 = 16.448: In einem dichten Netz sitzen die meisten Parameter dort, wo die Pixel hereinkommen."
+      },
+      "practises": {
+        "en": "Sequential, Input, Flatten, Dense; counting parameters (inputs × neurons + one bias per neuron); summary()",
+        "de": "Sequential, Input, Flatten, Dense; Parameter zählen (Eingaben × Neuronen + ein Bias pro Neuron); summary()"
+      },
+      "clues": [
+        "drafts",
+        "iris-plate"
+      ],
+      "hints": [
+        {
+          "en": "Every draft starts with `layers.Flatten()`, which turns a 16 × 16 card into 256 numbers. A `Dense` layer has one weight per input and neuron, plus one bias per neuron. The type plate says how much the chip holds.",
+          "de": "Jeder Entwurf beginnt mit `layers.Flatten()`, das eine 16 × 16-Karte in 256 Zahlen verwandelt. Eine `Dense`-Schicht hat ein Gewicht pro Eingabe und Neuron, plus einen Bias pro Neuron. Das Typenschild sagt, wie viel der Chip fasst."
+        },
+        {
+          "en": "Draft A has 37,354 parameters and draft B 21,258. The chip holds 20,000.",
+          "de": "Entwurf A hat 37.354 Parameter und Entwurf B 21.258. Der Chip fasst 20.000."
+        },
+        {
+          "en": "Draft C: `tf.keras.Sequential([tf.keras.Input(shape=(16, 16)), layers.Flatten(), layers.Dense(64, activation=\"relu\"), layers.Dense(32, activation=\"relu\"), layers.Dense(10, activation=\"softmax\")])`.",
+          "de": "Entwurf C: `tf.keras.Sequential([tf.keras.Input(shape=(16, 16)), layers.Flatten(), layers.Dense(64, activation=\"relu\"), layers.Dense(32, activation=\"relu\"), layers.Dense(10, activation=\"softmax\")])`."
+        }
+      ]
+    },
+    {
+      "id": "apprentice",
+      "title": {
+        "en": "Jonas's laptop",
+        "de": "Jonas' Laptop"
+      },
+      "text": {
+        "en": "Jonas's script trains Iris 2 on her archive: `x_train` and `y_train` to learn from, `x_test` and `y_test` to test with. First it crashed, and Jonas gave up.\n\nFind his mistakes. Iris may go back into service when she reads at least 85 % of the test cards.",
+        "de": "Jonas' Skript trainiert Iris 2 mit ihrem Archiv: `x_train` und `y_train` zum Lernen, `x_test` und `y_test` zum Testen. Zuerst ist es abgestürzt, und Jonas hat aufgegeben.\n\nFindet seine Fehler. Iris darf wieder in Betrieb, wenn sie mindestens 85 % der Testkarten richtig liest."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Jonas: Iris 2, draft C. Why doesn't this work?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(16, 16)),\n    layers.Flatten(),\n    layers.Dense(64, activation=\"relu\"),\n    layers.Dense(32, activation=\"relu\"),\n    layers.Dense(10, activation=\"relu\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"categorical_crossentropy\", metrics=[\"accuracy\"])\nhistory = model.fit(x_train, y_train, epochs=10, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n",
+        "de": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Jonas: Iris 2, Entwurf C. Warum geht das nicht?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(16, 16)),\n    layers.Flatten(),\n    layers.Dense(64, activation=\"relu\"),\n    layers.Dense(32, activation=\"relu\"),\n    layers.Dense(10, activation=\"relu\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"categorical_crossentropy\", metrics=[\"accuracy\"])\nhistory = model.fit(x_train, y_train, epochs=10, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n"
+      },
+      "data": "archive.py",
+      "check": {
+        "type": "python",
+        "expr": "_apprentice_check(model)",
+        "hash": "28bb3e012dc415ff9f40add5792a730401918e010fae63275eaedde1de6500a7"
+      },
+      "lock": {
+        "text": {
+          "en": "Jonas's laptop is locked. A sticky note on the lid: \"Password: how many parameters Iris 2 has. (The draft that fits!)\"",
+          "de": "Jonas' Laptop ist gesperrt. Ein Zettel auf dem Deckel: „Passwort: wie viele Parameter Iris 2 hat. (Der Entwurf, der passt!)“"
+        },
+        "from": "blueprint",
+        "mode": "number",
+        "hash": "640c58f2d85ede49a487769f448c2e968cf52a43a8587bd243020c583a3138e1"
+      },
+      "reveal": {
+        "en": "Iris 2 reads about **95 %** of the test cards. Jonas made three mistakes: a loss for one-hot labels with labels that are plain digits, ReLU on the output (all ten outputs can become 0, and the loss `nan`), and pixels from 0 to 255 instead of 0.0 to 1.0, which keeps the network from learning well.",
+        "de": "Iris 2 liest etwa **95 %** der Testkarten richtig. Jonas hat drei Fehler gemacht: einen Loss für One-Hot-Labels bei Labels, die einfache Ziffern sind, ReLU in der Ausgabe (alle zehn Ausgaben können 0 werden, und der Loss `nan`), und Pixel von 0 bis 255 statt 0.0 bis 1.0, womit das Netz schlecht lernt."
+      },
+      "practises": {
+        "en": "compile, fit, evaluate; sparse vs. categorical cross-entropy; a softmax output layer; scaling the inputs; reading Keras errors and training output",
+        "de": "compile, fit, evaluate; sparse vs. categorical Cross-Entropy; eine Softmax-Ausgabeschicht; Eingaben skalieren; Keras-Fehler und Trainingsausgaben lesen"
+      },
+      "clues": [
+        "jonas-note",
+        "archive-label",
+        "iris-plate"
+      ],
+      "hints": [
+        {
+          "en": "Read the error from the bottom: `target.shape=(None, 1), output.shape=(None, 10)`. The labels are single digits, not rows of ten 0s and 1s. Which loss takes labels like that? The handbook compares the two.",
+          "de": "Lest den Fehler von unten: `target.shape=(None, 1), output.shape=(None, 10)`. Die Labels sind einzelne Ziffern, keine Zeilen aus zehn Nullen und Einsen. Welcher Loss nimmt solche Labels? Das Handbuch vergleicht die beiden."
+        },
+        {
+          "en": "When the loss turns into `nan`, look at the last layer: Iris's output must be 10 probabilities that add up to 1. Then compare the archive label (how the cards are stored) with the type plate (what Iris expects).",
+          "de": "Wenn der Loss zu `nan` wird, schaut auf die letzte Schicht: Iris' Ausgabe müssen 10 Wahrscheinlichkeiten sein, die zusammen 1 ergeben. Vergleicht dann das Archivetikett (wie die Karten gespeichert sind) mit dem Typenschild (was Iris erwartet)."
+        },
+        {
+          "en": "`loss=\"sparse_categorical_crossentropy\"`, `activation=\"softmax\"` in the last layer, and `x_train / 255` in `fit` and `x_test / 255` in `evaluate`.",
+          "de": "`loss=\"sparse_categorical_crossentropy\"`, `activation=\"softmax\"` in der letzten Schicht, und `x_train / 255` in `fit` und `x_test / 255` in `evaluate`."
+        }
+      ]
+    },
+    {
+      "id": "logbook",
+      "title": {
+        "en": "Ferdinand's cabinet",
+        "de": "Ferdinands Schrank"
+      },
+      "text": {
+        "en": "Inside the cabinet: Ferdinand's training logbook, `log`, from one long training run of Iris 2. After each of 30 epochs it recorded the loss and accuracy on the training cards and on the validation cards, like `history.history` after `model.fit`.\n\n1. Plot `loss` and `val_loss` with `show_plot`. Where does the network start to learn the training cards by heart?\n2. `best_epoch`: the epoch with the lowest validation loss, counted from 1 as Keras does.\n3. Set up early stopping as Ferdinand's rules say: `stopper`, a `tf.keras.callbacks.EarlyStopping`.\n4. `replay(stopper, log)` runs the logbook through your `stopper` as if the training ran again. At which epoch does it stop (`stop_epoch`), and from which epoch are the weights the model keeps (`kept_epoch`)?",
+        "de": "Im Schrank: Ferdinands Trainingslogbuch, `log`, von einem langen Trainingslauf von Iris 2. Nach jeder der 30 Epochen hat es Loss und Accuracy auf den Trainingskarten und den Validierungskarten festgehalten, wie `history.history` nach `model.fit`.\n\n1. Zeichnet `loss` und `val_loss` mit `show_plot`. Wo fängt das Netz an, die Trainingskarten auswendig zu lernen?\n2. `best_epoch`: die Epoche mit dem niedrigsten Validierungs-Loss, ab 1 gezählt, wie Keras zählt.\n3. Richtet Early Stopping so ein, wie Ferdinands Regeln sagen: `stopper`, ein `tf.keras.callbacks.EarlyStopping`.\n4. `replay(stopper, log)` lässt das Logbuch durch euren `stopper` laufen, als liefe das Training noch einmal. In welcher Epoche hört es auf (`stop_epoch`), und aus welcher Epoche stammen die Gewichte, die das Modell behält (`kept_epoch`)?"
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nimport tensorflow as tf\nfrom helpers import show_plot, replay\n\nprint(log.keys())\nshow_plot(log[\"loss\"], log[\"val_loss\"], labels=[\"loss\", \"val_loss\"], title=\"Ferdinand's training run\")\n\nbest_epoch = None   # counted from 1\nstopper = None      # tf.keras.callbacks.EarlyStopping(...)\nstop_epoch = None\nkept_epoch = None\n\n# print(replay(stopper, log))\n",
+        "de": "import numpy as np\nimport tensorflow as tf\nfrom helpers import show_plot, replay\n\nprint(log.keys())\nshow_plot(log[\"loss\"], log[\"val_loss\"], labels=[\"loss\", \"val_loss\"], title=\"Ferdinands Trainingslauf\")\n\nbest_epoch = None   # ab 1 gezählt\nstopper = None      # tf.keras.callbacks.EarlyStopping(...)\nstop_epoch = None\nkept_epoch = None\n\n# print(replay(stopper, log))\n"
+      },
+      "data": "logbook.py",
+      "check": {
+        "type": "python",
+        "expr": "_logbook_check(best_epoch, stopper, stop_epoch, kept_epoch)",
+        "hash": "a1d110482051a37841df91e08a8bd108fd24a1a6c63162afc3f5c81564cc3944"
+      },
+      "lock": {
+        "text": {
+          "en": "Ferdinand's cabinet has a six-digit combination lock. Engraved on it: \"Iris's self-test reading.\"",
+          "de": "Ferdinands Schrank hat ein sechsstelliges Zahlenschloss. Darauf eingraviert: „Iris' Selbsttest-Ergebnis.“"
+        },
+        "from": "wiring",
+        "mode": "caseless",
+        "hash": "dd7f66ad5b98dfcc2650331f5b78380ba4264cd5632a66f1c22b43286be2e887"
+      },
+      "reveal": {
+        "en": "The best epoch is **17**. After it the network learns the training cards by heart, and the validation loss climbs. With a patience of 3 the training survives the wobble at epochs 9 and 10, stops at epoch **20** and goes back to the weights of epoch 17. With a patience of 1 it would have stopped at epoch 9.",
+        "de": "Die beste Epoche ist **17**. Danach lernt das Netz die Trainingskarten auswendig, und der Validierungs-Loss steigt. Mit einer Geduld von 3 übersteht das Training das Wackeln in den Epochen 9 und 10, hört in Epoche **20** auf und kehrt zu den Gewichten aus Epoche 17 zurück. Mit einer Geduld von 1 hätte es schon in Epoche 9 aufgehört."
+      },
+      "practises": {
+        "en": "Training vs. validation loss, overfitting, the best epoch, EarlyStopping with monitor, patience and restore_best_weights",
+        "de": "Trainings- vs. Validierungs-Loss, Overfitting, die beste Epoche, EarlyStopping mit monitor, patience und restore_best_weights"
+      },
+      "clues": [
+        "ferdinand-note"
+      ],
+      "hints": [
+        {
+          "en": "The training loss keeps falling; the validation loss falls, wobbles, then rises again. `np.argmin(log[\"val_loss\"])` is the position of its lowest value, counted from 0. The x axis of `show_plot` counts from 0 too.",
+          "de": "Der Trainings-Loss fällt immer weiter; der Validierungs-Loss fällt, wackelt und steigt dann wieder. `np.argmin(log[\"val_loss\"])` ist die Position seines niedrigsten Werts, ab 0 gezählt. Auch die x-Achse von `show_plot` zählt ab 0."
+        },
+        {
+          "en": "Ferdinand's rules in Keras: `monitor=\"val_loss\"`, `patience=3`, `restore_best_weights=True`. Then `stop_epoch = replay(stopper, log)`; it also prints which epoch's weights the model keeps.",
+          "de": "Ferdinands Regeln in Keras: `monitor=\"val_loss\"`, `patience=3`, `restore_best_weights=True`. Dann `stop_epoch = replay(stopper, log)`; es gibt auch aus, aus welcher Epoche das Modell die Gewichte behält."
+        },
+        {
+          "en": "`best_epoch = 17`, `stopper = tf.keras.callbacks.EarlyStopping(monitor=\"val_loss\", patience=3, restore_best_weights=True)`, `stop_epoch = 20`, `kept_epoch = 17`.",
+          "de": "`best_epoch = 17`, `stopper = tf.keras.callbacks.EarlyStopping(monitor=\"val_loss\", patience=3, restore_best_weights=True)`, `stop_epoch = 20`, `kept_epoch = 17`."
+        }
+      ]
+    },
+    {
+      "id": "sort",
+      "title": {
+        "en": "Iris",
+        "de": "Iris"
+      },
+      "text": {
+        "en": "Time for the night sort. Six urgent letters wait in Iris's tray, `urgent`: for each letter the one postcode box Iris sorts by, straight from the scanner, one row of 256 values per letter. The departure board says which bin a letter goes into.\n\n1. Build and train Iris 2 on the archive, the way the blueprint, the fixed script and Ferdinand's rules say. She needs at least 90 % on the test cards.\n2. Let her read the urgent letters, and store their bins in order as `bins`, a list of six numbers.",
+        "de": "Zeit für die Nachtsortierung. Sechs Eilbriefe warten in Iris' Fach, `urgent`: für jeden Brief das eine Postleitzahl-Kästchen, nach dem Iris sortiert, direkt vom Scanner, eine Zeile mit 256 Werten pro Brief. Die Abfahrtstafel sagt, in welches Fach ein Brief gehört.\n\n1. Baut und trainiert Iris 2 mit dem Archiv, so wie es der Bauplan, das reparierte Skript und Ferdinands Regeln sagen. Sie braucht mindestens 90 % auf den Testkarten.\n2. Lasst sie die Eilbriefe lesen, und speichert ihre Fächer der Reihe nach als `bins`, eine Liste aus sechs Zahlen."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\ntf.keras.utils.set_random_seed(1)\n\nmodel = None      # Iris 2\n# model.compile(...), model.fit(...), model.evaluate(...)\n\nletters = None    # the urgent letters, ready for Iris\nbins = None       # e.g. [0, 1, 2, 3, 4, 5]\n",
+        "de": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow.keras import layers\nfrom helpers import show_images\n\ntf.keras.utils.set_random_seed(1)\n\nmodel = None      # Iris 2\n# model.compile(...), model.fit(...), model.evaluate(...)\n\nletters = None    # die Eilbriefe, bereit für Iris\nbins = None       # z. B. [0, 1, 2, 3, 4, 5]\n"
+      },
+      "data": "archive.py",
+      "check": {
+        "type": "python",
+        "expr": "_sort_check(model, bins)",
+        "hash": "ebe40908916342d67e8e599d6fa3da6b6ffdc3774530661036768139275d993c"
+      },
+      "lock": {
+        "text": {
+          "en": "Iris's start panel asks for a four-digit start code. Ferdinand's rules say how it is made.",
+          "de": "Iris' Startfeld verlangt einen vierstelligen Startcode. Ferdinands Regeln sagen, wie er sich zusammensetzt."
+        },
+        "from": "logbook",
+        "mode": "caseless",
+        "hash": "eaa5affe489d3a5dd4c603abf669f652f591d1770d77d4ea97b330ad4490947c"
+      },
+      "final": true,
+      "uses": [
+        "scanner",
+        "blueprint",
+        "apprentice",
+        "logbook"
+      ],
+      "reveal": {
+        "en": "Iris's lens glows, the belt starts, and six letters drop into bins **4, 7, 1, 9, 2, 6**. At 00:39 the door of the mail car slides shut.\n\nOne letter comes back the next morning: its sender wrote the digit in the corner of the box, not in the middle, and Iris read it wrong. A dense network learns which pixels light up where; move the digit, and it is lost. Networks that find shapes wherever they are come next: convolutional networks.",
+        "de": "Iris' Linse leuchtet, das Band läuft an, und sechs Briefe fallen in die Fächer **4, 7, 1, 9, 2, 6**. Um 00:39 schließt sich die Tür des Postwagens.\n\nEin Brief kommt am nächsten Morgen zurück: Sein Absender hat die Ziffer in die Ecke des Kästchens geschrieben, nicht in die Mitte, und Iris hat sie falsch gelesen. Ein dichtes Netz lernt, welche Pixel wo aufleuchten; verschiebt man die Ziffer, ist es verloren. Netze, die Formen finden, wo immer sie sind, kommen als Nächstes: Faltungsnetze."
+      },
+      "practises": {
+        "en": "The whole workflow: architecture, scaling, compile, fit with validation and early stopping, evaluate, preparing new data the same way as the training data, predict",
+        "de": "Der ganze Ablauf: Architektur, Skalierung, compile, fit mit Validierung und Early Stopping, evaluate, neue Daten genauso vorbereiten wie die Trainingsdaten, predict"
+      },
+      "clues": [
+        "timetable",
+        "ferdinand-note"
+      ],
+      "hints": [
+        {
+          "en": "Iris 2 is draft C, compiled and scaled as in Jonas's fixed script. Train with `validation_split=0.2` and Ferdinand's `EarlyStopping` in `callbacks=[...]`; `epochs=30` is fine, the stopper ends it in time.",
+          "de": "Iris 2 ist Entwurf C, kompiliert und skaliert wie in Jonas' repariertem Skript. Trainiert mit `validation_split=0.2` und Ferdinands `EarlyStopping` in `callbacks=[...]`; `epochs=30` ist in Ordnung, der Stopper beendet es rechtzeitig."
+        },
+        {
+          "en": "The urgent letters come straight from the scanner, where 0 is ink. Reshape them to `(6, 16, 16)` and convert them as at the scanner; look at them with `show_images`. Then `model.predict(letters).argmax(axis=1)`.",
+          "de": "Die Eilbriefe kommen direkt vom Scanner, wo 0 Tinte ist. Formt sie in `(6, 16, 16)` um und rechnet sie um wie am Scanner; schaut sie mit `show_images` an. Dann `model.predict(letters).argmax(axis=1)`."
+        },
+        {
+          "en": "`letters = 1 - urgent.reshape(6, 16, 16) / 255`. The bins are `[4, 7, 1, 9, 2, 6]`.",
+          "de": "`letters = 1 - urgent.reshape(6, 16, 16) / 255`. Die Fächer sind `[4, 7, 1, 9, 2, 6]`."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "scanner-manual",
+      "title": {
+        "en": "The scanner's manual",
+        "de": "Das Handbuch des Scanners"
+      },
+      "text": {
+        "en": "SCANNY 80 · postcode scanner\n\nReads the postcode strip of an envelope: five boxes of 16 × 16 pixels side by side, so the strip is 16 pixels high and 80 wide.\n\nThe scanner reads the strip like a page of text: line by line from the top, each line from left to right. It puts out one long row of numbers.\n\nBrightness: 0 = black, 255 = white.",
+        "de": "SCANNY 80 · Postleitzahl-Scanner\n\nLiest den Postleitzahl-Streifen eines Umschlags: fünf Kästchen mit 16 × 16 Pixeln nebeneinander, der Streifen ist also 16 Pixel hoch und 80 breit.\n\nDer Scanner liest den Streifen wie eine Textseite: Zeile für Zeile von oben, jede Zeile von links nach rechts. Er gibt eine lange Reihe von Zahlen aus.\n\nHelligkeit: 0 = schwarz, 255 = weiß."
+      }
+    },
+    {
+      "id": "iris-plate",
+      "title": {
+        "en": "Iris's type plate",
+        "de": "Iris' Typenschild"
+      },
+      "text": {
+        "en": "IRIS · automatic letter reader · Kleeberg station post office\n\nInput: one digit box of 16 × 16 pixels. Every pixel is a number from **0.0 (paper)** to **1.0 (ink)**.\n\nOutput: 10 probabilities, one for each digit from 0 to 9. The highest wins.\n\nMemory chip: **20,000 numbers** (weights and biases).",
+        "de": "IRIS · automatischer Briefleser · Bahnhofspostamt Kleeberg\n\nEingabe: ein Ziffernkästchen mit 16 × 16 Pixeln. Jedes Pixel ist eine Zahl von **0.0 (Papier)** bis **1.0 (Tinte)**.\n\nAusgabe: 10 Wahrscheinlichkeiten, eine für jede Ziffer von 0 bis 9. Die höchste gewinnt.\n\nSpeicherchip: **20.000 Zahlen** (Gewichte und Biases)."
+      }
+    },
+    {
+      "id": "drafts",
+      "title": {
+        "en": "Blueprint: Iris 2",
+        "de": "Bauplan: Iris 2"
+      },
+      "text": {
+        "en": "IRIS 2 · drafts · F. Kowalski\n\nEvery draft: input 16 × 16, then Flatten.\n\nDraft A: Dense 128 (ReLU) → Dense 32 (ReLU) → Dense 10 (softmax)\nDraft B: Dense 64 (ReLU) → Dense 64 (ReLU) → Dense 10 (softmax)\nDraft C: Dense 64 (ReLU) → Dense 32 (ReLU) → Dense 10 (softmax)\n\nIn pencil: \"Only one of them fits on the chip.\"",
+        "de": "IRIS 2 · Entwürfe · F. Kowalski\n\nJeder Entwurf: Eingabe 16 × 16, dann Flatten.\n\nEntwurf A: Dense 128 (ReLU) → Dense 32 (ReLU) → Dense 10 (Softmax)\nEntwurf B: Dense 64 (ReLU) → Dense 64 (ReLU) → Dense 10 (Softmax)\nEntwurf C: Dense 64 (ReLU) → Dense 32 (ReLU) → Dense 10 (Softmax)\n\nMit Bleistift: „Nur einer davon passt auf den Chip.“"
+      }
+    },
+    {
+      "id": "jonas-note",
+      "title": {
+        "en": "A note from Jonas",
+        "de": "Ein Zettel von Jonas"
+      },
+      "text": {
+        "en": "Ferdinand, I tried to teach Iris 2 again, but the training crashes! The labels are digits, so categorical crossentropy must be right, no? I've gone home, sorry.\n\nJonas\n\nP.S. The laptop password is the number of parameters of Iris 2.",
+        "de": "Ferdinand, ich habe versucht, Iris 2 neu anzulernen, aber das Training stürzt ab! Die Labels sind Ziffern, also muss categorical crossentropy doch stimmen, oder? Ich bin nach Hause gegangen, sorry.\n\nJonas\n\nPS: Das Laptop-Passwort ist die Zahl der Parameter von Iris 2."
+      }
+    },
+    {
+      "id": "archive-label",
+      "title": {
+        "en": "The label on the archive boxes",
+        "de": "Das Etikett der Archivkisten"
+      },
+      "text": {
+        "en": "IRIS ARCHIVE · digit cards, sorted by hand\n\n3,000 cards to learn from (`x_train`, `y_train`) and 600 to test with (`x_test`, `y_test`).\n\nEvery card is 16 × 16 pixels, stored as bytes: **0 = paper, 255 = ink**. Labels: the digit on the card, 0 to 9.",
+        "de": "IRIS-ARCHIV · Ziffernkarten, von Hand sortiert\n\n3.000 Karten zum Lernen (`x_train`, `y_train`) und 600 zum Testen (`x_test`, `y_test`).\n\nJede Karte hat 16 × 16 Pixel, gespeichert als Bytes: **0 = Papier, 255 = Tinte**. Labels: die Ziffer auf der Karte, 0 bis 9."
+      }
+    },
+    {
+      "id": "ferdinand-note",
+      "title": {
+        "en": "Ferdinand's rules",
+        "de": "Ferdinands Regeln"
+      },
+      "text": {
+        "en": "Rules for training Iris (F. K.)\n\n1. Keep 20 % of the cards aside for validation.\n2. Watch the validation loss, not the training loss.\n3. Be patient: give her 3 epochs to get better before you stop.\n4. Always go back to her best weights.\n\nStart code for Iris: the epoch the training stops at, then the epoch whose weights she keeps.",
+        "de": "Regeln fürs Training von Iris (F. K.)\n\n1. 20 % der Karten für die Validierung beiseitelegen.\n2. Auf den Validierungs-Loss achten, nicht auf den Trainings-Loss.\n3. Geduld: ihr 3 Epochen Zeit geben, besser zu werden, bevor man aufhört.\n4. Immer zu ihren besten Gewichten zurückkehren.\n\nStartcode für Iris: die Epoche, in der das Training aufhört, dann die Epoche, deren Gewichte sie behält."
+      }
+    },
+    {
+      "id": "timetable",
+      "title": {
+        "en": "The departure board",
+        "de": "Die Abfahrtstafel"
+      },
+      "text": {
+        "en": "NIGHT MAIL\n\n00:40 · Post 2871 · Kleeberg → Hamburg · platform 1\n\nUrgent letters: Iris reads the first digit of the postcode (the postal zone, 0 to 9) and drops each letter into the bin with that number.",
+        "de": "NACHTPOST\n\n00:40 · Post 2871 · Kleeberg → Hamburg · Gleis 1\n\nEilbriefe: Iris liest die erste Ziffer der Postleitzahl (die Leitzone, 0 bis 9) und wirft jeden Brief in das Fach mit dieser Nummer."
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "Iris's service manual",
+      "de": "Iris' Wartungshandbuch"
+    },
+    "intro": {
+      "en": "A thick binder on a lectern, Ferdinand's notes on everything Iris is made of, with a link to the official documentation for each entry. Python here runs a TensorFlow-style model: a small library written for this room with TensorFlow's names, because the real TensorFlow can't run in a browser. Code you write here also works with the real TensorFlow.",
+      "de": "Ein dicker Ordner auf einem Lesepult, Ferdinands Notizen zu allem, woraus Iris besteht, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag. Python läuft hier mit einem TensorFlow-artigen Modell: einer kleinen Bibliothek mit den Namen von TensorFlow, für diesen Raum geschrieben, weil das echte TensorFlow nicht im Browser läuft. Code, den ihr hier schreibt, funktioniert auch mit dem echten TensorFlow."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Images as arrays",
+          "de": "Bilder als Arrays"
+        },
+        "entries": [
+          {
+            "name": "a.shape",
+            "text": {
+              "en": "The size of an array along each axis: a stack of 6 images of 16 × 16 pixels has the shape `(6, 16, 16)`.",
+              "de": "Die Größe eines Arrays entlang jeder Achse: Ein Stapel aus 6 Bildern mit 16 × 16 Pixeln hat die Form `(6, 16, 16)`."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.ndarray.shape.html"
+          },
+          {
+            "name": "a.reshape(rows, cols)",
+            "text": {
+              "en": "The same numbers in a new shape. They are read and filled in row by row (the last axis changes fastest), so the new shape has to match how the numbers were written. `-1` lets NumPy work out one size.",
+              "de": "Dieselben Zahlen in neuer Form. Sie werden Zeile für Zeile gelesen und eingefüllt (die letzte Achse ändert sich am schnellsten), also muss die neue Form dazu passen, wie die Zahlen geschrieben wurden. `-1` lässt NumPy eine Größe selbst ausrechnen."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.reshape.html"
+          },
+          {
+            "name": "np.hsplit(a, n)  np.stack(arrays)",
+            "text": {
+              "en": "`np.hsplit` cuts an array into `n` equal pieces from left to right (along the columns); `np.stack` puts a list of equal-sized arrays on top of each other, along a new first axis.",
+              "de": "`np.hsplit` schneidet ein Array von links nach rechts (entlang der Spalten) in `n` gleiche Stücke; `np.stack` legt eine Liste gleich großer Arrays entlang einer neuen ersten Achse aufeinander."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.hsplit.html"
+          },
+          {
+            "name": "1 - a / 255",
+            "text": {
+              "en": "Arithmetic works on every element at once. `a / 255` turns bytes from 0 to 255 into numbers from 0.0 to 1.0; `1 - ...` swaps light and dark.",
+              "de": "Rechnen wirkt auf jedes Element zugleich. `a / 255` macht aus Bytes von 0 bis 255 Zahlen von 0.0 bis 1.0; `1 - ...` tauscht hell und dunkel."
+            },
+            "link": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+          },
+          {
+            "name": "show_images(images, labels=None, title=None)",
+            "text": {
+              "en": "Draws one image (rows × columns) or a stack of them (n × rows × columns) in grey, below your output: by default the smallest value black, the largest white. Hover over a pixel to see its value. `labels=[...]` puts a caption under each image.",
+              "de": "Zeichnet ein Bild (Zeilen × Spalten) oder einen Stapel davon (n × Zeilen × Spalten) in Grau unter eure Ausgabe: normalerweise den kleinsten Wert schwarz, den größten weiß. Fahrt über ein Pixel, um seinen Wert zu sehen. `labels=[...]` setzt eine Beschriftung unter jedes Bild."
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "What a layer computes",
+          "de": "Was eine Schicht rechnet"
+        },
+        "entries": [
+          {
+            "name": "x @ W + b",
+            "text": {
+              "en": "A Dense layer: each input row times the weight matrix `W` (one column per neuron), plus one bias per neuron. With 6 cards of 256 pixels and 16 neurons: `(6, 256) @ (256, 16)` gives `(6, 16)`.",
+              "de": "Eine Dense-Schicht: jede Eingabezeile mal die Gewichtsmatrix `W` (eine Spalte pro Neuron), plus ein Bias pro Neuron. Mit 6 Karten aus 256 Pixeln und 16 Neuronen: `(6, 256) @ (256, 16)` ergibt `(6, 16)`."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html"
+          },
+          {
+            "name": "ReLU: np.maximum(x, 0)",
+            "text": {
+              "en": "The rectified linear unit keeps positive values and sets negative ones to 0. It is the usual activation for hidden layers.",
+              "de": "Die Rectified Linear Unit behält positive Werte und setzt negative auf 0. Sie ist die übliche Aktivierung für versteckte Schichten."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/activations/relu"
+          },
+          {
+            "name": "softmax",
+            "text": {
+              "en": "Turns a row of scores into probabilities: `exp` of each score, divided by the sum of the row's `exp`s. All are positive and add up to 1; the highest score gets the highest probability. Used in the last layer to choose between classes.",
+              "de": "Macht aus einer Zeile von Werten Wahrscheinlichkeiten: `exp` jedes Werts, geteilt durch die Summe der `exp`s der Zeile. Alle sind positiv und ergeben zusammen 1; der höchste Wert bekommt die höchste Wahrscheinlichkeit. Wird in der letzten Schicht benutzt, um zwischen Klassen zu wählen."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/activations/softmax"
+          },
+          {
+            "name": "a.sum(axis=1, keepdims=True)  a.argmax(axis=1)",
+            "text": {
+              "en": "`axis=1` works along each row: the sum of each row (kept as a column, so you can divide by it), or the position of each row's largest value, which is the predicted digit.",
+              "de": "`axis=1` arbeitet entlang jeder Zeile: die Summe jeder Zeile (als Spalte behalten, damit man durch sie teilen kann) oder die Position des größten Werts jeder Zeile, also die vorhergesagte Ziffer."
+            },
+            "link": "https://numpy.org/doc/stable/reference/generated/numpy.argmax.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Building a model",
+          "de": "Ein Modell bauen"
+        },
+        "entries": [
+          {
+            "name": "tf.keras.Sequential([...])",
+            "text": {
+              "en": "A model that is a stack of layers, each feeding the next. Start the list with `tf.keras.Input(shape=(16, 16))`: the shape of one sample, without the number of samples.",
+              "de": "Ein Modell, das ein Stapel von Schichten ist, jede speist die nächste. Beginnt die Liste mit `tf.keras.Input(shape=(16, 16))`: der Form einer Probe, ohne die Anzahl der Proben."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Sequential"
+          },
+          {
+            "name": "layers.Flatten()",
+            "text": {
+              "en": "Turns each sample into one row of numbers, e.g. a 16 × 16 card into 256. Dense layers need that.",
+              "de": "Macht aus jeder Probe eine Zeile von Zahlen, z. B. aus einer 16 × 16-Karte 256. Dense-Schichten brauchen das."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Flatten"
+          },
+          {
+            "name": "layers.Dense(units, activation=None)",
+            "text": {
+              "en": "A fully connected layer with `units` neurons. `activation` is `\"relu\"`, `\"softmax\"`, `\"sigmoid\"` or none. It has inputs × units weights plus units biases.",
+              "de": "Eine vollständig verbundene Schicht mit `units` Neuronen. `activation` ist `\"relu\"`, `\"softmax\"`, `\"sigmoid\"` oder keine. Sie hat Eingaben × units Gewichte plus units Biases."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dense"
+          },
+          {
+            "name": "model.summary()  model.count_params()",
+            "text": {
+              "en": "`summary()` prints each layer with its output shape and number of parameters, and the total; `count_params()` returns the total.",
+              "de": "`summary()` gibt jede Schicht mit ihrer Ausgabeform und Parameterzahl aus, dazu die Summe; `count_params()` gibt die Summe zurück."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#summary"
+          },
+          {
+            "name": "model.set_weights([W1, b1, ...])",
+            "text": {
+              "en": "Loads weights into the model, in layer order: for each Dense layer its weight matrix, then its biases. `model.get_weights()` returns them in the same order.",
+              "de": "Lädt Gewichte in das Modell, in der Reihenfolge der Schichten: für jede Dense-Schicht ihre Gewichtsmatrix, dann ihre Biases. `model.get_weights()` gibt sie in derselben Reihenfolge zurück."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#set_weights"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Training",
+          "de": "Training"
+        },
+        "entries": [
+          {
+            "name": "model.compile(optimizer, loss, metrics)",
+            "text": {
+              "en": "Chooses how the model learns before `fit`: an optimizer such as `\"adam\"`, the loss to make small, and what to report, e.g. `metrics=[\"accuracy\"]`.",
+              "de": "Legt vor `fit` fest, wie das Modell lernt: einen Optimierer wie `\"adam\"`, den Loss, der klein werden soll, und was berichtet wird, z. B. `metrics=[\"accuracy\"]`."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile"
+          },
+          {
+            "name": "\"sparse_categorical_crossentropy\"",
+            "text": {
+              "en": "The loss for choosing one of several classes when each label is the class number (0, 1, 2, ...). Expects probabilities from a softmax layer.",
+              "de": "Der Loss für die Wahl einer von mehreren Klassen, wenn jedes Label die Klassennummer ist (0, 1, 2, ...). Erwartet Wahrscheinlichkeiten aus einer Softmax-Schicht."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/losses/SparseCategoricalCrossentropy"
+          },
+          {
+            "name": "\"categorical_crossentropy\"",
+            "text": {
+              "en": "The same loss for one-hot labels: each label a row with a 1 for its class and 0 elsewhere (`tf.keras.utils.to_categorical` makes them).",
+              "de": "Derselbe Loss für One-Hot-Labels: jedes Label eine Zeile mit einer 1 für seine Klasse und sonst 0 (`tf.keras.utils.to_categorical` erzeugt sie)."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/losses/CategoricalCrossentropy"
+          },
+          {
+            "name": "model.fit(x, y, epochs, validation_split, callbacks)",
+            "text": {
+              "en": "Trains the model: each epoch is one pass over the training data in small batches. `validation_split=0.2` keeps the last 20 % aside to check on after each epoch (`val_loss`, `val_accuracy`). Returns a History.",
+              "de": "Trainiert das Modell: Jede Epoche ist ein Durchgang durch die Trainingsdaten in kleinen Portionen. `validation_split=0.2` legt die letzten 20 % beiseite, um nach jeder Epoche daran zu prüfen (`val_loss`, `val_accuracy`). Gibt eine History zurück."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit"
+          },
+          {
+            "name": "history.history",
+            "text": {
+              "en": "A dict with one list per measure (`loss`, `accuracy`, `val_loss`, ...) and one value per epoch.",
+              "de": "Ein Dict mit einer Liste pro Kennzahl (`loss`, `accuracy`, `val_loss`, ...) und einem Wert pro Epoche."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/History"
+          },
+          {
+            "name": "model.evaluate(x, y)  model.predict(x)",
+            "text": {
+              "en": "`evaluate` returns the loss (and the metrics) on data the model hasn't trained on; `predict` returns the model's output, here one row of 10 probabilities per sample. New data must be prepared exactly like the training data.",
+              "de": "`evaluate` gibt den Loss (und die Metriken) auf Daten zurück, mit denen das Modell nicht trainiert hat; `predict` gibt die Ausgabe des Modells zurück, hier eine Zeile mit 10 Wahrscheinlichkeiten pro Probe. Neue Daten müssen genauso vorbereitet sein wie die Trainingsdaten."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/Model#predict"
+          },
+          {
+            "name": "tf.keras.utils.set_random_seed(n)",
+            "text": {
+              "en": "Makes the random starting weights and the shuffling the same in every run, so results can be repeated.",
+              "de": "Macht die zufälligen Startgewichte und das Mischen in jedem Lauf gleich, damit sich Ergebnisse wiederholen lassen."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/utils/set_random_seed"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Stopping at the right time",
+          "de": "Rechtzeitig aufhören"
+        },
+        "entries": [
+          {
+            "name": "overfitting",
+            "text": {
+              "en": "When the training loss keeps falling but the validation loss rises, the network learns its training data by heart instead of what the digits look like. The best weights are those with the lowest validation loss.",
+              "de": "Wenn der Trainings-Loss weiter fällt, der Validierungs-Loss aber steigt, lernt das Netz seine Trainingsdaten auswendig statt, wie die Ziffern aussehen. Die besten Gewichte sind die mit dem niedrigsten Validierungs-Loss."
+            },
+            "link": "https://www.tensorflow.org/tutorials/keras/overfit_and_underfit"
+          },
+          {
+            "name": "tf.keras.callbacks.EarlyStopping(monitor, patience, restore_best_weights)",
+            "text": {
+              "en": "Stops training when `monitor` (e.g. `\"val_loss\"`) hasn't improved for `patience` epochs. With `restore_best_weights=True` the model goes back to the weights of its best epoch. Pass it to `fit` as `callbacks=[stopper]`.",
+              "de": "Beendet das Training, wenn sich `monitor` (z. B. `\"val_loss\"`) `patience` Epochen lang nicht verbessert hat. Mit `restore_best_weights=True` kehrt das Modell zu den Gewichten seiner besten Epoche zurück. Übergebt ihn `fit` als `callbacks=[stopper]`."
+            },
+            "link": "https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping"
+          },
+          {
+            "name": "replay(callback, history)",
+            "text": {
+              "en": "Ferdinand's helper: runs a recorded history (like `log`) through a callback such as EarlyStopping, as if the training ran again. Prints and returns the epoch where it stops (counted from 1), and which epoch's weights the model keeps.",
+              "de": "Ferdinands Helfer: lässt eine aufgezeichnete History (wie `log`) durch einen Callback wie EarlyStopping laufen, als liefe das Training noch einmal. Gibt die Epoche aus und zurück, in der es aufhört (ab 1 gezählt), und aus welcher Epoche das Modell die Gewichte behält."
+            }
+          },
+          {
+            "name": "show_plot(*series, labels=None, title=None)",
+            "text": {
+              "en": "Draws lists or arrays as lines below your output; the x axis counts from 0.",
+              "de": "Zeichnet Listen oder Arrays als Linien unter eure Ausgabe; die x-Achse zählt ab 0."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

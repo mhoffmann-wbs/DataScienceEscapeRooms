@@ -259,7 +259,7 @@ Behind the 🗄️ door, between The Blue Index and Night Train: `HAVING`, condi
 
 **Open:** playtest the time budget; the data file is 380 KB (6,000 tickets), larger than the other SQL rooms, so check that runs stay quick on slow laptops.
 
-### 20. Neural network rooms (planned)
+### 20. Neural network rooms: NN1 ✅ content built (`nn-post`, intermediate), playtest pending
 A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring the statistics door: at (30, 4), `facing: left`, tile 55; its rooms have their exit in the left wall. Two rooms on image classification: first a dense network, then a convolutional one (listed as `upcoming` until built).
 
 **TensorFlow:** the course teaches TensorFlow, which can't run in the browser: Pyodide ships no TensorFlow (nor Keras or PyTorch) and TensorFlow has no WebAssembly build. Decided: as with Prophet, a small module named `tensorflow` with TensorFlow's API names, written with numpy only, so students type the code from the course (`import tensorflow as tf`, `tf.keras.Sequential`, `from tensorflow.keras import layers`). Rooms call it "a TensorFlow-style model". Unlike Prophet, the maths can match the real library (Glorot init, ReLU/softmax, cross-entropy, SGD/Adam with Keras defaults); only the exact numbers differ. Scope in [docs/tensorflow-lite.md](tensorflow-lite.md). Measured in Pyodide (Node), plain-numpy training: 2000 images of 16×16, 256→64→10, 10 epochs in 0.36 s; 5000 of 28×28, 784→128→10, 5 epochs in 2.7 s. Budget per run: 16×16 images, at most about 3000 training images and 20 epochs.
@@ -267,19 +267,19 @@ A new lobby door `neural` 🧠 "Neural networks" in the right wall, mirroring th
 **Infrastructure:**
 - ✅ `content/python/tensorflow.py`, registering `tensorflow.keras`, `tensorflow.keras.layers` etc. in `sys.modules` itself (no engine change), with tests: gradients against finite differences, Adam steps against the formula, a toy problem that converges.
 - ✅ `show_images(images, labels=, cmap=)`: greyscale images in the output panel, with a pixel readout on hover.
-- The door, its sign and an exit in the left wall of the room maps.
+- ✅ The door (tiles 105/106, a green side door), its sign and the CNN room listed as upcoming.
 
 **Checks:** training results differ slightly between CPython and Pyodide, so exact answers only come from deterministic steps (forward passes with given weights, parameter counts, a recorded training log); anything trained is checked by a grader with a threshold, or by predictions on clearly drawn images.
 
-**NN1 "The Night Post"** (`nn-post`, elementary/intermediate; draft). A train station's postal sorting office at night; a power cut wiped "Iris", the machine that reads handwritten postcodes, and the mail train leaves at 00:40. Data: 16×16 greyscale handwritten digits drawn as jittered strokes by `generate_data.py` (no MNIST licence, small files).
-1. **Scanner tray** (open): a flat pixel stream of 4 envelopes; `reshape`, scaling 0–255 to 0–1, `show_images`; the digits are a reveal for the final.
-2. **Iris's old wiring** (open): weights of the old 256→16→10 net; the forward pass by hand (`x @ W + b`, ReLU, softmax, `argmax`); exact answer.
-3. **Blueprint** (open; clue on the wall): build the new architecture with `Sequential`, `Input`, `Flatten`, `Dense`; `summary()`, parameters = in·out + out; the count opens a lock.
-4. **The apprentice's script** (uses 1): a training script with three bugs: no scaling (training stalls), ReLU on the output layer, `categorical_crossentropy` with integer labels; grader: accuracy ≥ 0.9.
-5. **Training logbook** (open): a recorded `history` of 200 epochs on 300 images; overfitting, train vs val loss with `show_plot`, `validation_split`, `EarlyStopping(patience, restore_best_weights)`; answer from the fixed log.
-6. **Midnight sort** (final; uses 1, 3, 4, 5): fit, `evaluate`, `predict`, the most-confused digit pair; the bins of the 6 urgent letters form the mail-car code.
+**NN1 "The Night Post"** ✅ content built (`nn-post`, intermediate), playtest pending. Kleeberg station post office, Friday night: a power cut wiped Iris, the machine that reads handwritten postcodes; the night mail train leaves at 00:40. Data from `generate_data.py` (numpy): 16 × 16 digits drawn from jittered strokes (half the sevens crossed), stored with 16 grey levels and zlib-packed (the archive, 3,000 + 600 cards, is 296 KB). Old Iris is trained with the room's own TensorFlow-style model. Seven new tiles (105–111): the green side doors, Iris, a pigeonhole rack, the envelope scanner, the blueprint, the departure board. Numbers from the reference solutions:
+1. **Envelope scanner** (open): `stream` is one strip of 16 lines × 80 pixels, paper 255; `reshape(5, 16, 16)` gives stripes. `np.stack(np.hsplit(stream.reshape(16, 80), 5))`, then `1 - x / 255` (Iris: ink 1.0); postcode 35781. Clues: scanner manual, Iris's type plate.
+2. **Iris's last backup** (open): the forward pass of old Iris (256 → 16 → 10) by hand, then the same net in Keras with `set_weights`. She reads **305118**; the fourth card is a crossed 7, so reading the cards by eye gives the wrong code.
+3. **Blueprint** (open): three drafts, a 20,000-number chip (type plate): A 37,354, B 21,258, C **18,858**.
+4. **Jonas's laptop** (lock 18858 from 3): his script has `categorical_crossentropy` with integer labels (crashes), ReLU on the output (`nan`, 10 %), unscaled inputs (about 68 %). Fixed: about 94 %; the grader wants 85 %.
+5. **Ferdinand's cabinet** (lock 305118 from 2): a recorded 30-epoch log; best epoch 17, a wobble at 9–10 that stops patience 1 or 2 too early; `EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)` replayed through `replay` stops at 20 and keeps 17.
+6. **Iris** (final; lock 2017 from 5, "stop epoch, then kept epoch"): train draft C with Ferdinand's rules (90 % needed, the reference gets 95 %), convert the six urgent letters as at the scanner, predict bins **4, 7, 1, 9, 2, 6**. Unconverted letters all read as 2; inverting without `/ 255` still passes (scaling all inputs doesn't change the argmax much). Every reference model (8 seeds, 6–20 epochs) is over 95 % sure of each urgent letter. The reveal leads to NN2: a digit in the corner of its box fools the dense net.
 
-Debrief lead-in to NN2: a few test envelopes shifted by 3 pixels fool the dense net, which motivates convolutions.
+**Open:** playtest the time budget, and how long training takes on slow laptops (the final trains in about 3 s in Node's Pyodide).
 
 **NN2** (convolutional; not designed yet): adds `Conv2D` and `MaxPooling2D` (im2col) to the module.
 
