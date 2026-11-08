@@ -1496,6 +1496,131 @@ drawTile(86, (g, { obj }) => {
   });
 });
 
+// --- Night train (sql-train) ----------------------------------------------------
+const TRAIN_PANEL = [168, 60, 56];
+const NIGHT = [22, 30, 62];
+/** A small desk of grey laminate with a dark edge, for the service car's equipment. */
+function trainDesk(o) {
+  o.box(1, 16, T - 2, 12, [176, 180, 188], 1.15);
+  o.rect(1, 18, T - 2, 1, [120, 124, 134]);
+  o.rect(3, 27, 3, 2, [80, 84, 94]);
+  o.rect(T - 6, 27, 3, 2, [80, 84, 94]);
+}
+// 87 train floor: dark grey-blue linoleum with a fine speckle and a pale seam
+drawTile(87, (g) => {
+  g.rect(0, 0, T, T, [74, 82, 102]);
+  g.noise(0, 0, T, T, 0.1, 87);
+  const r = rng(870);
+  for (let i = 0; i < 14; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [104, 114, 138]);
+  g.rect(0, T - 1, T, 1, [62, 68, 86]);
+});
+// 88 train window at night: a rounded pane with stars, a moon and dark hills, in a red carriage wall
+drawTile(88, (g, { obj }) => {
+  wallFront(g, 88);
+  g.rect(0, 22, T, 2, TRAIN_PANEL);
+  obj((o) => {
+    o.box(3, 3, 26, 18, [196, 200, 208], 1.15);
+    o.rect(5, 5, 22, 14, NIGHT);
+    for (const [x, y] of [[7, 7], [12, 6], [19, 8], [24, 6], [9, 11], [22, 11]]) o.set(x, y, [230, 230, 250]);
+    o.ellipse(21, 8, 2.5, 2.5, [244, 236, 196]);
+    o.ellipse(22, 7, 2, 2, NIGHT);
+    o.ellipse(9, 20, 9, 5, [30, 44, 50]);
+    o.ellipse(23, 21, 8, 6, [36, 52, 58]);
+    o.rect(5, 5, 22, 1, alpha([255, 255, 255], 60));
+  });
+});
+// 89 compartment door: a wood-veneer sliding door with a small window, a number plate and a card reader
+drawTile(89, (g, { obj }) => {
+  wallFront(g, 89);
+  g.rect(0, 22, T, 2, TRAIN_PANEL);
+  obj((o) => {
+    o.box(6, 2, 20, 28, [176, 128, 84], 1.2);
+    o.rect(9, 5, 14, 9, [150, 176, 196]);
+    o.rect(9, 5, 14, 1, alpha([255, 255, 255], 120));
+    o.rect(15, 5, 1, 9, [176, 128, 84]);
+    o.rect(12, 17, 8, 3, [232, 226, 200]);
+    o.rect(13, 18, 6, 1, [90, 80, 70]);
+    o.rect(22, 15, 2, 7, [90, 90, 96]);
+    o.box(27, 12, 4, 6, [60, 64, 74]);
+    o.set(28, 13, [90, 230, 120]);
+  });
+});
+// 90 dining table: a small table with a white cloth, a lamp with a red shade and two cups
+drawTile(90, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 2);
+  obj((o) => {
+    o.box(2, 12, T - 4, 13, [240, 238, 230], 1.05, 0.85);
+    o.rect(2, 23, T - 4, 2, [214, 210, 198]);
+    o.rect(6, 25, 2, 4, WOOD_DARK);
+    o.rect(T - 8, 25, 2, 4, WOOD_DARK);
+    o.rect(15, 8, 2, 8, [180, 160, 90]);
+    o.ellipse(16, 7, 5, 3, [200, 60, 56]);
+    o.ellipse(16, 6, 3, 1, [240, 120, 90]);
+    for (const x of [7, 25]) {
+      o.ellipse(x, 17, 3, 2, [250, 250, 250]);
+      o.ellipse(x, 17, 2, 1, [110, 70, 44]);
+    }
+  });
+});
+// 91 speed recorder: a black box on a desk with a paper strip chart and a speed dial
+drawTile(91, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    trainDesk(o);
+    o.box(4, 4, 24, 14, [44, 46, 54], 1.4);
+    o.ellipse(10, 10, 4.5, 4.5, [236, 236, 228]);
+    o.rect(10, 7, 1, 4, [200, 40, 40]);
+    o.rect(17, 6, 9, 9, [244, 242, 230]);
+    let y = 12;
+    for (let x = 17; x < 26; x++) {
+      y = [12, 11, 9, 8, 8, 13, 13, 9, 8][x - 17];
+      o.set(x, y, [40, 80, 200]);
+    }
+  });
+});
+// 92 door control panel: a grey panel on a desk with a train outline and a row of door lights
+drawTile(92, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    trainDesk(o);
+    o.box(3, 3, 26, 15, [126, 132, 144], 1.2);
+    o.rect(5, 8, 22, 4, [210, 214, 220]);
+    for (let x = 5; x < 27; x += 4) o.rect(x, 8, 1, 4, [90, 96, 108]);
+    for (let i = 0; i < 6; i++) o.rect(6 + i * 4, 14, 2, 2, i === 2 ? [240, 70, 60] : [90, 220, 110]);
+    o.rect(6, 5, 5, 1, [60, 64, 74]);
+  });
+});
+// 93 train radio: a desk with a radio set, a coiled handset cable and a red emergency button
+drawTile(93, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    trainDesk(o);
+    o.box(4, 6, 18, 12, [62, 70, 64], 1.3);
+    o.rect(6, 8, 9, 4, [120, 220, 160]);
+    o.rect(7, 9, 5, 1, [40, 90, 60]);
+    for (const x of [7, 11, 15, 19]) o.ellipse(x, 15, 1.5, 1.5, [200, 200, 190]);
+    o.rect(18, 2, 1, 5, [40, 40, 44]);
+    o.box(23, 8, 6, 9, [36, 36, 40], 1.3);
+    for (let y = 18; y < 23; y += 2) o.rect(24, y, 4, 1, [36, 36, 40]);
+    o.ellipse(25, 21, 3, 2, [214, 50, 46]);
+  });
+});
+// 94 conductor's handheld: a ticket scanner with a lit screen and a lanyard on a small counter
+drawTile(94, (g, { obj, shadow }) => {
+  shadow(16, 29, 12, 2);
+  obj((o) => {
+    o.box(3, 14, T - 6, 14, WOOD, 1.25);
+    o.rect(3, 17, T - 6, 1, WOOD_DARK);
+    o.box(10, 4, 12, 14, [52, 56, 66], 1.4);
+    o.rect(12, 6, 8, 6, [140, 210, 240]);
+    o.rect(13, 8, 6, 1, [40, 80, 110]);
+    o.rect(13, 10, 4, 1, [40, 80, 110]);
+    o.rect(12, 14, 8, 2, [214, 60, 56]);
+    for (let x = 22; x < 28; x++) o.set(x, 10 + Math.round(Math.sin(x) * 2), [40, 100, 200]);
+    o.ellipse(8, 22, 3, 2, [250, 248, 238]);
+  });
+});
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:

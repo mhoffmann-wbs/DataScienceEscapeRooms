@@ -1,0 +1,12 @@
+{
+  "handheld": "SELECT p.name, p.card\nFROM passengers AS p\nLEFT JOIN scans AS s ON s.ticket_id = p.ticket_id\nWHERE s.scan_id IS NULL;\n",
+  "speed": "WITH s AS (\n  SELECT time, km, kmh,\n         LAG(kmh) OVER (ORDER BY time) AS prev_kmh\n  FROM speed\n)\nSELECT time, km\nFROM s\nWHERE kmh = 0 AND prev_kmh > 0\nORDER BY time;\n",
+  "doors": "SELECT d.time, d.car, d.door, d.event,\n       (SELECT st.station\n        FROM stations AS st\n        WHERE st.departure < d.time\n        ORDER BY st.departure DESC\n        LIMIT 1) AS last_station\nFROM doors AS d\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM stations AS s\n  WHERE d.time BETWEEN s.arrival AND s.departure\n)\nORDER BY d.time;\n",
+  "cards": "WITH ranked AS (\n  SELECT card, time, reader,\n         ROW_NUMBER() OVER (PARTITION BY card ORDER BY time DESC) AS rn\n  FROM taps\n)\nSELECT card, time, reader\nFROM ranked\nWHERE rn = 1\n  AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53'\nORDER BY time;\n",
+  "till": "WITH no_shows AS (\n  SELECT p.card\n  FROM passengers AS p\n  LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id\n  WHERE s.scan_id IS NULL\n)\nSELECT card, payer, SUM(price) AS total\nFROM orders\nWHERE card IN (SELECT card FROM no_shows)\nGROUP BY card, payer;\n",
+  "radio": {
+    "answer": "Ines Hartmann",
+    "code": "WITH ranked AS (\n  SELECT card, time,\n         ROW_NUMBER() OVER (PARTITION BY card ORDER BY time DESC) AS rn\n  FROM taps\n),\ngone AS (\n  SELECT card\n  FROM ranked\n  WHERE rn = 1\n    AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53'\n)\nSELECT DISTINCT o.card, o.payer\nFROM orders AS o\nJOIN gone AS g ON g.card = o.card\nWHERE o.payer NOT IN (SELECT name FROM passengers);\n"
+  },
+  "radio#lock": "214"
+}

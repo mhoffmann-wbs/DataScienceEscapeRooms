@@ -21,27 +21,9 @@
         "en": "SQL",
         "de": "SQL"
       },
-      "upcoming": [
-        {
-          "title": {
-            "en": "Night Train",
-            "de": "Nachtzug"
-          },
-          "difficulty": "advanced",
-          "about": {
-            "tools": [
-              "SQL (SQLite)"
-            ],
-            "practises": {
-              "en": "Subqueries, CTEs (WITH), LEFT JOIN, window functions such as LAG and ROW_NUMBER.",
-              "de": "Unterabfragen, CTEs (WITH), LEFT JOIN, Fensterfunktionen wie LAG und ROW_NUMBER."
-            },
-            "story": {
-              "en": "A passenger vanished from an overnight train between two stations; rebuild everyone's movements from ticket scans and door sensors.",
-              "de": "Ein Fahrgast ist zwischen zwei Bahnhöfen aus einem Nachtzug verschwunden; rekonstruiert die Wege aller aus Ticketscans und Türsensoren."
-            }
-          }
-        }
+      "order": [
+        "sql-hotel",
+        "sql-train"
       ]
     },
     {

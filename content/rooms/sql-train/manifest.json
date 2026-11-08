@@ -1,0 +1,556 @@
+{
+  "version": 1,
+  "salt": "06fc62bcf5ebe79e",
+  "title": {
+    "en": "Night Train",
+    "de": "Nachtzug"
+  },
+  "category": "sql",
+  "difficulty": "advanced",
+  "about": {
+    "tools": [
+      "SQL (SQLite)"
+    ],
+    "practises": {
+      "en": "Subqueries, CTEs (WITH), LEFT JOIN, window functions such as LAG and ROW_NUMBER.",
+      "de": "Unterabfragen, CTEs (WITH), LEFT JOIN, Fensterfunktionen wie LAG und ROW_NUMBER."
+    },
+    "story": {
+      "en": "A passenger vanished from an overnight train between two stations; rebuild everyone's movements from ticket scans, card readers and door sensors.",
+      "de": "Ein Fahrgast ist zwischen zwei Bahnhöfen aus einem Nachtzug verschwunden; rekonstruiert die Wege aller aus Ticketscans, Kartenlesern und Türsensoren."
+    }
+  },
+  "intro": {
+    "en": "Night train EN 471 \"Aurora\", Kleeberg to Lindholm, the night of Friday 13 November. At 02:41 the sleeping-car attendant found compartment 34 empty: the reporter Konstantin Weber is gone, his bag still on the bunk. The train is rolling on through the dark, and the federal police will board at Marienhall in half an hour.\n\nThe train manager has let you into the service car. Its onboard computer logs every ticket scan, every card tap, every door and every kilometre. Find out where Weber left the train, and with whom, and radio it to the police before the train reaches Marienhall.",
+    "de": "Nachtzug EN 471 „Aurora“, Kleeberg nach Lindholm, die Nacht auf Samstag, den 14. November. Um 02:41 fand die Schlafwagenbetreuerin Abteil 34 leer vor: Der Reporter Konstantin Weber ist verschwunden, seine Tasche liegt noch auf der Liege. Der Zug rollt weiter durch die Dunkelheit, und in einer halben Stunde steigt in Marienhall die Bundespolizei zu.\n\nDie Zugchefin hat euch in den Dienstwagen gelassen. Sein Bordrechner protokolliert jeden Ticketscan, jeden Karteneinsatz, jede Tür und jeden Kilometer. Findet heraus, wo Weber den Zug verlassen hat und mit wem, und funkt es der Polizei, bevor der Zug Marienhall erreicht."
+  },
+  "puzzles": [
+    {
+      "id": "handheld",
+      "title": {
+        "en": "The conductor's handheld",
+        "de": "Das Handgerät des Zugbegleiters"
+      },
+      "text": {
+        "en": "Jakob Horn, the conductor, left his ticket scanner on the dining car counter. `passengers` holds the bookings, `scans` every ticket his handheld scanned tonight.\n\nWho booked a compartment but never had their ticket scanned? Show `name` and `card`.",
+        "de": "Jakob Horn, der Zugbegleiter, hat seinen Ticketscanner auf dem Tresen im Speisewagen liegen lassen. `passengers` enthält die Buchungen, `scans` jedes Ticket, das sein Handgerät heute Nacht gescannt hat.\n\nWer hat ein Abteil gebucht, aber sein Ticket nie scannen lassen? Zeigt `name` und `card`."
+      },
+      "workspace": "sql",
+      "data": "train.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM passengers\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM passengers\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "hash": "2bcb8ed938d3490ca885136a7c7432c0545aea6f057fe5191fb211c1054df941"
+      },
+      "reveal": {
+        "en": "Two tickets were never scanned: **Hanna Vogt** (card `C2-23`) and **Paul Brenner** (card `C5-52`) never boarded. Compartments 23 and 52 should have stayed empty all night.",
+        "de": "Zwei Tickets wurden nie gescannt: **Hanna Vogt** (Karte `C2-23`) und **Paul Brenner** (Karte `C5-52`) sind nie eingestiegen. Die Abteile 23 und 52 hätten die ganze Nacht leer bleiben müssen."
+      },
+      "practises": {
+        "en": "`LEFT JOIN` with `IS NULL`: rows that have no match",
+        "de": "`LEFT JOIN` mit `IS NULL`: Zeilen ohne Treffer"
+      },
+      "clues": [
+        "conductor-note"
+      ],
+      "hints": [
+        {
+          "en": "A plain `JOIN` only keeps passengers that have a matching scan, so exactly the ones you want disappear. A `LEFT JOIN` keeps every passenger and fills the columns of `scans` with `NULL` where nothing matches.",
+          "de": "Ein einfaches `JOIN` behält nur Fahrgäste mit passendem Scan, also verschwinden genau die, die ihr sucht. Ein `LEFT JOIN` behält jeden Fahrgast und füllt die Spalten von `scans` mit `NULL`, wo nichts passt."
+        },
+        {
+          "en": "`FROM passengers AS p LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id`, then keep the rows without a scan: `WHERE s.scan_id IS NULL`. (`= NULL` is never true.)",
+          "de": "`FROM passengers AS p LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id`, dann die Zeilen ohne Scan behalten: `WHERE s.scan_id IS NULL`. (`= NULL` ist nie wahr.)"
+        },
+        {
+          "en": "`SELECT p.name, p.card FROM passengers AS p LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id WHERE s.scan_id IS NULL;`",
+          "de": "`SELECT p.name, p.card FROM passengers AS p LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id WHERE s.scan_id IS NULL;`"
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "title": {
+        "en": "The speed recorder",
+        "de": "Der Fahrtenschreiber"
+      },
+      "text": {
+        "en": "The locomotive's recorder writes down the position (`km`) and the speed (`kmh`) every two minutes.\n\nFind every halt since the train left Kleeberg: the rows where the train stands still but was still moving at the row before. Show `time` and `km`, earliest first.",
+        "de": "Der Schreiber der Lok notiert alle zwei Minuten die Position (`km`) und die Geschwindigkeit (`kmh`).\n\nFindet jeden Halt, seit der Zug Kleeberg verlassen hat: die Zeilen, in denen der Zug steht, in der Zeile davor aber noch fuhr. Zeigt `time` und `km`, den frühesten zuerst."
+      },
+      "workspace": "sql",
+      "data": "train.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM speed\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM speed\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "fcaabde865b151170daf3fbeb051b83ecbd93a6da56d63201ce8a559845f6179"
+      },
+      "reveal": {
+        "en": "Since Kleeberg the train has halted four times: at km 88.0 (23:06), km 131.4 (23:58), km 176.2 (00:50) and km 214.3 (01:52). Only two of them are stations.",
+        "de": "Seit Kleeberg hat der Zug viermal gehalten: bei km 88,0 (23:06), km 131,4 (23:58), km 176,2 (00:50) und km 214,3 (01:52). Nur zwei davon sind Bahnhöfe."
+      },
+      "practises": {
+        "en": "`LAG() OVER (ORDER BY …)`: comparing a row with the one before; filtering a window function through a CTE",
+        "de": "`LAG() OVER (ORDER BY …)`: eine Zeile mit der vorigen vergleichen; eine Fensterfunktion über eine CTE filtern"
+      },
+      "clues": [
+        "route-map"
+      ],
+      "hints": [
+        {
+          "en": "`WHERE kmh = 0` finds every standing row, several per halt, and the building site crawls slowly without stopping. You need to compare each row with the one before it: `LAG(kmh) OVER (ORDER BY time)` gives the previous row's speed.",
+          "de": "`WHERE kmh = 0` findet jede Zeile im Stand, mehrere pro Halt, und an der Baustelle kriecht der Zug, ohne zu halten. Ihr müsst jede Zeile mit der davor vergleichen: `LAG(kmh) OVER (ORDER BY time)` liefert die Geschwindigkeit der vorigen Zeile."
+        },
+        {
+          "en": "A window function can't go into `WHERE`. Compute it in a CTE first, `WITH s AS (SELECT time, km, kmh, LAG(kmh) OVER (ORDER BY time) AS prev_kmh FROM speed)`, then filter the CTE: `kmh = 0 AND prev_kmh > 0`.",
+          "de": "Eine Fensterfunktion darf nicht ins `WHERE`. Berechnet sie zuerst in einer CTE, `WITH s AS (SELECT time, km, kmh, LAG(kmh) OVER (ORDER BY time) AS prev_kmh FROM speed)`, und filtert dann die CTE: `kmh = 0 AND prev_kmh > 0`."
+        },
+        {
+          "en": "`WITH s AS (SELECT time, km, kmh, LAG(kmh) OVER (ORDER BY time) AS prev_kmh FROM speed) SELECT time, km FROM s WHERE kmh = 0 AND prev_kmh > 0 ORDER BY time;`",
+          "de": "`WITH s AS (SELECT time, km, kmh, LAG(kmh) OVER (ORDER BY time) AS prev_kmh FROM speed) SELECT time, km FROM s WHERE kmh = 0 AND prev_kmh > 0 ORDER BY time;`"
+        }
+      ]
+    },
+    {
+      "id": "doors",
+      "title": {
+        "en": "The door control panel",
+        "de": "Die Türsteuerung"
+      },
+      "text": {
+        "en": "Every outside door reports to this panel when it opens and when it closes (`doors`). The timetable with the actual times so far is in `stations`.\n\nWhich door events happened at a time when the doors should not have opened at all? Show `time`, `car`, `door`, `event` and the name of the last station the train had left before the event, earliest first.",
+        "de": "Jede Außentür meldet dieser Steuerung, wann sie sich öffnet und wann sie schließt (`doors`). Der Fahrplan mit den bisherigen tatsächlichen Zeiten steht in `stations`.\n\nWelche Türereignisse fanden zu einer Zeit statt, in der sich die Türen gar nicht hätten öffnen dürfen? Zeigt `time`, `car`, `door`, `event` und den Namen des letzten Bahnhofs, den der Zug vor dem Ereignis verlassen hatte, das früheste zuerst."
+      },
+      "workspace": "sql",
+      "data": "train.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM doors\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM doors\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "9238c9678dc8b29ac63c8ad83d6f7f8046f1bbbdd3d52c595a979736b15d55e3"
+      },
+      "reveal": {
+        "en": "At **01:53**, after Felsach, door B on the right of **car 3**, Konstantin Weber's car, opened on open track. It closed again at 01:55.",
+        "de": "Um **01:53**, nach Felsach, öffnete sich auf freier Strecke die rechte Tür B von **Wagen 3**, dem Wagen von Konstantin Weber. Um 01:55 schloss sie sich wieder."
+      },
+      "practises": {
+        "en": "`NOT EXISTS` and a correlated scalar subquery",
+        "de": "`NOT EXISTS` und eine korrelierte skalare Unterabfrage"
+      },
+      "clues": [
+        "door-sign"
+      ],
+      "hints": [
+        {
+          "en": "The sign next to the panel says when the doors are released. For each door event, ask whether some station has the event between its `arrival` and `departure`: `NOT EXISTS (SELECT 1 FROM stations AS s WHERE d.time BETWEEN s.arrival AND s.departure)` keeps the events where no station does.",
+          "de": "Das Schild neben der Steuerung sagt, wann die Türen freigegeben sind. Fragt für jedes Türereignis, ob es einen Bahnhof gibt, bei dem das Ereignis zwischen `arrival` und `departure` liegt: `NOT EXISTS (SELECT 1 FROM stations AS s WHERE d.time BETWEEN s.arrival AND s.departure)` behält die Ereignisse, bei denen es keinen gibt."
+        },
+        {
+          "en": "The last station left is a correlated subquery in the column list. It runs once per door event and returns one value: `(SELECT station FROM stations WHERE departure < d.time ORDER BY departure DESC LIMIT 1)`.",
+          "de": "Der zuletzt verlassene Bahnhof ist eine korrelierte Unterabfrage in der Spaltenliste. Sie läuft einmal pro Türereignis und liefert einen Wert: `(SELECT station FROM stations WHERE departure < d.time ORDER BY departure DESC LIMIT 1)`."
+        },
+        {
+          "en": "`SELECT d.time, d.car, d.door, d.event, (SELECT st.station FROM stations AS st WHERE st.departure < d.time ORDER BY st.departure DESC LIMIT 1) AS last_station FROM doors AS d WHERE NOT EXISTS (SELECT 1 FROM stations AS s WHERE d.time BETWEEN s.arrival AND s.departure) ORDER BY d.time;`",
+          "de": "`SELECT d.time, d.car, d.door, d.event, (SELECT st.station FROM stations AS st WHERE st.departure < d.time ORDER BY st.departure DESC LIMIT 1) AS last_station FROM doors AS d WHERE NOT EXISTS (SELECT 1 FROM stations AS s WHERE d.time BETWEEN s.arrival AND s.departure) ORDER BY d.time;`"
+        }
+      ]
+    },
+    {
+      "id": "cards",
+      "title": {
+        "en": "The card reader server",
+        "de": "Der Kartenleser-Server"
+      },
+      "text": {
+        "en": "Every compartment door, every washroom and every gangway door between the sleeping cars has a card reader. `taps` logs each card that was held to one.\n\nWhose card was tapped for the last time in the half hour before the door opened on open track, and never again after it? Show `card`, the `time` of its last tap and the `reader`, earliest first.",
+        "de": "Jede Abteiltür, jeder Waschraum und jede Übergangstür zwischen den Schlafwagen hat einen Kartenleser. `taps` protokolliert jede Karte, die an einen gehalten wurde.\n\nWessen Karte wurde in der halben Stunde, bevor sich auf freier Strecke die Tür öffnete, zum letzten Mal benutzt und danach nie wieder? Zeigt `card`, die `time` ihres letzten Einsatzes und den `reader`, den frühesten zuerst."
+      },
+      "workspace": "sql",
+      "data": "train.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM taps\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM taps\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "9a40abf572d299898c77d8f3c0d4a9998dd80b098490c5e25a81dfa0bdfc54e3"
+      },
+      "reveal": {
+        "en": "Three cards fall silent shortly before the door opened: `C4-45` at its own compartment door at 01:31, `C5-52` at the gangway into car 3 at 01:46, and Weber's `C3-34` at his compartment door at 01:49.",
+        "de": "Drei Karten verstummen kurz bevor sich die Tür öffnete: `C4-45` an der eigenen Abteiltür um 01:31, `C5-52` am Übergang in Wagen 3 um 01:46 und Webers `C3-34` an seiner Abteiltür um 01:49."
+      },
+      "practises": {
+        "en": "`ROW_NUMBER() OVER (PARTITION BY … ORDER BY …)`: the latest row of every group",
+        "de": "`ROW_NUMBER() OVER (PARTITION BY … ORDER BY …)`: die neueste Zeile jeder Gruppe"
+      },
+      "clues": [
+        "attendant-report"
+      ],
+      "uses": [
+        "doors"
+      ],
+      "hints": [
+        {
+          "en": "You need each card's last tap first. `ROW_NUMBER() OVER (PARTITION BY card ORDER BY time DESC)` numbers every card's taps from the newest, so each card's last tap gets the number 1. The door's time comes from the door control panel.",
+          "de": "Ihr braucht zuerst den letzten Einsatz jeder Karte. `ROW_NUMBER() OVER (PARTITION BY card ORDER BY time DESC)` nummeriert die Einsätze jeder Karte vom neuesten an, sodass der letzte Einsatz jeder Karte die Nummer 1 bekommt. Die Uhrzeit der Tür kommt von der Türsteuerung."
+        },
+        {
+          "en": "The door opened at 01:53 on 14 November. Number the taps in a CTE, and outside it keep `rn = 1 AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53'`.",
+          "de": "Die Tür öffnete sich am 14. November um 01:53. Nummeriert die Einsätze in einer CTE und behaltet außerhalb `rn = 1 AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53'`."
+        },
+        {
+          "en": "`WITH ranked AS (SELECT card, time, reader, ROW_NUMBER() OVER (PARTITION BY card ORDER BY time DESC) AS rn FROM taps) SELECT card, time, reader FROM ranked WHERE rn = 1 AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53' ORDER BY time;`",
+          "de": "`WITH ranked AS (SELECT card, time, reader, ROW_NUMBER() OVER (PARTITION BY card ORDER BY time DESC) AS rn FROM taps) SELECT card, time, reader FROM ranked WHERE rn = 1 AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53' ORDER BY time;`"
+        }
+      ]
+    },
+    {
+      "id": "till",
+      "title": {
+        "en": "The dining car till",
+        "de": "Die Speisewagenkasse"
+      },
+      "text": {
+        "en": "In the dining car, every order goes on the tab of a compartment card (`orders.card`). Whoever settles the tab pays by bank card, and the till stores the name on it as `payer`.\n\nA compartment whose passenger never boarded shouldn't have run up a bill. For the cards of those compartments, show who paid and how much in total: `card`, `payer` and the sum of `price`.",
+        "de": "Im Speisewagen geht jede Bestellung auf die Rechnung einer Abteilkarte (`orders.card`). Wer die Rechnung begleicht, zahlt mit Bankkarte, und die Kasse speichert den Namen darauf als `payer`.\n\nEin Abteil, dessen Fahrgast nie eingestiegen ist, sollte keine Rechnung haben. Zeigt für die Karten dieser Abteile, wer bezahlt hat und wie viel insgesamt: `card`, `payer` und die Summe von `price`."
+      },
+      "workspace": "sql",
+      "data": "train.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM orders\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM orders\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "hash": "e08bd728a95822d0838885ee1e2237b7bf542fba285b9bda40e26beeac3e4baf"
+      },
+      "reveal": {
+        "en": "Compartment 23's tab was paid by **Bernd Kessler**, compartment 52's by **Ines Hartmann**, and two hot chocolates on 52's tab by **Konstantin Weber** himself. Neither Kessler nor Hartmann has a booking.",
+        "de": "Die Rechnung von Abteil 23 hat **Bernd Kessler** bezahlt, die von Abteil 52 **Ines Hartmann**, und zwei heiße Schokoladen auf der Rechnung von 52 **Konstantin Weber** selbst. Weder Kessler noch Hartmann haben eine Buchung."
+      },
+      "practises": {
+        "en": "A CTE reused in a subquery (`IN (SELECT …)`), `GROUP BY` over two columns with `SUM`",
+        "de": "Eine CTE in einer Unterabfrage wiederverwenden (`IN (SELECT …)`), `GROUP BY` über zwei Spalten mit `SUM`"
+      },
+      "clues": [],
+      "uses": [
+        "handheld"
+      ],
+      "hints": [
+        {
+          "en": "Which compartments' passengers never boarded is what the conductor's handheld found. Put that query into a CTE, `WITH no_shows AS (…)`, so you can use its result here.",
+          "de": "Welche Fahrgäste nie eingestiegen sind, hat das Handgerät des Zugbegleiters ergeben. Steckt diese Abfrage in eine CTE, `WITH no_shows AS (…)`, damit ihr ihr Ergebnis hier verwenden könnt."
+        },
+        {
+          "en": "Filter `orders` with `WHERE card IN (SELECT card FROM no_shows)`, then `GROUP BY card, payer` and add up with `SUM(price)`.",
+          "de": "Filtert `orders` mit `WHERE card IN (SELECT card FROM no_shows)`, gruppiert mit `GROUP BY card, payer` und summiert mit `SUM(price)`."
+        },
+        {
+          "en": "`WITH no_shows AS (SELECT p.card FROM passengers AS p LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id WHERE s.scan_id IS NULL) SELECT card, payer, SUM(price) AS total FROM orders WHERE card IN (SELECT card FROM no_shows) GROUP BY card, payer;`",
+          "de": "`WITH no_shows AS (SELECT p.card FROM passengers AS p LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id WHERE s.scan_id IS NULL) SELECT card, payer, SUM(price) AS total FROM orders WHERE card IN (SELECT card FROM no_shows) GROUP BY card, payer;`"
+        }
+      ]
+    },
+    {
+      "id": "radio",
+      "title": {
+        "en": "The train radio",
+        "de": "Der Zugfunk"
+      },
+      "text": {
+        "en": "The federal police at Marienhall answer. They are sending a patrol to the level crossing at kilometre 214 at once.\n\nOne more question before the train arrives: Konstantin Weber did not leave the train alone. Who left with him? Give the full name.\n\nYou can still query the database here.",
+        "de": "Die Bundespolizei in Marienhall meldet sich. Sie schickt sofort eine Streife zum Bahnübergang bei Kilometer 214.\n\nNoch eine Frage, bevor der Zug ankommt: Konstantin Weber hat den Zug nicht allein verlassen. Wer ist mit ihm ausgestiegen? Nennt den vollständigen Namen.\n\nIhr könnt die Datenbank hier weiter abfragen."
+      },
+      "workspace": "sql",
+      "data": "train.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM passengers\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM passengers\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "answer",
+        "mode": "caseless",
+        "hash": "d1eee2e29aa4f73bde39beaee684d31acfd9a6de20b6687ab90bc4d494836351"
+      },
+      "lock": {
+        "text": {
+          "en": "The radio to the police only connects once you tell it where to send them. It asks for the kilometre post, in whole kilometres, where the emergency brake stopped the train.",
+          "de": "Der Funk zur Polizei verbindet erst, wenn ihr ihm sagt, wohin sie fahren soll. Er fragt nach dem Kilometerstein, in ganzen Kilometern, an dem die Notbremse den Zug angehalten hat."
+        },
+        "from": "speed",
+        "mode": "number",
+        "hash": "1e347eca9d161001f9c5000937049d4388f90179da6bce563693aeab0b982451"
+      },
+      "uses": [
+        "speed",
+        "cards",
+        "till"
+      ],
+      "final": true,
+      "practises": {
+        "en": "Combining the results of several queries",
+        "de": "Die Ergebnisse mehrerer Abfragen kombinieren"
+      },
+      "clues": [
+        "driver-log"
+      ],
+      "hints": [
+        {
+          "en": "Besides Weber's own card, two cards fell silent just before the door in car 3 opened (card reader server). One went to bed at its own compartment door; the other walked into car 3.",
+          "de": "Außer Webers eigener Karte sind kurz vor dem Öffnen der Tür in Wagen 3 zwei Karten verstummt (Kartenleser-Server). Eine ging an der eigenen Abteiltür schlafen, die andere lief in Wagen 3."
+        },
+        {
+          "en": "The card that crossed into car 3 is `C5-52`. It belongs to Paul Brenner's booking, but Brenner never boarded (conductor's handheld). The dining car till says who really used compartment 52.",
+          "de": "Die Karte, die in Wagen 3 hinüberging, ist `C5-52`. Sie gehört zur Buchung von Paul Brenner, aber Brenner ist nie eingestiegen (Handgerät des Zugbegleiters). Die Speisewagenkasse verrät, wer Abteil 52 wirklich genutzt hat."
+        },
+        {
+          "en": "Compartment 52's tab was paid by Ines Hartmann, who has no booking, and Weber bought hot chocolate on it. Her card crossed into car 3 at 01:46, and she left with him through door 3B.",
+          "de": "Die Rechnung von Abteil 52 hat Ines Hartmann bezahlt, die keine Buchung hat, und Weber hat darauf heiße Schokolade gekauft. Ihre Karte ging um 01:46 in Wagen 3 hinüber, und sie ist mit ihm durch Tür 3B ausgestiegen."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "driver-log",
+      "title": {
+        "en": "The driver's log",
+        "de": "Das Fahrtenbuch des Lokführers"
+      },
+      "text": {
+        "en": "EN 471 AURORA · driver: P. Lanz\n\n21:40 Kleeberg dep., on time.\nAround midnight: red signal before Ostheim, waited five minutes for a freight train.\n00:55 Felsach dep.\nBetween Felsach and Marienhall: emergency brake alarm from car 3. Stopped as the rules say. Attendant checked: handle already reset, nobody there. Continued after five minutes.",
+        "de": "EN 471 AURORA · Lokführer: P. Lanz\n\n21:40 ab Kleeberg, pünktlich.\nGegen Mitternacht: rotes Signal vor Ostheim, fünf Minuten auf einen Güterzug gewartet.\n00:55 ab Felsach.\nZwischen Felsach und Marienhall: Notbremsalarm aus Wagen 3. Vorschriftsmäßig gehalten. Schlafwagenbetreuerin hat nachgesehen: Griff schon zurückgestellt, niemand da. Nach fünf Minuten weitergefahren."
+      }
+    },
+    {
+      "id": "route-map",
+      "title": {
+        "en": "The route map",
+        "de": "Die Streckenkarte"
+      },
+      "text": {
+        "en": "EN 471 AURORA · KLEEBERG – LINDHOLM\n\nkm 0 Kleeberg\nkm 88 **Brunnstadt**\nkm 131 Ostheim signal box (no stop)\nkm 152 Lindenau viaduct\nkm 176 **Felsach**\nkm 192 building site, 10 km/h\nkm 203 Rotmoor\nkm 214 Hasselbach level crossing (farm track to the B 81)\nkm 229 Weiler tunnel\nkm 247 Grünau\nkm 263 **Marienhall**\nkm 402 **Lindholm**",
+        "de": "EN 471 AURORA · KLEEBERG – LINDHOLM\n\nkm 0 Kleeberg\nkm 88 **Brunnstadt**\nkm 131 Stellwerk Ostheim (kein Halt)\nkm 152 Viadukt Lindenau\nkm 176 **Felsach**\nkm 192 Baustelle, 10 km/h\nkm 203 Rotmoor\nkm 214 Bahnübergang Hasselbach (Feldweg zur B 81)\nkm 229 Weiler Tunnel\nkm 247 Grünau\nkm 263 **Marienhall**\nkm 402 **Lindholm**"
+      }
+    },
+    {
+      "id": "conductor-note",
+      "title": {
+        "en": "The conductor's note",
+        "de": "Der Zettel des Zugbegleiters"
+      },
+      "text": {
+        "en": "A note under the handheld, in Jakob Horn's handwriting:\n\nAfter every station I walk the whole train and scan each ticket once. Whoever my handheld never scanned never got on. Their compartment stays locked and empty, and its card stays with the attendant.",
+        "de": "Ein Zettel unter dem Handgerät, in Jakob Horns Handschrift:\n\nNach jedem Bahnhof gehe ich durch den ganzen Zug und scanne jedes Ticket einmal. Wen mein Handgerät nie gescannt hat, der ist nie eingestiegen. Sein Abteil bleibt verschlossen und leer, und die Karte bleibt bei der Schlafwagenbetreuerin."
+      }
+    },
+    {
+      "id": "door-sign",
+      "title": {
+        "en": "A sign by the door panel",
+        "de": "Ein Schild an der Türsteuerung"
+      },
+      "text": {
+        "en": "OUTSIDE DOORS\n\nThe doors are released only while the train stands at a platform: from its arrival to its departure. Between stations a door opens only with the square key or the emergency release, and the panel logs it like any other.",
+        "de": "AUSSENTÜREN\n\nDie Türen werden nur freigegeben, während der Zug an einem Bahnsteig steht: von seiner Ankunft bis zu seiner Abfahrt. Zwischen den Bahnhöfen öffnet eine Tür nur mit dem Vierkantschlüssel oder der Notentriegelung, und die Steuerung protokolliert das wie jedes andere Öffnen."
+      }
+    },
+    {
+      "id": "attendant-report",
+      "title": {
+        "en": "The attendant's report",
+        "de": "Der Bericht der Schlafwagenbetreuerin"
+      },
+      "text": {
+        "en": "Pinned to the door of compartment 34. Mira Szabo, sleeping-car attendant, 02:41:\n\nCompartment 34 empty. Bed not slept in, bag on the bunk, coat and shoes gone. Mr Weber's card is not in the compartment.\n\nAt night the gangway doors between the sleeping cars are locked. They open with any compartment card or a staff card (`S-…`), and the reader logs who passed.",
+        "de": "An der Tür von Abteil 34 befestigt. Mira Szabo, Schlafwagenbetreuerin, 02:41:\n\nAbteil 34 leer. Bett unbenutzt, Tasche auf der Liege, Mantel und Schuhe weg. Herrn Webers Karte ist nicht im Abteil.\n\nNachts sind die Übergangstüren zwischen den Schlafwagen verschlossen. Sie öffnen mit jeder Abteilkarte oder einer Personalkarte (`S-…`), und der Leser protokolliert, wer durchgegangen ist."
+      }
+    },
+    {
+      "id": "newspaper",
+      "title": {
+        "en": "A newspaper",
+        "de": "Eine Zeitung"
+      },
+      "text": {
+        "en": "KLEEBERG DAILY · Friday, 13 November 2026\n\nTHE MISSING MILLIONS OF THE NEW BRIDGE: reporter Konstantin Weber to testify in Lindholm on Monday. Weber says he has received threats and \"will not travel the way people expect\".",
+        "de": "KLEEBERGER TAGBLATT · Freitag, 13. November 2026\n\nDIE VERSCHWUNDENEN MILLIONEN DER NEUEN BRÜCKE: Reporter Konstantin Weber sagt am Montag in Lindholm aus. Weber berichtet von Drohungen und will „nicht so reisen, wie man es erwartet“."
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "The onboard computer's binder",
+      "de": "Der Ordner zum Bordrechner"
+    },
+    "intro": {
+      "en": "A ring binder chained to the service desk, labelled EN 471 · DATA. It assumes you already know `SELECT`, `WHERE`, `JOIN`, `ORDER BY` and `GROUP BY`, and covers what comes after them. Each page links to the official SQLite documentation.",
+      "de": "Ein Ringordner, an den Dienstschreibtisch gekettet, beschriftet mit EN 471 · DATEN. Er setzt `SELECT`, `WHERE`, `JOIN`, `ORDER BY` und `GROUP BY` voraus und erklärt, was danach kommt. Jede Seite verweist auf die offizielle SQLite-Dokumentation."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Rows without a match",
+          "de": "Zeilen ohne Treffer"
+        },
+        "entries": [
+          {
+            "name": "a LEFT JOIN b ON …",
+            "text": {
+              "en": "Keeps every row of `a`, even when no row of `b` matches. Where nothing matches, the columns of `b` are `NULL`. A plain `JOIN` drops those rows.",
+              "de": "Behält jede Zeile von `a`, auch wenn keine Zeile von `b` passt. Wo nichts passt, sind die Spalten von `b` `NULL`. Ein einfaches `JOIN` lässt diese Zeilen weg."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#fromclause"
+          },
+          {
+            "name": "x IS NULL / x IS NOT NULL",
+            "text": {
+              "en": "Tests for a missing value. `x = NULL` is never true, not even when `x` is `NULL`.",
+              "de": "Prüft auf einen fehlenden Wert. `x = NULL` ist nie wahr, auch dann nicht, wenn `x` `NULL` ist."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#isisnot"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Subqueries",
+          "de": "Unterabfragen"
+        },
+        "entries": [
+          {
+            "name": "x IN (SELECT …)",
+            "text": {
+              "en": "True when `x` is one of the values the subquery returns. `NOT IN` is the opposite. The subquery returns one column.",
+              "de": "Wahr, wenn `x` einer der Werte ist, die die Unterabfrage liefert. `NOT IN` ist das Gegenteil. Die Unterabfrage liefert eine Spalte."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#in_op"
+          },
+          {
+            "name": "EXISTS (SELECT …)",
+            "text": {
+              "en": "True when the subquery returns at least one row; `NOT EXISTS` when it returns none. What the subquery selects doesn't matter, so `SELECT 1` is common.",
+              "de": "Wahr, wenn die Unterabfrage mindestens eine Zeile liefert; `NOT EXISTS`, wenn sie keine liefert. Was die Unterabfrage auswählt, ist egal, darum schreibt man oft `SELECT 1`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#exists_op"
+          },
+          {
+            "name": "(SELECT … LIMIT 1)",
+            "text": {
+              "en": "A subquery in brackets that returns one value can stand anywhere a value can, also in the column list: `SELECT name, (SELECT MAX(time) FROM visits) AS latest FROM guests`.",
+              "de": "Eine Unterabfrage in Klammern, die einen Wert liefert, kann überall stehen, wo ein Wert stehen kann, auch in der Spaltenliste: `SELECT name, (SELECT MAX(time) FROM visits) AS latest FROM guests`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#subq"
+          },
+          {
+            "name": "correlated subquery",
+            "text": {
+              "en": "A subquery that refers to a column of the outer query, e.g. `WHERE v.guest = g.id` with `g` from outside. It runs again for every row of the outer query, so it can answer a question per row.",
+              "de": "Eine Unterabfrage, die sich auf eine Spalte der äußeren Abfrage bezieht, z. B. `WHERE v.guest = g.id` mit `g` von außen. Sie läuft für jede Zeile der äußeren Abfrage neu und kann so eine Frage pro Zeile beantworten."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#cosub"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Common table expressions",
+          "de": "Common Table Expressions"
+        },
+        "entries": [
+          {
+            "name": "WITH name AS (SELECT …) SELECT … FROM name",
+            "text": {
+              "en": "Gives a query a name, so the main query can use its result like a table. Several CTEs are separated by commas: `WITH a AS (…), b AS (SELECT … FROM a) SELECT …`. Good for building a query step by step.",
+              "de": "Gibt einer Abfrage einen Namen, sodass die Hauptabfrage ihr Ergebnis wie eine Tabelle verwenden kann. Mehrere CTEs werden durch Kommas getrennt: `WITH a AS (…), b AS (SELECT … FROM a) SELECT …`. Gut, um eine Abfrage Schritt für Schritt aufzubauen."
+            },
+            "link": "https://www.sqlite.org/lang_with.html#ordinarycte"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Window functions",
+          "de": "Fensterfunktionen"
+        },
+        "entries": [
+          {
+            "name": "f(…) OVER (ORDER BY col)",
+            "text": {
+              "en": "A window function is computed for every row while looking at other rows. Unlike `GROUP BY`, it keeps all the rows. `ORDER BY` inside `OVER` sets the order in which it walks through them.",
+              "de": "Eine Fensterfunktion wird für jede Zeile berechnet und schaut dabei auf andere Zeilen. Anders als `GROUP BY` behält sie alle Zeilen. `ORDER BY` in `OVER` legt fest, in welcher Reihenfolge sie die Zeilen durchgeht."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html"
+          },
+          {
+            "name": "OVER (PARTITION BY col ORDER BY …)",
+            "text": {
+              "en": "Splits the rows into groups by `col` and runs the window function in each group separately, starting again for every group.",
+              "de": "Teilt die Zeilen nach `col` in Gruppen und wendet die Fensterfunktion in jeder Gruppe getrennt an, für jede Gruppe von vorn."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html#ptxn"
+          },
+          {
+            "name": "LAG(col) / LEAD(col)",
+            "text": {
+              "en": "The value of `col` in the previous (`LAG`) or next (`LEAD`) row, in the order of the window. The first row has no previous one, so `LAG` gives `NULL` there.",
+              "de": "Der Wert von `col` in der vorigen (`LAG`) oder nächsten (`LEAD`) Zeile, in der Reihenfolge des Fensters. Die erste Zeile hat keine vorige, dort liefert `LAG` `NULL`."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html#biwinfunc"
+          },
+          {
+            "name": "ROW_NUMBER()",
+            "text": {
+              "en": "Numbers the rows 1, 2, 3, … in the order of the window, again from 1 in every partition. With `ORDER BY time DESC` the newest row gets 1.",
+              "de": "Nummeriert die Zeilen 1, 2, 3, … in der Reihenfolge des Fensters, in jeder Partition wieder ab 1. Mit `ORDER BY time DESC` bekommt die neueste Zeile die 1."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html#biwinfunc"
+          },
+          {
+            "name": "filtering by a window function",
+            "text": {
+              "en": "`WHERE` runs before window functions are computed, so they can't be used there. Compute the window function in a CTE (or a subquery in `FROM`), then filter its result in the outer query.",
+              "de": "`WHERE` wird ausgewertet, bevor Fensterfunktionen berechnet werden, darum dürfen sie dort nicht stehen. Berechnet die Fensterfunktion in einer CTE (oder einer Unterabfrage im `FROM`) und filtert ihr Ergebnis in der äußeren Abfrage."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Adding up and times",
+          "de": "Summen und Zeiten"
+        },
+        "entries": [
+          {
+            "name": "SUM(col)",
+            "text": {
+              "en": "Adds up a column, per group with `GROUP BY`. `GROUP BY a, b` makes one group for every combination of `a` and `b`.",
+              "de": "Summiert eine Spalte, mit `GROUP BY` pro Gruppe. `GROUP BY a, b` bildet eine Gruppe für jede Kombination von `a` und `b`."
+            },
+            "link": "https://www.sqlite.org/lang_aggfunc.html#sumunc"
+          },
+          {
+            "name": "'YYYY-MM-DD HH:MM'",
+            "text": {
+              "en": "Times in this database are text in this form, so they compare and sort in time order. After midnight the date changes: 01:30 that night is `'2026-11-14 01:30'`.",
+              "de": "Zeiten sind in dieser Datenbank Text in dieser Form, darum lassen sie sich zeitlich vergleichen und sortieren. Nach Mitternacht wechselt das Datum: 01:30 in dieser Nacht ist `'2026-11-14 01:30'`."
+            },
+            "link": "https://www.sqlite.org/lang_datefunc.html"
+          }
+        ]
+      }
+    ]
+  }
+}

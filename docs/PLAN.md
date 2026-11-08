@@ -87,7 +87,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 
 ### 8b. Doors as room types ✅
 - Lobby doors stand for room types (🐍 Python, 🗄️ SQL, 📈 time series), with an icon sign above each.
-- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert; since step 16 five tiers: beginner, elementary, intermediate, advanced, expert, with the old three keeping their meaning); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python, since built), window functions "Night Train" (SQL), the Prophet-style "Festival Season" (time series, since built). Move an entry from `upcoming` into a room manifest when it gets built.
+- The door dialog lists the scenarios behind the door with a difficulty badge (beginner, advanced, expert; since step 16 five tiers: beginner, elementary, intermediate, advanced, expert, with the old three keeping their meaning); nothing is preselected; clicking one selects it, and its ⓘ button shows its story, what it practises and its tools. Planned scenarios appear greyed out as "Coming soon" (`content/lobby/doors.json`): pandas "Market Day" (Python, since built), window functions "Night Train" (SQL, since built), the Prophet-style "Festival Season" (time series, since built). Move an entry from `upcoming` into a room manifest when it gets built.
 
 ### 9. Polish
 - **Art:** ✅ redrawn in our own generator (`scripts/generate-art.mjs`): outlined, shaded tiles with drop shadows and texture, doors that pair into double doors, and 12 characters (hair styles, skin tones, glasses, a cap) with idle and two walking frames per direction. Kenney's CC0 packs were checked and dropped: no lab, hotel or station props, and characters that only face forward. Players on an older build drop hellos from the new avatars 7–12 until they reload.
@@ -224,6 +224,23 @@ Behind the 🐍 door, between Market Day and The Silent Archive. Every station i
 **Handbook:** "Debugging guide": reading a traceback, the exceptions the room meets, `print(f"{x=}")`, `repr`, `type`, `assert`, indentation, aliasing, changing a list while looping, bare `except`, and the string and number functions the fixes need.
 
 **Open:** playtest the time budget; "nectar → 6" isn't derived from the script's output like the other digits (see the flow page).
+
+### 18. Window functions room "Night Train" ✅ content built (`sql-train`, advanced), playtest pending
+Behind the 🗄️ door, after The Blue Index, which it builds on: subqueries, CTEs, `LEFT JOIN`, window functions. One database (`data/train.sql`, made by `generate_data.py`, stdlib only) with seven tables: `stations`, `passengers`, `scans`, `speed`, `doors`, `taps`, `orders`. New tiles 87–94: train floor, night window, compartment door, dining table, speed recorder, door panel, radio, conductor's handheld (95 is the last free slot in the 8 × 12 sheet).
+
+**Story:** night train EN 471 "Aurora", Kleeberg to Lindholm, the night of 13 to 14 November 2026. The reporter Konstantin Weber, due to testify about a bridge scandal, is missing from compartment 34; the federal police board at Marienhall in half an hour. In truth he left at an emergency-brake halt on open track with Ines Hartmann, who rode unbooked in a no-show's compartment.
+
+**Stations** (numbers from the reference solutions):
+1. **Conductor's handheld** (`LEFT JOIN … IS NULL`; open): two tickets never scanned: Hanna Vogt (`C2-23`), Paul Brenner (`C5-52`). An inner `JOIN` returns nothing.
+2. **Speed recorder** (`LAG` through a CTE; open): halts since Kleeberg at km 88.0, 131.4, 176.2, 214.3. `kmh = 0` gives every standing row; `kmh < 10` catches the building site's 6 km/h.
+3. **Door control panel** (`NOT EXISTS`, correlated scalar subquery; open): door 3B opened at 01:53 and closed at 01:55, after Felsach. The door sign gives the release rule.
+4. **Card reader server** (`ROW_NUMBER` per card; uses 3): cards last tapped 01:23–01:53: `C4-45` (own door, asleep), `C5-52` (gangway into car 3, 01:46), `C3-34` (Weber). Night owls tap inside the window but again later, so a plain time filter is wrong.
+5. **Dining car till** (CTE in `IN`, `GROUP BY` + `SUM`; uses 1): the no-show cards' tabs: Bernd Kessler €11.40 (`C2-23`, a fare dodger still on board), Ines Hartmann €14.10 and Konstantin Weber €7.20 (`C5-52`).
+6. **Train radio** (final; lock 214 from 2 + driver's log, which explains the km 131 halt as a red signal): who left with Weber? Ines Hartmann. Trap: `C5-52` is booked for Paul Brenner.
+
+**Handbook:** "The onboard computer's binder": `LEFT JOIN`, `IS NULL`, `IN`/`EXISTS`, scalar and correlated subqueries, `WITH`, `OVER`, `PARTITION BY`, `LAG`/`LEAD`, `ROW_NUMBER`, why window functions can't go in `WHERE`, `SUM`, text times across midnight. Assumes the Blue Index's basics.
+
+**Open:** playtest the time budget; window functions are new to most students, so the speed recorder may need its first hint early.
 
 ## Known limits
 
