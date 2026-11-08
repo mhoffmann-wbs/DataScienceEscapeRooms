@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 12 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 14 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 12;
+const TILESET_ROWS = 14;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -1618,6 +1618,153 @@ drawTile(94, (g, { obj, shadow }) => {
     o.rect(12, 14, 8, 2, [214, 60, 56]);
     for (let x = 22; x < 28; x++) o.set(x, 10 + Math.round(Math.sin(x) * 2), [40, 100, 200]);
     o.ellipse(8, 22, 3, 2, [250, 248, 238]);
+  });
+});
+
+// --- Cinema (sql-cinema) ---------------------------------------------------------
+const VELVET = [146, 30, 46];
+const GOLD = [222, 182, 82];
+/** A box office counter front: dark red panels under a brass-edged top. */
+function cinemaCounter(o) {
+  o.box(0, 14, T, 16, [110, 30, 40], 1.2);
+  o.rect(0, 14, T, 2, GOLD);
+  for (let x = 3; x < T; x += 10) o.box(x, 19, 7, 8, sh(VELVET, 0.85), 1.15);
+}
+// 95 cinema carpet: deep red with a small gold diamond pattern
+drawTile(95, (g) => {
+  g.rect(0, 0, T, T, [112, 24, 40]);
+  g.noise(0, 0, T, T, 0.08, 95);
+  const dim = alpha(GOLD, 110);
+  for (const [cx, cy] of [[8, 8], [24, 24]]) {
+    g.set(cx, cy - 1, dim);
+    g.rect(cx - 1, cy, 3, 1, dim);
+    g.set(cx, cy + 1, dim);
+  }
+  for (const [x, y] of [[24, 8], [8, 24]]) g.set(x, y, alpha(GOLD, 60));
+});
+// 96 film poster: a lit frame with a moon over a silhouette and a title band
+drawTile(96, (g, { obj }) => {
+  wallFront(g, 96);
+  obj((o) => {
+    o.box(6, 2, 20, 24, GOLD, 1.2);
+    o.rect(8, 4, 16, 20, [36, 40, 86]);
+    for (let j = 0; j < 12; j++) o.rect(8, 4 + j, 16, 1, alpha([120, 70, 160], 10 + j * 8));
+    o.ellipse(19, 9, 3, 3, [250, 236, 180]);
+    o.ellipse(12, 19, 6, 3, [20, 22, 40]);
+    o.rect(11, 13, 2, 7, [20, 22, 40]);
+    o.ellipse(12, 12, 2, 2, [20, 22, 40]);
+    o.rect(9, 21, 14, 2, [240, 220, 140]);
+    o.rect(10, 22, 4, 1, [140, 60, 50]);
+    o.rect(15, 22, 6, 1, [140, 60, 50]);
+  });
+});
+// 97 box office till: a counter with a ticket printer pushing out a strip of tickets
+drawTile(97, (g, { obj }) => {
+  obj((o) => {
+    cinemaCounter(o);
+    o.box(4, 3, 14, 12, [52, 56, 70], 1.3);
+    o.rect(6, 5, 10, 3, [30, 60, 46]);
+    o.rect(7, 6, 6, 1, [120, 230, 160]);
+    o.rect(6, 10, 10, 2, [24, 26, 32]);
+    o.box(19, 6, 10, 9, [214, 216, 222], 1.1);
+    o.rect(20, 8, 8, 1, [40, 40, 48]);
+    o.box(21, 1, 6, 7, [252, 236, 170], 1, 0.85);
+    o.rect(21, 4, 6, 1, [200, 150, 80]);
+    o.rect(22, 2, 3, 1, [160, 60, 50]);
+  });
+});
+// 98 popcorn machine: a glass cabinet full of popcorn with a red roof, on the counter
+drawTile(98, (g, { obj }) => {
+  obj((o) => {
+    cinemaCounter(o);
+    o.box(6, 0, 20, 4, [214, 46, 46], 1.25);
+    o.rect(6, 3, 20, 1, GOLD);
+    o.box(7, 4, 18, 11, [200, 220, 230], 1.1);
+    const r = rng(98);
+    for (let i = 0; i < 40; i++) o.set(8 + Math.floor(r() * 16), 8 + Math.floor(r() * 6), r() < 0.5 ? [255, 246, 214] : [246, 214, 120]);
+    o.rect(8, 5, 2, 9, alpha([255, 255, 255], 90));
+    o.box(26, 8, 4, 6, [250, 250, 250]);
+    o.rect(26, 9, 4, 1, [214, 46, 46]);
+    o.rect(26, 11, 4, 1, [214, 46, 46]);
+  });
+});
+// 99 usher's podium: a small lectern with a tablet and a spike of torn ticket stubs
+drawTile(99, (g, { obj, shadow }) => {
+  shadow(16, 29, 9, 2);
+  obj((o) => {
+    o.box(9, 13, 14, 16, VELVET, 1.2);
+    o.rect(9, 13, 14, 2, GOLD);
+    o.rect(11, 18, 10, 1, sh(VELVET, 0.75));
+    o.box(7, 8, 18, 6, [60, 44, 36], 1.3);
+    o.rect(9, 9, 8, 4, [140, 210, 240]);
+    o.rect(10, 10, 5, 1, [40, 80, 110]);
+    o.rect(21, 2, 1, 7, [150, 158, 172]);
+    for (let y = 3; y < 8; y += 2) o.rect(19, y, 5, 1, [252, 236, 170]);
+  });
+});
+// 100 clicker stand: a post with a digital people counter and a handheld clicker on a cord
+drawTile(100, (g, { obj, shadow }) => {
+  shadow(16, 29, 7, 2);
+  obj((o) => {
+    o.rect(15, 14, 3, 14, [150, 158, 172]);
+    o.box(11, 27, 11, 3, [90, 96, 108]);
+    o.box(6, 3, 21, 12, [44, 46, 54], 1.4);
+    o.rect(8, 5, 17, 7, [30, 8, 10]);
+    for (let i = 0; i < 3; i++) o.rect(10 + i * 5, 8, 3, 1, [240, 60, 50]);
+    o.rect(8, 13, 4, 1, [240, 200, 60]);
+    o.box(21, 16, 6, 8, [214, 60, 56], 1.3);
+    o.set(23, 18, [250, 250, 250]);
+    for (let y = 15; y < 17; y++) o.set(19, y, [36, 36, 40]);
+  });
+});
+// 101 office door: a plain wooden door with a name plate, a keypad beside it
+drawTile(101, (g, { obj }) => {
+  wallFront(g, 101);
+  obj((o) => {
+    o.box(4, 2, 18, 28, [150, 104, 66], 1.2);
+    o.rect(6, 5, 14, 10, sh([150, 104, 66], 0.88));
+    o.rect(6, 17, 14, 10, sh([150, 104, 66], 0.88));
+    o.box(8, 8, 10, 3, GOLD, 1.2);
+    o.rect(18, 17, 2, 3, GOLD);
+    o.box(24, 10, 6, 9, [52, 56, 70]);
+    o.rect(25, 11, 4, 2, [120, 230, 160]);
+    for (let j = 0; j < 2; j++) o.rect(25, 14 + j * 2, 4, 1, [206, 210, 220]);
+  });
+});
+// 102 hall door: a padded red leather door with brass studs and a round window
+drawTile(102, (g, { obj }) => {
+  wallFront(g, 102);
+  obj((o) => {
+    o.box(3, 1, 26, 29, [126, 24, 38], 1.15);
+    for (let y = 5; y < 29; y += 6) for (let x = 6; x < 28; x += 6) o.set(x, y, GOLD);
+    o.ellipse(16, 9, 5, 5, GOLD);
+    o.ellipse(16, 9, 4, 4, [40, 34, 60]);
+    o.rect(14, 7, 2, 2, alpha([255, 255, 255], 90));
+    o.rect(7, 16, 18, 2, sh(GOLD, 0.9));
+  });
+});
+// 103 velvet rope: two brass posts with a sagging red rope between them
+drawTile(103, (g, { obj, shadow }) => {
+  shadow(16, 29, 14, 2);
+  obj((o) => {
+    for (const x of [3, 26]) {
+      o.rect(x + 1, 8, 2, 19, GOLD);
+      o.ellipse(x + 2, 7, 2.5, 2.5, sh(GOLD, 1.15));
+      o.box(x - 1, 26, 6, 3, sh(GOLD, 0.8));
+    }
+    for (let x = 6; x < 27; x++) o.rect(x, 10 + Math.round(Math.sin(((x - 6) / 20) * Math.PI) * 5), 1, 2, VELVET);
+  });
+});
+// 104 snack counter: the counter with paper cups and a stack of cardboard trays
+drawTile(104, (g, { obj }) => {
+  obj((o) => {
+    cinemaCounter(o);
+    for (const x of [4, 10]) {
+      o.box(x, 6, 5, 9, [250, 250, 250]);
+      o.rect(x, 9, 5, 2, [214, 46, 46]);
+      o.rect(x + 2, 3, 1, 3, [240, 200, 60]);
+    }
+    for (let i = 0; i < 4; i++) o.box(17, 12 - i * 2, 11, 2, [196, 160, 110], 1.1);
   });
 });
 

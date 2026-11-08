@@ -1,0 +1,12 @@
+{
+  "tally": "SELECT s.starts, s.hall, COUNT(t.ticket_no) AS sold, y.admitted\nFROM screenings AS s\nJOIN tally AS y ON y.screening_id = s.screening_id\nLEFT JOIN tickets AS t ON t.screening_id = s.screening_id\nGROUP BY s.screening_id, s.starts, s.hall, y.admitted\nHAVING y.admitted - COUNT(t.ticket_no) > 2\nORDER BY s.starts;\n",
+  "printer": "SELECT t.till,\n       t.ticket_no AS last_before,\n       (SELECT MIN(u.ticket_no)\n        FROM tickets AS u\n        WHERE u.ticket_no > t.ticket_no) AS first_after\nFROM tickets AS t\nWHERE NOT EXISTS (\n  SELECT 1 FROM tickets AS u WHERE u.ticket_no = t.ticket_no + 1\n)\n  AND t.ticket_no < (SELECT MAX(u.ticket_no) FROM tickets AS u WHERE u.till = t.till)\nORDER BY t.ticket_no;\n",
+  "clicker": "SELECT time, inside\nFROM (\n  SELECT time, SUM(delta) OVER (ORDER BY time) AS inside\n  FROM clicks\n)\nWHERE inside > (SELECT seats FROM halls WHERE hall = 2)\nORDER BY time;\n",
+  "rota": "SELECT r.day,\n       MAX(CASE WHEN r.post = 'till 1' THEN s.name END) AS till_1,\n       MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2,\n       MAX(CASE WHEN r.post = 'snack bar' THEN s.name END) AS snack_bar,\n       MAX(CASE WHEN r.post = 'door' THEN s.name END) AS door\nFROM rota AS r\nJOIN staff AS s ON s.staff_id = r.staff_id\nWHERE r.shift = 'evening'\n  AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14')\nGROUP BY r.day\nORDER BY r.day;\n",
+  "snacks": "SELECT date(x.sold_at) AS day, s.name, COUNT(*) AS sales\nFROM snack_sales AS x\nJOIN staff AS s ON s.staff_id = x.staff_id\nWHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14')\n  AND time(x.sold_at) >= '18:15'\nGROUP BY day, s.name\nORDER BY day, s.name;\n",
+  "office": {
+    "answer": "Tobias Rehm",
+    "code": "-- Planned at the snack bar on all three evenings, but sold no snacks after 18:15:\nSELECT s.name, r.day,\n       (SELECT COUNT(*)\n        FROM snack_sales AS x\n        WHERE x.staff_id = r.staff_id\n          AND date(x.sold_at) = r.day\n          AND time(x.sold_at) >= '18:15') AS evening_sales\nFROM rota AS r\nJOIN staff AS s ON s.staff_id = r.staff_id\nWHERE r.shift = 'evening'\n  AND r.post = 'snack bar'\n  AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14')\nORDER BY r.day;\n"
+  },
+  "office#lock": "132"
+}

@@ -1,0 +1,550 @@
+{
+  "version": 1,
+  "salt": "2cdb61f58c4aa20d",
+  "title": {
+    "en": "The Last Show",
+    "de": "Die letzte Vorstellung"
+  },
+  "category": "sql",
+  "difficulty": "intermediate",
+  "about": {
+    "tools": [
+      "SQL (SQLite)"
+    ],
+    "practises": {
+      "en": "GROUP BY with HAVING, CASE inside aggregates, subqueries, date functions, gaps in a sequence, running totals with SUM() OVER.",
+      "de": "GROUP BY mit HAVING, CASE in Aggregaten, Unterabfragen, Datumsfunktionen, Lücken in einer Folge, laufende Summen mit SUM() OVER."
+    },
+    "story": {
+      "en": "Someone has been skimming the box office of an old cinema; follow the missing tickets through the tills, the usher's tally, the rota and the snack bar.",
+      "de": "Jemand zweigt an der Kasse eines alten Kinos Geld ab; folgt den fehlenden Tickets durch die Kassen, die Strichliste des Platzanweisers, den Dienstplan und die Snackbar."
+    }
+  },
+  "intro": {
+    "en": "Kino Lumen, Kleeberg's last old cinema, Sunday 15 November, after the last show. Tomorrow at nine Edith Brandauer has to show her books to the bank. They say the cinema loses money every week, yet the Studio was packed at the weekends. Somebody has been taking the box office's cash.\n\nEdith has locked the doors behind you and opened up the cinema's computer: every ticket the two tills printed, Ben the usher's tally at the door, the staff rota, the snack till and the fire marshal's new clicker. Find out who has been skimming, and tell Edith before the last bus leaves in half an hour.",
+    "de": "Kino Lumen, Kleebergs letztes altes Kino, Sonntag, 15. November, nach der letzten Vorstellung. Morgen um neun muss Edith Brandauer der Bank ihre Bücher zeigen. Nach denen verliert das Kino jede Woche Geld, dabei war das Studio an den Wochenenden voll. Jemand hat sich an der Kasse bedient.\n\nEdith hat die Türen hinter euch abgeschlossen und euch den Kinorechner geöffnet: jedes Ticket, das die beiden Kassen gedruckt haben, Bens Strichliste an der Tür, den Dienstplan, die Snackkasse und den neuen Zähler der Feuerwehr. Findet heraus, wer abgezweigt hat, und sagt es Edith, bevor in einer halben Stunde der letzte Bus fährt."
+  },
+  "puzzles": [
+    {
+      "id": "tally",
+      "title": {
+        "en": "Ben's tally",
+        "de": "Bens Strichliste"
+      },
+      "text": {
+        "en": "Ben Adeyemi, the usher, tears the stub off every ticket at the hall door and writes down how many people he let in: `tally` holds his count for every screening. `tickets` holds every ticket the tills sold.\n\nWhich screenings let in clearly more people than there are tickets in the system? Ben's note on the clipboard says how far you can trust his count. Show `starts`, `hall`, the number of tickets sold and Ben's count, earliest first.",
+        "de": "Ben Adeyemi, der Platzanweiser, reißt an der Saaltür von jedem Ticket den Abschnitt ab und notiert, wie viele Leute er eingelassen hat: `tally` enthält seine Zählung für jede Vorstellung. `tickets` enthält jedes Ticket, das die Kassen verkauft haben.\n\nBei welchen Vorstellungen kamen deutlich mehr Leute herein, als Tickets im System stehen? Bens Notiz auf dem Klemmbrett sagt, wie weit ihr seiner Zählung trauen könnt. Zeigt `starts`, `hall`, die Zahl der verkauften Tickets und Bens Zählung, die früheste zuerst."
+      },
+      "workspace": "sql",
+      "data": "cinema.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM tally\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM tally\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "b9a3ba471e72f63fdeb13a7261d2247aff2bc3ce7c8895d1b9f67c1bfdf20d91"
+      },
+      "reveal": {
+        "en": "Three late shows in the Studio (hall 2) let in far more people than the system sold tickets for:\nFriday 6 November: 96 sold, 113 let in\nSaturday 7 November: 101 sold, 120 let in\nSaturday 14 November: 113 sold, 134 let in\nThat's 57 people with a torn stub but no ticket in the system.",
+        "de": "Drei Spätvorstellungen im Studio (Saal 2) haben weit mehr Leute eingelassen, als das System Tickets verkauft hat:\nFreitag, 6. November: 96 verkauft, 113 eingelassen\nSamstag, 7. November: 101 verkauft, 120 eingelassen\nSamstag, 14. November: 113 verkauft, 134 eingelassen\nDas sind 57 Leute mit abgerissenem Abschnitt, aber ohne Ticket im System."
+      },
+      "practises": {
+        "en": "`GROUP BY` over a join, and `HAVING` to filter the groups by an aggregate",
+        "de": "`GROUP BY` über einen Join und `HAVING`, um die Gruppen nach einem Aggregat zu filtern"
+      },
+      "clues": [
+        "tally-note"
+      ],
+      "hints": [
+        {
+          "en": "Count the tickets per screening first: join `tally` and `tickets` on `screening_id` and `GROUP BY` the screening. A condition on `COUNT(…)` can't go into `WHERE`, which runs before the grouping. It goes into `HAVING`, which runs after it.",
+          "de": "Zählt zuerst die Tickets pro Vorstellung: Verbindet `tally` und `tickets` über `screening_id` und gruppiert mit `GROUP BY` nach der Vorstellung. Eine Bedingung auf `COUNT(…)` kann nicht in `WHERE` stehen, das vor dem Gruppieren läuft. Sie gehört in `HAVING`, das danach läuft."
+        },
+        {
+          "en": "Ben can be up to two off either way, so a difference of 1 or 2 means nothing. Keep the groups where `y.admitted - COUNT(t.ticket_no) > 2`. Every column you show that isn't counted belongs in the `GROUP BY` too.",
+          "de": "Ben kann sich um bis zu zwei in beide Richtungen verzählen, ein Unterschied von 1 oder 2 bedeutet also nichts. Behaltet die Gruppen mit `y.admitted - COUNT(t.ticket_no) > 2`. Jede Spalte, die ihr zeigt und die nicht gezählt wird, gehört auch ins `GROUP BY`."
+        },
+        {
+          "en": "`SELECT s.starts, s.hall, COUNT(t.ticket_no) AS sold, y.admitted FROM screenings AS s JOIN tally AS y ON y.screening_id = s.screening_id LEFT JOIN tickets AS t ON t.screening_id = s.screening_id GROUP BY s.screening_id, s.starts, s.hall, y.admitted HAVING y.admitted - COUNT(t.ticket_no) > 2 ORDER BY s.starts;`",
+          "de": "`SELECT s.starts, s.hall, COUNT(t.ticket_no) AS sold, y.admitted FROM screenings AS s JOIN tally AS y ON y.screening_id = s.screening_id LEFT JOIN tickets AS t ON t.screening_id = s.screening_id GROUP BY s.screening_id, s.starts, s.hall, y.admitted HAVING y.admitted - COUNT(t.ticket_no) > 2 ORDER BY s.starts;`"
+        }
+      ]
+    },
+    {
+      "id": "printer",
+      "title": {
+        "en": "The ticket printers",
+        "de": "Die Ticketdrucker"
+      },
+      "text": {
+        "en": "Every ticket carries a printed number. Till 1 prints on a roll that starts at 10001, till 2 on one that starts at 20001, and every printed ticket goes into `tickets`. When a sale is cancelled, its row is deleted, and its number is missing from the table.\n\nFind the gaps: every ticket whose next number is missing, although its till printed higher numbers later. Show the `till`, the number before the gap and the first number after it, in the order of the numbers.",
+        "de": "Jedes Ticket trägt eine aufgedruckte Nummer. Kasse 1 druckt auf einer Rolle, die bei 10001 beginnt, Kasse 2 auf einer, die bei 20001 beginnt, und jedes gedruckte Ticket landet in `tickets`. Wird ein Verkauf storniert, wird seine Zeile gelöscht, und seine Nummer fehlt in der Tabelle.\n\nFindet die Lücken: jedes Ticket, dessen nächste Nummer fehlt, obwohl seine Kasse später höhere Nummern gedruckt hat. Zeigt `till`, die Nummer vor der Lücke und die erste Nummer danach, in der Reihenfolge der Nummern."
+      },
+      "workspace": "sql",
+      "data": "cinema.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM tickets\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM tickets\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "6680986e3872cb84421c489b7be9cfd6d4f8598192285c52b3726627a7615921"
+      },
+      "reveal": {
+        "en": "Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of 6, 7 and 14 November, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.",
+        "de": "Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken am 6., 7. und 14. November, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht."
+      },
+      "practises": {
+        "en": "Finding gaps in a sequence: `NOT EXISTS` with `ticket_no + 1`, and correlated subqueries with `MIN` and `MAX`",
+        "de": "Lücken in einer Folge finden: `NOT EXISTS` mit `ticket_no + 1` und korrelierte Unterabfragen mit `MIN` und `MAX`"
+      },
+      "clues": [],
+      "hints": [
+        {
+          "en": "A ticket stands right before a gap when no ticket has its number plus one: `WHERE NOT EXISTS (SELECT 1 FROM tickets AS u WHERE u.ticket_no = t.ticket_no + 1)`.",
+          "de": "Ein Ticket steht direkt vor einer Lücke, wenn kein Ticket seine Nummer plus eins hat: `WHERE NOT EXISTS (SELECT 1 FROM tickets AS u WHERE u.ticket_no = t.ticket_no + 1)`."
+        },
+        {
+          "en": "That also finds the last ticket of each roll, where nothing follows yet. Keep only tickets below their till's highest number: `AND t.ticket_no < (SELECT MAX(u.ticket_no) FROM tickets AS u WHERE u.till = t.till)`. The first number after a gap is the smallest number above it: `(SELECT MIN(u.ticket_no) FROM tickets AS u WHERE u.ticket_no > t.ticket_no)`.",
+          "de": "Das findet auch das letzte Ticket jeder Rolle, nach dem noch nichts kommt. Behaltet nur Tickets unter der höchsten Nummer ihrer Kasse: `AND t.ticket_no < (SELECT MAX(u.ticket_no) FROM tickets AS u WHERE u.till = t.till)`. Die erste Nummer nach einer Lücke ist die kleinste Nummer darüber: `(SELECT MIN(u.ticket_no) FROM tickets AS u WHERE u.ticket_no > t.ticket_no)`."
+        },
+        {
+          "en": "`SELECT t.till, t.ticket_no, (SELECT MIN(u.ticket_no) FROM tickets AS u WHERE u.ticket_no > t.ticket_no) AS first_after FROM tickets AS t WHERE NOT EXISTS (SELECT 1 FROM tickets AS u WHERE u.ticket_no = t.ticket_no + 1) AND t.ticket_no < (SELECT MAX(u.ticket_no) FROM tickets AS u WHERE u.till = t.till) ORDER BY t.ticket_no;`",
+          "de": "`SELECT t.till, t.ticket_no, (SELECT MIN(u.ticket_no) FROM tickets AS u WHERE u.ticket_no > t.ticket_no) AS first_after FROM tickets AS t WHERE NOT EXISTS (SELECT 1 FROM tickets AS u WHERE u.ticket_no = t.ticket_no + 1) AND t.ticket_no < (SELECT MAX(u.ticket_no) FROM tickets AS u WHERE u.till = t.till) ORDER BY t.ticket_no;`"
+        }
+      ]
+    },
+    {
+      "id": "clicker",
+      "title": {
+        "en": "The fire marshal's clicker",
+        "de": "Der Zähler der Feuerwehr"
+      },
+      "text": {
+        "en": "After complaints about a crowded Studio, the fire marshal had a clicker installed at its door. Since Saturday 14 November the usher presses +1 for everyone who comes in and −1 for everyone who goes out. `clicks` holds every press from the late show that night.\n\nWhen did the Studio hold more people than it has seats? Show the `time` of each click and how many people were inside after it, only the moments over the number of seats, earliest first.",
+        "de": "Nach Beschwerden über ein überfülltes Studio hat die Feuerwehr an seiner Tür einen Zähler einbauen lassen. Seit Samstag, dem 14. November, drückt der Platzanweiser +1 für jeden, der hereinkommt, und −1 für jeden, der hinausgeht. `clicks` enthält jeden Druck aus der Spätvorstellung an diesem Abend.\n\nWann waren im Studio mehr Leute, als es Sitzplätze hat? Zeigt die Zeit (`time`) jedes Drucks und wie viele Leute danach drin waren, nur die Momente über der Zahl der Sitzplätze, den frühesten zuerst."
+      },
+      "workspace": "sql",
+      "data": "cinema.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM clicks\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM clicks\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "316a43b602bed473ca531e177840a220e2ed90c5c895c1403c65a296570aeb4c"
+      },
+      "reveal": {
+        "en": "The Studio has 120 seats. During the late show on 14 November it was over that for two hours, from 21:40 to 23:39, with up to **132** people inside at once. Ben's tally says 134 came in: two people walked out at 21:50, before the last two latecomers arrived.",
+        "de": "Das Studio hat 120 Sitzplätze. In der Spätvorstellung am 14. November lag es zwei Stunden darüber, von 21:40 bis 23:39, mit bis zu **132** Leuten gleichzeitig. Laut Bens Strichliste kamen 134 herein: Zwei Leute sind um 21:50 gegangen, bevor die letzten beiden Nachzügler kamen."
+      },
+      "practises": {
+        "en": "Running totals with `SUM() OVER (ORDER BY …)`; filtering a window function through a subquery in `FROM`; a scalar subquery",
+        "de": "Laufende Summen mit `SUM() OVER (ORDER BY …)`; eine Fensterfunktion über eine Unterabfrage in `FROM` filtern; eine skalare Unterabfrage"
+      },
+      "clues": [
+        "fire-notice"
+      ],
+      "hints": [
+        {
+          "en": "How many people are inside at a moment is the sum of all clicks up to then: a running total. `SUM(delta) OVER (ORDER BY time)` adds up `delta` over every row up to the current one, and keeps all the rows.",
+          "de": "Wie viele Leute in einem Moment drin sind, ist die Summe aller Drücke bis dahin: eine laufende Summe. `SUM(delta) OVER (ORDER BY time)` addiert `delta` über alle Zeilen bis zur aktuellen und behält dabei alle Zeilen."
+        },
+        {
+          "en": "A window function can't go into `WHERE`. Compute it in a subquery first, `FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks)`, then filter that: `WHERE inside > (SELECT seats FROM halls WHERE hall = 2)`.",
+          "de": "Eine Fensterfunktion kann nicht in `WHERE` stehen. Berechnet sie zuerst in einer Unterabfrage, `FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks)`, und filtert dann diese: `WHERE inside > (SELECT seats FROM halls WHERE hall = 2)`."
+        },
+        {
+          "en": "`SELECT time, inside FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks) WHERE inside > (SELECT seats FROM halls WHERE hall = 2) ORDER BY time;`",
+          "de": "`SELECT time, inside FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks) WHERE inside > (SELECT seats FROM halls WHERE hall = 2) ORDER BY time;`"
+        }
+      ]
+    },
+    {
+      "id": "rota",
+      "title": {
+        "en": "The staff rota",
+        "de": "Der Dienstplan"
+      },
+      "text": {
+        "en": "Edith plans every shift on the computer behind the box office. `rota` has one row per day, shift (`afternoon` or `evening`) and post (`till 1`, `till 2`, `snack bar` or `door`); `staff` has the names.\n\nOn each evening when Ben let in far too many people, who was planned where in the evening shift? Show one row per day: the `day`, then the names at till 1, till 2, the snack bar and the door, earliest first.",
+        "de": "Edith plant jede Schicht am Rechner hinter der Kasse. `rota` hat eine Zeile pro Tag, Schicht (`afternoon` oder `evening`) und Posten (`till 1`, `till 2`, `snack bar` oder `door`); `staff` enthält die Namen.\n\nWer war an jedem Abend, an dem Ben viel zu viele Leute eingelassen hat, in der Abendschicht wo eingeplant? Zeigt eine Zeile pro Tag: den Tag (`day`), dann die Namen an Kasse 1, Kasse 2, der Snackbar und der Tür, den frühesten zuerst."
+      },
+      "workspace": "sql",
+      "data": "cinema.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM rota\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM rota\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "82c77ca047ba4790a8d877c826ee42b25221cd711f83bef673a3283c8db58046"
+      },
+      "reveal": {
+        "en": "The evening rota for the three nights:\n6 Nov: till 1 Jonas Pfeiffer, till 2 **Lukas Feld**, snack bar Tobias Rehm, door Ben Adeyemi\n7 Nov: till 1 Jonas Pfeiffer, till 2 **Lukas Feld**, snack bar Tobias Rehm, door Ben Adeyemi\n14 Nov: till 1 Ida Sommer, till 2 **Selin Aydın**, snack bar Tobias Rehm, door Ben Adeyemi\nOn paper, till 2 was Lukas twice and Selin once.",
+        "de": "Der Abenddienstplan für die drei Abende:\n6. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 **Lukas Feld**, Snackbar Tobias Rehm, Tür Ben Adeyemi\n7. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 **Lukas Feld**, Snackbar Tobias Rehm, Tür Ben Adeyemi\n14. Nov.: Kasse 1 Ida Sommer, Kasse 2 **Selin Aydın**, Snackbar Tobias Rehm, Tür Ben Adeyemi\nAuf dem Papier stand an Kasse 2 zweimal Lukas und einmal Selin."
+      },
+      "practises": {
+        "en": "Turning rows into columns: `MAX(CASE WHEN … THEN … END)` with `GROUP BY`; `IN` with a list of values",
+        "de": "Zeilen in Spalten verwandeln: `MAX(CASE WHEN … THEN … END)` mit `GROUP BY`; `IN` mit einer Liste von Werten"
+      },
+      "clues": [],
+      "uses": [
+        "tally"
+      ],
+      "hints": [
+        {
+          "en": "Start with the rows for those days: join `rota` and `staff`, then `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` with the dates from Ben's tally. You get four rows per day, one per post.",
+          "de": "Beginnt mit den Zeilen für diese Tage: Verbindet `rota` und `staff`, dann `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` mit den Daten aus Bens Strichliste. Ihr bekommt vier Zeilen pro Tag, eine pro Posten."
+        },
+        {
+          "en": "For one row per day, `GROUP BY r.day` and make one column per post: `MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2`. `CASE` gives the name in the till-2 row and `NULL` in the other rows; `MAX` skips the `NULL`s and keeps the name.",
+          "de": "Für eine Zeile pro Tag gruppiert ihr mit `GROUP BY r.day` und macht eine Spalte pro Posten: `MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2`. `CASE` liefert in der Zeile von Kasse 2 den Namen und in den anderen Zeilen `NULL`; `MAX` überspringt die `NULL`s und behält den Namen."
+        },
+        {
+          "en": "`SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`",
+          "de": "`SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`"
+        }
+      ]
+    },
+    {
+      "id": "snacks",
+      "title": {
+        "en": "The snack till",
+        "de": "Die Snackkasse"
+      },
+      "text": {
+        "en": "The snack bar's till logs every sale together with whoever is signed in: `snack_sales`. The afternoon shift runs until 18:15, then the evening shift takes over.\n\nOn the evenings when Ben let in far too many people, who actually sold snacks in the evening shift? Show the day (as `YYYY-MM-DD`), the name and the number of sales, ordered by day and name.",
+        "de": "Die Kasse der Snackbar protokolliert jeden Verkauf zusammen mit dem, der gerade angemeldet ist: `snack_sales`. Die Nachmittagsschicht geht bis 18:15, dann übernimmt die Abendschicht.\n\nWer hat an den Abenden, an denen Ben viel zu viele Leute eingelassen hat, in der Abendschicht tatsächlich Snacks verkauft? Zeigt den Tag (als `YYYY-MM-DD`), den Namen und die Zahl der Verkäufe, sortiert nach Tag und Name."
+      },
+      "workspace": "sql",
+      "data": "cinema.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM snack_sales\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM snack_sales\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "sql",
+        "ordered": true,
+        "hash": "201541e93f1242a234dc4b954a94437e66b87f9c910e71359ffdfe4e922ed2b4"
+      },
+      "reveal": {
+        "en": "In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night. Tobias Rehm sold snacks on those days too, but only in the afternoon: after 18:15 he didn't sell a single one.",
+        "de": "In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend. Tobias Rehm hat an diesen Tagen auch Snacks verkauft, aber nur nachmittags: Nach 18:15 hat er keinen einzigen verkauft."
+      },
+      "practises": {
+        "en": "`date()` and `time()` on timestamps; `GROUP BY` over two columns",
+        "de": "`date()` und `time()` auf Zeitstempeln; `GROUP BY` über zwei Spalten"
+      },
+      "clues": [
+        "tobias-note"
+      ],
+      "uses": [
+        "tally"
+      ],
+      "hints": [
+        {
+          "en": "`date(sold_at)` gives the day of a timestamp, `time(sold_at)` its time of day. Both are text in a fixed format, so you can compare them: `time(sold_at) >= '18:15'`.",
+          "de": "`date(sold_at)` liefert den Tag eines Zeitstempels, `time(sold_at)` seine Uhrzeit. Beides ist Text in festem Format, also könnt ihr vergleichen: `time(sold_at) >= '18:15'`."
+        },
+        {
+          "en": "Join `staff` for the names, keep the three days with `date(x.sold_at) IN (…)` and the evening with `time(x.sold_at) >= '18:15'`, then `GROUP BY` the day and the name and count with `COUNT(*)`.",
+          "de": "Verbindet `staff` für die Namen, behaltet die drei Tage mit `date(x.sold_at) IN (…)` und den Abend mit `time(x.sold_at) >= '18:15'`, gruppiert dann mit `GROUP BY` nach Tag und Name und zählt mit `COUNT(*)`."
+        },
+        {
+          "en": "`SELECT date(x.sold_at) AS day, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, s.name ORDER BY day, s.name;`",
+          "de": "`SELECT date(x.sold_at) AS day, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, s.name ORDER BY day, s.name;`"
+        }
+      ]
+    },
+    {
+      "id": "office",
+      "title": {
+        "en": "Edith's office",
+        "de": "Ediths Büro"
+      },
+      "text": {
+        "en": "Edith is waiting in her office with the phone in her hand.\n\nWho has been skimming the box office? Give the full name.\n\nYou can still query the database here.",
+        "de": "Edith wartet in ihrem Büro, das Telefon in der Hand.\n\nWer hat an der Kasse abgezweigt? Nennt den vollständigen Namen.\n\nIhr könnt die Datenbank hier weiter abfragen."
+      },
+      "workspace": "sql",
+      "data": "cinema.sql",
+      "starter": {
+        "en": "-- The tables and their columns are listed on the left. Try:\nSELECT *\nFROM rota\nLIMIT 5;\n",
+        "de": "-- Die Tabellen und ihre Spalten stehen links. Probiert:\nSELECT *\nFROM rota\nLIMIT 5;\n"
+      },
+      "check": {
+        "type": "answer",
+        "mode": "caseless",
+        "hash": "34b1fec55caff7dc3913828d8e9c32d3eec6d14b88a96c514f99c306806163b5"
+      },
+      "lock": {
+        "text": {
+          "en": "Edith's office door has a keypad. It wants a three-digit code, and there's a note stuck next to it.",
+          "de": "Ediths Bürotür hat ein Tastenfeld. Es will einen dreistelligen Code, und daneben klebt ein Zettel."
+        },
+        "from": "clicker",
+        "mode": "number",
+        "hash": "2ee6f2be85afe6ec0293c4891708681d1bca9bb358e8a977572794499e0e1155"
+      },
+      "uses": [
+        "printer",
+        "rota",
+        "snacks",
+        "clicker"
+      ],
+      "final": true,
+      "practises": {
+        "en": "Combining the results of several queries",
+        "de": "Die Ergebnisse mehrerer Abfragen kombinieren"
+      },
+      "clues": [
+        "office-note",
+        "edith-note"
+      ],
+      "hints": [
+        {
+          "en": "All the missing tickets came from till 2 (ticket printers). On paper, till 2 was Lukas Feld or Selin Aydın on those evenings (staff rota). But Edith's note on the rota board says the rota is only a plan.",
+          "de": "Alle fehlenden Tickets kamen von Kasse 2 (Ticketdrucker). Auf dem Papier war Kasse 2 an diesen Abenden Lukas Feld oder Selin Aydın (Dienstplan). Aber Ediths Zettel am Dienstplan sagt, der Plan ist nur ein Plan."
+        },
+        {
+          "en": "The snack till shows that whoever was planned at till 2 actually sold snacks all evening. So they swapped with the person planned at the snack bar, who sold no snacks after 18:15.",
+          "de": "Die Snackkasse zeigt, dass, wer an Kasse 2 eingeplant war, den ganzen Abend Snacks verkauft hat. Also hat diese Person mit der getauscht, die an der Snackbar eingeplant war und nach 18:15 keine Snacks verkauft hat."
+        },
+        {
+          "en": "Tobias Rehm was planned at the snack bar on all three evenings but sold no snacks after 18:15. He swapped onto till 2, where the tickets disappeared, while the rota still named someone else.",
+          "de": "Tobias Rehm war an allen drei Abenden an der Snackbar eingeplant, hat aber nach 18:15 keine Snacks verkauft. Er hat an Kasse 2 getauscht, wo die Tickets verschwanden, während im Dienstplan noch jemand anderes stand."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "tally-note",
+      "title": {
+        "en": "Ben's clipboard",
+        "de": "Bens Klemmbrett"
+      },
+      "text": {
+        "en": "A clipboard hanging by the Studio door, with a tally for every screening and a note on top:\n\nI tear every stub and make a mark. On a busy night I can be one or two off, either way. Never more than two. — Ben",
+        "de": "Ein Klemmbrett neben der Studiotür, mit einer Strichliste für jede Vorstellung und einem Zettel obendrauf:\n\nIch reiße jeden Abschnitt ab und mache einen Strich. An vollen Abenden kann ich mich um einen oder zwei verzählen, in beide Richtungen. Nie um mehr als zwei. — Ben"
+      }
+    },
+    {
+      "id": "fire-notice",
+      "title": {
+        "en": "The fire marshal's notice",
+        "de": "Der Aushang der Feuerwehr"
+      },
+      "text": {
+        "en": "KLEEBERG FIRE DEPARTMENT · NOTICE\n\nStudio (hall 2): never more people inside than there are seats. Standing in the aisles or on the steps is forbidden.\n\nFrom Saturday 14 November the usher counts everyone in and out with a clicker. The counts will be checked.",
+        "de": "FEUERWEHR KLEEBERG · AUSHANG\n\nStudio (Saal 2): Nie mehr Personen im Saal, als es Sitzplätze gibt. Stehen in den Gängen oder auf den Stufen ist verboten.\n\nAb Samstag, dem 14. November, zählt der Platzanweiser alle mit einem Zähler hinein und hinaus. Die Zählungen werden geprüft."
+      }
+    },
+    {
+      "id": "office-note",
+      "title": {
+        "en": "A note by the office door",
+        "de": "Ein Zettel an der Bürotür"
+      },
+      "text": {
+        "en": "New code since the fire marshal's visit, so none of us forgets why we were fined: the most people we ever had in the Studio at once, by the clicker. — E.",
+        "de": "Neuer Code seit dem Besuch der Feuerwehr, damit keiner von uns vergisst, warum wir zahlen mussten: die meisten Leute, die laut Zähler je gleichzeitig im Studio waren. — E."
+      }
+    },
+    {
+      "id": "edith-note",
+      "title": {
+        "en": "Edith's note on the rota board",
+        "de": "Ediths Zettel am Dienstplan"
+      },
+      "text": {
+        "en": "To everyone: swapping posts is fine, but TELL ME. The rota is a plan, not a record of who stood where. The snack till at least always knows who is signed in. — Edith",
+        "de": "An alle: Posten tauschen ist in Ordnung, aber SAGT ES MIR. Der Dienstplan ist ein Plan, kein Protokoll, wer wo stand. Die Snackkasse weiß wenigstens immer, wer angemeldet ist. — Edith"
+      }
+    },
+    {
+      "id": "tobias-note",
+      "title": {
+        "en": "A note on the snack bar",
+        "de": "Ein Zettel an der Snackbar"
+      },
+      "text": {
+        "en": "Edith, before you ask: on the 6th, the 7th and the 14th I worked the snack bar, nowhere near the box office. Check the snack till if you don't believe me. — Tobias",
+        "de": "Edith, bevor du fragst: Am 6., 7. und 14. habe ich an der Snackbar gearbeitet, nicht mal in der Nähe der Kasse. Schau in die Snackkasse, wenn du mir nicht glaubst. — Tobias"
+      }
+    },
+    {
+      "id": "newspaper",
+      "title": {
+        "en": "A newspaper",
+        "de": "Eine Zeitung"
+      },
+      "text": {
+        "en": "KLEEBERG DAILY · Saturday, 14 November 2026\n\nCAR PARK INSTEAD OF CINEMA? The bank is to decide on Monday about the loan for Kino Lumen. \"The numbers speak for themselves,\" says the developer who wants the site. Owner Edith Brandauer: \"Our halls are full. I don't understand these numbers.\"",
+        "de": "KLEEBERGER TAGBLATT · Samstag, 14. November 2026\n\nPARKHAUS STATT KINO? Die Bank entscheidet am Montag über den Kredit für das Kino Lumen. „Die Zahlen sprechen für sich“, sagt der Investor, der das Grundstück will. Inhaberin Edith Brandauer: „Unsere Säle sind voll. Ich verstehe diese Zahlen nicht.“"
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "The box office binder",
+      "de": "Der Kassenordner"
+    },
+    "intro": {
+      "en": "A binder on Edith's desk, labelled KINO LUMEN · DATA. It assumes you know `SELECT`, `WHERE`, `JOIN`, `ORDER BY` and `GROUP BY` with `COUNT`, and covers the next steps. Each page links to the official SQLite documentation.",
+      "de": "Ein Ordner auf Ediths Schreibtisch, beschriftet mit KINO LUMEN · DATEN. Er setzt `SELECT`, `WHERE`, `JOIN`, `ORDER BY` und `GROUP BY` mit `COUNT` voraus und erklärt die nächsten Schritte. Jede Seite verweist auf die offizielle SQLite-Dokumentation."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Filtering groups",
+          "de": "Gruppen filtern"
+        },
+        "entries": [
+          {
+            "name": "GROUP BY … HAVING condition",
+            "text": {
+              "en": "`WHERE` filters rows before they are grouped; `HAVING` filters the groups afterwards, so it can use aggregates: `GROUP BY film HAVING COUNT(*) > 10`. Columns you show next to an aggregate belong in the `GROUP BY`.",
+              "de": "`WHERE` filtert Zeilen, bevor sie gruppiert werden; `HAVING` filtert danach die Gruppen und kann darum Aggregate verwenden: `GROUP BY film HAVING COUNT(*) > 10`. Spalten, die ihr neben einem Aggregat zeigt, gehören ins `GROUP BY`."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#resultset"
+          },
+          {
+            "name": "COUNT(*) / COUNT(x)",
+            "text": {
+              "en": "`COUNT(*)` counts the rows of a group, `COUNT(x)` only the rows where `x` is not `NULL`. After a `LEFT JOIN`, `COUNT(b.id)` gives 0 for a row of `a` without a match, `COUNT(*)` gives 1.",
+              "de": "`COUNT(*)` zählt die Zeilen einer Gruppe, `COUNT(x)` nur die Zeilen, in denen `x` nicht `NULL` ist. Nach einem `LEFT JOIN` liefert `COUNT(b.id)` für eine Zeile von `a` ohne Treffer 0, `COUNT(*)` liefert 1."
+            },
+            "link": "https://www.sqlite.org/lang_aggfunc.html#count"
+          },
+          {
+            "name": "a LEFT JOIN b ON …",
+            "text": {
+              "en": "Keeps every row of `a`, even when no row of `b` matches; the columns of `b` are then `NULL`.",
+              "de": "Behält jede Zeile von `a`, auch wenn keine Zeile von `b` passt; die Spalten von `b` sind dann `NULL`."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#fromclause"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Rows into columns",
+          "de": "Zeilen in Spalten"
+        },
+        "entries": [
+          {
+            "name": "CASE WHEN condition THEN value ELSE other END",
+            "text": {
+              "en": "Picks a value per row: the first `WHEN` whose condition is true wins. Without `ELSE`, a row that matches nothing gets `NULL`.",
+              "de": "Wählt pro Zeile einen Wert: Das erste `WHEN` mit wahrer Bedingung gewinnt. Ohne `ELSE` bekommt eine Zeile, auf die nichts passt, `NULL`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#case"
+          },
+          {
+            "name": "MAX(x) / MIN(x)",
+            "text": {
+              "en": "The largest or smallest value in a group. They skip `NULL`s and also work on text, where they compare alphabetically. Inside an aggregate, `CASE` decides which rows count: `SUM(CASE WHEN price > 5 THEN 1 ELSE 0 END)`.",
+              "de": "Der größte oder kleinste Wert einer Gruppe. Sie überspringen `NULL`s und funktionieren auch mit Text, den sie alphabetisch vergleichen. In einem Aggregat entscheidet `CASE`, welche Zeilen zählen: `SUM(CASE WHEN price > 5 THEN 1 ELSE 0 END)`."
+            },
+            "link": "https://www.sqlite.org/lang_aggfunc.html#max_agg"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Subqueries",
+          "de": "Unterabfragen"
+        },
+        "entries": [
+          {
+            "name": "x IN (a, b, c)",
+            "text": {
+              "en": "True when `x` is one of the listed values, or one of the values a subquery returns: `x IN (SELECT …)`.",
+              "de": "Wahr, wenn `x` einer der aufgezählten Werte ist, oder einer der Werte, die eine Unterabfrage liefert: `x IN (SELECT …)`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#in_op"
+          },
+          {
+            "name": "EXISTS (SELECT …)",
+            "text": {
+              "en": "True when the subquery returns at least one row; `NOT EXISTS` when it returns none. What it selects doesn't matter, so `SELECT 1` is common.",
+              "de": "Wahr, wenn die Unterabfrage mindestens eine Zeile liefert; `NOT EXISTS`, wenn sie keine liefert. Was sie auswählt, ist egal, darum schreibt man oft `SELECT 1`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#exists_op"
+          },
+          {
+            "name": "(SELECT MAX(…) FROM …)",
+            "text": {
+              "en": "A subquery in brackets that returns a single value can stand wherever a value can: in the column list, or in a comparison such as `WHERE price > (SELECT AVG(price) FROM tickets)`.",
+              "de": "Eine Unterabfrage in Klammern, die einen einzigen Wert liefert, kann überall stehen, wo ein Wert stehen kann: in der Spaltenliste oder in einem Vergleich wie `WHERE price > (SELECT AVG(price) FROM tickets)`."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#subq"
+          },
+          {
+            "name": "correlated subquery",
+            "text": {
+              "en": "A subquery that uses a column of the outer query, like `WHERE u.till = t.till` with `t` from outside. It runs again for every outer row, so it answers a question per row. Give both tables aliases to tell them apart.",
+              "de": "Eine Unterabfrage, die eine Spalte der äußeren Abfrage verwendet, etwa `WHERE u.till = t.till` mit `t` von außen. Sie läuft für jede äußere Zeile neu und beantwortet so eine Frage pro Zeile. Gebt beiden Tabellen Aliase, um sie zu unterscheiden."
+            },
+            "link": "https://www.sqlite.org/lang_expr.html#cosub"
+          },
+          {
+            "name": "SELECT … FROM (SELECT …)",
+            "text": {
+              "en": "A subquery in `FROM` works like a table built on the spot. The outer query can filter on the columns it computes.",
+              "de": "Eine Unterabfrage in `FROM` funktioniert wie eine Tabelle, die an Ort und Stelle gebaut wird. Die äußere Abfrage kann nach den Spalten filtern, die sie berechnet."
+            },
+            "link": "https://www.sqlite.org/lang_select.html#fromclause"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Dates and times",
+          "de": "Datum und Uhrzeit"
+        },
+        "entries": [
+          {
+            "name": "date(t) / time(t)",
+            "text": {
+              "en": "The date part (`'2026-11-02'`) or the time part (`'18:30:00'`) of a timestamp. Timestamps stored as text in this order compare and sort correctly, and so do their parts.",
+              "de": "Der Datumsteil (`'2026-11-02'`) oder der Zeitteil (`'18:30:00'`) eines Zeitstempels. Zeitstempel, die als Text in dieser Reihenfolge gespeichert sind, lassen sich richtig vergleichen und sortieren, ihre Teile auch."
+            },
+            "link": "https://www.sqlite.org/lang_datefunc.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Running totals",
+          "de": "Laufende Summen"
+        },
+        "entries": [
+          {
+            "name": "SUM(x) OVER (ORDER BY y)",
+            "text": {
+              "en": "An aggregate with `OVER` becomes a window function: it is computed for every row and keeps all the rows. With `ORDER BY`, `SUM` adds up `x` over the rows from the first to the current one, a running total. Window functions can't go into `WHERE`; filter them in an outer query.",
+              "de": "Ein Aggregat mit `OVER` wird zur Fensterfunktion: Es wird für jede Zeile berechnet und behält alle Zeilen. Mit `ORDER BY` addiert `SUM` die Werte von `x` von der ersten bis zur aktuellen Zeile, eine laufende Summe. Fensterfunktionen können nicht in `WHERE` stehen; filtert sie in einer äußeren Abfrage."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html#aggwinfunc"
+          },
+          {
+            "name": "the frame",
+            "text": {
+              "en": "Which rows a window function adds up. The default with `ORDER BY` runs from the first row to the current one, and rows with the same `ORDER BY` value count together.",
+              "de": "Welche Zeilen eine Fensterfunktion zusammenzählt. Standardmäßig läuft er mit `ORDER BY` von der ersten bis zur aktuellen Zeile, und Zeilen mit gleichem `ORDER BY`-Wert zählen gemeinsam."
+            },
+            "link": "https://www.sqlite.org/windowfunctions.html#framespec"
+          }
+        ]
+      }
+    ]
+  }
+}

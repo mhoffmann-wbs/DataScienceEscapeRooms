@@ -7,8 +7,8 @@ describe('scenariosAt', () => {
     expect(scenariosAt('python').flatMap((s) => (s.roomId ? [s.roomId] : []))).toEqual(['python-lab', 'pandas-market', 'python-debug', 'python-docs']);
   });
 
-  it('lists The Blue Index before Night Train at the SQL door, with nothing coming soon', () => {
-    expect(scenariosAt('sql').map((s) => s.roomId)).toEqual(['sql-hotel', 'sql-train']);
+  it('lists the rooms at the SQL door easiest first: The Blue Index, The Last Show, Night Train', () => {
+    expect(scenariosAt('sql').map((s) => s.roomId)).toEqual(['sql-hotel', 'sql-cinema', 'sql-train']);
   });
 
   it('only orders rooms that exist at that door', () => {

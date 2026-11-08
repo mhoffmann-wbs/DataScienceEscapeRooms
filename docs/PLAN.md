@@ -226,7 +226,7 @@ Behind the 🐍 door, between Market Day and The Silent Archive. Every station i
 **Open:** playtest the time budget; "nectar → 6" isn't derived from the script's output like the other digits (see the flow page).
 
 ### 18. Window functions room "Night Train" ✅ content built (`sql-train`, advanced), playtest pending
-Behind the 🗄️ door, after The Blue Index, which it builds on: subqueries, CTEs, `LEFT JOIN`, window functions. One database (`data/train.sql`, made by `generate_data.py`, stdlib only) with seven tables: `stations`, `passengers`, `scans`, `speed`, `doors`, `taps`, `orders`. New tiles 87–94: train floor, night window, compartment door, dining table, speed recorder, door panel, radio, conductor's handheld (95 is the last free slot in the 8 × 12 sheet).
+Behind the 🗄️ door, after The Blue Index, which it builds on: subqueries, CTEs, `LEFT JOIN`, window functions. One database (`data/train.sql`, made by `generate_data.py`, stdlib only) with seven tables: `stations`, `passengers`, `scans`, `speed`, `doors`, `taps`, `orders`. New tiles 87–94: train floor, night window, compartment door, dining table, speed recorder, door panel, radio, conductor's handheld (the sheet has since grown to 8 × 14 for step 19).
 
 **Story:** night train EN 471 "Aurora", Kleeberg to Lindholm, the night of 13 to 14 November 2026. The reporter Konstantin Weber, due to testify about a bridge scandal, is missing from compartment 34; the federal police board at Marienhall in half an hour. In truth he left at an emergency-brake halt on open track with Ines Hartmann, who rode unbooked in a no-show's compartment.
 
@@ -241,6 +241,23 @@ Behind the 🗄️ door, after The Blue Index, which it builds on: subqueries, C
 **Handbook:** "The onboard computer's binder": `LEFT JOIN`, `IS NULL`, `IN`/`EXISTS`, scalar and correlated subqueries, `WITH`, `OVER`, `PARTITION BY`, `LAG`/`LEAD`, `ROW_NUMBER`, why window functions can't go in `WHERE`, `SUM`, text times across midnight. Assumes the Blue Index's basics.
 
 **Open:** playtest the time budget; window functions are new to most students, so the speed recorder may need its first hint early.
+
+### 19. Middle SQL room "The Last Show" ✅ content built (`sql-cinema`, intermediate), playtest pending
+Behind the 🗄️ door, between The Blue Index and Night Train: `HAVING`, conditional aggregation with `CASE`, subqueries, date functions, gaps in a sequence, and one gentle window function (a running total). One database (`data/cinema.sql`, made by `generate_data.py`, stdlib only, which asserts the room's results) with eight tables: `halls`, `screenings`, `tickets`, `tally`, `staff`, `rota`, `snack_sales`, `clicks`, all links declared as foreign keys for the schema diagram. The tileset grew from 8 × 12 to 8 × 14 (every map's `tilecount`/`imageheight` updated); new tiles 95–104: cinema carpet, film poster, box office till, popcorn machine, usher's podium, clicker stand, office door with keypad, padded hall door, velvet rope, snack counter.
+
+**Story:** Kino Lumen, Kleeberg's last old cinema, Sunday 15 November 2026 after the last show. The bank decides on Monday whether to keep lending; the books say the cinema loses money, yet the Studio was full. Tobias Rehm swapped onto till 2 on three busy nights while the rota still named someone else, sold tickets for cash and deleted the sales.
+
+**Stations** (numbers from the reference solutions):
+1. **Ben's tally** (`GROUP BY` over a join + `HAVING`; open): Ben's count minus tickets sold > 2 (his clipboard gives the margin) on three Studio late shows: 6 Nov 96/113, 7 Nov 101/120, 14 Nov 113/134. Without the margin, 35 screenings.
+2. **Ticket printers** (gaps with `NOT EXISTS` on `ticket_no + 1`, `MIN`/`MAX` subqueries; open): 12 gaps, all on till 2, 57 numbers, 21:03–21:29 on the three nights. Without the per-till `MAX`, the end of each roll counts as a gap.
+3. **Fire marshal's clicker** (`SUM() OVER (ORDER BY time)`, filtered in a subquery; open): the Studio over its 120 seats from 21:40 to 23:39 on the 14th, peak 132 (Ben let in 134, two walked out before two latecomers).
+4. **Staff rota** (`MAX(CASE WHEN …)` pivot; uses 1): evening till 2 planned for Lukas Feld, Lukas Feld, Selin Aydın; snack bar Tobias Rehm all three times.
+5. **Snack till** (`date()`, `time()`, `GROUP BY` two columns; uses 1): after 18:15 the snack till was signed in to Lukas, Lukas, Selin. Without the time filter Tobias shows up too (afternoon shifts), which his note on the snack bar counts on.
+6. **Edith's office** (final; lock 132 from 3 + the note by the door): who skimmed? Tobias Rehm. Trap: the rota names Lukas or Selin at till 2.
+
+**Handbook:** "The box office binder": `HAVING`, `COUNT(*)` vs `COUNT(x)`, `LEFT JOIN`, `CASE`, `MAX`/`MIN` on text, `IN`, `EXISTS`, scalar, correlated and `FROM` subqueries, `date()`/`time()`, `SUM() OVER` and the default frame. Assumes the Blue Index's basics.
+
+**Open:** playtest the time budget; the data file is 380 KB (6,000 tickets), larger than the other SQL rooms, so check that runs stay quick on slow laptops.
 
 ## Known limits
 
