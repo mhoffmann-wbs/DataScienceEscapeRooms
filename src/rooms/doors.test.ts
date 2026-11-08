@@ -16,7 +16,7 @@ describe('scenariosAt', () => {
   });
 
   it('lists The Seed Bank at the machine learning door, before the four rooms still to come, easiest first', () => {
-    expect(scenariosAt('ml').map((s) => s.roomId ?? s.title.en)).toEqual(['ml-seeds', 'Pier 9', 'Going Once', 'Rush Hour', 'The Pass Road']);
+    expect(scenariosAt('ml').map((s) => s.roomId ?? s.title.en)).toEqual(['ml-seeds', 'ml-customs', 'Going Once', 'Rush Hour', 'The Pass Road']);
   });
 
   it('only orders rooms that exist at that door', () => {

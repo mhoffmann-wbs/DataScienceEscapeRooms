@@ -67,31 +67,10 @@
         "de": "Maschinelles Lernen"
       },
       "order": [
-        "ml-seeds"
+        "ml-seeds",
+        "ml-customs"
       ],
       "upcoming": [
-        {
-          "title": {
-            "en": "Pier 9",
-            "de": "Pier 9"
-          },
-          "difficulty": "intermediate",
-          "about": {
-            "tools": [
-              "Python",
-              "pandas",
-              "scikit-learn"
-            ],
-            "practises": {
-              "en": "Classification with decision trees, logistic regression and k-nearest neighbours: train/test splits, confusion matrices, precision and recall, overfitting and decision thresholds.",
-              "de": "Klassifikation mit Entscheidungsbäumen, logistischer Regression und k-nächsten Nachbarn: Train/Test-Split, Konfusionsmatrix, Precision und Recall, Overfitting und Entscheidungsschwellen."
-            },
-            "story": {
-              "en": "Night shift at the customs office: 40 containers arrive before dawn, and the crew can open only four.",
-              "de": "Nachtschicht beim Zoll: 40 Container kommen vor der Morgendämmerung an, und die Crew kann nur vier öffnen."
-            }
-          }
-        },
         {
           "title": {
             "en": "Going Once",

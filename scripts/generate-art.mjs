@@ -2512,6 +2512,98 @@ sideDoorPair(191, 192, [120, 172, 204], [196, 242, 255]);
 drawTile(193, (g) => door(g, ML_FRAME, ML_GLOW));
 drawTile(194, (g) => door(g, NEURAL_FRAME, NEURAL_GLOW));
 
+// --- Customs office on Pier 9 at night (ml-customs) -----------------------------------------
+const CONTAINER = [178, 64, 50];
+const HAZARD = [236, 190, 40];
+// 195 shipping container: a rust-red corrugated box with its doors, locking bars and a white number
+drawTile(195, (g, { obj, shadow }) => {
+  shadow(16, 30, 15, 2);
+  obj((o) => {
+    o.box(1, 3, 30, 26, CONTAINER, 1.2, 0.7);
+    for (let x = 3; x < 30; x += 3) o.rect(x, 5, 1, 22, sh(CONTAINER, 0.82));
+    o.rect(15, 4, 1, 24, sh(CONTAINER, 0.6));
+    for (const x of [8, 22]) {
+      o.rect(x, 4, 2, 24, sh(METAL, 0.85));
+      o.rect(x - 1, 15, 4, 2, sh(METAL, 0.7));
+    }
+    o.rect(3, 6, 4, 2, [240, 240, 236]);
+    o.rect(3, 9, 3, 1, [240, 240, 236]);
+    o.rect(1, 3, 30, 1, sh(CONTAINER, 1.35));
+  });
+});
+// 196 X-ray gate: a grey arch striped yellow and black, with a dead screen and a red light
+drawTile(196, (g, { obj, shadow }) => {
+  shadow(16, 30, 15, 2);
+  obj((o) => {
+    const grey = [112, 118, 130];
+    o.box(1, 2, 7, 27, grey, 1.2);
+    o.box(24, 2, 7, 27, grey, 1.2);
+    o.box(1, 2, 30, 7, grey, 1.2);
+    for (let x = 1; x < 31; x += 4) o.rect(x, 7, 2, 2, HAZARD);
+    for (let x = 3; x < 31; x += 4) o.rect(x, 7, 2, 2, [30, 30, 34]);
+    o.rect(8, 9, 16, 20, [36, 40, 50, 180]);
+    o.box(10, 3, 12, 4, [30, 34, 40], 1.3);
+    o.rect(11, 4, 10, 2, [54, 60, 72]);
+    o.ellipse(4.5, 12, 1.6, 1.6, [230, 60, 50]);
+  });
+});
+// 197 harbour window at night: a pane with a dark sea, a crane against the sky and the lights of a ship
+drawTile(197, (g, { obj }) => {
+  wallFront(g, 197);
+  obj((o) => {
+    o.box(3, 3, 26, 20, [70, 78, 96], 1.2);
+    o.rect(5, 5, 22, 16, [22, 30, 54]);
+    o.rect(5, 15, 22, 6, [16, 36, 56]);
+    for (let x = 6; x < 27; x += 3) o.set(x, 17 + (x % 2), [70, 110, 150]);
+    o.rect(9, 7, 1, 9, [240, 150, 40]);
+    o.rect(9, 7, 13, 1, [240, 150, 40]);
+    o.rect(19, 8, 1, 3, [200, 200, 210]);
+    o.rect(14, 13, 12, 2, [44, 48, 60]);
+    [16, 19, 22].forEach((x) => o.set(x, 13, [255, 230, 140]));
+    o.set(24, 6, [255, 255, 255]);
+    o.set(7, 8, [255, 255, 255]);
+    o.rect(15, 5, 1, 16, [70, 78, 96]);
+  });
+});
+// 198 odds board on the wall: a black board of glowing percentages and a big dial with a red needle
+drawTile(198, (g, { obj }) => {
+  wallFront(g, 198);
+  obj((o) => {
+    o.box(2, 2, 28, 22, [34, 36, 44], 1.4);
+    const r = rng(198);
+    for (let j = 0; j < 5; j++) {
+      const w = 3 + Math.floor(r() * 6);
+      o.rect(4, 4 + j * 4, 3, 2, [200, 200, 210]);
+      o.rect(8, 4 + j * 4, w, 2, j === 1 ? [240, 80, 70] : HAZARD);
+    }
+    o.ellipse(23, 13, 5.5, 5.5, [226, 222, 210]);
+    o.ellipse(23, 13, 4.5, 4.5, [246, 244, 236]);
+    for (let i = 0; i < 5; i++) {
+      const a = Math.PI * (0.9 + i * 0.3);
+      o.set(Math.round(23 + Math.cos(a) * 4), Math.round(13 + Math.sin(a) * 4), [60, 60, 70]);
+    }
+    for (let k = 0; k < 4; k++) o.set(23 - k, 13 - Math.round(k * 0.6), [210, 40, 40]);
+    o.set(23, 13, [40, 40, 50]);
+  });
+});
+// 199 XR-90 poster: a glossy advert with a big "93 %" in a starburst over a stylised scanner
+drawTile(199, (g, { obj }) => {
+  wallFront(g, 199);
+  obj((o) => {
+    o.box(5, 2, 22, 23, [240, 240, 246], 1.05, 0.85);
+    o.rect(5, 2, 22, 4, [40, 96, 180]);
+    o.rect(7, 3, 10, 1, [230, 236, 250]);
+    o.ellipse(16, 12, 7, 5, HAZARD);
+    // "93" in pixel digits
+    const nine = ['111', '101', '111', '001', '111'];
+    const three = ['111', '001', '111', '001', '111'];
+    [nine, three].forEach((d, n) => d.forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.set(11 + n * 4 + x, 10 + y, [180, 40, 40]))));
+    [[19, 10], [22, 10], [21, 11], [21, 12], [20, 13], [20, 14], [22, 14]].forEach(([x, y]) => o.set(x, y, [180, 40, 40]));
+    o.box(9, 18, 14, 5, [112, 118, 130], 1.2);
+    o.rect(13, 19, 6, 3, [36, 40, 50]);
+  });
+});
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:

@@ -1,0 +1,101 @@
+# Pier 9: flow
+
+What a team has to carry from where to where in `ml-customs`. Hand-maintained with the `room-flow` skill; update it when the room's puzzles, clues, reveals or locks change. Values and solutions: [the walkthrough](../walkthroughs/ml-customs.en.md).
+
+```mermaid
+flowchart LR
+  inspectorcard[/"🔎 Hanne's rule card"/]
+  xr90poster[/"🔎 The XR-90 poster"/]
+  auditrule[/"🔎 The harbour master's audit rule"/]
+  jonasnote[/"🔎 Jonas's note on the terminal"/]
+  chieforder[/"🔎 The chief's order"/]
+  craneschedule[/"🔎 Tonight's crane schedule"/]
+
+  d_all[("inspections.py<br/>inspections, arrivals")]
+
+  subgraph p1["Open from the start"]
+    rules["1 · The inspector's rule card<br/>decision tree, export_text, target leak"]
+    dashboard["2 · The proud dashboard<br/>accuracy paradox, confusion matrix"]
+    neighbours["3 · The neighbours<br/>scaled KNN, GridSearchCV, F1"]
+  end
+
+  subgraph p2["Needs an earlier result or code"]
+    pruning["4 · The overgrown tree 🔒<br/>train vs test accuracy over max_depth"]
+    odds["5 · The odds board 🔒<br/>logistic regression, threshold"]
+  end
+
+  subgraph p3["Final lock"]
+    arrivals{{"6 · The crane console 🔒<br/>open 4365, 4537, 4643, 4761"}}
+  end
+
+  d_all --> rules
+  d_all --> dashboard
+  d_all --> neighbours
+  d_all --> pruning
+  d_all --> odds
+  d_all -->|"📄 arrivals: 40 containers, columns reordered"| arrivals
+
+  inspectorcard -.->|"🔎 three questions; no scanner alarm, no verdict"| rules
+  xr90poster -.->|"🔎 93 % claim; old_flag / contraband legend"| dashboard
+  auditrule -->|"🔎 test_size 0.25, stratify, random_state 9"| neighbours
+  auditrule -->|"🔎 test_size 0.25, stratify, random_state 9"| pruning
+  auditrule -->|"🔎 test_size 0.25, stratify, random_state 9"| odds
+  jonasnote -->|"🔎 odd k 1–31, scoring f1, cv 5"| neighbours
+  chieforder -->|"🔎 dial 0.50 down by 0.05; recall ≥ 0.8"| odds
+  craneschedule -.->|"🔎 open 4; chief's test 40 of 70 in top 100"| arrivals
+
+  rules ==>|"🔒 85 = root threshold 8.5 %"| pruning
+  rules -.->|"📤 how to fit and read a tree"| pruning
+  dashboard ==>|"🔒 182 smugglers missed"| odds
+  pruning ==>|"🔒 PIN digit 1: depth 3"| arrivals
+  neighbours ==>|"🔒 PIN digit 2: k = 5"| arrivals
+  odds ==>|"🔒 PIN digits 3–4: 76 opened"| arrivals
+  pruning -.->|"📤 a pruned tree"| arrivals
+  neighbours -.->|"📤 a scaled KNN"| arrivals
+  odds -.->|"📤 a logistic model, ranking by probability"| arrivals
+
+  classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
+  classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
+  classDef clue fill:#e8e2b0,stroke:#8a7f2b,color:#2e2a0b
+  classDef data fill:#b9c4cc,stroke:#55636e,color:#1c2329
+  classDef final fill:#9fd4a3,stroke:#2f7a36,color:#0f2e12
+  class rules,dashboard,neighbours station
+  class pruning,odds locked
+  class inspectorcard,xr90poster,auditrule,jonasnote,chieforder,craneschedule clue
+  class d_all data
+  class arrivals final
+```
+
+| Arrow | Meaning |
+|---|---|
+| `==>` thick | A result or lock code moves from one station to another |
+| `-->` solid | A clue or data file the station can't be solved without |
+| `-.->` dotted | Context only: the value is also in the task text, starter or hints, or it only helps to judge a result that the check verifies anyway |
+
+## Phases
+
+- **Start:** 3 stations open at once (rule card, dashboard, neighbours), each independent: right for a team of 3, pairs in a team of 5. The neighbours station is the longest (split, pipeline, grid search) and holds a PIN digit, so it shouldn't be left for last.
+- **Second wave:** the overgrown tree opens with the rule card's 85, the odds board with the dashboard's 182. Both need the audit rule, which the neighbours' team will already have read.
+- **Final:** the crane console's PIN 3576 joins the best depth, the best k and the odds board's count. The final itself only needs a decent model and the reordered columns.
+
+## Chains
+
+- Rule card → overgrown tree → crane console and dashboard → odds board → crane console: 3 stations each, the longest paths.
+- Neighbours → crane console: 2 stations.
+
+## Hand-offs
+
+- Between stations: 2 lock codes (85, 182) and the final's PIN from 3 stations (3, 5, 76), plus soft model lessons into the final.
+- From clues: 6 clues, 3 hard (the audit rule, needed by 3 stations; Jonas's note; the chief's order) and 3 soft (Hanne's card, the poster, the crane schedule).
+
+## Where things are
+
+- Next to their station: Hanne's card (rule card desk), Jonas's note (terminal), the crane schedule (console). The poster hangs on the north wall right above the dashboard desk.
+- Away from their station: the audit rule hangs on the north wall by the exit, while the overgrown tree's cabinet stands in the south-west and the terminal in the north-east of the office; the chief's order lies on a desk in the middle row, three tiles below the odds board on the north wall. The container hall with the console is in the south-east.
+
+## Findings
+
+- **Soft clues.** Hanne's card only confirms what the tree prints (depth 3 is in the starter, dropping the columns in the hints); the poster's legend repeats the starter's comments; the crane schedule's chief's test is also printed by the grader. All three carry story and support, so they stay.
+- **The dashboard and the rule card matter through locks only.** Their reveals feed no task, just the combinations 182 and 85; without the locks both could be skipped.
+- **Depth and k are hard only through the PIN.** The final accepts any model that passes the chief's test, so the overgrown tree and the neighbours feed it as lessons (soft) and as PIN digits (hard).
+- **The audit rule is the room's busiest clue.** Three graders reject any other split; a team that misses it gets a message naming the harbour master's rule.

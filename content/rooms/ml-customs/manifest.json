@@ -1,0 +1,635 @@
+{
+  "version": 1,
+  "salt": "388595e7fb07537b",
+  "title": {
+    "en": "Pier 9",
+    "de": "Pier 9"
+  },
+  "category": "ml",
+  "difficulty": "intermediate",
+  "about": {
+    "tools": [
+      "Python",
+      "pandas",
+      "scikit-learn"
+    ],
+    "practises": {
+      "en": "Classification with decision trees, logistic regression and k-nearest neighbours: train/test splits, confusion matrices, precision and recall, overfitting and decision thresholds.",
+      "de": "Klassifikation mit Entscheidungsbäumen, logistischer Regression und k-nächsten Nachbarn: Train/Test-Split, Konfusionsmatrix, Precision und Recall, Overfitting und Entscheidungsschwellen."
+    },
+    "story": {
+      "en": "Night shift at the customs office: 40 containers arrive before dawn, and the crew can open only four.",
+      "de": "Nachtschicht beim Zoll: 40 Container kommen vor der Morgendämmerung an, und die Crew kann nur vier öffnen."
+    }
+  },
+  "intro": {
+    "en": "Night shift at the customs office on Pier 9, Port of Kleeberg. At 04:30 the MV Kestrel comes alongside with 40 containers, and at 07:00 she sails again. The crane can set down four of them for the crew to open.\n\nThe XR-90 scanner, which used to pick them, crashed at midnight and won't boot. What the office still has: the log of 3,000 inspections from the last two years, each with its measurements and what was found inside, and the notes of the people who did this job before.\n\nTeach a model to tell the smugglers from the rest. This room loads Python with pandas and scikit-learn, so the first puzzle you open takes a little while.",
+    "de": "Nachtschicht im Zollamt an Pier 9, Hafen Kleeberg. Um 04:30 legt die MV Kestrel mit 40 Containern an, um 07:00 legt sie wieder ab. Der Kran kann vier davon absetzen, damit die Crew sie öffnet.\n\nDer XR-90-Scanner, der sie früher ausgesucht hat, ist um Mitternacht abgestürzt und startet nicht mehr. Was das Amt noch hat: das Protokoll von 3.000 Kontrollen aus den letzten zwei Jahren, jede mit ihren Messwerten und dem, was drin war, und die Notizen der Leute, die diesen Job vorher gemacht haben.\n\nBringt einem Modell bei, die Schmuggler vom Rest zu unterscheiden. Dieser Raum lädt Python mit pandas und scikit-learn, das erste Rätsel, das ihr öffnet, braucht also einen Moment."
+  },
+  "packages": [
+    "pandas",
+    "scikit-learn"
+  ],
+  "puzzles": [
+    {
+      "id": "rules",
+      "title": {
+        "en": "The inspector's rule card",
+        "de": "Die Regelkarte der Inspektorin"
+      },
+      "text": {
+        "en": "Hanne Lindqvist inspected containers on Pier 9 for thirty years and decided by a rule card she drew herself: three questions, one after another. The card is still pinned above her old desk, but someone rubbed out the numbers.\n\nThe last two years of inspections are loaded as `inspections`, one row per opened container: how much heavier it was than declared (`weight_gap_pct`), the declared value per kg in euros, days in transit, the route's risk class (1 to 5), the X-ray image's density, the old scanner's alarm (`old_flag`) and what was inside (`contraband`, 1 = contraband).\n\n1. Grow a decision tree that is three questions deep on the measurements, to predict `contraband`.\n2. Print it with `export_text` and compare it with Hanne's card.\n3. Enter the number rubbed out of the **first** question: the weight gap, in percent.",
+        "de": "Hanne Lindqvist hat dreißig Jahre lang Container an Pier 9 kontrolliert und nach einer selbst gezeichneten Regelkarte entschieden: drei Fragen, eine nach der anderen. Die Karte hängt noch über ihrem alten Schreibtisch, aber jemand hat die Zahlen weggerieben.\n\nDie Kontrollen der letzten zwei Jahre sind als `inspections` geladen, eine Zeile pro geöffnetem Container: wie viel schwerer er war als angemeldet (`weight_gap_pct`), der angemeldete Wert pro kg in Euro, die Tage unterwegs, die Risikoklasse der Route (1 bis 5), die Dichte im Röntgenbild, der Alarm des alten Scanners (`old_flag`) und was drin war (`contraband`, 1 = Schmuggelware).\n\n1. Lasst einen Entscheidungsbaum wachsen, der drei Fragen tief ist und aus den Messwerten `contraband` vorhersagt.\n2. Gebt ihn mit `export_text` aus und vergleicht ihn mit Hannes Karte.\n3. Gebt die Zahl ein, die aus der **ersten** Frage weggerieben wurde: die Gewichtsabweichung in Prozent."
+      },
+      "workspace": "python",
+      "data": "inspections.py",
+      "starter": {
+        "en": "from sklearn.tree import DecisionTreeClassifier, export_text\n\n# inspections is loaded: 3,000 past inspections, indexed by inspection number.\nprint(inspections.head())\n\nX = inspections                  # what the tree may look at\ny = inspections[\"contraband\"]    # what it should predict\n\ntree = DecisionTreeClassifier(max_depth=3, random_state=0).fit(X, y)\nprint(export_text(tree, feature_names=list(X.columns)))\n",
+        "de": "from sklearn.tree import DecisionTreeClassifier, export_text\n\n# inspections ist geladen: 3.000 frühere Kontrollen, indiziert nach Kontrollnummer.\nprint(inspections.head())\n\nX = inspections                  # was der Baum ansehen darf\ny = inspections[\"contraband\"]    # was er vorhersagen soll\n\ntree = DecisionTreeClassifier(max_depth=3, random_state=0).fit(X, y)\nprint(export_text(tree, feature_names=list(X.columns)))\n"
+      },
+      "check": {
+        "type": "answer",
+        "mode": "number",
+        "hash": "f8508ae1a6d52b7e696a4c3a38b2eb323cb8fda10f36183470e2a6037cb54f38"
+      },
+      "reveal": {
+        "en": "Hanne's first question is back: **is the container more than 8.5 % heavier than declared?** Both answers lead to a question about the X-ray density (above 1.21 on the light side, above 0.94 on the heavy side), and only then to a verdict.\n\nA decision tree is exactly such a card: questions about one feature at a time, each with a threshold the tree picked from the data. The starter's tree asked one question only, about `contraband` itself: a tree that may look at the answer learns nothing else.",
+        "de": "Hannes erste Frage ist wieder da: **Ist der Container mehr als 8,5 % schwerer als angemeldet?** Beide Antworten führen zu einer Frage nach der Röntgendichte (über 1,21 auf der leichten Seite, über 0,94 auf der schweren) und erst dann zu einem Urteil.\n\nEin Entscheidungsbaum ist genau so eine Karte: Fragen zu jeweils einem Feature, jede mit einer Schwelle, die der Baum aus den Daten gewählt hat. Der Baum aus dem Startcode hat nur eine Frage gestellt, nach `contraband` selbst: Ein Baum, der die Antwort sehen darf, lernt nichts anderes."
+      },
+      "practises": {
+        "en": "Decision trees: features and target, max_depth, reading thresholds with export_text, why the target must not be a feature",
+        "de": "Entscheidungsbäume: Features und Zielvariable, max_depth, Schwellen mit export_text lesen, warum die Zielvariable kein Feature sein darf"
+      },
+      "clues": [
+        "inspector-card"
+      ],
+      "hints": [
+        {
+          "en": "Run the starter. The tree asks a single question, and it is about `contraband`. What does `X` contain?",
+          "de": "Führt den Startcode aus. Der Baum stellt eine einzige Frage, und zwar nach `contraband`. Was steckt in `X`?"
+        },
+        {
+          "en": "`X` must hold only what an inspector knows before opening the container. Hanne's card also says she never looked at the scanner's alarm. `inspections.drop(columns=[...])` removes columns.",
+          "de": "`X` darf nur enthalten, was eine Inspektorin vor dem Öffnen des Containers weiß. Hannes Karte sagt auch, dass sie nie auf den Alarm des Scanners geschaut hat. `inspections.drop(columns=[...])` entfernt Spalten."
+        },
+        {
+          "en": "`X = inspections.drop(columns=[\"old_flag\", \"contraband\"])`. The first line of `export_text` is the first question: `weight_gap_pct <= ...`.",
+          "de": "`X = inspections.drop(columns=[\"old_flag\", \"contraband\"])`. Die erste Zeile von `export_text` ist die erste Frage: `weight_gap_pct <= ...`."
+        }
+      ]
+    },
+    {
+      "id": "dashboard",
+      "title": {
+        "en": "The proud dashboard",
+        "de": "Das stolze Dashboard"
+      },
+      "text": {
+        "en": "The screen above the night desk still shows the XR-90's record, with a poster beside it. The scanner looked at every container of the last two years, and `old_flag` in `inspections` says where it raised the alarm (1) and where it stayed quiet (0). Was it really that good?\n\n1. Compare `old_flag` with `contraband`: the confusion matrix and the classification report.\n2. Store `accuracy` (the share of containers the scanner judged right), `missed` (contraband containers it let through) and `recall` (the share of contraband it flagged).",
+        "de": "Der Bildschirm über dem Nachtschalter zeigt noch die Bilanz des XR-90, daneben hängt ein Poster. Der Scanner hat jeden Container der letzten zwei Jahre angesehen, und `old_flag` in `inspections` sagt, wo er Alarm geschlagen hat (1) und wo er still blieb (0). War er wirklich so gut?\n\n1. Vergleicht `old_flag` mit `contraband`: die Konfusionsmatrix und den Klassifikationsbericht.\n2. Speichert `accuracy` (den Anteil der Container, die der Scanner richtig beurteilt hat), `missed` (Schmuggel-Container, die er durchgelassen hat) und `recall` (den Anteil des Schmuggelguts, den er markiert hat)."
+      },
+      "workspace": "python",
+      "data": "inspections.py",
+      "starter": {
+        "en": "from sklearn.metrics import confusion_matrix, classification_report\n\ny = inspections[\"contraband\"]    # 1 = contraband found when opened\nflag = inspections[\"old_flag\"]   # 1 = the XR-90 raised its alarm\n\naccuracy = (y == flag).mean()\nprint(f\"Accuracy: {accuracy:.1%}\")\n\nmissed = None    # contraband containers the scanner let through\nrecall = None    # share of the contraband it flagged\n",
+        "de": "from sklearn.metrics import confusion_matrix, classification_report\n\ny = inspections[\"contraband\"]    # 1 = beim Öffnen Schmuggelware gefunden\nflag = inspections[\"old_flag\"]   # 1 = der XR-90 hat Alarm geschlagen\n\naccuracy = (y == flag).mean()\nprint(f\"Genauigkeit: {accuracy:.1%}\")\n\nmissed = None    # Schmuggel-Container, die der Scanner durchgelassen hat\nrecall = None    # Anteil des Schmuggelguts, den er markiert hat\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_dashboard_check(accuracy, missed, recall)",
+        "hash": "ca68e3230f0675088332ac59e9d51a27b0a23a1604b0a925fd4485b84d6bfff4"
+      },
+      "reveal": {
+        "en": "93.5 % right, and almost useless. Of 207 contraband containers the XR-90 flagged **25** and let **182** through: a recall of 12 %. It was right so often because 93 % of all containers are clean, and it called nearly everything clean.\n\nWhen one class is rare, accuracy says little. Ask what the confusion matrix asks: how many of the cases you care about did the model catch (recall), and how many of its alarms were real (precision)?",
+        "de": "93,5 % richtig und fast nutzlos. Von 207 Schmuggel-Containern hat der XR-90 **25** markiert und **182** durchgelassen: ein Recall von 12 %. Er lag so oft richtig, weil 93 % aller Container sauber sind und er fast alles für sauber erklärt hat.\n\nWenn eine Klasse selten ist, sagt die Genauigkeit wenig. Fragt, was die Konfusionsmatrix fragt: Wie viele der Fälle, um die es geht, hat das Modell erwischt (Recall), und wie viele seiner Alarme waren echt (Precision)?"
+      },
+      "practises": {
+        "en": "The accuracy paradox with a rare class: confusion matrix, precision and recall, classification_report",
+        "de": "Das Genauigkeitsparadox bei einer seltenen Klasse: Konfusionsmatrix, Precision und Recall, classification_report"
+      },
+      "clues": [
+        "xr90-poster"
+      ],
+      "hints": [
+        {
+          "en": "`print(confusion_matrix(y, flag))`: rows are what was really inside (0, 1), columns what the scanner said (0, 1).",
+          "de": "`print(confusion_matrix(y, flag))`: Die Zeilen sind, was wirklich drin war (0, 1), die Spalten, was der Scanner gesagt hat (0, 1)."
+        },
+        {
+          "en": "The scanner missed a container when it was contraband (row 1) and the scanner said clean (column 0). `tn, fp, fn, tp = confusion_matrix(y, flag).ravel()` unpacks the four cells.",
+          "de": "Der Scanner hat einen Container verpasst, wenn er Schmuggelware enthielt (Zeile 1) und der Scanner sauber sagte (Spalte 0). `tn, fp, fn, tp = confusion_matrix(y, flag).ravel()` packt die vier Felder aus."
+        },
+        {
+          "en": "`missed = fn` and `recall = tp / (tp + fn)`, or `recall_score(y, flag)` from `sklearn.metrics`. `print(classification_report(y, flag))` shows precision and recall for both classes.",
+          "de": "`missed = fn` und `recall = tp / (tp + fn)`, oder `recall_score(y, flag)` aus `sklearn.metrics`. `print(classification_report(y, flag))` zeigt Precision und Recall für beide Klassen."
+        }
+      ]
+    },
+    {
+      "id": "neighbours",
+      "title": {
+        "en": "The neighbours",
+        "de": "Die Nachbarn"
+      },
+      "text": {
+        "en": "Jonas from the day shift had an idea before he went home: judge each new container by the past inspections that look most like it, its nearest neighbours. His terminal still shows the attempt, and a note sticks to the screen.\n\n1. Split the inspections as the harbour master's rule says.\n2. Search for the best number of neighbours with `GridSearchCV`, the way Jonas's note describes, on the training part. Store the fitted search as `search`.\n3. Jonas's neighbours looked odd. Find out why, and fix it.",
+        "de": "Jonas von der Tagschicht hatte eine Idee, bevor er nach Hause ging: jeden neuen Container nach den früheren Kontrollen beurteilen, die ihm am ähnlichsten sind, seinen nächsten Nachbarn. Sein Terminal zeigt noch den Versuch, und am Bildschirm klebt ein Zettel.\n\n1. Teilt die Kontrollen, wie es die Regel der Hafenmeisterin sagt.\n2. Sucht mit `GridSearchCV` die beste Zahl von Nachbarn, so wie Jonas' Zettel es beschreibt, auf dem Trainingsteil. Speichert die trainierte Suche als `search`.\n3. Jonas' Nachbarn sahen seltsam aus. Findet heraus, warum, und behebt es."
+      },
+      "workspace": "python",
+      "data": "inspections.py",
+      "starter": {
+        "en": "import pandas as pd\nfrom sklearn.model_selection import train_test_split, GridSearchCV\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom helpers import show_plot\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # the five measurements\ny = inspections[\"contraband\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # the audit split: see the harbour master's rule\n\nmodel = KNeighborsClassifier()\nsearch = GridSearchCV(model, {\"n_neighbors\": [5]}, scoring=\"accuracy\", cv=5)\nsearch.fit(X_train, y_train)\nprint(search.best_params_, round(search.best_score_, 3))\n\n# Who are the five nearest neighbours of the first training container?\ndist, idx = model.fit(X_train, y_train).kneighbors(X_train.iloc[:1])\nprint(X_train.iloc[idx[0]])\n",
+        "de": "import pandas as pd\nfrom sklearn.model_selection import train_test_split, GridSearchCV\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom helpers import show_plot\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # die fünf Messwerte\ny = inspections[\"contraband\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # der Prüfsplit: siehe die Regel der Hafenmeisterin\n\nmodel = KNeighborsClassifier()\nsearch = GridSearchCV(model, {\"n_neighbors\": [5]}, scoring=\"accuracy\", cv=5)\nsearch.fit(X_train, y_train)\nprint(search.best_params_, round(search.best_score_, 3))\n\n# Wer sind die fünf nächsten Nachbarn des ersten Trainingscontainers?\ndist, idx = model.fit(X_train, y_train).kneighbors(X_train.iloc[:1])\nprint(X_train.iloc[idx[0]])\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_neighbours_check(search)",
+        "hash": "4ef3c770b0c8e55bc66a873263233492b0088040f3ca99f6f431b4a3daba3ab2"
+      },
+      "reveal": {
+        "en": "**k = 5.** With every feature scaled, five neighbours give the best F1 on the training folds (about 0.62); fewer copy the noise of single inspections, more drown the rare smugglers in clean neighbours.\n\nWithout scaling, the neighbours were simply the containers with the most similar price per kg: a difference of 100 € outweighed any weight gap or X-ray image, and the best F1 was about 0.34. KNN measures distances, so it needs the scaler, and inside a pipeline the scaler is fitted on each training fold only.",
+        "de": "**k = 5.** Mit allen Features skaliert geben fünf Nachbarn den besten F1-Wert auf den Trainings-Folds (etwa 0,62); weniger kopieren das Rauschen einzelner Kontrollen, mehr ertränken die seltenen Schmuggler in sauberen Nachbarn.\n\nOhne Skalierung waren die Nachbarn einfach die Container mit dem ähnlichsten Preis pro kg: Ein Unterschied von 100 € wog mehr als jede Gewichtsabweichung oder jedes Röntgenbild, und der beste F1-Wert lag bei etwa 0,34. KNN misst Abstände, braucht also den Scaler, und in einer Pipeline wird der Scaler nur auf dem jeweiligen Trainings-Fold trainiert."
+      },
+      "practises": {
+        "en": "k-nearest neighbours: scaling in a Pipeline, GridSearchCV over n_neighbors with cross-validation, choosing a metric (F1) for a rare class",
+        "de": "k-nächste Nachbarn: Skalieren in einer Pipeline, GridSearchCV über n_neighbors mit Kreuzvalidierung, eine Metrik (F1) für eine seltene Klasse wählen"
+      },
+      "clues": [
+        "jonas-note",
+        "audit-rule"
+      ],
+      "hints": [
+        {
+          "en": "Use the split from the harbour master's rule: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`. Then look at the neighbours the starter prints: which column do they agree on?",
+          "de": "Nehmt den Split aus der Regel der Hafenmeisterin: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`. Schaut dann auf die Nachbarn, die der Startcode ausgibt: In welcher Spalte stimmen sie überein?"
+        },
+        {
+          "en": "`value_per_kg` runs into the thousands, so it decides every distance. `make_pipeline(StandardScaler(), KNeighborsClassifier())` scales first. In a pipeline the grid's key gets the step's name: `kneighborsclassifier__n_neighbors`.",
+          "de": "`value_per_kg` reicht bis in die Tausende, bestimmt also jeden Abstand. `make_pipeline(StandardScaler(), KNeighborsClassifier())` skaliert zuerst. In einer Pipeline bekommt der Schlüssel im Raster den Namen des Schritts: `kneighborsclassifier__n_neighbors`."
+        },
+        {
+          "en": "`search = GridSearchCV(pipe, {\"kneighborsclassifier__n_neighbors\": list(range(1, 32, 2))}, scoring=\"f1\", cv=5)`, then `search.fit(X_train, y_train)` and `search.best_params_`.",
+          "de": "`search = GridSearchCV(pipe, {\"kneighborsclassifier__n_neighbors\": list(range(1, 32, 2))}, scoring=\"f1\", cv=5)`, dann `search.fit(X_train, y_train)` und `search.best_params_`."
+        }
+      ]
+    },
+    {
+      "id": "pruning",
+      "title": {
+        "en": "The overgrown tree",
+        "de": "Der wuchernde Baum"
+      },
+      "text": {
+        "en": "Last year a consultant sold the customs office a tree that got 100 % right on its training data, and it was worse on the new arrivals than Hanne's three questions. The binder with the experiments is in the filing cabinet.\n\n1. Split the inspections as the harbour master's rule says.\n2. For every `max_depth` from 1 to 15, fit a tree on the training part and store its accuracy on the training part in `train_scores` and on the test part in `test_scores` (depth 1 first).\n3. Plot both, and store the depth that judges unseen containers best as `depth`.",
+        "de": "Letztes Jahr hat ein Berater dem Zollamt einen Baum verkauft, der auf seinen Trainingsdaten 100 % richtig lag und bei den neuen Ankünften schlechter war als Hannes drei Fragen. Der Ordner mit den Experimenten liegt im Aktenschrank.\n\n1. Teilt die Kontrollen, wie es die Regel der Hafenmeisterin sagt.\n2. Trainiert für jede `max_depth` von 1 bis 15 einen Baum auf dem Trainingsteil und speichert seine Genauigkeit auf dem Trainingsteil in `train_scores` und auf dem Testteil in `test_scores` (Tiefe 1 zuerst).\n3. Zeichnet beide und speichert die Tiefe, die ungesehene Container am besten beurteilt, als `depth`."
+      },
+      "workspace": "python",
+      "data": "inspections.py",
+      "starter": {
+        "en": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\nfrom helpers import show_plot\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # the five measurements\ny = inspections[\"contraband\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # the audit split: see the harbour master's rule\n\ntrain_scores = []   # accuracy on the training part, depth 1 to 15\ntest_scores = []    # accuracy on the test part\nfor d in range(1, 16):\n    tree = DecisionTreeClassifier(random_state=0)\n    # ...\n\n# show_plot(pd.Series(train_scores, index=range(1, 16)), pd.Series(test_scores, index=range(1, 16)), labels=[\"train\", \"test\"])\ndepth = None\n",
+        "de": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\nfrom helpers import show_plot\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # die fünf Messwerte\ny = inspections[\"contraband\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # der Prüfsplit: siehe die Regel der Hafenmeisterin\n\ntrain_scores = []   # Genauigkeit auf dem Trainingsteil, Tiefe 1 bis 15\ntest_scores = []    # Genauigkeit auf dem Testteil\nfor d in range(1, 16):\n    tree = DecisionTreeClassifier(random_state=0)\n    # ...\n\n# show_plot(pd.Series(train_scores, index=range(1, 16)), pd.Series(test_scores, index=range(1, 16)), labels=[\"train\", \"test\"])\ndepth = None\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_depth_check(train_scores, test_scores, depth)",
+        "hash": "6658588aebebbe2158625ff50c3dacb7bcb958d6ce5f7fb843a3ea3eff8883c6"
+      },
+      "lock": {
+        "text": {
+          "en": "The filing cabinet has a two-digit combination lock. A sticky note on it, in Hanne's handwriting: \"Code = the weight gap in my first question, in tenths of a percent.\"",
+          "de": "Der Aktenschrank hat ein zweistelliges Zahlenschloss. Darauf ein Klebezettel in Hannes Handschrift: „Code = die Gewichtsabweichung in meiner ersten Frage, in Zehntelprozent.“"
+        },
+        "from": "rules",
+        "mode": "number",
+        "hash": "2c24bd422f4dd7f882928c16c6ee4e95dd263e42f8fb3db93a6b69d739ef7599"
+      },
+      "reveal": {
+        "en": "**Depth 3.** The training score climbs with every level, to 99.6 % at depth 15, but the test score peaks at depth 3 (96.5 %) and then falls: the deeper tree learns the quirks of single training containers, which no new container shares. That is overfitting, and Hanne's card was exactly as deep as it should be.\n\nA score on the training data says how well a model remembers; only the test part says how well it judges.",
+        "de": "**Tiefe 3.** Der Trainingswert steigt mit jeder Ebene, bis 99,6 % bei Tiefe 15, aber der Testwert ist bei Tiefe 3 am höchsten (96,5 %) und fällt danach: Der tiefere Baum lernt die Eigenheiten einzelner Trainingscontainer, die kein neuer Container teilt. Das ist Overfitting, und Hannes Karte war genau so tief, wie sie sein sollte.\n\nEin Wert auf den Trainingsdaten sagt, wie gut sich ein Modell erinnert; nur der Testteil sagt, wie gut es urteilt."
+      },
+      "practises": {
+        "en": "Overfitting: train/test split with stratify, train vs test accuracy over max_depth, choosing a depth",
+        "de": "Overfitting: Train/Test-Split mit stratify, Trainings- gegen Testgenauigkeit über max_depth, eine Tiefe wählen"
+      },
+      "clues": [
+        "audit-rule"
+      ],
+      "uses": [
+        "rules"
+      ],
+      "hints": [
+        {
+          "en": "The harbour master's rule gives every argument of the split: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`.",
+          "de": "Die Regel der Hafenmeisterin nennt jedes Argument des Splits: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`."
+        },
+        {
+          "en": "In the loop: `tree = DecisionTreeClassifier(max_depth=d, random_state=0).fit(X_train, y_train)`, then append `tree.score(X_train, y_train)` and `tree.score(X_test, y_test)`.",
+          "de": "In der Schleife: `tree = DecisionTreeClassifier(max_depth=d, random_state=0).fit(X_train, y_train)`, dann `tree.score(X_train, y_train)` und `tree.score(X_test, y_test)` anhängen."
+        },
+        {
+          "en": "The training curve always rises, so it can't choose. The best depth is where the test curve is highest: `pd.Series(test_scores, index=range(1, 16)).idxmax()`.",
+          "de": "Die Trainingskurve steigt immer, kann also nicht wählen. Die beste Tiefe ist dort, wo die Testkurve am höchsten ist: `pd.Series(test_scores, index=range(1, 16)).idxmax()`."
+        }
+      ]
+    },
+    {
+      "id": "odds",
+      "title": {
+        "en": "The odds board",
+        "de": "Die Quotentafel"
+      },
+      "text": {
+        "en": "The big board on the wall shows each container's chance of contraband, from a logistic regression, and a dial sets from which chance on a container gets opened. At 0.5 the board opens few containers, and lets many smugglers through.\n\n1. Fit `LogisticRegression` on the standardised training part of the audit split, as `model`.\n2. Its coefficients say how much each feature raises the odds. Store the column name of the riskiest feature as `riskiest`.\n3. Set the dial as the chief ordered: store the step as `threshold`, and how many containers of the test part it opens as `opened`.",
+        "de": "Die große Tafel an der Wand zeigt für jeden Container die Wahrscheinlichkeit für Schmuggelware, aus einer logistischen Regression, und ein Regler legt fest, ab welcher Wahrscheinlichkeit ein Container geöffnet wird. Bei 0,5 öffnet die Tafel wenige Container und lässt viele Schmuggler durch.\n\n1. Trainiert `LogisticRegression` auf dem standardisierten Trainingsteil des Prüfsplits, als `model`.\n2. Seine Koeffizienten sagen, wie stark jedes Feature die Chancen erhöht. Speichert den Spaltennamen des riskantesten Features als `riskiest`.\n3. Stellt den Regler ein, wie der Chef es angeordnet hat: Speichert die Stufe als `threshold` und wie viele Container des Testteils sie öffnet als `opened`."
+      },
+      "workspace": "python",
+      "data": "inspections.py",
+      "starter": {
+        "en": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import recall_score\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # the five measurements\ny = inspections[\"contraband\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # the audit split: see the harbour master's rule\n\nmodel = make_pipeline(StandardScaler(), LogisticRegression()).fit(X_train, y_train)\nprint(model[-1].coef_)   # one coefficient per column of X, in order\nriskiest = None          # the column name with the largest coefficient\n\np = model.predict_proba(X_test)[:, 1]   # each test container's chance of contraband\nprint((p >= 0.5).sum(), \"opened, recall\", recall_score(y_test, p >= 0.5))\n\nthreshold = None   # the dial's step\nopened = None      # test containers opened at that step\n",
+        "de": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import recall_score\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # die fünf Messwerte\ny = inspections[\"contraband\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # der Prüfsplit: siehe die Regel der Hafenmeisterin\n\nmodel = make_pipeline(StandardScaler(), LogisticRegression()).fit(X_train, y_train)\nprint(model[-1].coef_)   # ein Koeffizient pro Spalte von X, in Reihenfolge\nriskiest = None          # der Spaltenname mit dem größten Koeffizienten\n\np = model.predict_proba(X_test)[:, 1]   # Wahrscheinlichkeit für Schmuggelware je Testcontainer\nprint((p >= 0.5).sum(), \"geöffnet, Recall\", recall_score(y_test, p >= 0.5))\n\nthreshold = None   # die Stufe des Reglers\nopened = None      # Testcontainer, die bei dieser Stufe geöffnet werden\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_odds_check(model, riskiest, threshold, opened)",
+        "hash": "51d85064564b8f68605255ccfcabeed17103e3625fb9488e25dfc477d007e2d4"
+      },
+      "lock": {
+        "text": {
+          "en": "The board's control panel is under a cover with a three-digit padlock. Scratched into the frame: \"Combination = how many smugglers the XR-90 let through in two years.\"",
+          "de": "Das Bedienfeld der Tafel steckt unter einer Abdeckung mit einem dreistelligen Vorhängeschloss. In den Rahmen geritzt: „Kombination = wie viele Schmuggler der XR-90 in zwei Jahren durchgelassen hat.“"
+        },
+        "from": "dashboard",
+        "mode": "number",
+        "hash": "3a73520f54c34622c5f95554e3305bcbf520c5639874a3a48d523f83ada93597"
+      },
+      "reveal": {
+        "en": "The weight gap weighs most (coefficient 1.49 per standard deviation), then the X-ray density (1.21); the price per kg barely matters. At 0.5 the board caught only half the smugglers. Turned down to **0.15**, it catches 83 % of them and opens **76** of the 750 test containers.\n\nA classifier gives probabilities; the threshold is a decision you make, by weighing missed smugglers against opened boxes. Lowering it buys recall with precision.",
+        "de": "Die Gewichtsabweichung wiegt am meisten (Koeffizient 1,49 pro Standardabweichung), dann die Röntgendichte (1,21); der Preis pro kg spielt kaum eine Rolle. Bei 0,5 hat die Tafel nur die Hälfte der Schmuggler erwischt. Heruntergedreht auf **0,15** fängt sie 83 % von ihnen und öffnet **76** der 750 Testcontainer.\n\nEin Klassifikator liefert Wahrscheinlichkeiten; die Schwelle ist eine Entscheidung, die ihr trefft, indem ihr verpasste Schmuggler gegen geöffnete Kisten abwägt. Wer sie senkt, kauft Recall mit Precision."
+      },
+      "practises": {
+        "en": "Logistic regression: coefficients on standardised features, predict_proba, moving the decision threshold to trade precision for recall",
+        "de": "Logistische Regression: Koeffizienten auf standardisierten Features, predict_proba, die Entscheidungsschwelle verschieben, um Precision gegen Recall zu tauschen"
+      },
+      "clues": [
+        "chief-order",
+        "audit-rule"
+      ],
+      "hints": [
+        {
+          "en": "Split as the harbour master's rule says. `model[-1]` is the pipeline's last step, the logistic regression; `pd.Series(model[-1].coef_[0], index=X.columns)` names each coefficient.",
+          "de": "Teilt, wie es die Regel der Hafenmeisterin sagt. `model[-1]` ist der letzte Schritt der Pipeline, die logistische Regression; `pd.Series(model[-1].coef_[0], index=X.columns)` benennt jeden Koeffizienten."
+        },
+        {
+          "en": "`p >= t` opens every container with a chance of at least `t`. For each step on the dial (0.5, 0.45, … 0.05), print `recall_score(y_test, p >= t)` and `(p >= t).sum()`.",
+          "de": "`p >= t` öffnet jeden Container mit einer Wahrscheinlichkeit von mindestens `t`. Gebt für jede Stufe des Reglers (0,5, 0,45, … 0,05) `recall_score(y_test, p >= t)` und `(p >= t).sum()` aus."
+        },
+        {
+          "en": "Go down the dial and stop at the first step whose recall is at least 0.8: that is `threshold`. `opened = int((p >= threshold).sum())`.",
+          "de": "Geht den Regler hinunter und haltet bei der ersten Stufe an, deren Recall mindestens 0,8 ist: Das ist `threshold`. `opened = int((p >= threshold).sum())`."
+        }
+      ]
+    },
+    {
+      "id": "arrivals",
+      "title": {
+        "en": "The crane console",
+        "de": "Das Kranpult"
+      },
+      "text": {
+        "en": "The MV Kestrel is alongside. Its manifest lists tonight's 40 containers, loaded as `arrivals` and indexed by container number, with the same measurements as the inspections: the scanner's alarm is missing, since the scanner is down. The crane can set down four containers before the ship sails.\n\n1. Train the model you trust most on the inspections, as `model`. It must pass the chief's test.\n2. Score all 40 arrivals with `predict_proba`.\n3. Store the container numbers of the four riskiest as `opened`.",
+        "de": "Die MV Kestrel liegt am Kai. Ihr Manifest listet die 40 Container von heute Nacht, geladen als `arrivals` und indiziert nach Containernummer, mit denselben Messwerten wie die Kontrollen: Der Alarm des Scanners fehlt, denn der Scanner ist kaputt. Der Kran kann vier Container absetzen, bevor das Schiff ablegt.\n\n1. Trainiert das Modell, dem ihr am meisten traut, auf den Kontrollen, als `model`. Es muss den Test des Chefs bestehen.\n2. Bewertet alle 40 Ankünfte mit `predict_proba`.\n3. Speichert die Containernummern der vier riskantesten als `opened`."
+      },
+      "workspace": "python",
+      "data": "inspections.py",
+      "starter": {
+        "en": "import pandas as pd\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.linear_model import LogisticRegression\n\nprint(arrivals.head())   # tonight's 40 containers, indexed by container number\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # the five measurements\ny = inspections[\"contraband\"]\nmodel = None   # your best model, trained on the inspections\n\n# risk = model.predict_proba(arrivals)[:, 1]\nopened = []    # the four container numbers to open\n",
+        "de": "import pandas as pd\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.linear_model import LogisticRegression\n\nprint(arrivals.head())   # die 40 Container von heute Nacht, indiziert nach Containernummer\n\nX = inspections.drop(columns=[\"old_flag\", \"contraband\"])   # die fünf Messwerte\ny = inspections[\"contraband\"]\nmodel = None   # euer bestes Modell, trainiert auf den Kontrollen\n\n# risk = model.predict_proba(arrivals)[:, 1]\nopened = []    # die vier Containernummern zum Öffnen\n"
+      },
+      "check": {
+        "type": "python",
+        "expr": "_arrivals_check(model, opened)",
+        "hash": "a75d4994e99e65aa42e1db59aa5b3af1aa411826a1567b5488a82ef8dead25b1"
+      },
+      "lock": {
+        "text": {
+          "en": "The crane console is locked with a four-digit PIN. The chief's note next to it: \"PIN = the overgrown tree's best depth, then the neighbours' best k, then how many test containers the odds board opens.\"",
+          "de": "Das Kranpult ist mit einer vierstelligen PIN gesperrt. Daneben die Notiz des Chefs: „PIN = die beste Tiefe des wuchernden Baums, dann das beste k der Nachbarn, dann wie viele Testcontainer die Quotentafel öffnet.“"
+        },
+        "from": "odds",
+        "mode": "number",
+        "hash": "bc0fd3a2a6e3af6a72ab08c0f11b166b97604748ceea49cdf405c16855373dad"
+      },
+      "final": true,
+      "uses": [
+        "pruning",
+        "neighbours",
+        "odds"
+      ],
+      "reveal": {
+        "en": "The crane sets down containers 4365, 4537, 4643 and 4761, and in each one the crew finds a false wall full of cigarettes. Every model you could trust put the same four on top: heavy beyond their papers, dense on the X-ray, on risky routes. The decoys stayed on the ship: the dense crate of machine parts the old scanner would have opened, the risky route with honest cargo, the heavy load of tiles that was simply declared wrong.\n\nThe Kestrel sails at seven. The XR-90 gets a new job: holding the door of the night office open.",
+        "de": "Der Kran setzt die Container 4365, 4537, 4643 und 4761 ab, und in jedem findet die Crew eine falsche Wand voller Zigaretten. Jedes Modell, dem man trauen konnte, hatte dieselben vier oben: schwerer als ihre Papiere, dicht im Röntgenbild, auf riskanten Routen. Die Lockvögel blieben an Bord: die dichte Kiste Maschinenteile, die der alte Scanner geöffnet hätte, die riskante Route mit ehrlicher Fracht, die schwere Ladung Fliesen, die einfach falsch angemeldet war.\n\nDie Kestrel legt um sieben ab. Der XR-90 bekommt eine neue Aufgabe: die Tür des Nachtbüros offen halten."
+      },
+      "practises": {
+        "en": "Putting it together: choosing and training a classifier, the same columns in the same order for new data, ranking cases by predicted probability",
+        "de": "Alles zusammen: einen Klassifikator wählen und trainieren, dieselben Spalten in derselben Reihenfolge für neue Daten, Fälle nach vorhergesagter Wahrscheinlichkeit ordnen"
+      },
+      "clues": [
+        "crane-schedule"
+      ],
+      "hints": [
+        {
+          "en": "Any of tonight's models will do if it is trained well: a tree of the depth that won at the filing cabinet, a scaled KNN with the neighbours' k, or the odds board's logistic regression. Train it on `X` and `y` (all inspections, without `old_flag`).",
+          "de": "Jedes Modell von heute Nacht reicht, wenn es gut trainiert ist: ein Baum mit der Tiefe, die am Aktenschrank gewonnen hat, ein skaliertes KNN mit dem k der Nachbarn oder die logistische Regression der Quotentafel. Trainiert es auf `X` und `y` (alle Kontrollen, ohne `old_flag`)."
+        },
+        {
+          "en": "`model.predict_proba(arrivals)` fails: the manifest lists the columns in another order. `arrivals[X.columns]` puts them in the order the model learned.",
+          "de": "`model.predict_proba(arrivals)` schlägt fehl: Das Manifest listet die Spalten in einer anderen Reihenfolge. `arrivals[X.columns]` bringt sie in die Reihenfolge, die das Modell gelernt hat."
+        },
+        {
+          "en": "`risk = pd.Series(model.predict_proba(arrivals[X.columns])[:, 1], index=arrivals.index).sort_values(ascending=False)`, then `opened = risk.index[:4].tolist()`.",
+          "de": "`risk = pd.Series(model.predict_proba(arrivals[X.columns])[:, 1], index=arrivals.index).sort_values(ascending=False)`, dann `opened = risk.index[:4].tolist()`."
+        }
+      ]
+    }
+  ],
+  "clues": [
+    {
+      "id": "inspector-card",
+      "title": {
+        "en": "Hanne's rule card",
+        "de": "Hannes Regelkarte"
+      },
+      "text": {
+        "en": "A postcard-sized card, drawn in pencil, the numbers rubbed out:\n\n**1.** Heavier than declared by more than ▒▒ %?\n· no → **2a.** X-ray density above ▒▒? Then one more question about the weight.\n· yes → **2b.** X-ray density above ▒▒? Then one more question.\n\nWritten along the edge: \"Three questions, never more. I never trusted the scanner's beeping, and you only know what's inside once it's open.\"",
+        "de": "Eine Karte im Postkartenformat, mit Bleistift gezeichnet, die Zahlen weggerieben:\n\n**1.** Schwerer als angemeldet um mehr als ▒▒ %?\n· nein → **2a.** Röntgendichte über ▒▒? Dann noch eine Frage zum Gewicht.\n· ja → **2b.** Röntgendichte über ▒▒? Dann noch eine Frage.\n\nAm Rand notiert: „Drei Fragen, nie mehr. Dem Piepen des Scanners habe ich nie getraut, und was drin ist, weiß man erst, wenn er offen ist.“"
+      }
+    },
+    {
+      "id": "xr90-poster",
+      "title": {
+        "en": "The XR-90 poster",
+        "de": "Das XR-90-Poster"
+      },
+      "text": {
+        "en": "A glossy poster from the manufacturer:\n\n**XR-90 · 93 % right!**\nTwo years on Pier 9 and hardly a false alarm.\n\nSmall print: old_flag = 1 when the XR-90 raises the alarm. contraband = 1 when the container held contraband on opening.",
+        "de": "Ein Hochglanzposter des Herstellers:\n\n**XR-90 · 93 % richtig!**\nZwei Jahre an Pier 9 und kaum ein Fehlalarm.\n\nKleingedrucktes: old_flag = 1, wenn der XR-90 Alarm schlägt. contraband = 1, wenn der Container beim Öffnen Schmuggelware enthielt."
+      }
+    },
+    {
+      "id": "audit-rule",
+      "title": {
+        "en": "The harbour master's audit rule",
+        "de": "Die Prüfregel der Hafenmeisterin"
+      },
+      "text": {
+        "en": "PORT OF KLEEBERG · audit rule 7\n\nA model is judged on containers it has never seen. Hold back a quarter of the inspections as the test part (**test_size=0.25**), with the same share of contraband in both parts (**stratify=y**), and use **random_state=9** (Pier 9), so that every shift gets the same split.\n\nThe scanner's alarm is no feature: tonight there is none.",
+        "de": "HAFEN KLEEBERG · Prüfregel 7\n\nEin Modell wird an Containern gemessen, die es nie gesehen hat. Haltet ein Viertel der Kontrollen als Testteil zurück (**test_size=0.25**), mit demselben Anteil Schmuggelware in beiden Teilen (**stratify=y**), und nehmt **random_state=9** (Pier 9), damit jede Schicht denselben Split bekommt.\n\nDer Alarm des Scanners ist kein Feature: Heute Nacht gibt es keinen."
+      }
+    },
+    {
+      "id": "jonas-note",
+      "title": {
+        "en": "Jonas's note on the terminal",
+        "de": "Jonas' Zettel am Terminal"
+      },
+      "text": {
+        "en": "\"KNN for the night shift, my plan:\n\n· try every **odd** k from **1 to 31** (odd, so the neighbours can't tie)\n· not by accuracy: opening nothing already gets 93 %. By **F1**, which needs caught smugglers *and* few wasted openings: **scoring=\"f1\"**\n· **5 folds** on the training part\n\nThe neighbours it picks look strange to me, though: always about the same price per kg? — J.\"",
+        "de": "„KNN für die Nachtschicht, mein Plan:\n\n· jedes **ungerade** k von **1 bis 31** probieren (ungerade, damit die Nachbarn nicht unentschieden stehen)\n· nicht nach Genauigkeit: Nichts öffnen bringt schon 93 %. Nach **F1**, das erwischte Schmuggler *und* wenige vergeudete Öffnungen braucht: **scoring=\"f1\"**\n· **5 Folds** auf dem Trainingsteil\n\nDie Nachbarn, die es aussucht, kommen mir aber seltsam vor: immer etwa derselbe Preis pro kg? — J.“"
+      }
+    },
+    {
+      "id": "chief-order",
+      "title": {
+        "en": "The chief's order",
+        "de": "Die Anordnung des Chefs"
+      },
+      "text": {
+        "en": "From Chief Inspector Mirković, for the night shift:\n\nThe odds board's dial goes down from **0.50** in steps of **0.05**. Set it to the **highest** step that still catches at least **4 in 5** smugglers on the audit test part (recall ≥ 0.8). Every step lower opens more boxes, and we don't have the hands for that.",
+        "de": "Von Oberinspektor Mirković, für die Nachtschicht:\n\nDer Regler der Quotentafel geht von **0,50** in Schritten von **0,05** nach unten. Stellt ihn auf die **höchste** Stufe, die auf dem Testteil des Prüfsplits noch mindestens **4 von 5** Schmugglern fängt (Recall ≥ 0,8). Jede Stufe tiefer öffnet mehr Kisten, und dafür haben wir nicht die Leute."
+      }
+    },
+    {
+      "id": "crane-schedule",
+      "title": {
+        "en": "Tonight's crane schedule",
+        "de": "Der Kranplan für heute Nacht"
+      },
+      "text": {
+        "en": "MV Kestrel · berth Pier 9 · 40 containers · alongside 04:30, sails 07:00\n\nThe crane can set down **4 containers** for inspection.\n\nThe chief's test for any model: the academy keeps 1,000 sealed past inspections with 70 smuggling cases. Among the **100** your model scores riskiest, at least **40** of those cases must be found.",
+        "de": "MV Kestrel · Liegeplatz Pier 9 · 40 Container · am Kai 04:30, legt ab 07:00\n\nDer Kran kann **4 Container** zur Kontrolle absetzen.\n\nDer Test des Chefs für jedes Modell: Die Akademie hat 1.000 versiegelte frühere Kontrollen mit 70 Schmuggelfällen. Unter den **100**, die euer Modell am riskantesten bewertet, müssen mindestens **40** dieser Fälle sein."
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "The night shift's classification binder",
+      "de": "Der Klassifikationsordner der Nachtschicht"
+    },
+    "intro": {
+      "en": "A battered binder on a lectern by the door, the customs academy's crib sheet for anyone who trains a model on Pier 9. It lists the pandas and scikit-learn you need to classify containers, with a link to the official documentation for each entry.",
+      "de": "Ein abgegriffener Ordner auf einem Pult an der Tür, der Spickzettel der Zollakademie für alle, die an Pier 9 ein Modell trainieren. Er listet das pandas und scikit-learn, das man zum Klassifizieren von Containern braucht, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Features, target and the split",
+          "de": "Features, Zielvariable und der Split"
+        },
+        "entries": [
+          {
+            "name": "X = df.drop(columns=[\"a\", \"b\"])  y = df[\"c\"]",
+            "text": {
+              "en": "The features `X` are what the model may look at, the target `y` what it should predict. `drop(columns=...)` returns the frame without those columns. Leave out the target itself and anything you only know afterwards.",
+              "de": "Die Features `X` sind, was das Modell ansehen darf, die Zielvariable `y`, was es vorhersagen soll. `drop(columns=...)` gibt den Frame ohne diese Spalten zurück. Lasst die Zielvariable selbst weg und alles, was man erst hinterher weiß."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop.html"
+          },
+          {
+            "name": "train_test_split(X, y, test_size=, stratify=, random_state=)",
+            "text": {
+              "en": "Splits rows at random into a training part and a test part, returned as `X_train, X_test, y_train, y_test`. `test_size=0.25` holds back a quarter; `stratify=y` keeps the share of each class equal in both parts, which matters when a class is rare; `random_state` makes the split repeatable. Import it from `sklearn.model_selection`.",
+              "de": "Teilt Zeilen zufällig in einen Trainings- und einen Testteil, zurückgegeben als `X_train, X_test, y_train, y_test`. `test_size=0.25` hält ein Viertel zurück; `stratify=y` hält den Anteil jeder Klasse in beiden Teilen gleich, was bei einer seltenen Klasse wichtig ist; `random_state` macht den Split wiederholbar. Importiert aus `sklearn.model_selection`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html"
+          },
+          {
+            "name": "model.fit(X, y)  model.predict(X)  model.score(X, y)",
+            "text": {
+              "en": "The same three methods for every scikit-learn classifier: `fit` learns from labelled rows, `predict` gives a class for each row, `score` the accuracy (the share of rows predicted right).",
+              "de": "Dieselben drei Methoden für jeden scikit-learn-Klassifikator: `fit` lernt aus gelabelten Zeilen, `predict` gibt für jede Zeile eine Klasse, `score` die Genauigkeit (den Anteil richtig vorhergesagter Zeilen)."
+            },
+            "link": "https://scikit-learn.org/stable/getting_started.html#fitting-and-predicting-estimator-basics"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Decision trees",
+          "de": "Entscheidungsbäume"
+        },
+        "entries": [
+          {
+            "name": "DecisionTreeClassifier(max_depth=, random_state=)",
+            "text": {
+              "en": "Learns a chain of yes/no questions, each about one feature and a threshold. `max_depth` limits how many questions follow each other; without it the tree grows until it gets its training rows right. `random_state` fixes how ties between equally good questions are broken. Import it from `sklearn.tree`.",
+              "de": "Lernt eine Kette von Ja/Nein-Fragen, jede zu einem Feature und einer Schwelle. `max_depth` begrenzt, wie viele Fragen aufeinander folgen; ohne sie wächst der Baum, bis er seine Trainingszeilen richtig hat. `random_state` legt fest, wie Gleichstände zwischen gleich guten Fragen entschieden werden. Importiert aus `sklearn.tree`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html"
+          },
+          {
+            "name": "export_text(tree, feature_names=list(X.columns))",
+            "text": {
+              "en": "Prints a fitted tree as indented text: each line a question such as `col <= 4.50`, the leaves with their class. The first line is the first question.",
+              "de": "Gibt einen trainierten Baum als eingerückten Text aus: jede Zeile eine Frage wie `col <= 4.50`, die Blätter mit ihrer Klasse. Die erste Zeile ist die erste Frage."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.tree.export_text.html"
+          },
+          {
+            "name": "overfitting",
+            "text": {
+              "en": "A model that fits its training data too closely learns quirks no new row shares: its training score keeps rising while its score on the test part falls. Compare both to choose settings like `max_depth`.",
+              "de": "Ein Modell, das seine Trainingsdaten zu genau abbildet, lernt Eigenheiten, die keine neue Zeile teilt: Sein Trainingswert steigt weiter, während sein Wert auf dem Testteil fällt. Vergleicht beide, um Einstellungen wie `max_depth` zu wählen."
+            },
+            "link": "https://scikit-learn.org/stable/auto_examples/model_selection/plot_underfitting_overfitting.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Judging a classifier",
+          "de": "Einen Klassifikator beurteilen"
+        },
+        "entries": [
+          {
+            "name": "confusion_matrix(y_true, y_pred)",
+            "text": {
+              "en": "Counts every combination of true and predicted class: rows are the true classes, columns the predicted ones, both in sorted order (0, then 1). For two classes, `tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()` unpacks true negatives, false positives, false negatives and true positives. Import it from `sklearn.metrics`.",
+              "de": "Zählt jede Kombination aus wahrer und vorhergesagter Klasse: Zeilen sind die wahren Klassen, Spalten die vorhergesagten, beide sortiert (0, dann 1). Bei zwei Klassen packt `tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()` richtig Negative, falsch Positive, falsch Negative und richtig Positive aus. Importiert aus `sklearn.metrics`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html"
+          },
+          {
+            "name": "accuracy, precision, recall, F1",
+            "text": {
+              "en": "**Accuracy**: the share of all rows predicted right; misleading when one class is rare. **Precision**: of the rows predicted positive, the share that really are (tp / (tp + fp)). **Recall**: of the rows that really are positive, the share the model found (tp / (tp + fn)). **F1**: one number that is only high when both precision and recall are.",
+              "de": "**Genauigkeit** (accuracy): der Anteil aller richtig vorhergesagten Zeilen; irreführend, wenn eine Klasse selten ist. **Precision**: von den als positiv vorhergesagten Zeilen der Anteil, der es wirklich ist (tp / (tp + fp)). **Recall**: von den wirklich positiven Zeilen der Anteil, den das Modell gefunden hat (tp / (tp + fn)). **F1**: eine Zahl, die nur hoch ist, wenn Precision und Recall es beide sind."
+            },
+            "link": "https://scikit-learn.org/stable/modules/model_evaluation.html#precision-recall-f-measure-metrics"
+          },
+          {
+            "name": "accuracy_score  precision_score  recall_score  f1_score",
+            "text": {
+              "en": "Each takes `(y_true, y_pred)` and returns one number; the class 1 counts as positive. Import them from `sklearn.metrics`.",
+              "de": "Jede nimmt `(y_true, y_pred)` und gibt eine Zahl zurück; die Klasse 1 gilt als positiv. Importiert aus `sklearn.metrics`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html"
+          },
+          {
+            "name": "classification_report(y_true, y_pred)",
+            "text": {
+              "en": "A text table with precision, recall and F1 for every class, plus the accuracy. Print it.",
+              "de": "Eine Texttabelle mit Precision, Recall und F1 für jede Klasse, dazu die Genauigkeit. Gebt sie mit print aus."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Nearest neighbours and searching settings",
+          "de": "Nächste Nachbarn und Einstellungen suchen"
+        },
+        "entries": [
+          {
+            "name": "KNeighborsClassifier(n_neighbors=5)",
+            "text": {
+              "en": "Classifies a row by a vote of the `n_neighbors` training rows closest to it. It measures plain distances, so a column with large numbers outweighs the others unless you scale. `model.kneighbors(rows)` returns the distances and positions of the neighbours. Import it from `sklearn.neighbors`.",
+              "de": "Klassifiziert eine Zeile durch eine Abstimmung der `n_neighbors` Trainingszeilen, die ihr am nächsten liegen. Es misst einfache Abstände, also überwiegt eine Spalte mit großen Zahlen die anderen, wenn ihr nicht skaliert. `model.kneighbors(rows)` gibt die Abstände und Positionen der Nachbarn zurück. Importiert aus `sklearn.neighbors`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html"
+          },
+          {
+            "name": "StandardScaler()",
+            "text": {
+              "en": "Rescales every column to mean 0 and standard deviation 1, learned with `fit` on the training rows. Import it from `sklearn.preprocessing`.",
+              "de": "Skaliert jede Spalte auf Mittelwert 0 und Standardabweichung 1, gelernt mit `fit` auf den Trainingszeilen. Importiert aus `sklearn.preprocessing`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html"
+          },
+          {
+            "name": "make_pipeline(StandardScaler(), model)",
+            "text": {
+              "en": "Chains steps into one model: `fit` fits the scaler and then the model on the scaled rows, `predict` scales new rows the same way. Each step is named after its class in lower case (`standardscaler`, `kneighborsclassifier`, …); `pipe[-1]` is the last step. Import it from `sklearn.pipeline`.",
+              "de": "Verkettet Schritte zu einem Modell: `fit` trainiert den Scaler und dann das Modell auf den skalierten Zeilen, `predict` skaliert neue Zeilen genauso. Jeder Schritt heißt wie seine Klasse in Kleinbuchstaben (`standardscaler`, `kneighborsclassifier`, …); `pipe[-1]` ist der letzte Schritt. Importiert aus `sklearn.pipeline`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.make_pipeline.html"
+          },
+          {
+            "name": "GridSearchCV(model, param_grid, scoring=, cv=)",
+            "text": {
+              "en": "Tries every setting in `param_grid` (a dict from parameter name to a list of values) with cross-validation: `cv=5` fits on four fifths of the rows and scores on the last fifth, five times over. `scoring` names the metric (`\"accuracy\"`, `\"recall\"`, `\"f1\"`, …). For a step in a pipeline, the parameter name is `step__parameter`. After `fit`: `best_params_`, `best_score_` and `cv_results_[\"mean_test_score\"]`. Import it from `sklearn.model_selection`.",
+              "de": "Probiert jede Einstellung in `param_grid` (ein Dict von Parametername zu einer Liste von Werten) mit Kreuzvalidierung: `cv=5` trainiert auf vier Fünfteln der Zeilen und bewertet auf dem letzten Fünftel, fünfmal. `scoring` nennt die Metrik (`\"accuracy\"`, `\"recall\"`, `\"f1\"`, …). Für einen Schritt in einer Pipeline heißt der Parameter `schritt__parameter`. Nach `fit`: `best_params_`, `best_score_` und `cv_results_[\"mean_test_score\"]`. Importiert aus `sklearn.model_selection`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Logistic regression and thresholds",
+          "de": "Logistische Regression und Schwellen"
+        },
+        "entries": [
+          {
+            "name": "LogisticRegression()",
+            "text": {
+              "en": "A linear model for classes: it adds up the features, each times a coefficient, and turns the sum into a probability. On standardised features the coefficients can be compared: the larger a positive coefficient, the more one standard deviation of that feature raises the odds. After `fit`, `coef_[0]` holds one coefficient per column. Import it from `sklearn.linear_model`.",
+              "de": "Ein lineares Modell für Klassen: Es addiert die Features, jedes mal einem Koeffizienten, und macht aus der Summe eine Wahrscheinlichkeit. Auf standardisierten Features lassen sich die Koeffizienten vergleichen: Je größer ein positiver Koeffizient, desto stärker erhöht eine Standardabweichung dieses Features die Chancen. Nach `fit` enthält `coef_[0]` einen Koeffizienten pro Spalte. Importiert aus `sklearn.linear_model`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
+          },
+          {
+            "name": "model.predict_proba(X)[:, 1]",
+            "text": {
+              "en": "Each row's probability for each class, one column per class; `[:, 1]` keeps the probability of class 1. Trees, KNN and logistic regression all have it. `predict` is the same as `predict_proba(X)[:, 1] >= 0.5`.",
+              "de": "Die Wahrscheinlichkeit jeder Zeile für jede Klasse, eine Spalte pro Klasse; `[:, 1]` behält die Wahrscheinlichkeit für Klasse 1. Bäume, KNN und logistische Regression haben es alle. `predict` ist dasselbe wie `predict_proba(X)[:, 1] >= 0.5`."
+            },
+            "link": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression.predict_proba"
+          },
+          {
+            "name": "p >= threshold",
+            "text": {
+              "en": "Your own decision threshold: a boolean array, `True` where the probability reaches it. A lower threshold flags more rows: higher recall, lower precision. `.sum()` counts the flagged rows.",
+              "de": "Eure eigene Entscheidungsschwelle: ein boolesches Array, `True`, wo die Wahrscheinlichkeit sie erreicht. Eine niedrigere Schwelle markiert mehr Zeilen: höherer Recall, niedrigere Precision. `.sum()` zählt die markierten Zeilen."
+            },
+            "link": "https://scikit-learn.org/stable/modules/classification_threshold.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "New data",
+          "de": "Neue Daten"
+        },
+        "entries": [
+          {
+            "name": "df[X.columns]",
+            "text": {
+              "en": "Selects columns in the given order. A model fitted on a DataFrame remembers its columns and refuses rows whose columns are missing or in another order.",
+              "de": "Wählt Spalten in der angegebenen Reihenfolge aus. Ein auf einem DataFrame trainiertes Modell merkt sich seine Spalten und lehnt Zeilen ab, deren Spalten fehlen oder anders angeordnet sind."
+            },
+            "link": "https://pandas.pydata.org/docs/user_guide/indexing.html#basics"
+          },
+          {
+            "name": "pd.Series(values, index=df.index).sort_values(ascending=False)",
+            "text": {
+              "en": "Puts a value next to each row's label and sorts, largest first. `s.index[:4].tolist()` lists the labels of the first four.",
+              "de": "Stellt neben das Label jeder Zeile einen Wert und sortiert, größter zuerst. `s.index[:4].tolist()` listet die Labels der ersten vier."
+            },
+            "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.sort_values.html"
+          }
+        ]
+      }
+    ]
+  }
+}
