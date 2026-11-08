@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 14 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 15 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 14;
+const TILESET_ROWS = 15;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -168,6 +168,14 @@ const WOOD = [134, 92, 58];
 const WOOD_DARK = [96, 64, 40];
 const METAL = [150, 158, 172];
 const SCREEN = [40, 200, 130];
+
+/** The top of a wall seen from above, darker along the edge towards the room. */
+function wallTop(g) {
+  g.rect(0, 0, T, T, WALL_TOP);
+  g.noise(0, 0, T, T, 0.08, 4);
+  g.rect(0, 0, T, 1, sh(WALL_TOP, 1.25));
+  g.rect(0, T - 3, T, 3, sh(WALL_TOP, 0.75));
+}
 
 /** The front face of a wall: plaster above a wooden skirting board, used behind wall-mounted things. */
 function wallFront(g, seed = 3) {
@@ -244,12 +252,7 @@ drawTile(1, (g) => {
   }
 });
 // 2 wall top
-drawTile(2, (g) => {
-  g.rect(0, 0, T, T, WALL_TOP);
-  g.noise(0, 0, T, T, 0.08, 4);
-  g.rect(0, 0, T, 1, sh(WALL_TOP, 1.25));
-  g.rect(0, T - 3, T, 3, sh(WALL_TOP, 0.75));
-});
+drawTile(2, wallTop);
 // 3 wall front
 drawTile(3, (g) => wallFront(g));
 // 4 carpet: red with a golden border pattern
@@ -1873,6 +1876,27 @@ drawTile(111, (g, { obj }) => {
     o.rect(16, 3, 2, 1, [30, 32, 38]);
   });
 });
+
+// --- Lobby side walls ---------------------------------------------------------------
+/** Draws `draw` on its own tile, then turns it a quarter: 'ccw' puts its bottom edge on the right, 'cw' on the left. */
+function turned(draw, dir) {
+  return (g) => {
+    const src = canvas(T, T);
+    draw(src);
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const p = src.get(x, y);
+        if (dir === 'ccw') g.set(y, T - 1 - x, p);
+        else g.set(T - 1 - y, x, p);
+      }
+  };
+}
+// The lobby's side walls are its top wall turned a quarter, the room side always towards the floor.
+// 112 wall top in a left wall, 113 in a right wall; 114 wall front in a left wall, 115 in a right wall
+drawTile(112, turned(wallTop, 'ccw'));
+drawTile(113, turned(wallTop, 'cw'));
+drawTile(114, turned(wallFront, 'ccw'));
+drawTile(115, turned(wallFront, 'cw'));
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
