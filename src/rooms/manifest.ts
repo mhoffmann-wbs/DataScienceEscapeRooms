@@ -101,7 +101,8 @@ export const referenceSchema = z.object({
 });
 export type Reference = z.infer<typeof referenceSchema>;
 
-export const difficulties =['beginner', 'advanced', 'expert'] as const;
+/** Five tiers, easiest first: no prior knowledge, then basics, then the middle, then fluent use, then the hardest rooms. */
+export const difficulties = ['beginner', 'elementary', 'intermediate', 'advanced', 'expert'] as const;
 export type Difficulty = (typeof difficulties)[number];
 
 /** How a scenario presents itself at the lobby door: the tools it uses, what it practises, its story in one sentence. */

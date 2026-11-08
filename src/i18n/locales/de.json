@@ -140,6 +140,8 @@
     "tools": "Werkzeuge",
     "difficulty": {
       "beginner": "Einsteiger",
+      "elementary": "Grundstufe",
+      "intermediate": "Mittelstufe",
       "advanced": "Fortgeschritten",
       "expert": "Experte"
     },

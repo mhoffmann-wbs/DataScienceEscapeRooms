@@ -17,7 +17,7 @@
             "en": "The Silent Archive",
             "de": "Das stille Archiv"
           },
-          "difficulty": "advanced",
+          "difficulty": "intermediate",
           "about": {
             "tools": [
               "Python",

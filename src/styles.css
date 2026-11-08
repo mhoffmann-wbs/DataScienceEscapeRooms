@@ -1491,6 +1491,14 @@ button.calling {
   color: #6ee7b7;
 }
 
+.difficulty-elementary {
+  color: #67e8f9;
+}
+
+.difficulty-intermediate {
+  color: #93c5fd;
+}
+
 .difficulty-advanced {
   color: #fcd34d;
 }

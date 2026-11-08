@@ -140,6 +140,8 @@
     "tools": "Tools",
     "difficulty": {
       "beginner": "Beginner",
+      "elementary": "Elementary",
+      "intermediate": "Intermediate",
       "advanced": "Advanced",
       "expert": "Expert"
     },
