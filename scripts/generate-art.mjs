@@ -1338,6 +1338,78 @@ drawTile(77, (g, { obj, shadow }) => {
   });
 });
 
+// --- Archive (python-docs) -----------------------------------------------------
+const BOOK_COLOURS = [[196, 70, 70], [70, 118, 196], [224, 182, 72], [88, 160, 100], [160, 90, 180], [230, 230, 220]];
+// 78 returns cart: a metal trolley with two shelves of books and small wheels
+drawTile(78, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 2);
+  obj((o) => {
+    for (const y of [8, 18]) {
+      let x = 5;
+      for (let i = 0; x < T - 6; i++) {
+        const bw = 2 + (i % 3 === 0 ? 1 : 0);
+        const bh = 7 + (i % 2);
+        const col = BOOK_COLOURS[(i * 2 + y) % BOOK_COLOURS.length];
+        o.rect(x, y - bh + 1, bw, bh, col);
+        o.rect(x, y - bh + 1, 1, bh, sh(col, 1.2));
+        x += bw;
+      }
+      o.box(3, y + 1, T - 6, 3, METAL);
+    }
+    o.rect(3, 4, 2, 21, sh(METAL, 0.8));
+    o.rect(T - 5, 4, 2, 21, sh(METAL, 0.8));
+    o.rect(T - 7, 2, 6, 2, sh(METAL, 0.7));
+    for (const x of [5, T - 7]) o.ellipse(x + 1, 27, 2, 2, [52, 56, 70]);
+  });
+});
+// 79 date-stamp machine on a desk: a grey box with a red stamp arm and a tray of books
+drawTile(79, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 2);
+  obj((o) => {
+    deskBase(o);
+    o.box(6, 3, 14, 12, [120, 128, 146]);
+    o.rect(8, 5, 10, 3, [40, 44, 56]);
+    o.rect(9, 6, 5, 1, [250, 170, 70]);
+    o.box(10, 9, 6, 4, [200, 56, 60]);
+    o.rect(12, 13, 2, 2, [62, 66, 80]);
+    o.box(21, 9, 8, 6, [176, 126, 80]);
+    o.rect(22, 7, 6, 3, [70, 118, 196]);
+    o.rect(22, 6, 6, 1, [250, 248, 238]);
+  });
+});
+// 80 archive boxes: a stack of brown cardboard boxes with white labels
+drawTile(80, (g, { obj, shadow }) => {
+  shadow(16, 29, 13, 3);
+  obj((o) => {
+    const card = [190, 150, 100];
+    o.box(3, 16, 13, 12, card);
+    o.box(16, 16, 13, 12, sh(card, 0.94));
+    o.box(8, 4, 15, 12, sh(card, 1.04));
+    for (const [x, y] of [[6, 19], [19, 19], [12, 7]]) {
+      paper(o, x, y, 7, 4);
+      o.rect(x + 1, y + 1, 4, 1, [130, 132, 150]);
+    }
+    o.rect(3, 22, 26, 1, sh(card, 0.8));
+  });
+});
+// 81 card catalogue: a wooden cabinet of small drawers with brass handles
+drawTile(81, (g, { obj, shadow }) => {
+  shadow(16, 29, 12, 2);
+  obj((o) => {
+    o.box(4, 2, T - 8, 25, WOOD, 1.25);
+    for (let r = 0; r < 4; r++)
+      for (let c = 0; c < 3; c++) {
+        const x = 6 + c * 7;
+        const y = 4 + r * 6;
+        o.box(x, y, 6, 5, sh(WOOD, 1.12), 1.15, 0.8);
+        o.rect(x + 2, y + 2, 2, 1, [230, 196, 80]);
+        o.set(x + 1, y + 1, [250, 248, 238]);
+      }
+    o.rect(5, 27, 3, 2, WOOD_DARK);
+    o.rect(T - 8, 27, 3, 2, WOOD_DARK);
+  });
+});
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:

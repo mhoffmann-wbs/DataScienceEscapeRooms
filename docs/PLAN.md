@@ -185,31 +185,24 @@ A new 📊 **Statistics** door, the first in a side wall: the lobby's left wall,
 ### 15. Room handbooks ✅
 Every room has a 📖 handbook on a lectern (tile 77, map object `reference`, manifest `reference`, required): the topics, functions and attributes its puzzles need, each with a short DE/EN explanation and a link to the official documentation (Python, SQLite, pandas, numpy, SciPy, statsmodels). Only what the room needs, at its level: the time series rooms don't re-explain pandas basics. "Festival Season" documents its Prophet-style model itself, since the real Prophet docs describe a different library; one entry links the real docs for background. The walkthroughs list the entries, and the help page mentions the handbook.
 
-### 16. Documentation room "The Silent Archive" (planned)
-`python-docs`, intermediate (the first room on the five-tier scale's new middle tiers), behind the 🐍 door (listed there as "Coming soon"). It practises finding things in the official Python documentation: the puzzles need facts that are in the docs and nowhere in the room. Clues only say **where** to look ("the sorting HOWTO, the part about stability"), never what is there. Standard library only, no packages.
+### 16. Documentation room "The Silent Archive" ✅ content built (`python-docs`, intermediate), playtest pending
+Behind the 🐍 door. It practises finding things in the official Python documentation: the puzzles need facts that are in the docs and nowhere in the room. Clues only say **where** to look ("the sorting HOWTO, the part about stability"), never what is there. Standard library only, no packages. It is the first room on the new five-tier difficulty scale's middle tier (beginner, elementary, intermediate, advanced, expert; the old three kept their meaning). New tiles 78–81: returns cart, date-stamp machine, archive boxes, card catalogue.
 
-**Story:** Kleeberg's city library, after closing. Margarete Holm, the archivist, retired last week and left the archive's scripts half-finished. During the team's evening tour the fire-safety system seals the archive. Her rule, framed above her desk: "I never write down what the documentation already says." Her notes only point into the docs.
+**Story:** Kleeberg's city library, after closing. Margarete Holm, the archivist, retired last week and left the archive's scripts half-finished. During the team's evening tour the fire-safety system seals the archive. Her rule: "I never write down what the documentation already says."
 
 **Docs version:** every link and fact is pinned to `https://docs.python.org/3.14/`, the Python that Pyodide 0.29 runs (3.14.2), so what the docs say is what the code does. When Pyodide moves to a new Python, re-check the facts and move the pin.
 
-**Stations** (facts checked on the 3.14 pages and in Python 3.14):
-1. **Returns cart** (a HOWTO; open): sort the returned books by shelf, and by title within a shelf. Clue: a sticky note "Sort twice, the sorting HOWTO says so. But which pass first?" The HOWTO's section on stability says sorts are guaranteed stable and shows sorting on several keys in several passes, secondary key first. Check: the sorted list (`python`).
-2. **Packing table** (find a function from a description; open): pack the book ids into boxes of n (n on the box label clue). Margarete's note: "itertools has a tool for this; I never write that loop." That is `itertools.batched(iterable, n)`, whose last batch may be shorter (`strict=True` raises instead). Check: the number of boxes and the last box (`python`). Its reveal gives a digit.
-3. **Late fees ledger** (notes and warnings; open): the ledger's total is a few cents off because the script uses `round()`. The note under `round()` says `round(2.675, 2)` gives `2.67` and explains why (floats). The library's fee rules clue says half a cent rounds up, so the fix is `decimal.Decimal` with `quantize(..., rounding=ROUND_HALF_UP)`, found by following the docs from that note to the `decimal` page. Fees must be built from strings, not floats. Check: the total as a string (`python`). Reveal: a digit.
-4. **The old terminal** (version notes; open): the reading-room terminal runs Python 3.8. Margarete's script list uses `str.removeprefix`, `itertools.pairwise`, `itertools.batched` and `math.dist`. Which ones break there? The "Added in version" notes say 3.9, 3.10, 3.12 and 3.8. The terminal's admin code is the minor versions of the ones that fail, in script order: `91012` (`answer`). Its reveal is the PIN of the date-stamp machine.
-5. **Date-stamp machine** (a format-code table; lock: the PIN from 4): stamp the returns with ISO week stamps like `2026-W45-3`. The `strftime` format-code table has `%G`, `%V` and `%u`, and a note that `%G` belongs with `%V`, not `%Y`. The data include dates between December 29 and January 3, where `%Y-W%V` gives the wrong year. Check: the stamps (`python`). Reveal: a digit.
-6. **Archive door** (final): the digits from 2, 3 and 5 plus one from 1, in the order on the catalogue card clue.
+**Stations** (facts checked on the 3.14 pages; results from the reference solutions in Pyodide):
+1. **Returns cart** (a HOWTO; open): shelves A to Z, titles Z to A within a shelf (cart note). The sorting HOWTO's "Sort Stability and Complex Sorts": two stable sorts, the secondary key first. A tuple key can't sort one key ascending and the other descending. Reveal: returns → 7.
+2. **Packing table** (a function from a description; open): 23 call numbers, sorted, in boxes of 7 (box label; "itertools has a function for this"): `itertools.batched` → 4 boxes, the last with 2. Reveal: packing → 4.
+3. **Late-fees ledger** (notes under a function; open): 4.5 cents a day, each fee rounded to cents with half a cent up (fee rules). `round()` rounds ties to even and floats aren't exact; the docs lead to `decimal` and `quantize(..., ROUND_HALF_UP)`: €6.30. Float `round(x, 2)` gives 6.23, rounding whole cents 6.25. Reveal: fees → 1.
+4. **The old terminal** (version notes; open): Python 3.8. Of `str.removeprefix`, `math.dist`, `itertools.pairwise`, `statistics.fmean`, `itertools.batched` (script list), three are newer: 3.9, 3.10, 3.12 → `91012`. Reveal: the stamp machine's PIN 5318.
+5. **Date-stamp machine** (a format-code table; lock 5318 from 4): ISO week stamps like `2026-W45-3` (instructions): `%G-W%V-%u`. The dates include New Year and Sundays, where `%Y` and `%W`/`%w` go wrong; the docs say the ISO directives are not interchangeable with them. Reveal: stamps → 8.
+6. **Archive door** (final): the card catalogue's order, stamps, returns, fees, packing → 8714.
 
-**Handbook:** this room's handbook doesn't list functions, since that would give the room away. It is "How to read the Python docs", with links to the landmarks: the Library Reference, the module index, the general index, the search page, the Glossary, the HOWTOs, how to read a signature (defaults, `*` and `/`), "Added / Changed / Deprecated in version" notes, note and warning boxes, tables, and examples and recipes.
+**Handbook:** "How to read the Python docs": how to find things (Library Reference, module index, general index, search, HOWTOs, glossary), how to read an entry (signature, version notes, note boxes, tables, `>>>` examples) and `help()`, `dir()`, `sys.version` in the editor. No functions, which would give the room away.
 
-**Rules for this room:**
-- Prefer `python` checks, so Python's behaviour decides, not the wording of the docs. Use typed answers only for facts that never change, such as "Added in version".
-- Each task must need the doc fact: the data contain the case that breaks the obvious guess (a half cent, a year boundary, a short last box).
-- Hints go from a narrower location (section name) to a quote from the docs, to nearly the solution.
-- Optional tool: `npm run check-doc-facts`, which fetches the pinned pages and checks that each quoted fact is still there. It needs the network, so it is not part of CI.
-- No engine changes needed: clues name pages, and the handbook links get the team into the docs.
-
-**Open:** playtest whether 30 minutes is enough when nobody knows the docs. Station 3 may need its hint 1 to name the `decimal` module. A later pandas docs room would fit behind the 🐍 door too.
+**Open:** playtest whether 30 minutes is enough when nobody knows the docs; station 3 may need its first hint to name `decimal`. Optional `npm run check-doc-facts` that fetches the pinned pages and checks the quoted facts are still there (needs the network, so not in CI). A pandas docs room would fit behind the 🐍 door too.
 
 ## Known limits
 

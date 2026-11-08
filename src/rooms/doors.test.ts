@@ -3,8 +3,8 @@ import { ROOMS } from './index';
 import { DOORS, scenariosAt } from './doors';
 
 describe('scenariosAt', () => {
-  it('lists Quarantine before Market Day at the Python door', () => {
-    expect(scenariosAt('python').flatMap((s) => (s.roomId ? [s.roomId] : []))).toEqual(['python-lab', 'pandas-market']);
+  it('lists the rooms at the Python door easiest first, Quarantine before Market Day', () => {
+    expect(scenariosAt('python').flatMap((s) => (s.roomId ? [s.roomId] : []))).toEqual(['python-lab', 'pandas-market', 'python-docs']);
   });
 
   it('only orders rooms that exist at that door', () => {

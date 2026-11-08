@@ -9,30 +9,8 @@
       },
       "order": [
         "python-lab",
-        "pandas-market"
-      ],
-      "upcoming": [
-        {
-          "title": {
-            "en": "The Silent Archive",
-            "de": "Das stille Archiv"
-          },
-          "difficulty": "intermediate",
-          "about": {
-            "tools": [
-              "Python",
-              "Python documentation"
-            ],
-            "practises": {
-              "en": "Finding answers in the official Python documentation: HOWTOs, signatures and defaults, version notes, notes and warnings, format-code tables.",
-              "de": "Antworten in der offiziellen Python-Dokumentation finden: HOWTOs, Signaturen und Standardwerte, Versionshinweise, Hinweise und Warnungen, Tabellen mit Formatcodes."
-            },
-            "story": {
-              "en": "The city archive sealed itself after closing, and the retired archivist's notes only say where in the Python docs to look.",
-              "de": "Das Stadtarchiv hat sich nach Feierabend verriegelt, und die Notizen der pensionierten Archivarin sagen nur, wo in der Python-Doku man nachsehen muss."
-            }
-          }
-        }
+        "pandas-market",
+        "python-docs"
       ]
     },
     {

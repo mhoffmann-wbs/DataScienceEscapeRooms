@@ -1,0 +1,529 @@
+{
+  "version": 1,
+  "salt": "df8e2ccd1d92bbb3",
+  "title": {
+    "en": "The Silent Archive",
+    "de": "Das stille Archiv"
+  },
+  "category": "python",
+  "difficulty": "intermediate",
+  "about": {
+    "tools": [
+      "Python",
+      "Python documentation"
+    ],
+    "practises": {
+      "en": "Finding answers in the official Python documentation: HOWTOs, the module index, notes under a function, version notes, format-code tables.",
+      "de": "Antworten in der offiziellen Python-Dokumentation finden: HOWTOs, der Modulindex, Hinweise unter einer Funktion, Versionshinweise, Tabellen mit Formatcodes."
+    },
+    "story": {
+      "en": "The city archive sealed itself after closing, and the retired archivist's notes only say where in the Python docs to look.",
+      "de": "Das Stadtarchiv hat sich nach Feierabend verriegelt, und die Notizen der pensionierten Archivarin sagen nur, wo in der Python-Doku man nachsehen muss."
+    }
+  },
+  "intro": {
+    "en": "Kleeberg's city library, after closing. Your evening tour of the archive had just begun when the fire-safety system sealed the door behind you.\n\nThe archive's scripts belong to Margarete Holm, the archivist, who retired last week and left most of them half-finished. Above her desk hangs her rule: **\"I never write down what the documentation already says.\"** Her notes only tell you where to look.\n\nSo look: the official Python documentation is open in another tab of your browser, and the handbook on the reading stand links to its main pages. Use the docs for Python 3.14, the version this archive runs.",
+    "de": "Kleebergs Stadtbibliothek nach Feierabend. Eure Abendführung durchs Archiv hatte gerade begonnen, als die Brandschutzanlage die Tür hinter euch verriegelt hat.\n\nDie Skripte des Archivs gehören Margarete Holm, der Archivarin, die letzte Woche in Rente gegangen ist und die meisten davon halb fertig hinterlassen hat. Über ihrem Schreibtisch hängt ihre Regel: **„Ich schreibe nie auf, was schon in der Dokumentation steht.“** Ihre Notizen sagen nur, wo ihr nachsehen müsst.\n\nAlso seht nach: Die offizielle Python-Dokumentation öffnet ihr in einem anderen Tab eures Browsers, und das Handbuch auf dem Lesepult verlinkt ihre wichtigsten Seiten. Nehmt die Doku für Python 3.14, die Version, mit der dieses Archiv läuft."
+  },
+  "packages": [],
+  "puzzles": [
+    {
+      "id": "cart",
+      "title": {
+        "en": "Returns cart",
+        "de": "Rückgabewagen"
+      },
+      "text": {
+        "en": "A cart full of returned books stands by the shelves, its brake locked until the books are in Margarete's shelving order. Her note on the cart says how she wants them.\n\nThe books are loaded as `returns`, a list of dictionaries with `\"title\"` and `\"shelf\"`. Store the titles in shelving order in `cart`, a list of strings.",
+        "de": "Ein Wagen voller zurückgegebener Bücher steht bei den Regalen, seine Bremse bleibt fest, bis die Bücher in Margaretes Einräumreihenfolge liegen. Ihr Zettel am Wagen sagt, wie sie es haben will.\n\nDie Bücher sind als `returns` geladen, eine Liste von Dictionaries mit `\"title\"` und `\"shelf\"`. Speichere die Titel in Einräumreihenfolge in `cart`, einer Liste von Strings."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "# returns is loaded: a list of dicts with \"title\" and \"shelf\".\nprint(returns[0])\n\ncart = []  # the titles, in shelving order\n",
+        "de": "# returns ist geladen: eine Liste von Dicts mit \"title\" und \"shelf\".\nprint(returns[0])\n\ncart = []  # die Titel, in Einräumreihenfolge\n"
+      },
+      "data": "cart.py",
+      "check": {
+        "type": "python",
+        "expr": "cart",
+        "hash": "3ade8cb7f55bf35631d4bc30f1c1afae567cc5efea5c331500f326ecf19d5176"
+      },
+      "practises": {
+        "en": "Reading a HOWTO: Python's sort is stable, so a sort on two keys in opposite directions is two sorts, the secondary key first.",
+        "de": "Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach zwei Schlüsseln in entgegengesetzten Richtungen zu zwei Sortierungen, der zweite Schlüssel zuerst."
+      },
+      "clues": [
+        "cart-note"
+      ],
+      "hints": [
+        {
+          "en": "The HOWTOs are linked from the docs' start page and from the handbook. In \"Sorting Techniques\", read the section \"Sort Stability and Complex Sorts\".",
+          "de": "Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“."
+        },
+        {
+          "en": "Sorts are stable: records with the same key keep their order. So sort by the secondary key first (title, `reverse=True`), then by the primary key (shelf).",
+          "de": "Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem zweiten Schlüssel (Titel, `reverse=True`), dann nach dem ersten (Regal)."
+        },
+        {
+          "en": "`by_title = sorted(returns, key=lambda b: b[\"title\"], reverse=True)`, then `sorted(by_title, key=lambda b: b[\"shelf\"])`, then take the titles.",
+          "de": "`by_title = sorted(returns, key=lambda b: b[\"title\"], reverse=True)`, dann `sorted(by_title, key=lambda b: b[\"shelf\"])`, dann die Titel herausziehen."
+        }
+      ],
+      "reveal": {
+        "en": "The brake clicks free. Taped under the handle is a tag: **returns → 7**",
+        "de": "Die Bremse löst sich mit einem Klick. Unter den Griff ist ein Anhänger geklebt: **Rückgabe → 7**"
+      }
+    },
+    {
+      "id": "boxes",
+      "title": {
+        "en": "Packing table",
+        "de": "Packtisch"
+      },
+      "text": {
+        "en": "A pile of books waits on the packing table to go down to the cellar, next to a stack of empty archive boxes. The cellar lift only takes full instructions: which books go into which box.\n\nThe call numbers are loaded as `book_ids`. Pack them as the box label says and store the boxes in `boxes`, a list with one tuple or list of call numbers per box.",
+        "de": "Auf dem Packtisch wartet ein Stapel Bücher darauf, in den Keller zu kommen, daneben ein Stapel leerer Archivkartons. Der Kelleraufzug nimmt nur vollständige Anweisungen: welche Bücher in welchen Karton kommen.\n\nDie Signaturen sind als `book_ids` geladen. Packe sie so, wie es auf dem Kartonetikett steht, und speichere die Kartons in `boxes`, einer Liste mit einem Tupel oder einer Liste von Signaturen pro Karton."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "# book_ids is loaded: call numbers like \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\nboxes = []\n",
+        "de": "# book_ids ist geladen: Signaturen wie \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\nboxes = []\n"
+      },
+      "data": "boxes.py",
+      "check": {
+        "type": "python",
+        "expr": "[len(boxes), list(boxes[-1])]",
+        "hash": "be0e12cb3f5adabe5118dd5269d75502fa564d5ae7a1c8706c43d05370c6ba8b"
+      },
+      "practises": {
+        "en": "Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters.",
+        "de": "Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur."
+      },
+      "clues": [
+        "box-label"
+      ],
+      "hints": [
+        {
+          "en": "Open `itertools` from the module index. The tables at the top of its page list every function with a one-line description; one of them makes groups of a fixed size.",
+          "de": "Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe."
+        },
+        {
+          "en": "`itertools.batched(iterable, n)` gives tuples of `n` items; the last one may be shorter. It returns an iterator, so wrap it in `list(...)`. And the label wants call-number order first.",
+          "de": "`itertools.batched(iterable, n)` liefert Tupel mit `n` Elementen; das letzte darf kürzer sein. Es gibt einen Iterator zurück, also pack es in `list(...)`. Und das Etikett will zuerst die Reihenfolge der Signaturen."
+        },
+        {
+          "en": "`from itertools import batched` and `boxes = list(batched(sorted(book_ids), 7))`",
+          "de": "`from itertools import batched` und `boxes = list(batched(sorted(book_ids), 7))`"
+        }
+      ],
+      "reveal": {
+        "en": "The lift hums and takes the boxes down. A number is stamped on the last box's lid: **packing → 4**",
+        "de": "Der Aufzug summt und bringt die Kartons nach unten. Auf den Deckel des letzten Kartons ist eine Zahl gestempelt: **Packen → 4**"
+      }
+    },
+    {
+      "id": "fees",
+      "title": {
+        "en": "Late-fees ledger",
+        "de": "Mahngebühren-Buch"
+      },
+      "text": {
+        "en": "The late-fees ledger never balanced: Margarete's fee script always came out a few cents off. A pencil note in the margin: \"Why my script is wrong is written under `round()` in the built-in functions. Follow the docs from there.\"\n\nThe ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee as the fee rules say and store the sum in `total`.",
+        "de": "Das Mahngebühren-Buch ging nie auf: Margaretes Gebührenskript lag immer ein paar Cent daneben. Eine Bleistiftnotiz am Rand: „Warum mein Skript falsch ist, steht unter `round()` bei den eingebauten Funktionen. Folgt der Doku von dort aus.“\n\nDas Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechne jede Gebühr so, wie es die Gebührenordnung sagt, und speichere die Summe in `total`."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "# Margarete's fee script. ledger is loaded: (title, days overdue) pairs.\nRATE = 0.0  # euros per day: see the fee rules\n\ntotal = 0\nfor title, days in ledger:\n    fee = round(days * RATE, 2)\n    total += fee\nprint(total)\n",
+        "de": "# Margaretes Gebührenskript. ledger ist geladen: Paare (Titel, Tage überfällig).\nRATE = 0.0  # Euro pro Tag: siehe Gebührenordnung\n\ntotal = 0\nfor title, days in ledger:\n    fee = round(days * RATE, 2)\n    total += fee\nprint(total)\n"
+      },
+      "data": "fees.py",
+      "check": {
+        "type": "python",
+        "expr": "str(total)",
+        "hash": "36841db671eb96f12710fafc0dd513dddbe1981b77c9146162e0c46635130217"
+      },
+      "practises": {
+        "en": "Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`, `quantize`, rounding modes).",
+        "de": "Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`, `quantize`, Rundungsarten)."
+      },
+      "clues": [
+        "fee-rules"
+      ],
+      "hints": [
+        {
+          "en": "Under `round()` the docs say two things: ties are rounded toward the even choice, and a float like `2.675` can't be stored exactly. The note there names the module for exact decimal arithmetic.",
+          "de": "Unter `round()` sagt die Doku zwei Dinge: Gleichstände werden zur geraden Zahl gerundet, und ein Float wie `2.675` lässt sich nicht exakt speichern. Der Hinweis dort nennt das Modul für exaktes Rechnen mit Dezimalzahlen."
+        },
+        {
+          "en": "On the `decimal` page: build numbers from strings, `Decimal(\"0.045\")`, not from floats; round each fee with `.quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)`.",
+          "de": "Auf der Seite zu `decimal`: Zahlen aus Strings bauen, `Decimal(\"0.045\")`, nicht aus Floats; jede Gebühr mit `.quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)` runden."
+        },
+        {
+          "en": "`from decimal import Decimal, ROUND_HALF_UP`, then in the loop `fee = (days * Decimal(\"0.045\")).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)`.",
+          "de": "`from decimal import Decimal, ROUND_HALF_UP`, dann in der Schleife `fee = (days * Decimal(\"0.045\")).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)`."
+        }
+      ],
+      "reveal": {
+        "en": "The ledger balances to the cent. In the margin, in red ink: **fees → 1**",
+        "de": "Das Buch geht auf den Cent genau auf. Am Rand, in roter Tinte: **Gebühren → 1**"
+      }
+    },
+    {
+      "id": "terminal",
+      "title": {
+        "en": "The old terminal",
+        "de": "Das alte Terminal"
+      },
+      "text": {
+        "en": "The reading-room terminal is ancient. Its boot screen says `Python 3.8.10`. Margarete wanted to run her scripts on it, and pinned the list of functions they use next to it.\n\nThe terminal asks for its admin code: for every function on her list that doesn't exist yet in Python 3.8, the minor version of the Python release that added it, in the order of the list, with no spaces. (A function added in Python 3.11 would give `11`.)",
+        "de": "Das Terminal im Lesesaal ist uralt. Sein Startbildschirm zeigt `Python 3.8.10`. Margarete wollte ihre Skripte darauf laufen lassen und hat die Liste der Funktionen, die sie benutzen, daneben gepinnt.\n\nDas Terminal fragt nach seinem Admin-Code: für jede Funktion auf ihrer Liste, die es in Python 3.8 noch nicht gibt, die Unterversion der Python-Version, die sie eingeführt hat, in der Reihenfolge der Liste, ohne Leerzeichen. (Eine Funktion aus Python 3.11 ergäbe `11`.)"
+      },
+      "workspace": "none",
+      "check": {
+        "type": "answer",
+        "mode": "exact",
+        "hash": "56fc98e630c57a47fe80342b801f814c49e71c8f4a572147ade2837951d644e3"
+      },
+      "practises": {
+        "en": "Version notes: every entry in the docs says when it was added or changed (\"Added in version 3.x\"), so you know whether code runs on an older Python.",
+        "de": "Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit du weißt, ob Code auf einem älteren Python läuft."
+      },
+      "clues": [
+        "script-list"
+      ],
+      "hints": [
+        {
+          "en": "Look each function up (the general index or the search finds it). At the end of its entry there is a note such as \"Added in version 3.x\".",
+          "de": "Schlag jede Funktion nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“."
+        },
+        {
+          "en": "Functions added in 3.8 or earlier run on the terminal. Two of the five on the list do.",
+          "de": "Funktionen aus 3.8 oder früher laufen auf dem Terminal. Zwei der fünf auf der Liste tun das."
+        },
+        {
+          "en": "`str.removeprefix` 3.9, `math.dist` 3.8, `itertools.pairwise` 3.10, `statistics.fmean` 3.8, `itertools.batched` 3.12.",
+          "de": "`str.removeprefix` 3.9, `math.dist` 3.8, `itertools.pairwise` 3.10, `statistics.fmean` 3.8, `itertools.batched` 3.12."
+        }
+      ],
+      "reveal": {
+        "en": "The terminal beeps and prints a slip: \"Stamp machine, service PIN: **5318**\"",
+        "de": "Das Terminal piept und druckt einen Zettel: „Stempelmaschine, Service-PIN: **5318**“"
+      }
+    },
+    {
+      "id": "stamps",
+      "title": {
+        "en": "Date-stamp machine",
+        "de": "Datumsstempel-Maschine"
+      },
+      "text": {
+        "en": "The stamp machine prints a return stamp into every book. Its tray is full, but Margarete's stamp script prints nonsense around New Year.\n\nThe return dates are loaded as `returned`, ISO date strings. Fix the script so that `stamps` holds one stamp per book, in the format on the machine's instructions.",
+        "de": "Die Stempelmaschine druckt in jedes Buch einen Rückgabestempel. Ihr Fach ist voll, aber Margaretes Stempelskript druckt um Neujahr herum Unsinn.\n\nDie Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariere das Skript, sodass `stamps` einen Stempel pro Buch enthält, im Format aus der Anleitung der Maschine."
+      },
+      "workspace": "python",
+      "starter": {
+        "en": "from datetime import date\n\n# Margarete's stamp script. returned is loaded: ISO date strings like \"2026-06-10\".\nstamps = []\nfor text in returned:\n    day = date.fromisoformat(text)\n    stamps.append(day.strftime(\"%Y-W%W-%w\"))\nprint(stamps)\n",
+        "de": "from datetime import date\n\n# Margaretes Stempelskript. returned ist geladen: ISO-Datumsstrings wie \"2026-06-10\".\nstamps = []\nfor text in returned:\n    day = date.fromisoformat(text)\n    stamps.append(day.strftime(\"%Y-W%W-%w\"))\nprint(stamps)\n"
+      },
+      "data": "stamps.py",
+      "check": {
+        "type": "python",
+        "expr": "stamps",
+        "hash": "b7da60c4743b8b7b2035db585830bbf361c091745f9a4239d6f4d0fcf69135d5"
+      },
+      "practises": {
+        "en": "Reading a table in the docs, and the notes under it: the `strftime` format codes, and why ISO week dates need `%G` with `%V` and `%u`.",
+        "de": "Eine Tabelle in der Doku lesen, samt der Hinweise darunter: die Formatcodes von `strftime`, und warum ISO-Wochendaten `%G` mit `%V` und `%u` brauchen."
+      },
+      "clues": [
+        "stamp-instructions"
+      ],
+      "hints": [
+        {
+          "en": "On the `datetime` page, the section \"strftime() and strptime() Format Codes\" has a table of codes. Three of them mention ISO 8601.",
+          "de": "Auf der Seite zu `datetime` hat der Abschnitt „strftime() and strptime() Format Codes“ eine Tabelle mit Codes. Drei davon erwähnen ISO 8601."
+        },
+        {
+          "en": "`%V` is the ISO week, `%u` the ISO weekday (Monday is 1). The docs say the ISO year and week directives are not interchangeable with `%Y` and `%W`: around New Year the ISO year is `%G`.",
+          "de": "`%V` ist die ISO-Woche, `%u` der ISO-Wochentag (Montag ist 1). Die Doku sagt, dass sich die ISO-Direktiven für Jahr und Woche nicht mit `%Y` und `%W` austauschen lassen: Um Neujahr herum ist das ISO-Jahr `%G`."
+        },
+        {
+          "en": "`day.strftime(\"%G-W%V-%u\")`",
+          "de": "`day.strftime(\"%G-W%V-%u\")`"
+        }
+      ],
+      "lock": {
+        "text": {
+          "en": "The stamp machine's cover is locked. A small display asks for a four-digit service PIN.",
+          "de": "Die Abdeckung der Stempelmaschine ist verriegelt. Ein kleines Display fragt nach einer vierstelligen Service-PIN."
+        },
+        "from": "terminal",
+        "mode": "number",
+        "hash": "81643095aa4e8f9e4d7fc551faceedb6b645312da2c01dae3fdf9aa7d2d8a63c"
+      },
+      "reveal": {
+        "en": "The machine stamps the last book and drops a brass token: **stamps → 8**",
+        "de": "Die Maschine stempelt das letzte Buch und wirft eine Messingmarke aus: **Stempel → 8**"
+      }
+    },
+    {
+      "id": "door",
+      "title": {
+        "en": "Archive door",
+        "de": "Archivtür"
+      },
+      "text": {
+        "en": "The heavy archive door is sealed. Its keypad wants four digits.",
+        "de": "Die schwere Archivtür ist verriegelt. Ihr Tastenfeld will vier Ziffern."
+      },
+      "workspace": "none",
+      "check": {
+        "type": "answer",
+        "mode": "number",
+        "hash": "fe42b830c8707660c3c2e5602491c4411a967c2238d0d56954b8e60581db0ce0"
+      },
+      "practises": {
+        "en": "Putting the room's results together.",
+        "de": "Die Ergebnisse des Raums zusammensetzen."
+      },
+      "clues": [
+        "catalogue-card"
+      ],
+      "uses": [
+        "cart",
+        "boxes",
+        "fees",
+        "stamps"
+      ],
+      "hints": [
+        {
+          "en": "Four stations each gave you a number. The card catalogue says in which order they go.",
+          "de": "Vier Stationen haben euch je eine Zahl gegeben. Der Zettelkatalog sagt, in welcher Reihenfolge sie gehören."
+        },
+        {
+          "en": "The order is: stamps, returns, fees, packing.",
+          "de": "Die Reihenfolge ist: Stempel, Rückgabe, Gebühren, Packen."
+        },
+        {
+          "en": "8714",
+          "de": "8714"
+        }
+      ],
+      "final": true
+    }
+  ],
+  "clues": [
+    {
+      "id": "cart-note",
+      "title": {
+        "en": "Note on the returns cart",
+        "de": "Zettel am Rückgabewagen"
+      },
+      "text": {
+        "en": "Shelving order:\nshelves from A to Z,\nand within a shelf, titles from Z to A. (Don't ask.)\n\nThe sorting HOWTO in the Python docs shows how to do it with two sorts. Read the part about stability. Which sort comes first is written there too. — M. H.",
+        "de": "Einräumreihenfolge:\nRegale von A bis Z,\ninnerhalb eines Regals Titel von Z bis A. (Fragt nicht.)\n\nDas Sortier-HOWTO in der Python-Doku zeigt, wie das mit zwei Sortierungen geht. Lest den Teil über Stabilität. Welche Sortierung zuerst kommt, steht dort auch. — M. H."
+      }
+    },
+    {
+      "id": "box-label",
+      "title": {
+        "en": "Label on an archive box",
+        "de": "Etikett auf einem Archivkarton"
+      },
+      "text": {
+        "en": "ARCHIVE BOX\nmax. **7** volumes\npack in call-number order\n\nIn pencil: \"itertools has a function that does exactly this. I never write that loop myself.\"",
+        "de": "ARCHIVKARTON\nmax. **7** Bände\nnach Signatur geordnet packen\n\nMit Bleistift: „itertools hat eine Funktion, die genau das macht. Diese Schleife schreibe ich nie selbst.“"
+      }
+    },
+    {
+      "id": "fee-rules",
+      "title": {
+        "en": "Fee rules",
+        "de": "Gebührenordnung"
+      },
+      "text": {
+        "en": "KLEEBERG CITY LIBRARY · LATE FEES\n\nPer book: **4.5 cents** per day overdue.\nEach book's fee is rounded to whole cents; half a cent always rounds **up**.\nThen the fees are added.",
+        "de": "STADTBIBLIOTHEK KLEEBERG · MAHNGEBÜHREN\n\nPro Buch: **4,5 Cent** pro Tag Überziehung.\nJede Gebühr wird auf ganze Cent gerundet; ein halber Cent wird immer **aufgerundet**.\nDann werden die Gebühren addiert."
+      }
+    },
+    {
+      "id": "script-list",
+      "title": {
+        "en": "Margarete's script list",
+        "de": "Margaretes Skriptliste"
+      },
+      "text": {
+        "en": "Functions my scripts use:\n1. `str.removeprefix`\n2. `math.dist`\n3. `itertools.pairwise`\n4. `statistics.fmean`\n5. `itertools.batched`\n\nWill they run on the old terminal? The docs say since when each one exists.",
+        "de": "Funktionen, die meine Skripte benutzen:\n1. `str.removeprefix`\n2. `math.dist`\n3. `itertools.pairwise`\n4. `statistics.fmean`\n5. `itertools.batched`\n\nLaufen sie auf dem alten Terminal? Die Doku sagt, seit wann es jede gibt."
+      }
+    },
+    {
+      "id": "stamp-instructions",
+      "title": {
+        "en": "Stamp machine instructions",
+        "de": "Anleitung der Stempelmaschine"
+      },
+      "text": {
+        "en": "RETURN STAMP FORMAT\nISO year, `W`, ISO week, ISO weekday (Monday = 1 … Sunday = 7)\nExample: Wednesday of ISO week 45 in 2026 → `2026-W45-3`\n\nThe format codes are in a table on the `datetime` page. Read the notes under the table too.",
+        "de": "FORMAT DES RÜCKGABESTEMPELS\nISO-Jahr, `W`, ISO-Woche, ISO-Wochentag (Montag = 1 … Sonntag = 7)\nBeispiel: Mittwoch der ISO-Woche 45 im Jahr 2026 → `2026-W45-3`\n\nDie Formatcodes stehen in einer Tabelle auf der Seite zu `datetime`. Lest auch die Hinweise unter der Tabelle."
+      }
+    },
+    {
+      "id": "catalogue-card",
+      "title": {
+        "en": "Card in the card catalogue",
+        "de": "Karte im Zettelkatalog"
+      },
+      "text": {
+        "en": "ARCHIVE DOOR\nfiled under: numbers, in this order\n\n1. stamps\n2. returns\n3. fees\n4. packing",
+        "de": "ARCHIVTÜR\nabgelegt unter: Zahlen, in dieser Reihenfolge\n\n1. Stempel\n2. Rückgabe\n3. Gebühren\n4. Packen"
+      }
+    }
+  ],
+  "reference": {
+    "title": {
+      "en": "How to read the Python docs",
+      "de": "Wie man die Python-Doku liest"
+    },
+    "intro": {
+      "en": "Margarete's own guide to the documentation. It doesn't say what is in the docs (that would break her rule), only how to find it. All links go to the docs for Python 3.14.",
+      "de": "Margaretes eigener Wegweiser durch die Dokumentation. Er sagt nicht, was in der Doku steht (das bräche ihre Regel), nur, wie man es findet. Alle Links führen zur Doku für Python 3.14."
+    },
+    "sections": [
+      {
+        "title": {
+          "en": "Finding your way",
+          "de": "Den Weg finden"
+        },
+        "entries": [
+          {
+            "name": "Library Reference",
+            "text": {
+              "en": "Every built-in function, type and standard-library module, grouped by topic. Start here when you know roughly what you need (\"something for dates\").",
+              "de": "Jede eingebaute Funktion, jeder Typ und jedes Modul der Standardbibliothek, nach Themen geordnet. Fang hier an, wenn du ungefähr weißt, was du brauchst („irgendwas mit Datum“)."
+            },
+            "link": "https://docs.python.org/3.14/library/index.html"
+          },
+          {
+            "name": "Module index",
+            "text": {
+              "en": "All modules from A to Z. The quickest way to a module's page when you know its name, like `itertools` or `decimal`.",
+              "de": "Alle Module von A bis Z. Der schnellste Weg zur Seite eines Moduls, wenn du seinen Namen kennst, etwa `itertools` oder `decimal`."
+            },
+            "link": "https://docs.python.org/3.14/py-modindex.html"
+          },
+          {
+            "name": "General index",
+            "text": {
+              "en": "Every function, method, class and term, alphabetically. Methods are listed with their type, e.g. `removeprefix() (str method)`.",
+              "de": "Jede Funktion, Methode, Klasse und jeder Begriff, alphabetisch. Methoden stehen mit ihrem Typ da, etwa `removeprefix() (str method)`."
+            },
+            "link": "https://docs.python.org/3.14/genindex.html"
+          },
+          {
+            "name": "Search",
+            "text": {
+              "en": "Full-text search. Search for the exact name (`batched`), not for a description; the first hits are usually the reference entries.",
+              "de": "Volltextsuche. Such nach dem genauen Namen (`batched`), nicht nach einer Beschreibung; die ersten Treffer sind meist die Referenzeinträge."
+            },
+            "link": "https://docs.python.org/3.14/search.html"
+          },
+          {
+            "name": "HOWTOs",
+            "text": {
+              "en": "Longer guides to one topic each, with worked examples: what the reference states briefly, a HOWTO explains and shows.",
+              "de": "Längere Anleitungen zu je einem Thema, mit durchgerechneten Beispielen: Was die Referenz knapp festhält, erklärt und zeigt ein HOWTO."
+            },
+            "link": "https://docs.python.org/3.14/howto/index.html"
+          },
+          {
+            "name": "Glossary",
+            "text": {
+              "en": "Short definitions of the words the docs use, such as iterable, iterator or keyword argument.",
+              "de": "Kurze Erklärungen der Wörter, die die Doku benutzt, etwa iterable, iterator oder keyword argument."
+            },
+            "link": "https://docs.python.org/3.14/glossary.html"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Reading an entry",
+          "de": "Einen Eintrag lesen"
+        },
+        "entries": [
+          {
+            "name": "name(a, b=1, *, c=None)",
+            "text": {
+              "en": "The signature: what you can pass. `b=1` has a default and may be left out. Parameters after `*` must be given by name (`c=...`); parameters before a `/` only by position.",
+              "de": "Die Signatur: Was du übergeben kannst. `b=1` hat einen Standardwert und darf fehlen. Parameter nach `*` musst du mit Namen übergeben (`c=...`), Parameter vor einem `/` nur nach Position."
+            },
+            "link": "https://docs.python.org/3.14/glossary.html#term-parameter"
+          },
+          {
+            "name": "Added in version 3.x",
+            "text": {
+              "en": "Notes at the end of an entry: when it appeared, when it changed (\"Changed in version\"), when it is going away (\"Deprecated since version\"). They tell you whether code runs on an older Python. The What's New pages (the link) list every change, one page per release.",
+              "de": "Hinweise am Ende eines Eintrags: wann er dazukam, wann er sich geändert hat („Changed in version“), wann er wegfällt („Deprecated since version“). Sie sagen dir, ob Code auf einem älteren Python läuft. Die Seiten „What's New“ (der Link) listen jede Änderung auf, eine Seite pro Version."
+            },
+            "link": "https://docs.python.org/3.14/whatsnew/index.html"
+          },
+          {
+            "name": "Note  Warning  See also",
+            "text": {
+              "en": "Boxes inside an entry with the surprises: a behaviour you wouldn't guess, a common mistake, a better tool somewhere else. Read them even when you think you know the function.",
+              "de": "Kästen in einem Eintrag mit den Überraschungen: ein Verhalten, das man nicht erwartet, ein häufiger Fehler, ein besseres Werkzeug anderswo. Lies sie, auch wenn du glaubst, die Funktion zu kennen."
+            }
+          },
+          {
+            "name": "Tables",
+            "text": {
+              "en": "Codes and options are often collected in a table (format codes, rounding modes, escape sequences). The numbered notes under a table matter as much as the table.",
+              "de": "Codes und Optionen stehen oft gesammelt in einer Tabelle (Formatcodes, Rundungsarten, Escape-Sequenzen). Die nummerierten Hinweise unter einer Tabelle zählen so viel wie die Tabelle."
+            }
+          },
+          {
+            "name": ">>> examples",
+            "text": {
+              "en": "Lines starting with `>>>` are code; the line below is what Python prints. Copy them into the editor (without `>>>`) and change them until you understand them.",
+              "de": "Zeilen, die mit `>>>` beginnen, sind Code; die Zeile darunter ist, was Python ausgibt. Kopier sie in den Editor (ohne `>>>`) und verändere sie, bis du sie verstehst."
+            },
+            "link": "https://docs.python.org/3.14/tutorial/interpreter.html#interactive-mode"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "In the editor",
+          "de": "Im Editor"
+        },
+        "entries": [
+          {
+            "name": "help(obj)",
+            "text": {
+              "en": "Prints the built-in documentation of a function or module: `help(sorted)`. Shorter than the web docs, without the notes and examples.",
+              "de": "Gibt die eingebaute Dokumentation einer Funktion oder eines Moduls aus: `help(sorted)`. Kürzer als die Web-Doku, ohne Hinweise und Beispiele."
+            },
+            "link": "https://docs.python.org/3.14/library/functions.html#help"
+          },
+          {
+            "name": "dir(obj)",
+            "text": {
+              "en": "Lists the names inside a module or object: `dir(str)` shows every string method. Useful when you half remember a name.",
+              "de": "Listet die Namen in einem Modul oder Objekt: `dir(str)` zeigt jede String-Methode. Praktisch, wenn du einen Namen nur halb erinnerst."
+            },
+            "link": "https://docs.python.org/3.14/library/functions.html#dir"
+          },
+          {
+            "name": "sys.version",
+            "text": {
+              "en": "The Python version your code runs on. The docs have one edition per version (the switcher at the top of each page); read the one that matches.",
+              "de": "Die Python-Version, auf der dein Code läuft. Die Doku gibt es für jede Version einzeln (die Auswahl oben auf jeder Seite); lies die passende."
+            },
+            "link": "https://docs.python.org/3.14/library/sys.html#sys.version"
+          }
+        ]
+      }
+    ]
+  }
+}
