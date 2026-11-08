@@ -138,9 +138,9 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 25 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 26 rows of 32px tiles ---------------------------------
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 25;
+const TILESET_ROWS = 26;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -2601,6 +2601,157 @@ drawTile(199, (g, { obj }) => {
     [[19, 10], [22, 10], [21, 11], [21, 12], [20, 13], [20, 14], [22, 14]].forEach(([x, y]) => o.set(x, y, [180, 40, 40]));
     o.box(9, 18, 14, 5, [112, 118, 130], 1.2);
     o.rect(13, 19, 6, 3, [36, 40, 50]);
+  });
+});
+
+// --- Auction house Vossberg & Daughters at night (ml-auction) ----------------------------------
+const BAIZE = [40, 70, 60];
+const MAHOGANY = [112, 52, 36];
+/** A small wristwatch seen from above: a round case on a strap. */
+function watch(o, x, y, face = [240, 236, 222], strap = [70, 44, 30]) {
+  o.rect(x - 1, y - 4, 3, 9, strap);
+  o.ellipse(x + 0.5, y + 0.5, 2.5, 2.5, BRASS);
+  o.ellipse(x + 0.5, y + 0.5, 1.6, 1.6, face);
+  o.set(x, y, [40, 40, 50]);
+}
+// 200 watch display case: a glass counter on a mahogany base with watches on green velvet
+drawTile(200, (g, { obj, shadow }) => {
+  shadow(16, 30, 15, 2);
+  obj((o) => {
+    o.box(1, 16, 30, 13, MAHOGANY, 1.3);
+    o.rect(3, 19, 26, 1, sh(MAHOGANY, 0.8));
+    o.box(2, 6, 28, 11, BAIZE, 1.2);
+    watch(o, 7, 11);
+    watch(o, 16, 11, [24, 30, 44]);
+    watch(o, 25, 11, [240, 236, 222], [30, 30, 36]);
+    o.rect(2, 4, 28, 13, [200, 230, 240, 70]);
+    o.rect(2, 4, 28, 1, [230, 246, 252]);
+    o.rect(4, 6, 1, 9, [255, 255, 255, 150]);
+    o.rect(14, 23, 4, 2, BRASS);
+  });
+});
+// 201 auction rostrum: a carved mahogany lectern with a brass plate, a gavel on its block and a microphone
+drawTile(201, (g, { obj, shadow }) => {
+  shadow(16, 30, 13, 2);
+  obj((o) => {
+    o.box(3, 10, 26, 19, MAHOGANY, 1.3);
+    o.rect(3, 13, 26, 1, sh(MAHOGANY, 0.75));
+    o.box(10, 17, 12, 5, BRASS, 1.3);
+    o.rect(12, 19, 8, 1, sh(BRASS, 0.6));
+    o.box(1, 7, 30, 4, sh(MAHOGANY, 1.2), 1.3);
+    o.box(19, 4, 6, 3, sh(WOOD_DARK, 0.9), 1.3);
+    o.box(17, 1, 4, 4, WOOD, 1.3);
+    o.rect(21, 2, 6, 1, WOOD);
+    o.rect(8, 2, 1, 6, [50, 50, 56]);
+    o.ellipse(8.5, 2, 1.5, 1.5, [30, 30, 34]);
+  });
+});
+// 202 Albers's graph paper on the wall: a clip frame of pale squared paper with crosses and a ruled line
+drawTile(202, (g, { obj }) => {
+  wallFront(g, 202);
+  obj((o) => {
+    o.box(4, 3, 24, 21, [236, 230, 196], 1.02, 0.85);
+    for (let x = 6; x < 27; x += 3) o.rect(x, 4, 1, 19, [190, 214, 200]);
+    for (let y = 5; y < 23; y += 3) o.rect(5, y, 22, 1, [190, 214, 200]);
+    o.rect(6, 5, 1, 17, [60, 60, 70]);
+    o.rect(6, 21, 20, 1, [60, 60, 70]);
+    for (let i = 0; i < 18; i++) o.set(7 + i, Math.round(19 - i * 0.7), [50, 50, 120]);
+    [[9, 16], [12, 17], [14, 13], [17, 14], [20, 10], [22, 12], [24, 8]].forEach(([x, y]) => {
+      o.set(x, y, [140, 50, 50]);
+      o.set(x - 1, y - 1, [140, 50, 50]);
+      o.set(x + 1, y + 1, [140, 50, 50]);
+      o.set(x + 1, y - 1, [140, 50, 50]);
+      o.set(x - 1, y + 1, [140, 50, 50]);
+    });
+    o.ellipse(22, 6, 3, 1.5, [150, 140, 120, 150]);
+    o.rect(14, 2, 4, 2, METAL);
+  });
+});
+// 203 price histogram on the wall: a white sheet with a tall hump of blue bars on the left and a thin tail to the right
+drawTile(203, (g, { obj }) => {
+  wallFront(g, 203);
+  obj((o) => {
+    o.box(3, 3, 26, 21, [246, 246, 240], 1.02, 0.85);
+    const bars = [6, 14, 16, 12, 9, 6, 4, 3, 2, 2, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1];
+    bars.forEach((h, i) => h && o.rect(5 + i, 20 - h, 1, h, i % 2 ? [70, 110, 180] : [90, 130, 200]));
+    o.rect(5, 20, 22, 1, [60, 60, 70]);
+    o.rect(5, 5, 8, 1, [130, 130, 145]);
+    o.rect(16, 22, 9, 1, [60, 90, 150]);
+  });
+});
+// 204 watchmaker's bench: a green-topped workbench with a loupe on a stand, an open watch, tweezers and a lamp
+drawTile(204, (g, { obj, shadow }) => {
+  shadow(16, 30, 14, 2);
+  obj((o) => {
+    o.box(1, 13, 30, 10, WOOD, 1.25);
+    o.rect(2, 13, 28, 3, [70, 110, 90]);
+    o.rect(3, 23, 3, 7, sh(WOOD, 0.7));
+    o.rect(26, 23, 3, 7, sh(WOOD, 0.7));
+    o.box(10, 17, 12, 4, sh(WOOD, 0.85), 1.2);
+    o.rect(15, 18, 2, 1, BRASS);
+    o.rect(5, 4, 1, 10, [50, 50, 56]);
+    o.rect(5, 4, 8, 1, [50, 50, 56]);
+    o.box(10, 4, 6, 3, [60, 110, 80], 1.3);
+    o.rect(11, 7, 4, 2, [255, 240, 170, 120]);
+    o.ellipse(20, 12, 3, 2, BRASS);
+    o.ellipse(20, 12, 2, 1.2, [180, 160, 110]);
+    o.set(19, 12, [120, 90, 50]);
+    o.set(21, 11, [120, 90, 50]);
+    o.rect(24, 11, 4, 1, METAL);
+    o.ellipse(27, 8, 2.5, 2.5, [30, 30, 34]);
+    o.ellipse(27, 8, 1.5, 1.5, [150, 190, 210]);
+    o.rect(27, 10, 1, 4, [30, 30, 34]);
+  });
+});
+// 205 proof press: a dark green printing press with a big wheel, a sheet on its bed and a stack of catalogues
+drawTile(205, (g, { obj, shadow }) => {
+  shadow(16, 30, 15, 2);
+  obj((o) => {
+    const green = [44, 76, 64];
+    o.box(2, 12, 28, 16, green, 1.3);
+    o.rect(4, 28, 3, 2, sh(green, 0.6));
+    o.rect(25, 28, 3, 2, sh(green, 0.6));
+    o.box(4, 9, 18, 4, [180, 180, 186], 1.2);
+    o.rect(6, 9, 13, 3, [250, 248, 238]);
+    for (let x = 7; x < 18; x += 2) o.rect(x, 10, 1, 1, [130, 130, 145]);
+    o.ellipse(25, 8, 5, 5, sh(METAL, 0.7));
+    o.ellipse(25, 8, 3.5, 3.5, green);
+    o.rect(24, 3, 2, 10, sh(METAL, 0.6));
+    o.rect(20, 7, 10, 2, sh(METAL, 0.6));
+    o.box(6, 17, 10, 6, [170, 40, 44], 1.2);
+    o.rect(6, 19, 10, 1, [240, 230, 210]);
+    o.rect(8, 18, 6, 1, BRASS);
+  });
+});
+// 206 bidder's chair: a gilt saleroom chair with a red seat and a numbered paddle on it (a seat, not collidable)
+drawTile(206, (g, { obj, shadow }) => {
+  shadow(16, 29, 9, 2);
+  obj((o) => {
+    o.box(9, 4, 14, 10, BRASS, 1.3);
+    o.box(11, 6, 10, 6, [168, 40, 50], 1.2);
+    o.box(8, 14, 16, 8, [178, 48, 56], 1.25);
+    o.rect(9, 22, 2, 7, BRASS);
+    o.rect(21, 22, 2, 7, BRASS);
+    o.ellipse(17, 17, 3.5, 2.5, [246, 244, 236]);
+    o.rect(17, 19, 1, 4, WOOD);
+    o.rect(16, 16, 2, 2, [40, 40, 50]);
+  });
+});
+// 207 case clock: a tall mahogany longcase clock with a white face near six o'clock and a brass pendulum
+drawTile(207, (g, { obj, shadow }) => {
+  shadow(16, 30, 9, 2);
+  obj((o) => {
+    o.box(9, 1, 14, 29, MAHOGANY, 1.3);
+    o.box(8, 1, 16, 3, sh(MAHOGANY, 1.2), 1.3);
+    o.ellipse(16, 9, 5, 5, BRASS);
+    o.ellipse(16, 9, 4, 4, [246, 242, 228]);
+    o.rect(16, 6, 1, 4, [30, 30, 34]);
+    o.rect(16, 9, 1, 4, [30, 30, 34]);
+    o.rect(11, 16, 10, 11, sh(MAHOGANY, 0.6));
+    o.rect(16, 16, 1, 7, sh(BRASS, 0.8));
+    o.ellipse(16.5, 23.5, 2.5, 2.5, BRASS);
+    o.rect(12, 17, 1, 9, [255, 255, 255, 60]);
+    o.rect(20, 7, 5, 4, [250, 248, 238]);
   });
 });
 

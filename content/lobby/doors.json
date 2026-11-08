@@ -68,31 +68,10 @@
       },
       "order": [
         "ml-seeds",
-        "ml-customs"
+        "ml-customs",
+        "ml-auction"
       ],
       "upcoming": [
-        {
-          "title": {
-            "en": "Going Once",
-            "de": "Zum Ersten"
-          },
-          "difficulty": "intermediate",
-          "about": {
-            "tools": [
-              "Python",
-              "pandas",
-              "scikit-learn"
-            ],
-            "practises": {
-              "en": "Regression: linear models and their coefficients, MAE, RMSE and R² against a baseline, one-hot encoding, a log-transformed target, residuals and polynomial features.",
-              "de": "Regression: lineare Modelle und ihre Koeffizienten, MAE, RMSE und R² gegen eine Baseline, One-Hot-Encoding, ein logarithmiertes Ziel, Residuen und polynomiale Features."
-            },
-            "story": {
-              "en": "An auction house needs reserve prices for Saturday's watches by 6:00, and one past sale was a forgery.",
-              "de": "Ein Auktionshaus braucht bis 6:00 Uhr Mindestpreise für die Uhren am Samstag, und ein früherer Verkauf war eine Fälschung."
-            }
-          }
-        },
         {
           "title": {
             "en": "Rush Hour",

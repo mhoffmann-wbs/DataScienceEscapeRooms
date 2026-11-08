@@ -15,8 +15,8 @@ describe('scenariosAt', () => {
     expect(scenariosAt('neural').map((s) => s.roomId)).toEqual(['nn-post', 'nn-tablets']);
   });
 
-  it('lists The Seed Bank at the machine learning door, before the four rooms still to come, easiest first', () => {
-    expect(scenariosAt('ml').map((s) => s.roomId ?? s.title.en)).toEqual(['ml-seeds', 'ml-customs', 'Going Once', 'Rush Hour', 'The Pass Road']);
+  it('lists the machine learning rooms at their door, before the two still to come, easiest first', () => {
+    expect(scenariosAt('ml').map((s) => s.roomId ?? s.title.en)).toEqual(['ml-seeds', 'ml-customs', 'ml-auction', 'Rush Hour', 'The Pass Road']);
   });
 
   it('only orders rooms that exist at that door', () => {
