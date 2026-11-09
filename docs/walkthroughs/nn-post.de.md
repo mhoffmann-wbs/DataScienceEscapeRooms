@@ -29,10 +29,10 @@
 
 **Aufgabe:**
 
-> Zuerst muss Iris sehen können. Der Scanner an der Tür funktioniert noch: Ein Testumschlag liegt darin, und seine Ausgabe ist als `stream` geladen, eine lange Reihe von Zahlen.
+> Zuerst muss Iris sehen können. Der Scanner an der Tür funktioniert noch: Ein Testumschlag liegt darin, und seine Ausgabe ist als `stream` geladen, eine lange Reihe von Zahlen. Welche Postleitzahl steht auf dem Umschlag?
 >
-> 1. Macht aus `stream` die fünf Ziffernbilder der Postleitzahl: `digits`, mit der Form `(5, 16, 16)`. Das Handbuch des Scanners sagt, wie er einen Umschlag liest.
-> 2. Iris will jedes Pixel so, wie ihr Typenschild es sagt. Rechnet `digits` darauf um.
+> 1. Macht aus `stream` die fünf Ziffernbilder der Postleitzahl: `digits`, mit der Form `(5, 16, 16)`.
+> 2. Rechnet `digits` auf die Pixelwerte um, die Iris erwartet.
 > 3. Schaut euch die Ziffern mit `show_images` an und speichert die Postleitzahl als `postcode`, als Text wie `"12345"`.
 
 <details><summary>Startcode</summary>
@@ -73,11 +73,11 @@ postcode = "35781"
 
 **Zeigt nach dem Lösen:**
 
-> Der Testumschlag geht an **35781**, Kleeberg selbst. Jetzt könnt ihr auch Ferdinands Aufkleber auf dem Scanner lesen: „Scanner: 0 = Tinte, 255 = Papier. Iris: Tinte 1.0, Papier 0.0. Alles, was hier herauskommt, umrechnen, bevor Iris es sieht!“
+> Der Testumschlag geht an **35781**, Kleeberg selbst.
 
 **Hinweise:**
 
-1. `stream.reshape(5, 16, 16)` ergibt Streifen, keine Ziffern: Der Scanner speichert nicht eine Ziffer nach der anderen. Formt es zuerst so um, wie er wirklich liest, und schaut euch das mit `show_images` an.
+1. Das Handbuch des Scanners sagt, wie er einen Umschlag liest, und Iris' Typenschild, welche Pixel sie will. `stream.reshape(5, 16, 16)` ergibt Streifen, keine Ziffern: Der Scanner speichert nicht eine Ziffer nach der anderen. Formt es zuerst so um, wie er wirklich liest, und schaut euch das mit `show_images` an.
 2. Der Scanner liest 16 Zeilen mit 80 Pixeln: `strip = stream.reshape(16, 80)`. `np.hsplit(strip, 5)` schneidet das in fünf Stücke von 16 × 16, und `np.stack(...)` macht daraus ein Array. Die 0 des Scanners ist schwarze Tinte; Iris' Tinte ist 1.0.
 3. `digits = 1 - np.stack(np.hsplit(stream.reshape(16, 80), 5)) / 255`. Die Postleitzahl ist `"35781"`.
 
@@ -89,7 +89,7 @@ postcode = "35781"
 
 **Aufgabe:**
 
-> Ferdinands altes Terminal enthält noch das Netz der alten Iris: `W1`, `b1`, `W2`, `b2`, und ihre sechs Selbsttestkarten, `cards`, schon in ihrem Format. Jeden Morgen hat sie diese Karten gelesen und ihr Ergebnis auf einen Zettel gedruckt.
+> Ferdinands altes Terminal enthält noch das Netz der alten Iris: `W1`, `b1`, `W2`, `b2`, und ihre sechs Selbsttestkarten, `cards`, schon in ihrem Format. Jeden Morgen hat sie diese Karten gelesen und ihr Ergebnis auf einen Zettel gedruckt. Was hat sie gelesen?
 >
 > 1. Rechnet mit NumPy von Hand, was ihr Netz tut. Jede Karte als Zeile aus 256 Pixeln, mal `W1`, plus `b1`, dann ReLU: `hidden`. Dann mal `W2`, plus `b2`, dann Softmax: `probs`, eine Zeile mit 10 Wahrscheinlichkeiten pro Karte.
 > 2. Ihr Ergebnis, `reading`: für jede Karte die Ziffer mit der höchsten Wahrscheinlichkeit, als ein Text aus sechs Ziffern.
@@ -166,7 +166,7 @@ print(np.abs(old_iris.predict(cards) - probs).max())
 
 **Aufgabe:**
 
-> Ferdinand hat drei Entwürfe für eine neue Iris an die Wand gepinnt. Nur einer davon passt auf ihren Speicherchip.
+> Ferdinand hat drei Entwürfe für eine neue Iris gezeichnet. Welcher passt auf ihren Speicherchip?
 >
 > 1. Baut die Entwürfe als Keras-Modelle und lasst Keras ihre Parameter zählen, mit `summary()` oder `count_params()`.
 > 2. Speichert den Entwurf, der passt, als `model`.
@@ -220,11 +220,11 @@ model.summary()
 
 **Zeigt nach dem Lösen:**
 
-> Entwurf C passt: **18.858** Parameter, unter den 20.000 des Chips. Seine erste Schicht allein hat 256 × 64 + 64 = 16.448: In einem dichten Netz sitzen die meisten Parameter dort, wo die Pixel hereinkommen.
+> Entwurf C passt: **18.858** Parameter. Seine erste Schicht allein hat 256 × 64 + 64 = 16.448: In einem dichten Netz sitzen die meisten Parameter dort, wo die Pixel hereinkommen.
 
 **Hinweise:**
 
-1. Jeder Entwurf beginnt mit `layers.Flatten()`, das eine 16 × 16-Karte in 256 Zahlen verwandelt. Eine `Dense`-Schicht hat ein Gewicht pro Eingabe und Neuron, plus einen Bias pro Neuron. Das Typenschild sagt, wie viel der Chip fasst.
+1. Ferdinands Entwürfe hängen an der Wand. Jeder Entwurf beginnt mit `layers.Flatten()`, das eine 16 × 16-Karte in 256 Zahlen verwandelt. Eine `Dense`-Schicht hat ein Gewicht pro Eingabe und Neuron, plus einen Bias pro Neuron. Das Typenschild sagt, wie viel der Chip fasst.
 2. Entwurf A hat 37.354 Parameter und Entwurf B 21.258. Der Chip fasst 20.000.
 3. Entwurf C: `tf.keras.Sequential([tf.keras.Input(shape=(16, 16)), layers.Flatten(), layers.Dense(64, activation="relu"), layers.Dense(32, activation="relu"), layers.Dense(10, activation="softmax")])`.
 
@@ -250,7 +250,7 @@ model.summary()
 import tensorflow as tf
 from tensorflow.keras import layers
 
-# Jonas: Iris 2, Entwurf C. Warum geht das nicht?!
+# Jonas: Iris 2. Warum geht das nicht?!
 tf.keras.utils.set_random_seed(1)
 
 model = tf.keras.Sequential([
@@ -319,12 +319,11 @@ print("Test accuracy:", test_accuracy)
 
 **Aufgabe:**
 
-> Im Schrank: Ferdinands Trainingslogbuch, `log`, von einem langen Trainingslauf von Iris 2. Nach jeder der 30 Epochen hat es Loss und Accuracy auf den Trainingskarten und den Validierungskarten festgehalten, wie `history.history` nach `model.fit`.
+> Im Schrank: Ferdinands Trainingslogbuch, `log`, von einem langen Trainingslauf von Iris 2. Nach jeder der 30 Epochen hat es Loss und Accuracy auf den Trainingskarten und den Validierungskarten festgehalten, wie `history.history` nach `model.fit`. Wann soll so ein Training aufhören, und welche Gewichte soll Iris behalten?
 >
-> 1. Zeichnet `loss` und `val_loss` mit `show_plot`. Wo fängt das Netz an, die Trainingskarten auswendig zu lernen?
-> 2. `best_epoch`: die Epoche mit dem niedrigsten Validierungs-Loss, ab 1 gezählt, wie Keras zählt.
-> 3. Richtet Early Stopping so ein, wie Ferdinands Regeln sagen: `stopper`, ein `tf.keras.callbacks.EarlyStopping`.
-> 4. `replay(stopper, log)` lässt das Logbuch durch euren `stopper` laufen, als liefe das Training noch einmal. In welcher Epoche hört es auf (`stop_epoch`), und aus welcher Epoche stammen die Gewichte, die das Modell behält (`kept_epoch`)?
+> 1. `best_epoch`: die Epoche mit dem niedrigsten Validierungs-Loss, ab 1 gezählt, wie Keras zählt.
+> 2. Richtet Early Stopping für Iris ein: `stopper`, ein `tf.keras.callbacks.EarlyStopping`.
+> 3. `replay(stopper, log)` lässt das Logbuch durch euren `stopper` laufen, als liefe das Training noch einmal. In welcher Epoche hört es auf (`stop_epoch`), und aus welcher Epoche stammen die Gewichte, die das Modell behält (`kept_epoch`)?
 
 <details><summary>Startcode</summary>
 
@@ -340,8 +339,6 @@ best_epoch = None   # ab 1 gezählt
 stopper = None      # tf.keras.callbacks.EarlyStopping(...)
 stop_epoch = None
 kept_epoch = None
-
-# print(replay(stopper, log))
 ```
 
 </details>
@@ -369,11 +366,11 @@ print(best_epoch, stop_epoch, kept_epoch)
 
 **Zeigt nach dem Lösen:**
 
-> Die beste Epoche ist **17**. Danach lernt das Netz die Trainingskarten auswendig, und der Validierungs-Loss steigt. Mit einer Geduld von 3 übersteht das Training das Wackeln in den Epochen 9 und 10, hört in Epoche **20** auf und kehrt zu den Gewichten aus Epoche 17 zurück. Mit einer Geduld von 1 hätte es schon in Epoche 9 aufgehört.
+> Die beste Epoche ist **17**. Danach lernt das Netz die Trainingskarten auswendig, und der Validierungs-Loss steigt. Das Training übersteht das Wackeln in den Epochen 9 und 10, hört in Epoche **20** auf und kehrt zu den Gewichten aus Epoche 17 zurück. Mit einer Geduld von 1 hätte es schon in Epoche 9 aufgehört.
 
 **Hinweise:**
 
-1. Der Trainings-Loss fällt immer weiter; der Validierungs-Loss fällt, wackelt und steigt dann wieder. `np.argmin(log["val_loss"])` ist die Position seines niedrigsten Werts, ab 0 gezählt. Auch die x-Achse von `show_plot` zählt ab 0.
+1. Der Trainings-Loss fällt immer weiter; der Validierungs-Loss fällt, wackelt und steigt dann wieder. `np.argmin(log["val_loss"])` ist die Position seines niedrigsten Werts, ab 0 gezählt. Auch die x-Achse von `show_plot` zählt ab 0. Ferdinand hat seine Regeln fürs Training von Iris aufgeschrieben.
 2. Ferdinands Regeln in Keras: `monitor="val_loss"`, `patience=3`, `restore_best_weights=True`. Dann `stop_epoch = replay(stopper, log)`; es gibt auch aus, aus welcher Epoche das Modell die Gewichte behält.
 3. `best_epoch = 17`, `stopper = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)`, `stop_epoch = 20`, `kept_epoch = 17`.
 
@@ -385,13 +382,13 @@ print(best_epoch, stop_epoch, kept_epoch)
 
 **Zahlenschloss** (öffnet mit `2017`):
 
-> Iris' Startfeld verlangt einen vierstelligen Startcode. Ferdinands Regeln sagen, wie er sich zusammensetzt.
+> Iris' Startfeld verlangt einen vierstelligen Startcode.
 
 **Aufgabe:**
 
-> Zeit für die Nachtsortierung. Sechs Eilbriefe warten in Iris' Fach, `urgent`: für jeden Brief das eine Postleitzahl-Kästchen, nach dem Iris sortiert, direkt vom Scanner, eine Zeile mit 256 Werten pro Brief. Die Abfahrtstafel sagt, in welches Fach ein Brief gehört.
+> Zeit für die Nachtsortierung. In welche Fächer gehören die sechs Eilbriefe? Sie warten in Iris' Fach, `urgent`: für jeden Brief das eine Postleitzahl-Kästchen, nach dem Iris sortiert, direkt vom Scanner, eine Zeile mit 256 Werten pro Brief.
 >
-> 1. Baut und trainiert Iris 2 mit dem Archiv, so wie es der Bauplan, das reparierte Skript und Ferdinands Regeln sagen. Sie braucht mindestens 90 % auf den Testkarten.
+> 1. Baut und trainiert Iris 2 mit dem Archiv. Sie braucht mindestens 90 % auf den Testkarten.
 > 2. Lasst sie die Eilbriefe lesen, und speichert ihre Fächer der Reihe nach als `bins`, eine Liste aus sechs Zahlen.
 
 <details><summary>Startcode</summary>
@@ -455,7 +452,7 @@ print(bins)
 
 **Hinweise:**
 
-1. Iris 2 ist Entwurf C, kompiliert und skaliert wie in Jonas' repariertem Skript. Trainiert mit `validation_split=0.2` und Ferdinands `EarlyStopping` in `callbacks=[...]`; `epochs=30` ist in Ordnung, der Stopper beendet es rechtzeitig.
+1. Die Abfahrtstafel sagt, in welches Fach ein Brief gehört. Iris 2 ist Entwurf C, kompiliert und skaliert wie in Jonas' repariertem Skript. Trainiert mit `validation_split=0.2` und Ferdinands `EarlyStopping` in `callbacks=[...]`; `epochs=30` ist in Ordnung, der Stopper beendet es rechtzeitig.
 2. Die Eilbriefe kommen direkt vom Scanner, wo 0 Tinte ist. Formt sie in `(6, 16, 16)` um und rechnet sie um wie am Scanner; schaut sie mit `show_images` an. Dann `model.predict(letters).argmax(axis=1)`.
 3. `letters = 1 - urgent.reshape(6, 16, 16) / 255`. Die Fächer sind `[4, 7, 1, 9, 2, 6]`.
 
@@ -496,8 +493,6 @@ print(bins)
 > Entwurf A: Dense 128 (ReLU) → Dense 32 (ReLU) → Dense 10 (Softmax)
 > Entwurf B: Dense 64 (ReLU) → Dense 64 (ReLU) → Dense 10 (Softmax)
 > Entwurf C: Dense 64 (ReLU) → Dense 32 (ReLU) → Dense 10 (Softmax)
->
-> Mit Bleistift: „Nur einer davon passt auf den Chip.“
 
 ### 🔎 Ein Zettel von Jonas
 
@@ -506,8 +501,6 @@ print(bins)
 > Ferdinand, ich habe versucht, Iris 2 neu anzulernen, aber das Training stürzt ab! Die Labels sind Ziffern, also muss categorical crossentropy doch stimmen, oder? Ich bin nach Hause gegangen, sorry.
 >
 > Jonas
->
-> PS: Das Laptop-Passwort ist die Zahl der Parameter von Iris 2.
 
 ### 🔎 Das Etikett der Archivkisten
 

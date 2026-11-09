@@ -29,10 +29,10 @@
 
 **Aufgabe:**
 
-> Auf Theos Leuchttisch liegt Tafel V-17, eine Strichliste, so abgegriffen, dass niemand sie mehr lesen kann. Der Laserscanner hat ihre Oberfläche trotzdem vermessen: `scan`, die Höhe jedes Punkts in Millimetern. Theos Notiz sagt, wie Restauratoren abgenutzte Zeichen sichtbar machen.
+> Auf Theos Leuchttisch liegt Tafel V-17, eine Strichliste, so abgegriffen, dass niemand sie mehr lesen kann. Der Laserscanner hat ihre Oberfläche trotzdem vermessen: `scan`, die Höhe jedes Punkts in Millimetern. Welche Zahl hält sie fest?
 >
-> 1. Filtert den Scan von Hand mit Theos Kernel: Nehmt für jede Position das 3 × 3-Fenster von `scan`, multipliziert es Punkt für Punkt mit dem Kernel und addiert alles. Speichert das Ergebnis als `edges`.
-> 2. Dasselbe mit Keras: `raking`, ein Modell mit einer `Conv2D`-Schicht (ein 3 × 3-Filter, kein Bias) und Theos Kernel, mit `set_weights` geladen. Prüft, dass `raking(scan[None, :, :, None])` eure `edges` ergibt.
+> 1. Filtert den Scan von Hand mit einem 3 × 3-Kernel, der abgenutzte Zeichen sichtbar macht: Nehmt für jede Position das 3 × 3-Fenster von `scan`, multipliziert es Punkt für Punkt mit dem Kernel und addiert alles. Speichert das Ergebnis als `edges`.
+> 2. Dasselbe mit Keras: `raking`, ein Modell mit einer `Conv2D`-Schicht (ein 3 × 3-Filter, kein Bias) und demselben Kernel, mit `set_weights` geladen. Prüft, dass `raking(scan[None, :, :, None])` eure `edges` ergibt.
 > 3. Schaut euch `edges` mit `show_images` an und speichert die Zahl auf der Tafel als `number`.
 
 <details><summary>Startcode</summary>
@@ -46,7 +46,7 @@ from helpers import show_images
 show_images(scan, title="Tafel V-17")
 print(scan.shape)
 
-kernel = None   # Theos 3 x 3-Kernel, als NumPy-Array
+kernel = None   # der 3 x 3-Kernel, als NumPy-Array
 edges = None    # der Scan, von Hand gefiltert: eine Zahl pro 3 x 3-Fenster
 raking = None   # tf.keras.Sequential([...]) mit einer Conv2D-Schicht, dann set_weights
 number = None   # die Zahl auf der Tafel
@@ -86,7 +86,7 @@ number = 246    # two bars, four circles, six wedges
 
 **Hinweise:**
 
-1. Zwei Schleifen über die Zeilen und Spalten des Ergebnisses: `scan[i:i + 3, j:j + 3]` ist das Fenster in Zeile `i`, Spalte `j`. Ein 3 × 3-Fenster passt 28 × 94 Mal in den 30 × 96 großen Scan, also hat `edges` die Form `(28, 94)`.
+1. Theo, der Restaurator, hat eine Notiz mit dem Kernel hinterlassen. Zwei Schleifen über die Zeilen und Spalten des Ergebnisses: `scan[i:i + 3, j:j + 3]` ist das Fenster in Zeile `i`, Spalte `j`. Ein 3 × 3-Fenster passt 28 × 94 Mal in den 30 × 96 großen Scan, also hat `edges` die Form `(28, 94)`.
 2. `(scan[i:i + 3, j:j + 3] * kernel).sum()` ist ein Wert. In Keras: `raking = tf.keras.Sequential([tf.keras.Input(shape=(30, 96, 1)), layers.Conv2D(1, 3, use_bias=False)])`. Sein Kernel hat die Form `(3, 3, 1, 1)`: Zeilen, Spalten, Kanäle rein, Filter.
 3. `edges = np.array([[(scan[i:i + 3, j:j + 3] * kernel).sum() for j in range(94)] for i in range(28)])`, dann `raking.set_weights([kernel.reshape(3, 3, 1, 1)])`. Zwei hohe Striche, vier Kreise, sechs Keile: `number = 246`.
 
@@ -98,11 +98,11 @@ number = 246    # two bars, four circles, six wedges
 
 **Aufgabe:**
 
-> In der Vitrine liegt der einzige zweisprachige Fund aus Tell Varda: ein Rollsiegel, auf frischem Ton abgerollt. Sein Abdruck zeigt acht Varda-Zeichen nebeneinander, `impressions`, je ein 24 × 24-Tiefenscan, und jemand hat ihre Laute darunter geritzt. Amara hat für jedes Zeichen ihrer Zeichenliste einen Stempel geschnitten: `templates`, acht Filter von 11 × 11.
+> In der Vitrine liegt der einzige zweisprachige Fund aus Tell Varda: ein Rollsiegel, auf frischem Ton abgerollt. Sein Abdruck zeigt acht Varda-Zeichen nebeneinander, `impressions`, je ein 24 × 24-Tiefenscan, und jemand hat ihre Laute darunter geritzt. Für welchen Laut steht jedes Varda-Zeichen? Amara hat für jedes der acht Zeichen einen Stempel geschnitten: `templates`, acht Filter von 11 × 11.
 >
 > 1. Baut `finder`, ein Keras-Modell, das jeden Stempel irgendwo in einem Abdruck sucht: eine `Conv2D`-Schicht mit 8 Filtern von 11 × 11 und ohne Bias, dann `GlobalMaxPooling2D`. Ladet die Stempel als seine Filter: Filter Nummer `i` ist `templates[i]`.
 > 2. `finder.predict` gibt 8 Werte pro Abdruck, einen je Stempel. Speichert die Zeichennummer jedes Abdrucks, von links nach rechts, als `order`.
-> 3. Bringt die Zeichen mit der Beischrift zusammen: `values`, ein Dict von jeder Zeichennummer (0 bis 7) zu ihrem Laut, z. B. `{0: "ba", ...}`.
+> 3. Bringt die Zeichen mit den Lauten darunter zusammen: `values`, ein Dict von jeder Zeichennummer (0 bis 7) zu ihrem Laut, z. B. `{0: "ba", ...}`.
 
 <details><summary>Startcode</summary>
 
@@ -161,7 +161,7 @@ print(values)
 
 **Hinweise:**
 
-1. Ein Sequential-Modell: `tf.keras.Input(shape=(24, 24, 1))`, `layers.Conv2D(8, 11, use_bias=False)`, `layers.GlobalMaxPooling2D()`. Der Kernel der Conv2D-Schicht hat die Form `(11, 11, 1, 8)`: Zeilen, Spalten, Kanäle rein, Filter. `templates` hat die Form `(8, 11, 11)`: Dort kommen die Filter zuerst.
+1. Ein Sequential-Modell: `tf.keras.Input(shape=(24, 24, 1))`, `layers.Conv2D(8, 11, use_bias=False)`, `layers.GlobalMaxPooling2D()`. Der Kernel der Conv2D-Schicht hat die Form `(11, 11, 1, 8)`: Zeilen, Spalten, Kanäle rein, Filter. `templates` hat die Form `(8, 11, 11)`: Dort kommen die Filter zuerst. Das Schild in der Vitrine gibt die eingeritzten Laute wieder.
 2. `templates.reshape(11, 11, 1, 8)` hat die richtige Form, wirbelt die Stempel aber durcheinander. Verschiebt stattdessen die Achse: `templates.transpose(1, 2, 0)` hat die Form `(11, 11, 8)`, und `[:, :, None, :]` fügt die Kanal-Achse ein. Auch die Abdrücke brauchen eine Kanal-Achse: `impressions[..., None]`.
 3. `finder.set_weights([templates.transpose(1, 2, 0)[:, :, None, :]])`, dann ergibt `order = finder.predict(impressions[..., None]).argmax(axis=1)` die Liste `[5, 0, 7, 2, 6, 4, 1, 3]`. Mit der Beischrift: `values = {5: "lu", 0: "ra", 7: "sa", 2: "ko", 6: "ne", 4: "re", 1: "mi", 3: "ta"}`.
 
@@ -250,7 +250,7 @@ model.summary()
 import tensorflow as tf
 from tensorflow.keras import layers
 
-# Mika: der Leser aus Amaras Bauplan. Warum stürzt das jedes Mal ab?!
+# Mika: der Leser, Entwurf 3. Warum stürzt das jedes Mal ab?!
 tf.keras.utils.set_random_seed(1)
 
 model = tf.keras.Sequential([
@@ -322,7 +322,7 @@ print("Test accuracy:", test_accuracy)
 
 **Aufgabe:**
 
-> Auf Amaras Laptop sind ihr alter Leser, `old_reader`, ein dichtes Netz, und `prototype`, ein erster Versuch von Entwurf 3. Beide haben mit dem Fotosatz der Grabung gelernt, in dem jedes Zeichen in der Mitte seines Fragments sitzt. Bei den 100 Fragmenten, die letzte Woche kamen, `x_new` mit ihren Zeichennummern `y_new`, sitzen die Zeichen irgendwo.
+> Auf Amaras Laptop sind ihr alter Leser, `old_reader`, ein dichtes Netz, und `prototype`, ein erster Versuch von Entwurf 3. Beide haben mit dem Fotosatz der Grabung gelernt, in dem jedes Zeichen in der Mitte seines Fragments sitzt. Bei den 100 Fragmenten, die letzte Woche kamen, `x_new` mit ihren Zeichennummern `y_new`, sitzen die Zeichen irgendwo. Welcher Leser kommt damit zurecht, und warum scheitert der andere?
 >
 > 1. Wie viele der 100 neuen Fragmente liest jeder Leser richtig? Speichert die Anzahlen als `old_right` und `proto_right`. Bereitet die Fragmente so vor, wie die Leser sie erwarten.
 > 2. Testet beide Leser mit `probe`, einem Fragment mit einem Stern (5) in der Mitte: Verschiebt es um 0, 1, 2, ... Pixel nach rechts mit `np.roll(probe, shift, axis=1)` und zeichnet die Wahrscheinlichkeit jedes Lesers für den Stern. `first_miss`: die kleinste Verschiebung, bei der der alte Leser keinen Stern mehr liest.
@@ -340,8 +340,6 @@ show_images(x_new[:10], labels=list(y_new[:10]), title="Neue Fragmente")
 old_right = None     # wie viele der 100 neuen Fragmente der alte Leser richtig liest
 proto_right = None   # ... und der Prototyp
 first_miss = None    # die kleinste Verschiebung, bei der der alte Leser den Stern verfehlt
-
-# shifted = np.roll(probe, 1, axis=1)
 ```
 
 </details>
@@ -388,13 +386,13 @@ print(first_miss)
 
 **Zahlenschloss** (öffnet mit `1898`):
 
-> Der Krug steht in einer verschlossenen Vitrine mit einem vierstelligen Schloss. Amaras Mail sagt, wie sich der Code zusammensetzt.
+> Der Krug steht in einer verschlossenen Vitrine mit einem vierstelligen Schloss.
 
 **Aufgabe:**
 
-> Der Deckel des Krugs von Varda trägt sechs Zeichen in der Hand eines Schreibers: `jar`, ein Tiefenscan aus 24 Zeilen × 144 Spalten, ein Zeichen in jedem 24 × 24-Feld. Die Kisten gehen um 06:00.
+> Der Deckel des Krugs von Varda trägt sechs Zeichen in der Hand eines Schreibers: `jar`, ein Tiefenscan aus 24 Zeilen × 144 Spalten, ein Zeichen in jedem 24 × 24-Feld. Die Kisten gehen um 06:00. Was steht auf dem Deckel?
 >
-> 1. Trainiert den Leser mit dem Archiv, so wie es der Bauplan und das reparierte Notebook sagen. Er braucht mindestens 85 % auf den Testfragmenten.
+> 1. Trainiert den Leser mit dem Archiv. Er braucht mindestens 85 % auf den Testfragmenten.
 > 2. Lasst ihn den Deckel lesen: `signs`, die sechs Zeichennummern von links nach rechts.
 > 3. `word`: wie der Deckel klingt, eine Silbe pro Zeichen, z. B. `"ba-de-fo-gu-hi-jo"`.
 
@@ -481,9 +479,7 @@ print(signs, word)
 > `1  -4   1`
 > `0   1   0`
 >
-> Den Kernel auf ein 3 × 3-Fenster des Scans legen, Punkt für Punkt multiplizieren und alles addieren: eine Zahl. Einen Punkt weiterrücken und wiederholen. Sanfte Wölbungen ergeben fast 0; scharfe Kerben leuchten auf.
->
-> Das Ergebnis verliert an jeder Seite einen Punkt.
+> Sanfte Wölbungen ergeben fast 0; scharfe Kerben leuchten auf.
 
 ### 🔎 Schautafel: Varda-Zahlzeichen
 
@@ -548,11 +544,9 @@ print(signs, word)
 
 *Gebraucht von: 4. Mikas Notebook*
 
-> Amara, ich habe versucht, den Leser mit dem Archiv zu trainieren, aber Keras stürzt immer wieder ab: erst irgendwas mit einer negativen Größe, dann irgendwas mit der Form?! Ich bin bei 2 Epochen geblieben, mehr dauert ewig. Ich bin nach Hause gegangen, sorry.
+> Amara, ich habe versucht, den Leser mit dem Archiv zu trainieren, aber Keras stürzt immer wieder ab: erst irgendwas mit einer negativen Größe, dann irgendwas mit der Form?! Ich bin nach Hause gegangen, sorry.
 >
 > Mika
->
-> PS: Mein Laptop-Passwort ist die Zahl der Parameter des Lesers.
 
 ### 🔎 Das Etikett der Kisten
 
@@ -572,7 +566,7 @@ print(signs, word)
 
 > Von: Amara Okafor · Sonntag, 19:48
 >
-> Festgesteckt am Flughafen, Nebel. Mein alter Leser hat den Fotosatz perfekt gelesen, aber die neuen Fragmente von letzter Woche sehen für ihn aus wie Rauschen. Auf meinem Laptop findet ihr ihn und einen Prototyp von Entwurf 3, beide mit dem Fotosatz trainiert (jedes Zeichen in der Mitte). Bitte vergleicht sie an den 100 neuen Fragmenten. Wenn Entwurf 3 gewinnt, trainiert ihn mit dem ganzen Archiv und lest den Krug!
+> Festgesteckt am Flughafen, Nebel. Mein alter Leser hat den Fotosatz perfekt gelesen, aber die neuen Fragmente von letzter Woche sehen für ihn aus wie Rauschen. Auf meinem Laptop findet ihr ihn und einen Prototyp von Entwurf 3. Bitte vergleicht sie an den 100 neuen Fragmenten. Wenn Entwurf 3 gewinnt, trainiert ihn mit dem ganzen Archiv und lest den Krug!
 >
 > Die Vitrine des Krugs: Der Code ist, wie viele der 100 der alte Leser richtig liest, dann wie viele der Prototyp richtig liest.
 >

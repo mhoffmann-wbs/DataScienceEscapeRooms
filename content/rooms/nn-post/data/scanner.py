@@ -50,11 +50,11 @@ def _scanner_check(digits, postcode):
     elif np.allclose(d, _DIGITS, atol=1e-6):
         pass
     elif np.allclose(d, 1 - _DIGITS, atol=1e-6) or np.allclose(d, 255 * (1 - _DIGITS), atol=1e-3):
-        problems.append("digits are the right shape, but still in the scanner's format. Check what Iris's type plate wants. / digits haben die richtige Form, sind aber noch im Format des Scanners. Prüft, was Iris' Typenschild verlangt.")
+        problems.append("digits are the right shape, but still in the scanner's format, not in Iris's. / digits haben die richtige Form, sind aber noch im Format des Scanners, nicht in dem von Iris.")
     elif np.allclose(d, 255 * _DIGITS, atol=1e-3):
-        problems.append("digits are the right way round, but not on Iris's scale yet: check her type plate. / digits sind richtig herum, aber noch nicht auf Iris' Skala: Prüft ihr Typenschild.")
+        problems.append("digits are the right way round, but not on Iris's scale yet. / digits sind richtig herum, aber noch nicht auf Iris' Skala.")
     else:
-        problems.append("digits don't show the five digits yet. Look at them with show_images: the scanner reads the strip line by line (see its manual). / digits zeigen die fünf Ziffern noch nicht. Schaut sie mit show_images an: Der Scanner liest den Streifen Zeile für Zeile (siehe Handbuch).")
+        problems.append("digits don't show the five digits yet. Look at them with show_images. / digits zeigen die fünf Ziffern noch nicht. Schaut sie mit show_images an.")
     if str(postcode).strip() != '35781':
         problems.append("postcode isn't what the envelope says. Write it as a string of five digits, e.g. \"12345\". / postcode ist nicht, was auf dem Umschlag steht. Schreibt sie als Text aus fünf Ziffern, z. B. \"12345\".")
     return _problems_or(problems, "read")

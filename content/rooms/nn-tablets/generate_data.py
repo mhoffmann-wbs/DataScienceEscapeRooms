@@ -342,20 +342,20 @@ def _tally_check(edges, raking, number):
     if e is None:
         problems.append("edges should be an array of shape ({H - 2}, {W - 2}): the 3 x 3 window only fits {H - 2} x {W - 2} times into the scan. / edges soll ein Array der Form ({H - 2}, {W - 2}) sein: Das 3 x 3-Fenster passt nur {H - 2} x {W - 2} Mal in den Scan.")
     elif not np.allclose(e, _EDGES, atol=1e-4):
-        problems.append("edges has the right shape, but its values are off: for each position, the 3 x 3 window of the scan times Theo's kernel, added up. / edges hat die richtige Form, aber die Werte stimmen nicht: für jede Position das 3 x 3-Fenster des Scans mal Theos Kernel, aufaddiert.")
+        problems.append("edges has the right shape, but its values are off: for each position, the 3 x 3 window of the scan times the kernel, added up. / edges hat die richtige Form, aber die Werte stimmen nicht: für jede Position das 3 x 3-Fenster des Scans mal den Kernel, aufaddiert.")
     try:
         out = np.asarray(raking(scan[None, :, :, None]), dtype=float)
         same = out.shape == (1, {H - 2}, {W - 2}, 1) and np.allclose(out[0, :, :, 0], _EDGES, atol=1e-4)
     except Exception:
         same = False
     if not same:
-        problems.append("raking doesn't give your edges yet: a Conv2D layer (or a model) with 1 filter of 3 x 3, no bias, and Theo's kernel loaded with set_weights. It gets the scan as scan[None, :, :, None]. / raking ergibt noch nicht eure edges: eine Conv2D-Schicht (oder ein Modell) mit 1 Filter von 3 x 3, ohne Bias, und Theos Kernel mit set_weights geladen. Sie bekommt den Scan als scan[None, :, :, None].")
+        problems.append("raking doesn't give your edges yet: a Conv2D layer (or a model) with 1 filter of 3 x 3, no bias, and the kernel loaded with set_weights. It gets the scan as scan[None, :, :, None]. / raking ergibt noch nicht eure edges: eine Conv2D-Schicht (oder ein Modell) mit 1 Filter von 3 x 3, ohne Bias, und dem Kernel mit set_weights geladen. Sie bekommt den Scan als scan[None, :, :, None].")
     try:
         right = int(number) == {TALLY}
     except (TypeError, ValueError):
         right = False
     if not right:
-        problems.append("number isn't what the tablet says. Look at edges with show_images and count with the numeral chart. / number ist nicht, was auf der Tafel steht. Schaut edges mit show_images an und zählt mit der Zahlentafel.")
+        problems.append("number isn't what the tablet says. Look at edges with show_images and count again. / number ist nicht, was auf der Tafel steht. Schaut edges mit show_images an und zählt noch einmal.")
     return _problems_or(problems, "read")
 ''')
 
@@ -482,7 +482,7 @@ def _laptop_check(old_right, proto_right, first_miss):
             return None
         return round(v * 100) if 0 < v < 1 else round(v)
     if count(old_right) != {OLD_RIGHT}:
-        problems.append("old_right is off: how many of the 100 new fragments the old reader reads right. Prepare them the way the readers expect: (24, 24, 1) and 0.0 to 1.0. / old_right stimmt nicht: wie viele der 100 neuen Fragmente der alte Leser richtig liest. Bereitet sie so vor, wie die Leser sie erwarten: (24, 24, 1) und 0.0 bis 1.0.")
+        problems.append("old_right is off: how many of the 100 new fragments the old reader reads right, prepared the way the readers expect them. / old_right stimmt nicht: wie viele der 100 neuen Fragmente der alte Leser richtig liest, so vorbereitet, wie die Leser sie erwarten.")
     if count(proto_right) != {PROTO_RIGHT}:
         problems.append("proto_right is off: how many of the 100 new fragments the prototype reads right. / proto_right stimmt nicht: wie viele der 100 neuen Fragmente der Prototyp richtig liest.")
     if first_miss != {FIRST_MISS}:
@@ -522,7 +522,7 @@ def _reader_layout(model):
         return ["model should be a tf.keras.Sequential model. / model soll ein tf.keras.Sequential-Modell sein."]
     kinds = [type(l).__name__ for l in model.layers if not isinstance(l, (tf.keras.layers.Rescaling, tf.keras.layers.Reshape))]
     if not model.built or kinds != ["Conv2D", "MaxPooling2D", "Conv2D", "GlobalMaxPooling2D", "Dense"] or model.count_params() != 1384:
-        return ["model isn't the reader from the blueprint (draft 3) yet: same layers, same output shapes, 1,384 parameters. / model ist noch nicht der Leser aus dem Bauplan (Entwurf 3): dieselben Schichten, dieselben Ausgabeformen, 1.384 Parameter."]
+        return ["model isn't the reader (draft 3) yet: check its layers and output shapes. / model ist noch nicht der Leser (Entwurf 3): Prüft seine Schichten und Ausgabeformen."]
     return []
 
 
@@ -561,7 +561,7 @@ def _jar_check(model, signs, word):
     elif signs != _JAR_SIGNS:
         problems.append("signs aren't what's on the lid. Cut the lid into its six 24 x 24 fields and prepare them like the training data. / signs ist nicht, was auf dem Deckel steht. Schneidet den Deckel in seine sechs 24 x 24-Felder und bereitet sie vor wie die Trainingsdaten.")
     if "".join(c for c in str(word).lower() if c.isalpha()) != _JAR_WORD:
-        problems.append("word isn't how the lid sounds: each sign's sound value from the seal, in order. / word ist nicht, wie der Deckel klingt: der Lautwert jedes Zeichens vom Siegel, der Reihe nach.")
+        problems.append("word isn't how the lid sounds: each sign's sound, in order. / word ist nicht, wie der Deckel klingt: der Laut jedes Zeichens, der Reihe nach.")
     return _problems_or(problems, "read")
 '''
 

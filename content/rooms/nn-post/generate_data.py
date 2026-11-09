@@ -202,7 +202,7 @@ def _iris2_layout(model):
         return ["model should be a tf.keras.Sequential model. / model soll ein tf.keras.Sequential-Modell sein."]
     dense = [l for l in model.layers if isinstance(l, tf.keras.layers.Dense)]
     if [l.units for l in dense] != [64, 32, 10] or not model.built or tuple(model.input_shape) != (None, 16, 16):
-        return ["model isn't Iris 2 from the blueprint: 16 x 16 inputs, then the layers of the draft that fits the chip. / model ist nicht Iris 2 aus dem Bauplan: 16 x 16 Eingaben, dann die Schichten des Entwurfs, der auf den Chip passt."]
+        return ["model isn't Iris 2: 16 x 16 inputs, then the layers of the draft that fits the chip. / model ist nicht Iris 2: 16 x 16 Eingaben, dann die Schichten des Entwurfs, der auf den Chip passt."]
     return []
 
 
@@ -284,11 +284,11 @@ def _scanner_check(digits, postcode):
     elif np.allclose(d, _DIGITS, atol=1e-6):
         pass
     elif np.allclose(d, 1 - _DIGITS, atol=1e-6) or np.allclose(d, 255 * (1 - _DIGITS), atol=1e-3):
-        problems.append("digits are the right shape, but still in the scanner's format. Check what Iris's type plate wants. / digits haben die richtige Form, sind aber noch im Format des Scanners. Prüft, was Iris' Typenschild verlangt.")
+        problems.append("digits are the right shape, but still in the scanner's format, not in Iris's. / digits haben die richtige Form, sind aber noch im Format des Scanners, nicht in dem von Iris.")
     elif np.allclose(d, 255 * _DIGITS, atol=1e-3):
-        problems.append("digits are the right way round, but not on Iris's scale yet: check her type plate. / digits sind richtig herum, aber noch nicht auf Iris' Skala: Prüft ihr Typenschild.")
+        problems.append("digits are the right way round, but not on Iris's scale yet. / digits sind richtig herum, aber noch nicht auf Iris' Skala.")
     else:
-        problems.append("digits don't show the five digits yet. Look at them with show_images: the scanner reads the strip line by line (see its manual). / digits zeigen die fünf Ziffern noch nicht. Schaut sie mit show_images an: Der Scanner liest den Streifen Zeile für Zeile (siehe Handbuch).")
+        problems.append("digits don't show the five digits yet. Look at them with show_images. / digits zeigen die fünf Ziffern noch nicht. Schaut sie mit show_images an.")
     if str(postcode).strip() != {POSTCODE!r}:
         problems.append("postcode isn't what the envelope says. Write it as a string of five digits, e.g. \\"12345\\". / postcode ist nicht, was auf dem Umschlag steht. Schreibt sie als Text aus fünf Ziffern, z. B. \\"12345\\".")
     return _problems_or(problems, "read")
@@ -393,9 +393,9 @@ def _blueprint_check(model):
         if model.count_params() > 20000:
             problems.append(f"model has {model.count_params():,} parameters: too many for Iris's memory chip. / model hat {model.count_params():,} Parameter: zu viele für Iris' Speicherchip.")
         elif [l.units for l in dense] != [64, 32, 10]:
-            problems.append("model's layers aren't one of the drafts on the blueprint. / Die Schichten von model sind keiner der Entwürfe auf dem Bauplan.")
+            problems.append("model's layers aren't one of Ferdinand's drafts. / Die Schichten von model sind keiner von Ferdinands Entwürfen.")
         elif [l._act for l in dense] != ["relu", "relu", "softmax"]:
-            problems.append("The units are right; check the activation of each layer on the blueprint. / Die Neuronen stimmen; prüft die Aktivierung jeder Schicht auf dem Bauplan.")
+            problems.append("The units are right; check the activation of each layer. / Die Neuronen stimmen; prüft die Aktivierung jeder Schicht.")
     return _problems_or(problems, "fits")
 ''')
 
@@ -469,9 +469,9 @@ def _logbook_check(best_epoch, stopper, stop_epoch, kept_epoch):
     if not isinstance(stopper, tf.keras.callbacks.EarlyStopping):
         problems.append("stopper should be a tf.keras.callbacks.EarlyStopping. / stopper soll ein tf.keras.callbacks.EarlyStopping sein.")
     elif stopper.monitor != "val_loss" or stopper.patience != 3 or not stopper.restore_best_weights:
-        problems.append("stopper isn't set up as Ferdinand's note says: what it watches, its patience, and which weights it keeps. / stopper ist nicht so eingestellt, wie Ferdinands Notiz sagt: was er beobachtet, seine Geduld und welche Gewichte er behält.")
+        problems.append("stopper isn't set up right yet: what it watches, its patience, and which weights it keeps. / stopper ist noch nicht richtig eingestellt: was er beobachtet, seine Geduld und welche Gewichte er behält.")
     if stop_epoch != {STOP_EPOCH}:
-        problems.append("stop_epoch is off: the epoch at which Ferdinand's early stopping ends the training (replay prints it). / stop_epoch stimmt nicht: die Epoche, in der Ferdinands Early Stopping das Training beendet (replay gibt sie aus).")
+        problems.append("stop_epoch is off: the epoch at which your stopper ends the training (replay returns it). / stop_epoch stimmt nicht: die Epoche, in der euer stopper das Training beendet (replay gibt sie zurück).")
     if kept_epoch != {BEST_EPOCH}:
         problems.append("kept_epoch is off: from which epoch are the weights the model keeps? / kept_epoch stimmt nicht: Aus welcher Epoche stammen die Gewichte, die das Modell behält?")
     return _problems_or(problems, "logged")

@@ -29,10 +29,10 @@
 
 **Task:**
 
-> Theo's light table holds tablet V-17, a tally so worn that nobody can read it any more. The laser scanner measured its surface anyway: `scan`, the height of every point in millimetres. Theo's note says how restorers make worn signs visible.
+> Theo's light table holds tablet V-17, a tally so worn that nobody can read it any more. The laser scanner measured its surface anyway: `scan`, the height of every point in millimetres. What number does it record?
 >
-> 1. Filter the scan by hand with Theo's kernel: for every position, take the 3 × 3 window of `scan`, multiply it by the kernel point by point, and add it all up. Store the result as `edges`.
-> 2. Do the same with Keras: `raking`, a model with one `Conv2D` layer (one 3 × 3 filter, no bias) and Theo's kernel loaded with `set_weights`. Check that `raking(scan[None, :, :, None])` gives your `edges`.
+> 1. Filter the scan by hand with a 3 × 3 kernel that makes worn signs visible: for every position, take the 3 × 3 window of `scan`, multiply it by the kernel point by point, and add it all up. Store the result as `edges`.
+> 2. Do the same with Keras: `raking`, a model with one `Conv2D` layer (one 3 × 3 filter, no bias) and the same kernel loaded with `set_weights`. Check that `raking(scan[None, :, :, None])` gives your `edges`.
 > 3. Look at `edges` with `show_images` and store the tally as `number`.
 
 <details><summary>Starter code</summary>
@@ -46,7 +46,7 @@ from helpers import show_images
 show_images(scan, title="Tablet V-17")
 print(scan.shape)
 
-kernel = None   # Theo's 3 x 3 kernel, as a NumPy array
+kernel = None   # the 3 x 3 kernel, as a NumPy array
 edges = None    # the scan filtered by hand: one number per 3 x 3 window
 raking = None   # tf.keras.Sequential([...]) with one Conv2D layer, then set_weights
 number = None   # the tally on the tablet
@@ -86,7 +86,7 @@ number = 246    # two bars, four circles, six wedges
 
 **Hints:**
 
-1. Two loops over the rows and columns of the result: `scan[i:i + 3, j:j + 3]` is the window at row `i`, column `j`. A 3 × 3 window fits 28 × 94 times into the 30 × 96 scan, so `edges` has the shape `(28, 94)`.
+1. Theo, the restorer, left a note with the kernel. Two loops over the rows and columns of the result: `scan[i:i + 3, j:j + 3]` is the window at row `i`, column `j`. A 3 × 3 window fits 28 × 94 times into the 30 × 96 scan, so `edges` has the shape `(28, 94)`.
 2. `(scan[i:i + 3, j:j + 3] * kernel).sum()` is one value. In Keras: `raking = tf.keras.Sequential([tf.keras.Input(shape=(30, 96, 1)), layers.Conv2D(1, 3, use_bias=False)])`. Its kernel has the shape `(3, 3, 1, 1)`: rows, columns, channels in, filters.
 3. `edges = np.array([[(scan[i:i + 3, j:j + 3] * kernel).sum() for j in range(94)] for i in range(28)])`, then `raking.set_weights([kernel.reshape(3, 3, 1, 1)])`. Two tall bars, four circles, six wedges: `number = 246`.
 
@@ -98,11 +98,11 @@ number = 246    # two bars, four circles, six wedges
 
 **Task:**
 
-> In the glass case lies the only bilingual find from Tell Varda: a cylinder seal, rolled out on fresh clay. Its impression shows eight Varda signs side by side, `impressions`, one 24 × 24 depth scan each, and someone scratched their sounds below it. Amara cut a stamp for each sign of her sign list: `templates`, eight filters of 11 × 11.
+> In the glass case lies the only bilingual find from Tell Varda: a cylinder seal, rolled out on fresh clay. Its impression shows eight Varda signs side by side, `impressions`, one 24 × 24 depth scan each, and someone scratched their sounds below it. Which sound does each Varda sign stand for? Amara cut a stamp for each of the eight signs: `templates`, eight filters of 11 × 11.
 >
 > 1. Build `finder`, a Keras model that looks for every stamp anywhere in an impression: a `Conv2D` layer with 8 filters of 11 × 11 and no bias, then `GlobalMaxPooling2D`. Load the stamps as its filters: filter number `i` is `templates[i]`.
 > 2. `finder.predict` gives 8 scores per impression, one per stamp. Store the sign number of each impression, left to right, as `order`.
-> 3. Line the signs up with the caption: `values`, a dict from every sign number (0 to 7) to its sound, e.g. `{0: "ba", ...}`.
+> 3. Line the signs up with the sounds below them: `values`, a dict from every sign number (0 to 7) to its sound, e.g. `{0: "ba", ...}`.
 
 <details><summary>Starter code</summary>
 
@@ -161,7 +161,7 @@ print(values)
 
 **Hints:**
 
-1. A Sequential model: `tf.keras.Input(shape=(24, 24, 1))`, `layers.Conv2D(8, 11, use_bias=False)`, `layers.GlobalMaxPooling2D()`. The Conv2D's kernel has the shape `(11, 11, 1, 8)`: rows, columns, channels in, filters. `templates` has the shape `(8, 11, 11)`: there the filters come first.
+1. A Sequential model: `tf.keras.Input(shape=(24, 24, 1))`, `layers.Conv2D(8, 11, use_bias=False)`, `layers.GlobalMaxPooling2D()`. The Conv2D's kernel has the shape `(11, 11, 1, 8)`: rows, columns, channels in, filters. `templates` has the shape `(8, 11, 11)`: there the filters come first. The label in the glass case copies the scratched sounds.
 2. `templates.reshape(11, 11, 1, 8)` has the right shape but scrambles the stamps. Move the axis instead: `templates.transpose(1, 2, 0)` has the shape `(11, 11, 8)`, and `[:, :, None, :]` adds the channel axis. The impressions need a channel axis too: `impressions[..., None]`.
 3. `finder.set_weights([templates.transpose(1, 2, 0)[:, :, None, :]])`, then `order = finder.predict(impressions[..., None]).argmax(axis=1)` gives `[5, 0, 7, 2, 6, 4, 1, 3]`. With the caption: `values = {5: "lu", 0: "ra", 7: "sa", 2: "ko", 6: "ne", 4: "re", 1: "mi", 3: "ta"}`.
 
@@ -250,7 +250,7 @@ model.summary()
 import tensorflow as tf
 from tensorflow.keras import layers
 
-# Mika: the reader from Amara's blueprint. Why does it crash every time?!
+# Mika: the reader, draft 3. Why does it crash every time?!
 tf.keras.utils.set_random_seed(1)
 
 model = tf.keras.Sequential([
@@ -322,7 +322,7 @@ print("Test accuracy:", test_accuracy)
 
 **Task:**
 
-> Amara's laptop holds her old reader, `old_reader`, a dense network, and `prototype`, a first try of draft 3. Both learned from the dig's photo set, where every sign sits in the middle of its fragment. The 100 fragments that came in last week, `x_new` with their sign numbers `y_new`, have their signs anywhere.
+> Amara's laptop holds her old reader, `old_reader`, a dense network, and `prototype`, a first try of draft 3. Both learned from the dig's photo set, where every sign sits in the middle of its fragment. The 100 fragments that came in last week, `x_new` with their sign numbers `y_new`, have their signs anywhere. Which reader copes with that, and why does the other one fail?
 >
 > 1. How many of the 100 new fragments does each reader read right? Store the counts as `old_right` and `proto_right`. Prepare the fragments the way the readers expect them.
 > 2. Test both readers on `probe`, a fragment with a star (5) in the middle: shift it 0, 1, 2, ... pixels to the right with `np.roll(probe, shift, axis=1)` and plot each reader's probability for the star. `first_miss`: the smallest shift at which the old reader no longer reads a star.
@@ -340,8 +340,6 @@ show_images(x_new[:10], labels=list(y_new[:10]), title="New fragments")
 old_right = None     # how many of the 100 new fragments the old reader reads right
 proto_right = None   # ... and the prototype
 first_miss = None    # the smallest shift at which the old reader misses the star
-
-# shifted = np.roll(probe, 1, axis=1)
 ```
 
 </details>
@@ -388,13 +386,13 @@ print(first_miss)
 
 **Code lock** (opens with `1898`):
 
-> The jar stands in a locked display cabinet with a four-digit lock. Amara's mail says how the code is made.
+> The jar stands in a locked display cabinet with a four-digit lock.
 
 **Task:**
 
-> The lid of the Varda jar carries six signs in a scribe's hand: `jar`, a depth scan of 24 rows × 144 columns, one sign in each 24 × 24 field. The crates leave at 06:00.
+> The lid of the Varda jar carries six signs in a scribe's hand: `jar`, a depth scan of 24 rows × 144 columns, one sign in each 24 × 24 field. The crates leave at 06:00. What does the lid say?
 >
-> 1. Train the reader on the archive, the way the blueprint and the fixed notebook say. It needs at least 85 % on the test fragments.
+> 1. Train the reader on the archive. It needs at least 85 % on the test fragments.
 > 2. Let it read the lid: `signs`, the six sign numbers from left to right.
 > 3. `word`: how the lid sounds, one syllable per sign, e.g. `"ba-de-fo-gu-hi-jo"`.
 
@@ -481,9 +479,7 @@ print(signs, word)
 > `1  -4   1`
 > `0   1   0`
 >
-> Lay the kernel on a 3 × 3 window of the scan, multiply point by point and add it all up: one number. Move one point further and repeat. Smooth curves come out close to 0; sharp dents light up.
->
-> The result loses one point on every side.
+> Smooth curves come out close to 0; sharp dents light up.
 
 ### 🔎 Chart: Varda numerals
 
@@ -548,11 +544,9 @@ print(signs, word)
 
 *Used by: 4. Mika's notebook*
 
-> Amara, I tried to train the reader on the archive, but Keras keeps crashing: first something about a negative size, then something about the shape?! I kept it at 2 epochs, more takes forever. I've gone home, sorry.
+> Amara, I tried to train the reader on the archive, but Keras keeps crashing: first something about a negative size, then something about the shape?! I've gone home, sorry.
 >
 > Mika
->
-> P.S. My laptop password is the number of parameters of the reader.
 
 ### 🔎 The label on the crates
 
@@ -572,7 +566,7 @@ print(signs, word)
 
 > From: Amara Okafor · Sunday, 19:48
 >
-> Stuck at the airport, fog. My old reader read the photo set perfectly, but the new fragments from last week look like noise to it. On my laptop you'll find it and a prototype of draft 3, both trained on the photo set (every sign in the middle). Please compare them on the 100 new fragments. If draft 3 wins, train it on the whole archive and read the jar!
+> Stuck at the airport, fog. My old reader read the photo set perfectly, but the new fragments from last week look like noise to it. On my laptop you'll find it and a prototype of draft 3. Please compare them on the 100 new fragments. If draft 3 wins, train it on the whole archive and read the jar!
 >
 > The jar's cabinet: the code is how many of the 100 the old reader gets right, then how many the prototype gets right.
 >

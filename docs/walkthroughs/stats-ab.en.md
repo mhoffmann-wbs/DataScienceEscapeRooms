@@ -6,7 +6,7 @@
 
 > Kakaowerk Kleeberg, the night before the board meeting. At 8 a.m. the board decides on three changes tested this autumn: a new recipe, a new web shop checkout and the packing line. Ana Berger, head of analytics, was taken to hospital this afternoon with her analyses half done. You stayed to finish them, and at midnight the security system locked every door.
 >
-> The release console by the exit opens them with the digits from Ana's decision cards: every finished analysis prints one. Plan carefully, test honestly, and decide only what the data supports. This room loads Python with pandas and scipy: the first puzzle you open takes a little while.
+> Plan carefully, test honestly, decide only what the data supports, and find your way out. This room loads Python with pandas and scipy: the first puzzle you open takes a little while.
 
 ## Overview
 
@@ -30,7 +30,7 @@
 
 **Task:**
 
-> Before the recipe test, Ana pinned four proposals for it to the board:
+> How should the recipe test be run, and how many tasters does it need? Ana pinned four proposals to the board:
 >
 > **A.** Sell the new recipe in November and compare its ratings with October's (old recipe).
 > **B.** Put out both recipes and let every taster pick the one they want to rate.
@@ -86,7 +86,7 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Reveals when solved:**
 
-> Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for both experiments of the relaunch, the recipe tasting and the checkout test, two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in. (The packing line isn't an experiment: it follows its quality manual.)
+> Ana's pre-registration is filed: design C, **77 tasters per recipe**, and for both experiments of the relaunch, the recipe tasting and the checkout test, two-sided tests at **α = 0.01**. The board accepts no other significance level once the data is in.
 
 **Hints:**
 
@@ -102,11 +102,11 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Task:**
 
-> The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. The quality manual sets the confidence level and says when the line must be recalibrated.
+> The packing line fills bars sold as 100 g. Tonight 30 bars were taken at random and weighed: `weights`, in grams. Does the line need recalibrating?
 >
-> 1. A confidence interval for the line's mean weight, at the manual's level, from the t distribution: `ci_low` and `ci_high`.
+> 1. A confidence interval for the line's mean weight, at the required level, from the t distribution: `ci_low` and `ci_high`.
 > 2. A one-sample t-test of the weights against 100 g, two-sided: `p_value`.
-> 3. `recalibrate`: True or False, as the manual says.
+> 3. Your decision: `recalibrate` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -116,9 +116,9 @@ from scipy import stats
 # weights is loaded: 30 bars, in grams.
 print(weights.describe())
 
-ci_low, ci_high = None, None   # confidence interval for the mean weight (level: see the quality manual)
+ci_low, ci_high = None, None   # confidence interval for the mean weight
 p_value = None                 # one-sample t-test against 100 g
-recalibrate = None             # True or False (see the quality manual)
+recalibrate = None             # True or False
 ```
 
 </details>
@@ -150,7 +150,7 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Hints:**
 
-1. The quality manual on the wall sets the level. The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(level, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.
+1. The quality manual on the wall sets the level and says when to recalibrate. The standard error of the mean is `stats.sem(weights)`. `stats.t.interval(level, df, loc=mean, scale=se)` gives the interval, with df = n − 1 = 29.
 2. `stats.ttest_1samp(weights, 100)` tests whether the mean differs from 100 g; its `.pvalue` is two-sided.
 3. The manual asks for a 95 % interval: `stats.t.interval(0.95, 29, loc=weights.mean(), scale=stats.sem(weights))`, about [100.33, 101.27], and p ≈ 0.0017. 100 g lies outside the interval, so `recalibrate = True`.
 
@@ -162,12 +162,13 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Task:**
 
-> The board wants average order values compared with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples as large as the ones in the board's revenue reports: Ana's note says how large.
+> The board wants to compare average order values with t-tests, but single orders are far from normal: a few corporate customers order for hundreds of euros. May it? The central limit theorem says means of large enough samples are close to normal anyway. Check it on all of 2025's orders, `orders` (euros), for samples as large as the ones in the board's revenue reports.
 >
 > 1. How skewed are single orders? `skew_orders`, with `scipy.stats.skew`.
 > 2. Draw at least 1,000 random samples of that size and keep their means in `means`.
-> 3. Theory says how much such means vary: the standard error, `se_theory` (Ana's note has the formula). Compare it with the spread of your means.
+> 3. Theory says how much such means vary: the standard error, `se_theory`. Compare it with the spread of your means.
 > 4. How skewed are the means? `skew_means`.
+> 5. Your verdict: may the board compare average order values with t-tests? `t_tests_ok` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -181,10 +182,11 @@ show_hist(orders, bins=40, title="Single orders")
 
 skew_orders = None
 rng = np.random.default_rng()
-n = None            # sample size of the board's reports (see Ana's note)
-means = []          # means of random samples of n orders, e.g. rng.choice(orders, n).mean()
-se_theory = None    # how much such means vary, in theory (see Ana's note)
+n = None            # sample size of the board's reports
+means = []          # means of random samples of n orders
+se_theory = None    # how much such means vary, in theory
 skew_means = None
+t_tests_ok = None   # True or False
 
 # show_hist(means, bins=40, title="Sample means")
 ```
@@ -203,12 +205,13 @@ n = 50   # the board's reports average 50 orders (Ana's note)
 means = [rng.choice(orders, n).mean() for i in range(2000)]
 se_theory = orders.std() / np.sqrt(n)
 skew_means = stats.skew(means)
+t_tests_ok = abs(skew_means) < 1   # close to normal (Ana's note)
 print(round(skew_orders, 2), round(se_theory, 2), round(np.std(means), 2), round(skew_means, 2))
 show_hist(orders, bins=40, title="Single orders")
 show_hist(means, bins=40, title="Means of 50 orders")
 ```
 
-**Checked result** (`_clt_check(skew_orders, means, se_theory, skew_means)`):
+**Checked result** (`_clt_check(skew_orders, means, se_theory, skew_means, t_tests_ok)`):
 
 ```json
 "approved"
@@ -222,9 +225,9 @@ show_hist(means, bins=40, title="Means of 50 orders")
 
 **Hints:**
 
-1. Ana's note on the wall: the reports average 50 orders at a time, and means of n values spread by σ/√n. `stats.skew(orders)` measures the skew; `rng.choice(orders, 50).mean()` is the mean of one random sample of 50 orders, so repeat it in a loop.
-2. `means = [rng.choice(orders, 50).mean() for i in range(2000)]`. The standard error is `orders.std() / np.sqrt(50)`; compare it with `np.std(means)`.
-3. skew_orders ≈ 3.35 and se_theory ≈ 4.99; `np.std(means)` lands close to it, and `skew_means = stats.skew(means)` is about 0.5.
+1. Ana pinned a note to the wall about the board's reports and how means spread. `stats.skew(orders)` measures the skew; `rng.choice(orders, n).mean()` is the mean of one random sample of n orders, so repeat it in a loop.
+2. Ana's note: the reports average 50 orders at a time, and means of n values spread by σ/√n. `means = [rng.choice(orders, 50).mean() for i in range(2000)]`. The standard error is `orders.std() / np.sqrt(50)`; compare it with `np.std(means)`.
+3. skew_orders ≈ 3.35 and se_theory ≈ 4.99; `np.std(means)` lands close to it, and `skew_means = stats.skew(means)` is about 0.5: the means look close to normal, so `t_tests_ok = True`.
 
 ### 4. The tasting room
 
@@ -238,11 +241,11 @@ show_hist(means, bins=40, title="Means of 50 orders")
 
 **Task:**
 
-> The blind tasting ran exactly as registered. The ratings are loaded as `ratings`: columns `taster`, `recipe` ("old" or "new") and `rating` (1 to 10).
+> The blind tasting is over. Should the new recipe ship? The ratings are loaded as `ratings`: columns `taster`, `recipe` ("old" or "new") and `rating` (1 to 10).
 >
 > 1. `diff`: the mean rating of the new recipe minus that of the old one.
-> 2. The t-test that fits how the tasting was run (the tasting protocol by the door tells you), without assuming equal spreads: `p_value`.
-> 3. `ship_recipe`: True or False. Decide as registered on the planning board.
+> 2. The t-test that fits how the tasting was run, without assuming equal spreads: `p_value`.
+> 3. Your decision: `ship_recipe` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -253,8 +256,8 @@ from scipy import stats
 print(ratings.groupby("recipe").rating.describe())
 
 diff = None          # mean rating of new minus old
-p_value = None       # t-test (which one? see the tasting protocol)
-ship_recipe = None   # True or False, as registered
+p_value = None       # the fitting t-test
+ship_recipe = None   # True or False
 ```
 
 </details>
@@ -288,7 +291,7 @@ print(round(diff, 2), round(result.statistic, 2), round(p_value, 4), ship_recipe
 
 **Hints:**
 
-1. The tasting protocol: every taster rated one bar, so the two groups are independent, not paired. `new = ratings[ratings.recipe == "new"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.
+1. The tasting protocol by the door says how the tasting ran: every taster rated one bar, so the two groups are independent, not paired. `new = ratings[ratings.recipe == "new"].rating`, and the same for `old`. Then `diff = new.mean() - old.mean()`.
 2. `stats.ttest_ind(new, old, equal_var=False)` is Welch's t-test; its `.pvalue` is two-sided. The significance level comes from the pre-registration on the planning board.
 3. diff ≈ 0.60 and p ≈ 0.025. That's above α = 0.01, so `ship_recipe = False`.
 
@@ -304,11 +307,12 @@ print(round(diff, 2), round(result.statistic, 2), round(p_value, 4), ship_recipe
 
 **Task:**
 
-> The checkout test split visitors at random between three checkouts: A (the old one), B (a green button) and C (a one-page checkout). The dashboard's export is loaded as `daily`: sessions and orders per day and variant.
+> The checkout test split visitors at random between three checkouts: A (the old one), B (a green button) and C (a one-page checkout). Which one should ship? The dashboard's export is loaded as `daily`: sessions and orders per day and variant.
 >
 > 1. A sanity check first: the split was planned 1 : 1 : 1. Run a chi-squared goodness-of-fit test on the total sessions per variant: `srm_p`. A tiny p-value would mean the split is broken and the test can't be trusted.
 > 2. Do the variants convert differently? Run a chi-squared test of independence on a table with one row per variant, holding its orders and its sessions without an order. Store `chi2` and `p_value`.
-> 3. `winner`: the variant with the highest conversion rate. Is the difference significant at the registered level?
+> 3. `winner`: the variant with the highest conversion rate.
+> 4. Is the difference between the variants significant? Store `significant` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -323,6 +327,7 @@ totals = None                # sessions and orders per variant, summed over the 
 srm_p = None                 # goodness of fit: sessions per variant vs. an even split
 chi2, p_value = None, None   # independence: variant x (order, no order)
 winner = None                # "A", "B" or "C"
+significant = None           # True or False
 ```
 
 </details>
@@ -339,12 +344,13 @@ table = pd.DataFrame({"orders": totals.orders, "no_order": totals.sessions - tot
 chi2, p_value, dof, expected = stats.chi2_contingency(table)
 rates = totals.orders / totals.sessions
 winner = rates.idxmax()
+significant = p_value < 0.01   # the registered α
 print(totals)
 print(rates.round(4))
 print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 ```
 
-**Checked result** (`_checkout_check(srm_p, chi2, p_value, winner)`):
+**Checked result** (`_checkout_check(srm_p, chi2, p_value, winner, significant)`):
 
 ```json
 "approved"
@@ -359,8 +365,8 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 **Hints:**
 
 1. `totals = daily.groupby("variant")[["sessions", "orders"]].sum()`. `stats.chisquare(totals.sessions)` compares the sessions with an even split.
-2. The table needs orders and **non**-orders per variant: `pd.DataFrame({"orders": totals.orders, "no_order": totals.sessions - totals.orders})`. `stats.chi2_contingency(table)` returns chi2, the p-value, the degrees of freedom and the expected counts.
-3. srm_p ≈ 0.22, chi2 ≈ 16.68, p ≈ 0.00024, and `winner = (totals.orders / totals.sessions).idxmax()`, which is C.
+2. The table needs orders and **non**-orders per variant: `pd.DataFrame({"orders": totals.orders, "no_order": totals.sessions - totals.orders})`. `stats.chi2_contingency(table)` returns chi2, the p-value, the degrees of freedom and the expected counts. The significance level is the one registered for the relaunch experiments.
+3. srm_p ≈ 0.22, chi2 ≈ 16.68 and p ≈ 0.00024, far below α = 0.01, so `significant = True`. `winner = (totals.orders / totals.sessions).idxmax()` is C.
 
 ### 6. The release console (Final lock)
 
@@ -369,7 +375,7 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 
 **Task:**
 
-> The console by the exit releases tomorrow's decisions and unlocks the doors. It wants the four digits from Ana's decision cards, in the order of tomorrow's agenda.
+> The console by the exit releases tomorrow's decisions and unlocks the doors. It wants the four digits from Ana's decision cards (every finished analysis prints one), in the order of tomorrow's agenda.
 
 **Answer:** `5294`
 
@@ -414,8 +420,6 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 > TASTING PROTOCOL · Recipe test KW-7
 >
 > Every taster flipped a coin at the door (heads: new recipe, tails: old). Plain wrappers, same room, same afternoon. Each taster rated **one** bar, from 1 (awful) to 10 (perfect).
->
-> Nobody tasted both recipes, so the two groups are independent.
 
 ### 🔎 Tomorrow's agenda
 

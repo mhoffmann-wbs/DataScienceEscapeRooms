@@ -40,13 +40,15 @@ def _scale_check(ci_low, ci_high, p_value, recalibrate):
         if abs(ci_low - 100.345) < 0.005 and abs(ci_high - 101.248) < 0.005:
             problems.append("That interval uses the normal distribution. With 30 bars and an estimated standard deviation, use the t distribution (29 degrees of freedom). / Dieses Intervall nutzt die Normalverteilung. Bei 30 Tafeln und geschätzter Standardabweichung nehmt die t-Verteilung (29 Freiheitsgrade).")
         elif abs(ci_low - 100.1616) < 0.005 and abs(ci_high - 101.4318) < 0.005:
-            problems.append("That's a 99 % interval. The planning board's α = 0.01 is for the relaunch experiments; the packing line follows the quality manual. / Das ist ein 99-%-Intervall. Das α = 0,01 der Planungstafel gilt für die Relaunch-Experimente; die Verpackungslinie folgt dem Qualitätshandbuch.")
+            problems.append("That's a 99 % interval: the packing line isn't one of the relaunch experiments. / Das ist ein 99-%-Intervall: Die Verpackungslinie gehört nicht zu den Relaunch-Experimenten.")
         else:
-            problems.append("The confidence interval is off: use the level from the quality manual, centre it on the mean, with the standard error of the mean as scale. / Das Konfidenzintervall stimmt nicht: Nehmt das Niveau aus dem Qualitätshandbuch, Mitte beim Mittelwert, Standardfehler des Mittelwerts als Skala.")
+            problems.append("The confidence interval is off: use the required level, centre it on the mean, with the standard error of the mean as scale. / Das Konfidenzintervall stimmt nicht: Nehmt das vorgeschriebene Niveau, Mitte beim Mittelwert, Standardfehler des Mittelwerts als Skala.")
     if not isinstance(p_value, Real) or abs(p_value - 0.00172) > 0.0002:
         problems.append("The p-value is off: a one-sample t-test of the weights against 100 g, two-sided. / Der p-Wert stimmt nicht: ein Einstichproben-t-Test der Gewichte gegen 100 g, zweiseitig.")
-    if not isinstance(recalibrate, (bool, np.bool_)) or not recalibrate:
-        problems.append("Check the decision again: does the interval contain 100 g? / Prüft die Entscheidung noch einmal: Enthält das Intervall 100 g?")
+    if not isinstance(recalibrate, (bool, np.bool_)):
+        problems.append("recalibrate should be True or False. / recalibrate soll True oder False sein.")
+    elif not recalibrate:
+        problems.append("recalibrate is off: is 100 g a plausible mean weight for the line? / recalibrate stimmt nicht: Ist 100 g ein plausibles mittleres Gewicht für die Linie?")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"
@@ -62,15 +64,15 @@ import pandas as pd
 orders = pd.Series({wrap(orders, 12, lambda v: f"{v:.2f}")}, name="euros")
 
 
-def _clt_check(skew_orders, means, se_theory, skew_means):
-    """Ana's check of the central limit theorem for means of 50 orders."""
+def _clt_check(skew_orders, means, se_theory, skew_means, t_tests_ok):
+    """Ana's check of the central limit theorem for means of 50 orders, and the verdict on t-tests."""
     from numbers import Real
     from scipy import stats
     problems = []
     if not isinstance(skew_orders, Real) or abs(skew_orders - 3.346) > 0.01:
         problems.append("skew_orders is off: the skewness of all orders (scipy.stats.skew). / skew_orders stimmt nicht: die Schiefe aller Bestellungen (scipy.stats.skew).")
     if not isinstance(se_theory, Real) or abs(se_theory - 4.99) > 0.01:
-        problems.append("se_theory is off: the standard deviation of the orders divided by the square root of the sample size (Ana's note). / se_theory stimmt nicht: die Standardabweichung der Bestellungen geteilt durch die Wurzel des Stichprobenumfangs (Anas Notiz).")
+        problems.append("se_theory is off: the standard deviation of the orders divided by the square root of the sample size. / se_theory stimmt nicht: die Standardabweichung der Bestellungen geteilt durch die Wurzel des Stichprobenumfangs.")
     try:
         m = np.asarray(means, dtype=float)
     except (TypeError, ValueError):
@@ -78,9 +80,13 @@ def _clt_check(skew_orders, means, se_theory, skew_means):
     if m.ndim != 1 or len(m) < 1000:
         problems.append("means needs the means of at least 1,000 random samples. / means braucht die Mittelwerte von mindestens 1.000 Zufallsstichproben.")
     elif abs(m.mean() - 37.77) > 0.6 or not 4.5 < m.std() < 5.5:
-        problems.append("Your sample means don't look like means of random samples as large as the board's reports use (Ana's note). / Eure Stichprobenmittel sehen nicht nach Mittelwerten von Zufallsstichproben in der Größe der Vorstandsberichte aus (Anas Notiz).")
+        problems.append("Your sample means don't look like means of random samples as large as the board's reports use. / Eure Stichprobenmittel sehen nicht nach Mittelwerten von Zufallsstichproben in der Größe der Vorstandsberichte aus.")
     elif not isinstance(skew_means, Real) or abs(skew_means - stats.skew(m)) > 0.01:
         problems.append("skew_means should be the skewness of your sample means. / skew_means soll die Schiefe eurer Stichprobenmittel sein.")
+    if not isinstance(t_tests_ok, (bool, np.bool_)):
+        problems.append("t_tests_ok should be True or False. / t_tests_ok soll True oder False sein.")
+    elif not t_tests_ok:
+        problems.append("t_tests_ok is off: do the means of the reports' samples look normal enough? / t_tests_ok stimmt nicht: Sehen die Mittelwerte der Berichtsstichproben normal genug aus?")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"
@@ -117,13 +123,15 @@ def _tasting_check(diff, p_value, ship_recipe):
         problems.append("diff is off: the mean rating of the new recipe minus the mean of the old one. / diff stimmt nicht: die mittlere Bewertung des neuen Rezepts minus die des alten.")
     if not isinstance(p_value, Real) or abs(p_value - 0.0252) > 0.0005:
         if isinstance(p_value, Real) and abs(p_value - 0.0126) < 0.0005:
-            problems.append("That's a one-sided p-value. The pre-registration says two-sided. / Das ist ein einseitiger p-Wert. Die Präregistrierung sagt zweiseitig.")
+            problems.append("That's a one-sided p-value. / Das ist ein einseitiger p-Wert.")
         elif isinstance(p_value, Real) and abs(p_value - 0.0295) < 0.0005:
-            problems.append("That's a paired t-test, but nobody tasted both recipes: the groups are independent (see the tasting protocol). / Das ist ein gepaarter t-Test, aber niemand hat beide Rezepte probiert: Die Gruppen sind unabhängig (siehe Verkostungsprotokoll).")
+            problems.append("That's a paired t-test. Did the same tasters rate both recipes? / Das ist ein gepaarter t-Test. Haben dieselben Testpersonen beide Rezepte bewertet?")
         else:
             problems.append("The p-value is off: a two-sample t-test of the new against the old ratings. / Der p-Wert stimmt nicht: ein Zweistichproben-t-Test der neuen gegen die alten Bewertungen.")
-    if not isinstance(ship_recipe, (bool, np.bool_)) or ship_recipe:
-        problems.append("Check the decision against the significance level you registered. / Prüft die Entscheidung gegen das registrierte Signifikanzniveau.")
+    if not isinstance(ship_recipe, (bool, np.bool_)):
+        problems.append("ship_recipe should be True or False. / ship_recipe soll True oder False sein.")
+    elif ship_recipe:
+        problems.append("ship_recipe is off: is the difference significant? / ship_recipe stimmt nicht: Ist der Unterschied signifikant?")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"
@@ -149,8 +157,8 @@ import pandas as pd
 daily = pd.DataFrame({wrap(rows, 3, repr)}, columns=["date", "variant", "sessions", "orders"])
 
 
-def _checkout_check(srm_p, chi2, p_value, winner):
-    """The dashboard's check: the sample ratio check, the chi-squared test and the winner."""
+def _checkout_check(srm_p, chi2, p_value, winner, significant):
+    """The dashboard's check: the sample ratio check, the chi-squared test, the winner and the verdict."""
     from numbers import Real
     problems = []
     if not isinstance(srm_p, Real) or abs(srm_p - 0.2187) > 0.001:
@@ -164,6 +172,10 @@ def _checkout_check(srm_p, chi2, p_value, winner):
         problems.append("p_value is off: it's the p-value of that chi-squared test. / p_value stimmt nicht: Es ist der p-Wert dieses Chi-Quadrat-Tests.")
     if str(winner).strip().upper() != "C":
         problems.append("winner should be the variant with the highest conversion rate. / winner soll die Variante mit der höchsten Konversionsrate sein.")
+    if not isinstance(significant, (bool, np.bool_)):
+        problems.append("significant should be True or False. / significant soll True oder False sein.")
+    elif not significant:
+        problems.append("significant is off: compare p_value with the significance level. / significant stimmt nicht: Vergleicht p_value mit dem Signifikanzniveau.")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

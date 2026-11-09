@@ -30,13 +30,15 @@ def _tasting_check(diff, p_value, ship_recipe):
         problems.append("diff is off: the mean rating of the new recipe minus the mean of the old one. / diff stimmt nicht: die mittlere Bewertung des neuen Rezepts minus die des alten.")
     if not isinstance(p_value, Real) or abs(p_value - 0.0252) > 0.0005:
         if isinstance(p_value, Real) and abs(p_value - 0.0126) < 0.0005:
-            problems.append("That's a one-sided p-value. The pre-registration says two-sided. / Das ist ein einseitiger p-Wert. Die Präregistrierung sagt zweiseitig.")
+            problems.append("That's a one-sided p-value. / Das ist ein einseitiger p-Wert.")
         elif isinstance(p_value, Real) and abs(p_value - 0.0295) < 0.0005:
-            problems.append("That's a paired t-test, but nobody tasted both recipes: the groups are independent (see the tasting protocol). / Das ist ein gepaarter t-Test, aber niemand hat beide Rezepte probiert: Die Gruppen sind unabhängig (siehe Verkostungsprotokoll).")
+            problems.append("That's a paired t-test. Did the same tasters rate both recipes? / Das ist ein gepaarter t-Test. Haben dieselben Testpersonen beide Rezepte bewertet?")
         else:
             problems.append("The p-value is off: a two-sample t-test of the new against the old ratings. / Der p-Wert stimmt nicht: ein Zweistichproben-t-Test der neuen gegen die alten Bewertungen.")
-    if not isinstance(ship_recipe, (bool, np.bool_)) or ship_recipe:
-        problems.append("Check the decision against the significance level you registered. / Prüft die Entscheidung gegen das registrierte Signifikanzniveau.")
+    if not isinstance(ship_recipe, (bool, np.bool_)):
+        problems.append("ship_recipe should be True or False. / ship_recipe soll True oder False sein.")
+    elif ship_recipe:
+        problems.append("ship_recipe is off: is the difference significant? / ship_recipe stimmt nicht: Ist der Unterschied signifikant?")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

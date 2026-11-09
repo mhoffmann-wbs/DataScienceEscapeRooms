@@ -29,10 +29,10 @@
 
 **Task:**
 
-> Before anything else, Iris has to see. The scanner by the door still works: a test envelope lies in it, and its output is loaded as `stream`, one long row of numbers.
+> Before anything else, Iris has to see. The scanner by the door still works: a test envelope lies in it, and its output is loaded as `stream`, one long row of numbers. What postcode is on the envelope?
 >
-> 1. Turn `stream` into the five digit images of the postcode: `digits`, with the shape `(5, 16, 16)`. The scanner's manual says how it reads an envelope.
-> 2. Iris wants every pixel the way her type plate says. Convert `digits` to that.
+> 1. Turn `stream` into the five digit images of the postcode: `digits`, with the shape `(5, 16, 16)`.
+> 2. Convert `digits` to the pixel values Iris expects.
 > 3. Look at the digits with `show_images` and store the postcode as `postcode`, a string such as `"12345"`.
 
 <details><summary>Starter code</summary>
@@ -73,11 +73,11 @@ postcode = "35781"
 
 **Reveals when solved:**
 
-> The test envelope goes to **35781**, Kleeberg itself. Now you can read Ferdinand's sticker on the scanner too: "Scanner: 0 = ink, 255 = paper. Iris: ink 1.0, paper 0.0. Convert everything that comes out of here before Iris sees it!"
+> The test envelope goes to **35781**, Kleeberg itself.
 
 **Hints:**
 
-1. `stream.reshape(5, 16, 16)` gives stripes, not digits: the scanner doesn't store one digit after the other. Reshape it to what it really reads first, and look at that with `show_images`.
+1. The scanner's manual says how it reads an envelope, and Iris's type plate what pixels she wants. `stream.reshape(5, 16, 16)` gives stripes, not digits: the scanner doesn't store one digit after the other. Reshape it to what it really reads first, and look at that with `show_images`.
 2. The scanner reads 16 lines of 80 pixels: `strip = stream.reshape(16, 80)`. `np.hsplit(strip, 5)` cuts it into five 16 × 16 pieces, and `np.stack(...)` makes them one array. The scanner's 0 is black ink; Iris's ink is 1.0.
 3. `digits = 1 - np.stack(np.hsplit(stream.reshape(16, 80), 5)) / 255`. The postcode is `"35781"`.
 
@@ -89,7 +89,7 @@ postcode = "35781"
 
 **Task:**
 
-> Ferdinand's old terminal still holds old Iris's network: `W1`, `b1`, `W2`, `b2`, and her six self-test cards, `cards`, already in her format. Every morning she read these cards and printed her reading on a slip.
+> Ferdinand's old terminal still holds old Iris's network: `W1`, `b1`, `W2`, `b2`, and her six self-test cards, `cards`, already in her format. Every morning she read these cards and printed her reading on a slip. What did she read?
 >
 > 1. Do by hand, with NumPy, what her network does. Each card as a row of 256 pixels, times `W1`, plus `b1`, then ReLU: `hidden`. Then times `W2`, plus `b2`, then softmax: `probs`, a row of 10 probabilities per card.
 > 2. Her reading, `reading`: for each card the digit with the highest probability, as one string of six digits.
@@ -166,7 +166,7 @@ print(np.abs(old_iris.predict(cards) - probs).max())
 
 **Task:**
 
-> Ferdinand pinned three drafts for a new Iris to the wall. Only one of them fits on her memory chip.
+> Ferdinand drew three drafts for a new Iris. Which one fits on her memory chip?
 >
 > 1. Build the drafts as Keras models and let Keras count their parameters, with `summary()` or `count_params()`.
 > 2. Store the draft that fits as `model`.
@@ -220,11 +220,11 @@ model.summary()
 
 **Reveals when solved:**
 
-> Draft C fits: **18,858** parameters, below the chip's 20,000. Its first layer alone has 256 × 64 + 64 = 16,448: in a dense network, most parameters sit where the pixels come in.
+> Draft C fits: **18,858** parameters. Its first layer alone has 256 × 64 + 64 = 16,448: in a dense network, most parameters sit where the pixels come in.
 
 **Hints:**
 
-1. Every draft starts with `layers.Flatten()`, which turns a 16 × 16 card into 256 numbers. A `Dense` layer has one weight per input and neuron, plus one bias per neuron. The type plate says how much the chip holds.
+1. Ferdinand's drafts hang on the wall. Every draft starts with `layers.Flatten()`, which turns a 16 × 16 card into 256 numbers. A `Dense` layer has one weight per input and neuron, plus one bias per neuron. The type plate says how much the chip holds.
 2. Draft A has 37,354 parameters and draft B 21,258. The chip holds 20,000.
 3. Draft C: `tf.keras.Sequential([tf.keras.Input(shape=(16, 16)), layers.Flatten(), layers.Dense(64, activation="relu"), layers.Dense(32, activation="relu"), layers.Dense(10, activation="softmax")])`.
 
@@ -250,7 +250,7 @@ model.summary()
 import tensorflow as tf
 from tensorflow.keras import layers
 
-# Jonas: Iris 2, draft C. Why doesn't this work?!
+# Jonas: Iris 2. Why doesn't this work?!
 tf.keras.utils.set_random_seed(1)
 
 model = tf.keras.Sequential([
@@ -319,12 +319,11 @@ print("Test accuracy:", test_accuracy)
 
 **Task:**
 
-> Inside the cabinet: Ferdinand's training logbook, `log`, from one long training run of Iris 2. After each of 30 epochs it recorded the loss and accuracy on the training cards and on the validation cards, like `history.history` after `model.fit`.
+> Inside the cabinet: Ferdinand's training logbook, `log`, from one long training run of Iris 2. After each of 30 epochs it recorded the loss and accuracy on the training cards and on the validation cards, like `history.history` after `model.fit`. When should a training like this stop, and which weights should Iris keep?
 >
-> 1. Plot `loss` and `val_loss` with `show_plot`. Where does the network start to learn the training cards by heart?
-> 2. `best_epoch`: the epoch with the lowest validation loss, counted from 1 as Keras does.
-> 3. Set up early stopping as Ferdinand's rules say: `stopper`, a `tf.keras.callbacks.EarlyStopping`.
-> 4. `replay(stopper, log)` runs the logbook through your `stopper` as if the training ran again. At which epoch does it stop (`stop_epoch`), and from which epoch are the weights the model keeps (`kept_epoch`)?
+> 1. `best_epoch`: the epoch with the lowest validation loss, counted from 1 as Keras does.
+> 2. Set up early stopping for Iris: `stopper`, a `tf.keras.callbacks.EarlyStopping`.
+> 3. `replay(stopper, log)` runs the logbook through your `stopper` as if the training ran again. At which epoch does it stop (`stop_epoch`), and from which epoch are the weights the model keeps (`kept_epoch`)?
 
 <details><summary>Starter code</summary>
 
@@ -340,8 +339,6 @@ best_epoch = None   # counted from 1
 stopper = None      # tf.keras.callbacks.EarlyStopping(...)
 stop_epoch = None
 kept_epoch = None
-
-# print(replay(stopper, log))
 ```
 
 </details>
@@ -369,11 +366,11 @@ print(best_epoch, stop_epoch, kept_epoch)
 
 **Reveals when solved:**
 
-> The best epoch is **17**. After it the network learns the training cards by heart, and the validation loss climbs. With a patience of 3 the training survives the wobble at epochs 9 and 10, stops at epoch **20** and goes back to the weights of epoch 17. With a patience of 1 it would have stopped at epoch 9.
+> The best epoch is **17**. After it the network learns the training cards by heart, and the validation loss climbs. The training survives the wobble at epochs 9 and 10, stops at epoch **20** and goes back to the weights of epoch 17. With a patience of 1 it would have stopped at epoch 9.
 
 **Hints:**
 
-1. The training loss keeps falling; the validation loss falls, wobbles, then rises again. `np.argmin(log["val_loss"])` is the position of its lowest value, counted from 0. The x axis of `show_plot` counts from 0 too.
+1. The training loss keeps falling; the validation loss falls, wobbles, then rises again. `np.argmin(log["val_loss"])` is the position of its lowest value, counted from 0. The x axis of `show_plot` counts from 0 too. Ferdinand wrote down his rules for training Iris.
 2. Ferdinand's rules in Keras: `monitor="val_loss"`, `patience=3`, `restore_best_weights=True`. Then `stop_epoch = replay(stopper, log)`; it also prints which epoch's weights the model keeps.
 3. `best_epoch = 17`, `stopper = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)`, `stop_epoch = 20`, `kept_epoch = 17`.
 
@@ -385,13 +382,13 @@ print(best_epoch, stop_epoch, kept_epoch)
 
 **Code lock** (opens with `2017`):
 
-> Iris's start panel asks for a four-digit start code. Ferdinand's rules say how it is made.
+> Iris's start panel asks for a four-digit start code.
 
 **Task:**
 
-> Time for the night sort. Six urgent letters wait in Iris's tray, `urgent`: for each letter the one postcode box Iris sorts by, straight from the scanner, one row of 256 values per letter. The departure board says which bin a letter goes into.
+> Time for the night sort. Which bins do the six urgent letters go into? They wait in Iris's tray, `urgent`: for each letter the one postcode box Iris sorts by, straight from the scanner, one row of 256 values per letter.
 >
-> 1. Build and train Iris 2 on the archive, the way the blueprint, the fixed script and Ferdinand's rules say. She needs at least 90 % on the test cards.
+> 1. Build and train Iris 2 on the archive. She needs at least 90 % on the test cards.
 > 2. Let her read the urgent letters, and store their bins in order as `bins`, a list of six numbers.
 
 <details><summary>Starter code</summary>
@@ -455,7 +452,7 @@ print(bins)
 
 **Hints:**
 
-1. Iris 2 is draft C, compiled and scaled as in Jonas's fixed script. Train with `validation_split=0.2` and Ferdinand's `EarlyStopping` in `callbacks=[...]`; `epochs=30` is fine, the stopper ends it in time.
+1. The departure board says which bin a letter goes into. Iris 2 is draft C, compiled and scaled as in Jonas's fixed script. Train with `validation_split=0.2` and Ferdinand's `EarlyStopping` in `callbacks=[...]`; `epochs=30` is fine, the stopper ends it in time.
 2. The urgent letters come straight from the scanner, where 0 is ink. Reshape them to `(6, 16, 16)` and convert them as at the scanner; look at them with `show_images`. Then `model.predict(letters).argmax(axis=1)`.
 3. `letters = 1 - urgent.reshape(6, 16, 16) / 255`. The bins are `[4, 7, 1, 9, 2, 6]`.
 
@@ -496,8 +493,6 @@ print(bins)
 > Draft A: Dense 128 (ReLU) → Dense 32 (ReLU) → Dense 10 (softmax)
 > Draft B: Dense 64 (ReLU) → Dense 64 (ReLU) → Dense 10 (softmax)
 > Draft C: Dense 64 (ReLU) → Dense 32 (ReLU) → Dense 10 (softmax)
->
-> In pencil: "Only one of them fits on the chip."
 
 ### 🔎 A note from Jonas
 
@@ -506,8 +501,6 @@ print(bins)
 > Ferdinand, I tried to teach Iris 2 again, but the training crashes! The labels are digits, so categorical crossentropy must be right, no? I've gone home, sorry.
 >
 > Jonas
->
-> P.S. The laptop password is the number of parameters of Iris 2.
 
 ### 🔎 The label on the archive boxes
 

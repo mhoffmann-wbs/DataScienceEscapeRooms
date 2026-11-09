@@ -2783,7 +2783,7 @@ def _iris2_layout(model):
         return ["model should be a tf.keras.Sequential model. / model soll ein tf.keras.Sequential-Modell sein."]
     dense = [l for l in model.layers if isinstance(l, tf.keras.layers.Dense)]
     if [l.units for l in dense] != [64, 32, 10] or not model.built or tuple(model.input_shape) != (None, 16, 16):
-        return ["model isn't Iris 2 from the blueprint: 16 x 16 inputs, then the layers of the draft that fits the chip. / model ist nicht Iris 2 aus dem Bauplan: 16 x 16 Eingaben, dann die Schichten des Entwurfs, der auf den Chip passt."]
+        return ["model isn't Iris 2: 16 x 16 inputs, then the layers of the draft that fits the chip. / model ist nicht Iris 2: 16 x 16 Eingaben, dann die Schichten des Entwurfs, der auf den Chip passt."]
     return []
 
 

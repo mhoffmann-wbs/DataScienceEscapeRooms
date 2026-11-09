@@ -6,7 +6,7 @@
 
 > Kakaowerk Kleeberg, die Nacht vor der Vorstandssitzung. Um 8 Uhr entscheidet der Vorstand über drei Änderungen, die diesen Herbst getestet wurden: ein neues Rezept, einen neuen Webshop-Checkout und die Verpackungslinie. Ana Berger, Leiterin der Datenanalyse, kam heute Nachmittag ins Krankenhaus, ihre Analysen nur halb fertig. Ihr seid geblieben, um sie abzuschließen, und um Mitternacht hat die Sicherheitsanlage alle Türen verriegelt.
 >
-> Die Freigabekonsole am Ausgang öffnet sie mit den Ziffern von Anas Entscheidungskarten: Jede fertige Analyse druckt eine. Plant sorgfältig, testet ehrlich und entscheidet nur, was die Daten hergeben. Dieser Raum lädt Python mit pandas und scipy: Das erste Rätsel, das ihr öffnet, braucht einen Moment.
+> Plant sorgfältig, testet ehrlich, entscheidet nur, was die Daten hergeben, und findet einen Weg hinaus. Dieser Raum lädt Python mit pandas und scipy: Das erste Rätsel, das ihr öffnet, braucht einen Moment.
 
 ## Überblick
 
@@ -30,7 +30,7 @@
 
 **Aufgabe:**
 
-> Vor dem Rezepttest hat Ana vier Vorschläge dafür an die Tafel gepinnt:
+> Wie soll der Rezepttest laufen, und wie viele Testpersonen braucht er? Ana hat vier Vorschläge an die Tafel gepinnt:
 >
 > **A.** Im November das neue Rezept verkaufen und seine Bewertungen mit denen vom Oktober (altes Rezept) vergleichen.
 > **B.** Beide Rezepte hinstellen und jede Testperson das wählen lassen, das sie bewerten möchte.
@@ -86,7 +86,7 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Zeigt nach dem Lösen:**
 
-> Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für beide Experimente des Relaunchs, die Verkostung und den Checkout-Test, zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr. (Die Verpackungslinie ist kein Experiment: Für sie gilt ihr Qualitätshandbuch.)
+> Anas Präregistrierung ist eingereicht: Design C, **77 Testpersonen pro Rezept**, und für beide Experimente des Relaunchs, die Verkostung und den Checkout-Test, zweiseitige Tests mit **α = 0,01**. Sobald die Daten da sind, akzeptiert der Vorstand kein anderes Signifikanzniveau mehr.
 
 **Hinweise:**
 
@@ -102,11 +102,11 @@ print(round(z_alpha, 3), round(z_power, 3), n_per_group)
 
 **Aufgabe:**
 
-> Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Das Qualitätshandbuch legt das Konfidenzniveau fest und sagt, wann die Linie neu kalibriert werden muss.
+> Die Verpackungslinie füllt Tafeln, die als 100 g verkauft werden. Heute Abend wurden 30 Tafeln zufällig entnommen und gewogen: `weights`, in Gramm. Muss die Linie neu kalibriert werden?
 >
-> 1. Ein Konfidenzintervall für das mittlere Gewicht der Linie, auf dem Niveau des Handbuchs, mit der t-Verteilung: `ci_low` und `ci_high`.
+> 1. Ein Konfidenzintervall für das mittlere Gewicht der Linie, auf dem vorgeschriebenen Niveau, mit der t-Verteilung: `ci_low` und `ci_high`.
 > 2. Ein Einstichproben-t-Test der Gewichte gegen 100 g, zweiseitig: `p_value`.
-> 3. `recalibrate`: True oder False, wie es das Handbuch sagt.
+> 3. Eure Entscheidung: `recalibrate` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -116,9 +116,9 @@ from scipy import stats
 # weights ist geladen: 30 Tafeln, in Gramm.
 print(weights.describe())
 
-ci_low, ci_high = None, None   # Konfidenzintervall für das mittlere Gewicht (Niveau: siehe Qualitätshandbuch)
+ci_low, ci_high = None, None   # Konfidenzintervall für das mittlere Gewicht
 p_value = None                 # Einstichproben-t-Test gegen 100 g
-recalibrate = None             # True oder False (siehe Qualitätshandbuch)
+recalibrate = None             # True oder False
 ```
 
 </details>
@@ -150,7 +150,7 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Hinweise:**
 
-1. Das Qualitätshandbuch an der Wand legt das Niveau fest. Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(niveau, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29.
+1. Das Qualitätshandbuch an der Wand legt das Niveau fest und sagt, wann neu kalibriert wird. Der Standardfehler des Mittelwerts ist `stats.sem(weights)`. `stats.t.interval(niveau, df, loc=mittelwert, scale=se)` liefert das Intervall, mit df = n − 1 = 29.
 2. `stats.ttest_1samp(weights, 100)` testet, ob der Mittelwert von 100 g abweicht; sein `.pvalue` ist zweiseitig.
 3. Das Handbuch verlangt ein 95-%-Intervall: `stats.t.interval(0.95, 29, loc=weights.mean(), scale=stats.sem(weights))`, etwa [100,33; 101,27], und p ≈ 0,0017. 100 g liegt außerhalb des Intervalls, also `recalibrate = True`.
 
@@ -162,12 +162,13 @@ print(round(mean, 2), round(ci_low, 2), round(ci_high, 2), round(p_value, 4), re
 
 **Aufgabe:**
 
-> Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben so groß wie in den Umsatzberichten des Vorstands: Anas Notiz sagt, wie groß.
+> Der Vorstand will mittlere Bestellwerte mit t-Tests vergleichen, aber einzelne Bestellungen sind alles andere als normalverteilt: Ein paar Firmenkunden bestellen für Hunderte Euro. Darf er das? Der zentrale Grenzwertsatz sagt, dass Mittelwerte ausreichend großer Stichproben trotzdem fast normalverteilt sind. Prüft das an allen Bestellungen von 2025, `orders` (Euro), für Stichproben so groß wie in den Umsatzberichten des Vorstands.
 >
 > 1. Wie schief sind einzelne Bestellungen? `skew_orders`, mit `scipy.stats.skew`.
 > 2. Zieht mindestens 1.000 Zufallsstichproben dieser Größe und speichert ihre Mittelwerte in `means`.
-> 3. Die Theorie sagt, wie stark solche Mittelwerte schwanken: der Standardfehler, `se_theory` (die Formel steht in Anas Notiz). Vergleicht ihn mit der Streuung eurer Mittelwerte.
+> 3. Die Theorie sagt, wie stark solche Mittelwerte schwanken: der Standardfehler, `se_theory`. Vergleicht ihn mit der Streuung eurer Mittelwerte.
 > 4. Wie schief sind die Mittelwerte? `skew_means`.
+> 5. Euer Urteil: Darf der Vorstand mittlere Bestellwerte mit t-Tests vergleichen? `t_tests_ok` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -181,10 +182,11 @@ show_hist(orders, bins=40, title="Einzelne Bestellungen")
 
 skew_orders = None
 rng = np.random.default_rng()
-n = None            # Stichprobengröße der Vorstandsberichte (siehe Anas Notiz)
-means = []          # Mittelwerte von Zufallsstichproben von n Bestellungen, z. B. rng.choice(orders, n).mean()
-se_theory = None    # wie stark solche Mittelwerte laut Theorie schwanken (siehe Anas Notiz)
+n = None            # Stichprobengröße der Vorstandsberichte
+means = []          # Mittelwerte von Zufallsstichproben von n Bestellungen
+se_theory = None    # wie stark solche Mittelwerte laut Theorie schwanken
 skew_means = None
+t_tests_ok = None   # True oder False
 
 # show_hist(means, bins=40, title="Stichprobenmittel")
 ```
@@ -203,12 +205,13 @@ n = 50   # the board's reports average 50 orders (Ana's note)
 means = [rng.choice(orders, n).mean() for i in range(2000)]
 se_theory = orders.std() / np.sqrt(n)
 skew_means = stats.skew(means)
+t_tests_ok = abs(skew_means) < 1   # close to normal (Ana's note)
 print(round(skew_orders, 2), round(se_theory, 2), round(np.std(means), 2), round(skew_means, 2))
 show_hist(orders, bins=40, title="Single orders")
 show_hist(means, bins=40, title="Means of 50 orders")
 ```
 
-**Geprüftes Ergebnis** (`_clt_check(skew_orders, means, se_theory, skew_means)`):
+**Geprüftes Ergebnis** (`_clt_check(skew_orders, means, se_theory, skew_means, t_tests_ok)`):
 
 ```json
 "approved"
@@ -222,9 +225,9 @@ show_hist(means, bins=40, title="Means of 50 orders")
 
 **Hinweise:**
 
-1. Anas Notiz an der Wand: Die Berichte mitteln jeweils 50 Bestellungen, und Mittelwerte aus n Werten streuen um σ/√n. `stats.skew(orders)` misst die Schiefe; `rng.choice(orders, 50).mean()` ist der Mittelwert einer Zufallsstichprobe von 50 Bestellungen, also wiederholt das in einer Schleife.
-2. `means = [rng.choice(orders, 50).mean() for i in range(2000)]`. Der Standardfehler ist `orders.std() / np.sqrt(50)`; vergleicht ihn mit `np.std(means)`.
-3. skew_orders ≈ 3,35 und se_theory ≈ 4,99; `np.std(means)` landet nah dran, und `skew_means = stats.skew(means)` ist etwa 0,5.
+1. Ana hat eine Notiz an die Wand gepinnt, über die Vorstandsberichte und wie Mittelwerte streuen. `stats.skew(orders)` misst die Schiefe; `rng.choice(orders, n).mean()` ist der Mittelwert einer Zufallsstichprobe von n Bestellungen, also wiederholt das in einer Schleife.
+2. Anas Notiz: Die Berichte mitteln jeweils 50 Bestellungen, und Mittelwerte aus n Werten streuen um σ/√n. `means = [rng.choice(orders, 50).mean() for i in range(2000)]`. Der Standardfehler ist `orders.std() / np.sqrt(50)`; vergleicht ihn mit `np.std(means)`.
+3. skew_orders ≈ 3,35 und se_theory ≈ 4,99; `np.std(means)` landet nah daran, und `skew_means = stats.skew(means)` ist etwa 0,5: Die Mittelwerte sehen fast normalverteilt aus, also `t_tests_ok = True`.
 
 ### 4. Der Verkostungsraum
 
@@ -238,11 +241,11 @@ show_hist(means, bins=40, title="Means of 50 orders")
 
 **Aufgabe:**
 
-> Die Blindverkostung lief genau wie registriert. Die Bewertungen sind als `ratings` geladen: Spalten `taster`, `recipe` ("old" oder "new") und `rating` (1 bis 10).
+> Die Blindverkostung ist vorbei. Soll das neue Rezept auf den Markt? Die Bewertungen sind als `ratings` geladen: Spalten `taster`, `recipe` ("old" oder "new") und `rating` (1 bis 10).
 >
 > 1. `diff`: die mittlere Bewertung des neuen Rezepts minus die des alten.
-> 2. Der t-Test, der dazu passt, wie die Verkostung lief (das Verkostungsprotokoll an der Tür verrät es), ohne gleiche Streuungen anzunehmen: `p_value`.
-> 3. `ship_recipe`: True oder False. Entscheidet so, wie es auf der Planungstafel registriert ist.
+> 2. Der t-Test, der dazu passt, wie die Verkostung lief, ohne gleiche Streuungen anzunehmen: `p_value`.
+> 3. Eure Entscheidung: `ship_recipe` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -253,8 +256,8 @@ from scipy import stats
 print(ratings.groupby("recipe").rating.describe())
 
 diff = None          # mittlere Bewertung neu minus alt
-p_value = None       # t-Test (welcher? siehe Verkostungsprotokoll)
-ship_recipe = None   # True oder False, wie registriert
+p_value = None       # der passende t-Test
+ship_recipe = None   # True oder False
 ```
 
 </details>
@@ -288,7 +291,7 @@ print(round(diff, 2), round(result.statistic, 2), round(p_value, 4), ship_recipe
 
 **Hinweise:**
 
-1. Das Verkostungsprotokoll: Jede Testperson hat eine Tafel bewertet, die beiden Gruppen sind also unabhängig, nicht gepaart. `new = ratings[ratings.recipe == "new"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`.
+1. Das Verkostungsprotokoll an der Tür sagt, wie die Verkostung lief: Jede Testperson hat eine Tafel bewertet, die beiden Gruppen sind also unabhängig, nicht gepaart. `new = ratings[ratings.recipe == "new"].rating`, und dasselbe für `old`. Dann `diff = new.mean() - old.mean()`.
 2. `stats.ttest_ind(new, old, equal_var=False)` ist der Welch-t-Test; sein `.pvalue` ist zweiseitig. Das Signifikanzniveau kommt aus der Präregistrierung an der Planungstafel.
 3. diff ≈ 0,60 und p ≈ 0,025. Das liegt über α = 0,01, also `ship_recipe = False`.
 
@@ -304,11 +307,12 @@ print(round(diff, 2), round(result.statistic, 2), round(p_value, 4), ship_recipe
 
 **Aufgabe:**
 
-> Der Checkout-Test hat Besucher zufällig auf drei Checkouts verteilt: A (der alte), B (ein grüner Button) und C (ein einseitiger Checkout). Der Export des Dashboards ist als `daily` geladen: Sitzungen und Bestellungen pro Tag und Variante.
+> Der Checkout-Test hat Besucher zufällig auf drei Checkouts verteilt: A (der alte), B (ein grüner Button) und C (ein einseitiger Checkout). Welcher soll live gehen? Der Export des Dashboards ist als `daily` geladen: Sitzungen und Bestellungen pro Tag und Variante.
 >
 > 1. Zuerst eine Plausibilitätsprüfung: Die Aufteilung war 1 : 1 : 1 geplant. Macht einen Chi-Quadrat-Anpassungstest auf die Sitzungen pro Variante insgesamt: `srm_p`. Ein winziger p-Wert hieße, die Aufteilung ist kaputt und dem Test ist nicht zu trauen.
 > 2. Konvertieren die Varianten unterschiedlich? Macht einen Chi-Quadrat-Unabhängigkeitstest auf eine Tabelle mit einer Zeile pro Variante, mit ihren Bestellungen und ihren Sitzungen ohne Bestellung. Speichert `chi2` und `p_value`.
-> 3. `winner`: die Variante mit der höchsten Konversionsrate. Ist der Unterschied auf dem registrierten Niveau signifikant?
+> 3. `winner`: die Variante mit der höchsten Konversionsrate.
+> 4. Ist der Unterschied zwischen den Varianten signifikant? Speichert `significant` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -323,6 +327,7 @@ totals = None                # Sitzungen und Bestellungen pro Variante, über di
 srm_p = None                 # Anpassungstest: Sitzungen pro Variante vs. gleichmäßige Aufteilung
 chi2, p_value = None, None   # Unabhängigkeit: Variante x (Bestellung, keine Bestellung)
 winner = None                # "A", "B" oder "C"
+significant = None           # True oder False
 ```
 
 </details>
@@ -339,12 +344,13 @@ table = pd.DataFrame({"orders": totals.orders, "no_order": totals.sessions - tot
 chi2, p_value, dof, expected = stats.chi2_contingency(table)
 rates = totals.orders / totals.sessions
 winner = rates.idxmax()
+significant = p_value < 0.01   # the registered α
 print(totals)
 print(rates.round(4))
 print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 ```
 
-**Geprüftes Ergebnis** (`_checkout_check(srm_p, chi2, p_value, winner)`):
+**Geprüftes Ergebnis** (`_checkout_check(srm_p, chi2, p_value, winner, significant)`):
 
 ```json
 "approved"
@@ -359,8 +365,8 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 **Hinweise:**
 
 1. `totals = daily.groupby("variant")[["sessions", "orders"]].sum()`. `stats.chisquare(totals.sessions)` vergleicht die Sitzungen mit einer gleichmäßigen Aufteilung.
-2. Die Tabelle braucht Bestellungen und **Nicht**-Bestellungen pro Variante: `pd.DataFrame({"orders": totals.orders, "no_order": totals.sessions - totals.orders})`. `stats.chi2_contingency(table)` liefert chi2, den p-Wert, die Freiheitsgrade und die erwarteten Häufigkeiten.
-3. srm_p ≈ 0,22, chi2 ≈ 16,68, p ≈ 0,00024, und `winner = (totals.orders / totals.sessions).idxmax()`, also C.
+2. Die Tabelle braucht Bestellungen und **Nicht**-Bestellungen pro Variante: `pd.DataFrame({"orders": totals.orders, "no_order": totals.sessions - totals.orders})`. `stats.chi2_contingency(table)` liefert chi2, den p-Wert, die Freiheitsgrade und die erwarteten Häufigkeiten. Das Signifikanzniveau ist das für die Relaunch-Experimente registrierte.
+3. srm_p ≈ 0,22, chi2 ≈ 16,68 und p ≈ 0,00024, weit unter α = 0,01, also `significant = True`. `winner = (totals.orders / totals.sessions).idxmax()` ist C.
 
 ### 6. Die Freigabekonsole (Abschluss-Schloss)
 
@@ -369,7 +375,7 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 
 **Aufgabe:**
 
-> Die Konsole am Ausgang gibt die Entscheidungen für morgen frei und entriegelt die Türen. Sie will die vier Ziffern von Anas Entscheidungskarten, in der Reihenfolge der Tagesordnung von morgen.
+> Die Konsole am Ausgang gibt die Entscheidungen für morgen frei und entriegelt die Türen. Sie will die vier Ziffern von Anas Entscheidungskarten (jede fertige Analyse druckt eine), in der Reihenfolge der Tagesordnung von morgen.
 
 **Antwort:** `5294`
 
@@ -414,8 +420,6 @@ print(round(srm_p, 3), round(chi2, 2), round(p_value, 5), winner)
 > VERKOSTUNGSPROTOKOLL · Rezepttest KW-7
 >
 > Jede Testperson hat an der Tür eine Münze geworfen (Kopf: neues Rezept, Zahl: altes). Neutrales Papier, gleicher Raum, gleicher Nachmittag. Jede Testperson hat **eine** Tafel bewertet, von 1 (furchtbar) bis 10 (perfekt).
->
-> Niemand hat beide Rezepte probiert, die beiden Gruppen sind also unabhängig.
 
 ### 🔎 Die Tagesordnung für morgen
 

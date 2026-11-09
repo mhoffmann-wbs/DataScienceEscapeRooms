@@ -20,14 +20,14 @@ flowchart LR
   d_logbook[("logbook.py<br/>log, replay")]
 
   subgraph p1["Open from the start"]
-    scanner["1 · The envelope scanner<br/>reshape, hsplit, invert and scale pixels"]
+    scanner["1 · The envelope scanner<br/>reshape, hsplit, invert and scale pixels: postcode"]
     wiring["2 · Iris's last backup<br/>forward pass by hand, set_weights"]
     blueprint["3 · The blueprint<br/>Sequential, Dense, counting parameters"]
   end
 
   subgraph p2["Needs a code"]
     apprentice["4 · Jonas's laptop 🔒<br/>loss for labels, softmax, scaling"]
-    logbook["5 · Ferdinand's cabinet 🔒<br/>overfitting, EarlyStopping"]
+    logbook["5 · Ferdinand's cabinet 🔒<br/>overfitting, EarlyStopping: stop and kept epoch"]
   end
 
   subgraph p3["Final lock"]
@@ -56,7 +56,7 @@ flowchart LR
   wiring ==>|"🔒 combination 305118 = old Iris's reading"| logbook
   logbook ==>|"🔒 start code 2017 = stop 20, kept 17"| sort
 
-  scanner ==>|"📤 scanner format: 1 - x / 255"| sort
+  scanner ==>|"📤 scanner format: 1 - x / 255 (as worked out there)"| sort
   blueprint ==>|"📤 architecture: draft C"| sort
   apprentice ==>|"📤 sparse loss, softmax, x / 255"| sort
   logbook -.->|"📤 early stopping, not checked"| sort
@@ -110,15 +110,21 @@ The post office has three parts: the public counter hall by the exit (where the 
 
 ## Findings
 
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **No task names its clues any more.** The scanner's task no longer says the manual explains the reading order or that the type plate gives the pixel format; the final no longer says the departure board gives the bins or that the blueprint, the fixed script and Ferdinand's rules say how to train; the cabinet no longer says "as Ferdinand's rules say"; the start panel's lock text no longer says the rules explain the code. Grader messages lost "check her type plate", "see its manual", "on the blueprint", "as Ferdinand's note says" and "Iris 2 from the blueprint". Where to look is in each puzzle's first hint.
+- **Every clue once.** The scanner's reveal no longer repeats both clues as Ferdinand's sticker (0 = ink / ink 1.0); the blueprint drafts no longer repeat the task's "only one fits"; the blueprint's reveal no longer repeats the chip's 20,000; Jonas's note no longer repeats the laptop lock's password rule; the cabinet's reveal no longer restates the patience of 3; Jonas's starter no longer says "draft C" (the blueprint's result).
+- **Every station starts with its question:** "What postcode is on the envelope?", "What did she read?", "Which one fits on her memory chip?", "When should a training like this stop, and which weights should Iris keep?", "Which bins do the six urgent letters go into?". The cabinet's rhetorical "where does it start to learn by heart?" step and the commented-out `replay` line in its starter are gone.
+
 Fixed while building:
 
-- **Grader messages leaked clue values:** the scanner check named Iris's scale (ink 1.0, paper 0.0) and the blueprint check the chip's 20,000. Both now point to the type plate instead.
+- **Grader messages leaked clue values:** the scanner check named Iris's scale (ink 1.0, paper 0.0) and the blueprint check the chip's 20,000. Both now name no values.
 - **The departure board was soft:** the final's task said the first digit is the bin. Now only the board says it.
 - **The blueprint station was hidden** behind the chat panel in the lower-left; its table moved to the middle of the south row.
 
 Left as they are:
 
-- **Jonas's note is soft on purpose:** its "categorical crossentropy must be right" is the debugging station's red herring, and the lock text repeats its password rule.
+- **Jonas's note is soft on purpose:** its "categorical crossentropy must be right" is the debugging station's red herring.
 - **Early stopping isn't checked in the final.** The archive barely overfits within 30 epochs, so a team without it still passes; Ferdinand's rules matter for the start code, not for the training.
 - **Inverting the urgent letters without dividing by 255 passes:** scaling every input by the same factor rarely changes a ReLU network's argmax. Only the inversion is caught (unconverted letters all read as 2).
-- **The postcode 35781 goes nowhere;** the scanner's reveal hands on the conversion rule, which the final needs.
+- **The postcode 35781 goes nowhere;** what the final needs from the scanner is the conversion the team worked out there (the reveal no longer restates it; the final's hint 2 does).

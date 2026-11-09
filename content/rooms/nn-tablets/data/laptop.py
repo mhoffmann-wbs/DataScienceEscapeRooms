@@ -720,7 +720,7 @@ def _laptop_check(old_right, proto_right, first_miss):
             return None
         return round(v * 100) if 0 < v < 1 else round(v)
     if count(old_right) != 18:
-        problems.append("old_right is off: how many of the 100 new fragments the old reader reads right. Prepare them the way the readers expect: (24, 24, 1) and 0.0 to 1.0. / old_right stimmt nicht: wie viele der 100 neuen Fragmente der alte Leser richtig liest. Bereitet sie so vor, wie die Leser sie erwarten: (24, 24, 1) und 0.0 bis 1.0.")
+        problems.append("old_right is off: how many of the 100 new fragments the old reader reads right, prepared the way the readers expect them. / old_right stimmt nicht: wie viele der 100 neuen Fragmente der alte Leser richtig liest, so vorbereitet, wie die Leser sie erwarten.")
     if count(proto_right) != 98:
         problems.append("proto_right is off: how many of the 100 new fragments the prototype reads right. / proto_right stimmt nicht: wie viele der 100 neuen Fragmente der Prototyp richtig liest.")
     if first_miss != 3:

@@ -3014,7 +3014,7 @@ def _reader_layout(model):
         return ["model should be a tf.keras.Sequential model. / model soll ein tf.keras.Sequential-Modell sein."]
     kinds = [type(l).__name__ for l in model.layers if not isinstance(l, (tf.keras.layers.Rescaling, tf.keras.layers.Reshape))]
     if not model.built or kinds != ["Conv2D", "MaxPooling2D", "Conv2D", "GlobalMaxPooling2D", "Dense"] or model.count_params() != 1384:
-        return ["model isn't the reader from the blueprint (draft 3) yet: same layers, same output shapes, 1,384 parameters. / model ist noch nicht der Leser aus dem Bauplan (Entwurf 3): dieselben Schichten, dieselben Ausgabeformen, 1.384 Parameter."]
+        return ["model isn't the reader (draft 3) yet: check its layers and output shapes. / model ist noch nicht der Leser (Entwurf 3): Prüft seine Schichten und Ausgabeformen."]
     return []
 
 
@@ -3053,5 +3053,5 @@ def _jar_check(model, signs, word):
     elif signs != _JAR_SIGNS:
         problems.append("signs aren't what's on the lid. Cut the lid into its six 24 x 24 fields and prepare them like the training data. / signs ist nicht, was auf dem Deckel steht. Schneidet den Deckel in seine sechs 24 x 24-Felder und bereitet sie vor wie die Trainingsdaten.")
     if "".join(c for c in str(word).lower() if c.isalpha()) != _JAR_WORD:
-        problems.append("word isn't how the lid sounds: each sign's sound value from the seal, in order. / word ist nicht, wie der Deckel klingt: der Lautwert jedes Zeichens vom Siegel, der Reihe nach.")
+        problems.append("word isn't how the lid sounds: each sign's sound, in order. / word ist nicht, wie der Deckel klingt: der Laut jedes Zeichens, der Reihe nach.")
     return _problems_or(problems, "read")

@@ -84,9 +84,9 @@ def _logbook_check(best_epoch, stopper, stop_epoch, kept_epoch):
     if not isinstance(stopper, tf.keras.callbacks.EarlyStopping):
         problems.append("stopper should be a tf.keras.callbacks.EarlyStopping. / stopper soll ein tf.keras.callbacks.EarlyStopping sein.")
     elif stopper.monitor != "val_loss" or stopper.patience != 3 or not stopper.restore_best_weights:
-        problems.append("stopper isn't set up as Ferdinand's note says: what it watches, its patience, and which weights it keeps. / stopper ist nicht so eingestellt, wie Ferdinands Notiz sagt: was er beobachtet, seine Geduld und welche Gewichte er behält.")
+        problems.append("stopper isn't set up right yet: what it watches, its patience, and which weights it keeps. / stopper ist noch nicht richtig eingestellt: was er beobachtet, seine Geduld und welche Gewichte er behält.")
     if stop_epoch != 20:
-        problems.append("stop_epoch is off: the epoch at which Ferdinand's early stopping ends the training (replay prints it). / stop_epoch stimmt nicht: die Epoche, in der Ferdinands Early Stopping das Training beendet (replay gibt sie aus).")
+        problems.append("stop_epoch is off: the epoch at which your stopper ends the training (replay returns it). / stop_epoch stimmt nicht: die Epoche, in der euer stopper das Training beendet (replay gibt sie zurück).")
     if kept_epoch != 17:
         problems.append("kept_epoch is off: from which epoch are the weights the model keeps? / kept_epoch stimmt nicht: Aus welcher Epoche stammen die Gewichte, die das Modell behält?")
     return _problems_or(problems, "logged")

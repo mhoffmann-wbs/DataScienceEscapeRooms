@@ -673,15 +673,15 @@ orders = pd.Series([
 ], name="euros")
 
 
-def _clt_check(skew_orders, means, se_theory, skew_means):
-    """Ana's check of the central limit theorem for means of 50 orders."""
+def _clt_check(skew_orders, means, se_theory, skew_means, t_tests_ok):
+    """Ana's check of the central limit theorem for means of 50 orders, and the verdict on t-tests."""
     from numbers import Real
     from scipy import stats
     problems = []
     if not isinstance(skew_orders, Real) or abs(skew_orders - 3.346) > 0.01:
         problems.append("skew_orders is off: the skewness of all orders (scipy.stats.skew). / skew_orders stimmt nicht: die Schiefe aller Bestellungen (scipy.stats.skew).")
     if not isinstance(se_theory, Real) or abs(se_theory - 4.99) > 0.01:
-        problems.append("se_theory is off: the standard deviation of the orders divided by the square root of the sample size (Ana's note). / se_theory stimmt nicht: die Standardabweichung der Bestellungen geteilt durch die Wurzel des Stichprobenumfangs (Anas Notiz).")
+        problems.append("se_theory is off: the standard deviation of the orders divided by the square root of the sample size. / se_theory stimmt nicht: die Standardabweichung der Bestellungen geteilt durch die Wurzel des Stichprobenumfangs.")
     try:
         m = np.asarray(means, dtype=float)
     except (TypeError, ValueError):
@@ -689,9 +689,13 @@ def _clt_check(skew_orders, means, se_theory, skew_means):
     if m.ndim != 1 or len(m) < 1000:
         problems.append("means needs the means of at least 1,000 random samples. / means braucht die Mittelwerte von mindestens 1.000 Zufallsstichproben.")
     elif abs(m.mean() - 37.77) > 0.6 or not 4.5 < m.std() < 5.5:
-        problems.append("Your sample means don't look like means of random samples as large as the board's reports use (Ana's note). / Eure Stichprobenmittel sehen nicht nach Mittelwerten von Zufallsstichproben in der Größe der Vorstandsberichte aus (Anas Notiz).")
+        problems.append("Your sample means don't look like means of random samples as large as the board's reports use. / Eure Stichprobenmittel sehen nicht nach Mittelwerten von Zufallsstichproben in der Größe der Vorstandsberichte aus.")
     elif not isinstance(skew_means, Real) or abs(skew_means - stats.skew(m)) > 0.01:
         problems.append("skew_means should be the skewness of your sample means. / skew_means soll die Schiefe eurer Stichprobenmittel sein.")
+    if not isinstance(t_tests_ok, (bool, np.bool_)):
+        problems.append("t_tests_ok should be True or False. / t_tests_ok soll True oder False sein.")
+    elif not t_tests_ok:
+        problems.append("t_tests_ok is off: do the means of the reports' samples look normal enough? / t_tests_ok stimmt nicht: Sehen die Mittelwerte der Berichtsstichproben normal genug aus?")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

@@ -21,8 +21,8 @@ daily = pd.DataFrame([
 ], columns=["date", "variant", "sessions", "orders"])
 
 
-def _checkout_check(srm_p, chi2, p_value, winner):
-    """The dashboard's check: the sample ratio check, the chi-squared test and the winner."""
+def _checkout_check(srm_p, chi2, p_value, winner, significant):
+    """The dashboard's check: the sample ratio check, the chi-squared test, the winner and the verdict."""
     from numbers import Real
     problems = []
     if not isinstance(srm_p, Real) or abs(srm_p - 0.2187) > 0.001:
@@ -36,6 +36,10 @@ def _checkout_check(srm_p, chi2, p_value, winner):
         problems.append("p_value is off: it's the p-value of that chi-squared test. / p_value stimmt nicht: Es ist der p-Wert dieses Chi-Quadrat-Tests.")
     if str(winner).strip().upper() != "C":
         problems.append("winner should be the variant with the highest conversion rate. / winner soll die Variante mit der höchsten Konversionsrate sein.")
+    if not isinstance(significant, (bool, np.bool_)):
+        problems.append("significant should be True or False. / significant soll True oder False sein.")
+    elif not significant:
+        problems.append("significant is off: compare p_value with the significance level. / significant stimmt nicht: Vergleicht p_value mit dem Signifikanzniveau.")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

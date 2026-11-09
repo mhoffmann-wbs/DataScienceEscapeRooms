@@ -20,14 +20,14 @@ flowchart LR
   d_laptop[("laptop.py<br/>old_reader, prototype, x_new, y_new, probe")]
 
   subgraph p1["Open from the start"]
-    tally["1 · The raking light<br/>convolution by hand, Conv2D + set_weights"]
+    tally["1 · The raking light<br/>convolution by hand, Conv2D + set_weights: number"]
     seal["2 · The cylinder seal<br/>kernel layout, GlobalMaxPooling2D as a search"]
     blueprint["3 · The stained blueprint<br/>output shapes, padding, parameter counts"]
   end
 
   subgraph p2["Needs an earlier code"]
     notebook["4 · Mika's notebook 🔒<br/>Keras errors, channel axis, epochs"]
-    laptop["5 · Amara's laptop 🔒<br/>dense vs CNN on shifted signs, np.roll"]
+    laptop["5 · Amara's laptop 🔒<br/>dense vs CNN on shifted signs, np.roll: counts, first_miss"]
   end
 
   subgraph p3["Final lock"]
@@ -47,10 +47,10 @@ flowchart LR
   sealcaption -->|"🔎 LU RA SA KO NE RE MI TA"| seal
   blueprintsheet -->|"🔎 shapes and counts of draft 3,<br/>'no Flatten'"| blueprint
   blueprintsheet -.->|"🔎 draft 3 again"| notebook
-  mikanote -.->|"🔎 password = parameters, '2 epochs'"| notebook
+  mikanote -.->|"🔎 error symptoms: negative size, shape"| notebook
   archivelabel -.->|"🔎 bytes 0-255, labels 0-7"| notebook
   archivelabel -.->|"🔎 bytes 0-255"| jar
-  amaramail -.->|"🔎 compare both readers"| laptop
+  amaramail -.->|"🔎 compare both readers on the new fragments"| laptop
   amaramail -->|"🔎 code = old count, then prototype's"| jar
 
   blueprint ==>|"🔒 password 1384"| notebook
@@ -106,9 +106,17 @@ The museum basement has five parts: the stone vestibule at the foot of the stair
 
 ## Findings
 
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **No task names its clues any more.** The raking light no longer says Theo's note explains the method or asks for "Theo's kernel" (task, starter and check messages); its check no longer says "count with the numeral chart"; the seal no longer says "her sign list"; the jar no longer says "the way the blueprint and the fixed notebook say", its check no longer says "from the seal", and its lock text no longer says "Amara's mail says how the code is made" (the rule is only in the mail now). Mika's starter says "the reader, draft 3" instead of "the reader from Amara's blueprint", and the reader check no longer says "from the blueprint". Where to look is in the first hint (Theo's note at the raking light, the glass-case label at the seal).
+- **Every clue once.** Theo's note no longer repeats the task's step-by-step convolution or the "loses one point on every side" (hint 1 has the shape); Mika's note no longer repeats the lock's password rule or the starter's "2 epochs"; Amara's mail no longer repeats the laptop task's "trained on the photo set, every sign in the middle"; the laptop's check no longer restates the crate label's 0.0 to 1.0; the reader check no longer gives away the blueprint's stained total (1,384).
+- **Every station starts with its question:** "What number does it record?", "Which sound does each Varda sign stand for?", "Which reader copes with that, and why does the other one fail?", "What does the lid say?". The laptop's commented-out `np.roll` line in the starter is gone (the task already shows the call).
+
+Earlier findings:
+
 - **The sign list is soft.** The seal's task says filter `i` is `templates[i]`, so the numbers come with the data; the list only names the signs (and helps to read the lid by eye). Left as it is: it gives the script a face, and the reveal repeats the names.
 - **The crate label is soft.** Mika's script already scales with `/ 255`; the label only confirms it. Night Post teaches scaling; here it's context on purpose.
-- **Mika's note repeats the lock text** (password = parameters). The "2 epochs" line is the useful part: it hints at the third bug.
+- **Mika's note is soft:** it only describes the errors; the third bug (2 epochs) is the starter's own comment.
 - **The final retrains the reader** (about 4 s), as the notebook did, because stations don't share a namespace. A team that kept the notebook's code just copies it.
 - **The prototype could read the lid,** but the jar station doesn't load it (nor the stamps), and its check wants a reader trained there. Good as it is.
 - `uses` on the notebook (`blueprint`) was missing at first; added, since its check enforces draft 3's layout.

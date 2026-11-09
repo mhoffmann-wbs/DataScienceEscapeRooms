@@ -183,18 +183,18 @@ def _tally_check(edges, raking, number):
     if e is None:
         problems.append("edges should be an array of shape (28, 94): the 3 x 3 window only fits 28 x 94 times into the scan. / edges soll ein Array der Form (28, 94) sein: Das 3 x 3-Fenster passt nur 28 x 94 Mal in den Scan.")
     elif not np.allclose(e, _EDGES, atol=1e-4):
-        problems.append("edges has the right shape, but its values are off: for each position, the 3 x 3 window of the scan times Theo's kernel, added up. / edges hat die richtige Form, aber die Werte stimmen nicht: für jede Position das 3 x 3-Fenster des Scans mal Theos Kernel, aufaddiert.")
+        problems.append("edges has the right shape, but its values are off: for each position, the 3 x 3 window of the scan times the kernel, added up. / edges hat die richtige Form, aber die Werte stimmen nicht: für jede Position das 3 x 3-Fenster des Scans mal den Kernel, aufaddiert.")
     try:
         out = np.asarray(raking(scan[None, :, :, None]), dtype=float)
         same = out.shape == (1, 28, 94, 1) and np.allclose(out[0, :, :, 0], _EDGES, atol=1e-4)
     except Exception:
         same = False
     if not same:
-        problems.append("raking doesn't give your edges yet: a Conv2D layer (or a model) with 1 filter of 3 x 3, no bias, and Theo's kernel loaded with set_weights. It gets the scan as scan[None, :, :, None]. / raking ergibt noch nicht eure edges: eine Conv2D-Schicht (oder ein Modell) mit 1 Filter von 3 x 3, ohne Bias, und Theos Kernel mit set_weights geladen. Sie bekommt den Scan als scan[None, :, :, None].")
+        problems.append("raking doesn't give your edges yet: a Conv2D layer (or a model) with 1 filter of 3 x 3, no bias, and the kernel loaded with set_weights. It gets the scan as scan[None, :, :, None]. / raking ergibt noch nicht eure edges: eine Conv2D-Schicht (oder ein Modell) mit 1 Filter von 3 x 3, ohne Bias, und dem Kernel mit set_weights geladen. Sie bekommt den Scan als scan[None, :, :, None].")
     try:
         right = int(number) == 246
     except (TypeError, ValueError):
         right = False
     if not right:
-        problems.append("number isn't what the tablet says. Look at edges with show_images and count with the numeral chart. / number ist nicht, was auf der Tafel steht. Schaut edges mit show_images an und zählt mit der Zahlentafel.")
+        problems.append("number isn't what the tablet says. Look at edges with show_images and count again. / number ist nicht, was auf der Tafel steht. Schaut edges mit show_images an und zählt noch einmal.")
     return _problems_or(problems, "read")

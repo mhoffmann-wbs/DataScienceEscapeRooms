@@ -46,7 +46,7 @@ def _blueprint_check(model):
         if model.count_params() > 20000:
             problems.append(f"model has {model.count_params():,} parameters: too many for Iris's memory chip. / model hat {model.count_params():,} Parameter: zu viele für Iris' Speicherchip.")
         elif [l.units for l in dense] != [64, 32, 10]:
-            problems.append("model's layers aren't one of the drafts on the blueprint. / Die Schichten von model sind keiner der Entwürfe auf dem Bauplan.")
+            problems.append("model's layers aren't one of Ferdinand's drafts. / Die Schichten von model sind keiner von Ferdinands Entwürfen.")
         elif [l._act for l in dense] != ["relu", "relu", "softmax"]:
-            problems.append("The units are right; check the activation of each layer on the blueprint. / Die Neuronen stimmen; prüft die Aktivierung jeder Schicht auf dem Bauplan.")
+            problems.append("The units are right; check the activation of each layer. / Die Neuronen stimmen; prüft die Aktivierung jeder Schicht.")
     return _problems_or(problems, "fits")
