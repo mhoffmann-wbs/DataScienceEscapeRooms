@@ -3188,6 +3188,339 @@ function onWall(index, src, wall, seed = 3) {
 // --- end ts-festival ---
 
 // --- python-docs restyle (tiles 432-463) ---
+// The Silent Archive: Kleeberg's city library after closing. Walnut panelling under green wallpaper,
+// a parquet reading hall with the sealed door, the carpeted stacks, Margarete's office, a stone
+// packing room with the stairs to the cellar and the circulation desk.
+{
+  const B = blockOf('python-docs');
+  const WALNUT = [98, 62, 40];
+  const PAPER_GREEN = [52, 88, 70];
+  const OAK = [178, 130, 80];
+  const MOSS = [46, 82, 64];
+  const FLAG = [126, 122, 116];
+  const LAMP_GREEN = [44, 140, 92];
+  const WARM = [255, 222, 150];
+  const MOON = [170, 200, 255];
+  const SPINES = [[132, 42, 44], [44, 66, 120], [52, 98, 62], [176, 130, 52], [104, 70, 46], [222, 210, 180], [90, 46, 90], [150, 80, 50]];
+  /** The archive's wall face: green damask wallpaper over walnut panelling. */
+  const archiveWall = (g) => {
+    g.rect(0, 0, T, 15, PAPER_GREEN);
+    g.noise(0, 0, T, 15, 0.06, B);
+    for (let y = 4; y < 15; y += 8)
+      for (let x = (y / 8) % 2 < 1 ? 4 : 0; x < T; x += 8) {
+        g.set(x, y - 1, sh(PAPER_GREEN, 1.3));
+        g.rect(x - 1, y, 3, 1, sh(PAPER_GREEN, 1.3));
+        g.set(x, y + 1, sh(PAPER_GREEN, 1.3));
+      }
+    g.rect(0, 0, T, 2, sh(PAPER_GREEN, 0.62));
+    g.rect(0, 15, T, 2, sh(WALNUT, 1.35));
+    g.rect(0, 17, T, 15, WALNUT);
+    g.noise(0, 17, T, 15, 0.08, B + 100);
+    for (const x0 of [2, 18]) {
+      g.rect(x0, 19, 12, 8, sh(WALNUT, 0.84));
+      g.rect(x0, 19, 12, 1, sh(WALNUT, 0.66));
+      g.rect(x0, 26, 12, 1, sh(WALNUT, 1.22));
+      g.rect(x0 + 11, 19, 1, 8, sh(WALNUT, 1.12));
+    }
+    g.rect(0, T - 3, T, 3, sh(WALNUT, 0.6));
+    g.rect(0, T - 3, T, 1, sh(WALNUT, 1.15));
+  };
+  // B+0 archive wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, archiveWall);
+  drawTile(B + 1, turned(archiveWall, 'ccw'));
+  drawTile(B + 2, turned(archiveWall, 'cw'));
+  // B+3 reading-hall floor: honey oak parquet laid in a fishbone
+  drawTile(B + 3, (g) => {
+    const r = rng(B + 3);
+    const shade = Array.from({ length: 64 }, () => 0.86 + r() * 0.24);
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const col = Math.floor(x / 8);
+        const xm = x % 8;
+        const v = (col % 2 ? y - xm + 32 : y + xm) % 32;
+        const k = Math.floor(v / 4);
+        let c = sh(OAK, shade[col * 8 + k]);
+        if (v % 4 === 0) c = sh(OAK, 0.7);
+        if (xm === 0) c = sh(OAK, 0.62);
+        g.set(x, y, c);
+      }
+    g.noise(0, 0, T, T, 0.06, B + 3);
+  });
+  // B+4 stacks floor: a deep green carpet with a small gold diamond
+  drawTile(B + 4, (g) => {
+    g.rect(0, 0, T, T, MOSS);
+    g.noise(0, 0, T, T, 0.1, B + 4);
+    for (let y = 0; y < T; y += 2) g.rect(0, y, T, 1, alpha(sh(MOSS, 0.9), 80));
+    for (const [cx, cy] of [[8, 8], [24, 24]]) {
+      g.set(cx, cy - 2, [176, 150, 84]);
+      g.rect(cx - 1, cy - 1, 3, 1, [150, 128, 70]);
+      g.rect(cx - 2, cy, 5, 1, [176, 150, 84]);
+      g.rect(cx - 1, cy + 1, 3, 1, [150, 128, 70]);
+      g.set(cx, cy + 2, [176, 150, 84]);
+    }
+  });
+  // B+5 packing-room floor: worn grey flagstones
+  drawTile(B + 5, (g) => {
+    const r = rng(B + 5);
+    for (let row = 0; row < 2; row++)
+      for (let i = -1; i < 2; i++) {
+        const x0 = i * 16 + (row ? 8 : 0);
+        g.rect(x0, row * 16, 16, 16, sh(FLAG, 0.9 + r() * 0.2));
+      }
+    g.noise(0, 0, T, T, 0.12, B + 5);
+    for (const y of [0, 16]) g.rect(0, y, T, 1, sh(FLAG, 0.62));
+    for (const x of [0, 16]) g.rect(x, 0, 1, 16, sh(FLAG, 0.62));
+    for (const x of [8, 24]) g.rect(x, 16, 1, 16, sh(FLAG, 0.62));
+    for (const y of [1, 17]) g.rect(0, y, T, 1, sh(FLAG, 1.12));
+    for (const [x, y] of [[5, 7], [21, 10], [12, 25], [28, 22]]) g.rect(x, y, 2, 1, sh(FLAG, 0.75));
+  });
+  // B+6..B+9 tall bookcase, two tiles wide and two tall: five shelves of spines under a cornice
+  drawPiece([[B + 6, B + 7], [B + 8, B + 9]], (g, { obj, shadow }) => {
+    shadow(32, 61, 31, 3);
+    obj((o) => {
+      o.box(1, 0, 62, 61, WALNUT, 1.3);
+      o.rect(0, 0, 64, 4, sh(WALNUT, 1.2));
+      o.rect(0, 4, 64, 1, sh(WALNUT, 0.6));
+      o.rect(4, 6, 56, 50, sh(WALNUT, 0.45));
+      const r = rng(B + 6);
+      for (let s = 0; s < 5; s++) {
+        const base = 15 + s * 10;
+        for (let x = 5; x < 58; ) {
+          const w = 2 + Math.floor(r() * 3);
+          if (x + w > 59) break;
+          const h = 6 + Math.floor(r() * 3);
+          const col = SPINES[Math.floor(r() * SPINES.length)];
+          if (r() < 0.07) { x += w + 1; continue; }
+          o.rect(x, base - h, w, h, col);
+          o.rect(x, base - h, 1, h, sh(col, 1.25));
+          if (w > 2) o.rect(x, base - h + 2, w, 1, [214, 180, 90]);
+          x += w;
+        }
+        o.rect(4, base, 56, 2, sh(WALNUT, 1.15));
+      }
+      o.rect(2, 56, 60, 5, sh(WALNUT, 0.8));
+    });
+  });
+  // B+10, B+11 reading table with a green banker's lamp and an open book
+  drawPiece([[B + 10, B + 11]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    for (let j = 0; j < 7; j++) g.ellipse(18, 14, 18 - j * 2, 8 - j, alpha(WARM, 16));
+    obj((o) => {
+      o.box(1, 10, 62, 12, WALNUT, 1.3);
+      o.rect(1, 13, 62, 1, sh(WALNUT, 0.8));
+      o.rect(3, 22, 3, 8, sh(WALNUT, 0.7));
+      o.rect(58, 22, 3, 8, sh(WALNUT, 0.7));
+      o.rect(4, 17, 56, 1, sh(WALNUT, 1.15));
+    });
+    for (let j = 0; j < 6; j++) g.ellipse(14, 14, 11 - j, 4 - j * 0.5, alpha(WARM, 30));
+    obj((o) => {
+      o.rect(13, 4, 2, 9, [212, 170, 80]);
+      o.ellipse(14, 12.5, 5, 1.5, [212, 170, 80]);
+      o.box(6, 2, 16, 5, LAMP_GREEN, 1.35);
+      o.rect(7, 6, 14, 1, [255, 240, 190]);
+      // open book: two pages and a ribbon
+      o.box(30, 9, 11, 7, [244, 236, 214], 1, 0.85);
+      o.box(41, 9, 11, 7, [236, 228, 204], 1, 0.85);
+      o.rect(41, 9, 1, 7, [150, 130, 100]);
+      for (let y = 11; y < 15; y += 2) { o.rect(32, y, 7, 1, [150, 146, 150]); o.rect(43, y, 7, 1, [150, 146, 150]); }
+      o.rect(44, 16, 1, 3, [180, 40, 50]);
+      o.box(54, 7, 7, 3, [132, 42, 44]);
+      o.box(55, 4, 6, 3, [44, 66, 120]);
+    });
+  });
+  // B+12 wooden reading chair (a seat, not solid)
+  drawTile(B + 12, (g, { obj, shadow }) => {
+    shadow(16, 28, 9, 2);
+    obj((o) => {
+      o.rect(9, 20, 2, 8, sh(WALNUT, 0.7));
+      o.rect(21, 20, 2, 8, sh(WALNUT, 0.7));
+      o.box(7, 14, 18, 7, sh(WALNUT, 1.2), 1.25);
+      o.rect(8, 2, 2, 13, WALNUT);
+      o.rect(22, 2, 2, 13, WALNUT);
+      o.box(8, 2, 16, 4, WALNUT, 1.3);
+      for (const x of [12, 15, 18]) o.rect(x, 6, 2, 8, sh(WALNUT, 1.1));
+    });
+  });
+  // B+13 Margarete's rule, cross-stitched and framed, above her desk
+  drawTile(B + 13, (g) => {
+    archiveWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 21, [150, 104, 52], 1.3);
+    o.rect(5, 5, 22, 17, [238, 228, 200]);
+    o.noise(5, 5, 22, 17, 0.05, B + 13);
+    for (let x = 6; x < 26; x += 2) { o.set(x, 6, [60, 110, 80]); o.set(x + 1, 20, [60, 110, 80]); }
+    const r = rng(B + 113);
+    for (const y of [9, 12, 15]) for (let x = 8; x < 25; x++) if (r() < 0.72) o.set(x, y, [150, 40, 50]);
+    o.rect(14, 17, 4, 1, [150, 40, 50]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+14 keypad, B+15 clipboard, B+16 noticeboard and B+17 portrait, hung on the archive wall
+  onWall(B + 14, 13, archiveWall);
+  onWall(B + 15, 26, archiveWall);
+  onWall(B + 16, 9, archiveWall);
+  onWall(B + 17, 30, archiveWall);
+  // B+18 the old terminal: a beige CRT with green text and a heavy keyboard on a desk
+  drawTile(B + 18, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      deskBase(o, WALNUT);
+      o.box(6, 1, 20, 14, [214, 204, 176], 1.15);
+      o.rect(8, 3, 16, 9, [16, 30, 20]);
+      for (let y = 4; y < 11; y += 2) o.rect(9, y, 4 + ((y * 5) % 9), 1, [90, 230, 120]);
+      o.rect(9, 10, 2, 1, [180, 255, 190]);
+      o.rect(20, 12, 3, 1, [230, 120, 60]);
+      o.box(7, 16, 18, 4, [196, 186, 160], 1.15);
+      for (let x = 8; x < 24; x += 2) o.set(x, 17, [120, 112, 98]);
+    });
+  });
+  // B+19 a tall arched window in the archive wall, night outside
+  drawTile(B + 19, (g) => {
+    archiveWall(g);
+    const o = canvas(T, T);
+    const frame = [190, 180, 160];
+    o.rect(6, 10, 20, 18, frame);
+    o.ellipse(16, 10, 10, 8, frame);
+    o.rect(8, 10, 16, 16, [24, 34, 70]);
+    o.ellipse(16, 10, 8, 6, [24, 34, 70]);
+    for (let j = 0; j < 12; j++) o.rect(8, 14 + j, 16, 1, alpha([60, 80, 140], 40 + j * 6));
+    o.ellipse(20, 9, 2.5, 2.5, [240, 240, 210]);
+    for (const [x, y] of [[11, 7], [13, 14], [21, 17], [10, 20]]) o.set(x, y, [230, 236, 255]);
+    o.rect(15, 4, 2, 22, frame);
+    o.rect(8, 16, 16, 2, frame);
+    o.rect(5, 26, 22, 3, sh(frame, 1.1));
+    o.outline();
+    g.paste(o);
+  });
+  // B+20..B+23 the stairs down to the cellar: an opening in the floor behind a wooden railing
+  drawPiece([[B + 20, B + 21], [B + 22, B + 23]], (g, { obj }) => {
+    g.rect(4, 6, 56, 56, [30, 26, 24]);
+    for (let s = 0; s < 8; s++) {
+      const y = 56 - s * 6;
+      const c = sh([150, 120, 90], 1 - s * 0.1);
+      g.rect(6, y, 52, 6, c);
+      g.rect(6, y, 52, 1, sh(c, 1.25));
+      g.rect(6, y + 5, 52, 1, sh(c, 0.6));
+    }
+    for (let j = 0; j < 14; j++) g.rect(6, 6 + j, 52, 1, [10, 8, 8, 200 - j * 14]);
+    obj((o) => {
+      const rail = [128, 84, 50];
+      o.box(0, 2, 64, 4, rail, 1.3);
+      o.box(0, 2, 4, 60, rail, 1.3);
+      o.box(60, 2, 4, 60, rail, 1.3);
+      for (let x = 6; x < 60; x += 6) o.rect(x, 6, 2, 4, sh(rail, 0.8));
+      o.box(0, 0, 5, 6, sh(rail, 1.1));
+      o.box(59, 0, 5, 6, sh(rail, 1.1));
+      o.box(0, 58, 5, 6, sh(rail, 1.1));
+      o.box(59, 58, 5, 6, sh(rail, 1.1));
+    });
+  });
+  // B+24, B+25 packing table: a pile of books, flat archive boxes and a ball of twine
+  drawPiece([[B + 24, B + 25]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(1, 12, 62, 11, [176, 140, 96], 1.2);
+      o.rect(1, 15, 62, 1, sh([176, 140, 96], 0.85));
+      o.rect(3, 23, 3, 7, [120, 92, 60]);
+      o.rect(58, 23, 3, 7, [120, 92, 60]);
+      const r = rng(B + 24);
+      for (let i = 0; i < 6; i++) {
+        const col = SPINES[Math.floor(r() * SPINES.length)];
+        o.box(5 + Math.floor(r() * 3), 12 - i * 2 - 2, 14, 3, col, 1.25);
+      }
+      for (let i = 0; i < 3; i++) o.box(24 + i, 10 - i * 2, 18, 3, [196, 162, 112], 1.2);
+      o.box(44, 4, 16, 10, [204, 170, 120], 1.15);
+      o.rect(44, 4, 16, 3, sh([204, 170, 120], 1.12));
+      o.box(48, 8, 8, 3, [244, 238, 220]);
+      o.ellipse(33, 17, 3, 2.5, [214, 196, 150]);
+    });
+  });
+  // B+26 globe on a wooden stand
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      o.rect(15, 20, 2, 7, WALNUT);
+      o.box(9, 26, 14, 3, WALNUT, 1.3);
+      o.ellipse(16, 12, 9, 9, [70, 120, 170]);
+      o.ellipse(13, 9, 4, 3, [120, 160, 90]);
+      o.ellipse(19, 15, 3, 4, [140, 168, 96]);
+      o.ellipse(12, 16, 2, 1.5, [120, 160, 90]);
+      o.rect(10, 7, 2, 2, [190, 220, 240]);
+    });
+    const ring = [212, 170, 80];
+    for (let a = 0; a < 40; a++) {
+      const t = (a / 40) * Math.PI * 2;
+      g.set(16 + Math.cos(t) * 10.5, 12 + Math.sin(t) * 10.5, ring);
+    }
+  });
+  // B+27 books stacked on the floor, waiting to be shelved
+  drawTile(B + 27, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      const r = rng(B + 27);
+      for (const [x0, n] of [[3, 5], [12, 3], [20, 6]])
+        for (let i = 0; i < n; i++) {
+          const col = SPINES[Math.floor(r() * SPINES.length)];
+          const w = 8 + Math.floor(r() * 2);
+          o.box(x0 + Math.floor(r() * 2), 26 - i * 3, w, 3, col, 1.3);
+          o.rect(x0 + 1, 27 - i * 3, w - 2, 1, [236, 228, 210]);
+        }
+    });
+  });
+  // B+28 library pendant (above the avatars): a green glass shade and a warm cone of light
+  drawTile(B + 28, (g) => {
+    for (let j = 0; j < 18; j++) g.rect(Math.round(16 - (5 + j * 0.8)), 10 + j, Math.round(10 + j * 1.6), 1, alpha(WARM, Math.round(80 - j * 4)));
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 4, [212, 170, 80]);
+    o.ellipse(16, 8, 8, 4.5, LAMP_GREEN);
+    o.ellipse(16, 6.5, 6, 2.5, sh(LAMP_GREEN, 1.35));
+    o.rect(8, 9, 16, 1, sh(LAMP_GREEN, 0.7));
+    o.ellipse(16, 10, 4, 1.2, [255, 246, 200]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+29 loose papers and a dropped book on the floor (decor)
+  drawTile(B + 29, (g) => {
+    const sheet = (x, y, w, h) => {
+      g.rect(x + 1, y + 1, w, h, [0, 0, 0, 50]);
+      g.rect(x, y, w, h, [244, 240, 226]);
+      for (let j = y + 2; j < y + h - 1; j += 2) g.rect(x + 1, j, w - 3, 1, [160, 156, 160]);
+    };
+    sheet(3, 4, 9, 11);
+    sheet(14, 15, 10, 8);
+    sheet(6, 19, 7, 9);
+    g.rect(21, 4, 8, 7, [0, 0, 0, 50]);
+    g.rect(20, 3, 8, 7, [44, 66, 120]);
+    g.rect(20, 3, 8, 1, [80, 100, 160]);
+    g.rect(21, 4, 6, 5, [240, 232, 210]);
+  });
+  // B+30 moonlight falling through an arched window onto the floor (decor)
+  drawTile(B + 30, (g) => {
+    for (let y = 0; y < T; y++) {
+      const x0 = 6 + Math.round(y * 0.25);
+      for (let x = x0; x < x0 + 20; x++) {
+        const bar = (x - x0 === 9 || x - x0 === 10 || y === 12 || y === 13);
+        if (!bar) g.set(x, y, alpha(MOON, 96 - Math.round(y * 1.8)));
+      }
+    }
+  });
+  // B+31 the late-fees ledger: a big open ledger, an inkwell and a pen on the circulation desk
+  drawTile(B + 31, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      deskBase(o, WALNUT);
+      o.box(3, 5, 13, 9, [242, 234, 210], 1, 0.85);
+      o.box(16, 5, 13, 9, [236, 226, 200], 1, 0.85);
+      o.rect(15, 5, 2, 9, [120, 40, 40]);
+      for (let y = 7; y < 13; y += 2) { o.rect(5, y, 9, 1, [140, 150, 170]); o.rect(18, y, 9, 1, [140, 150, 170]); }
+      o.rect(11, 6, 1, 7, [200, 70, 70]);
+      o.rect(25, 6, 1, 7, [200, 70, 70]);
+      o.box(25, 1, 4, 4, [30, 34, 50]);
+      o.rect(27, 0, 1, 2, [240, 240, 240]);
+    });
+  });
+  solid(B, B + 1, B + 2, ...range(B + 6, B + 11), ...range(B + 13, B + 27), B + 31);
+}
 // --- end python-docs ---
 
 // --- python-debug restyle (tiles 464-495) ---

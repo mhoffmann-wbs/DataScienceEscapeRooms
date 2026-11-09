@@ -104,9 +104,10 @@ flowchart LR
 
 ## Where things are
 
-- Next to their station: the cart note (on the wall above the cart), the box label (two tiles from the packing table), the script list (beside the terminal), the stamp instructions (on the dividing wall above the stamp machine).
-- Away from their station: the fee rules hang on the west end of the dividing wall, five tiles from the ledger desk. The card catalogue stands in the north half, the door's keypad on the north wall.
-- The handbook stands in the north-east corner, away from every station; the docs themselves are in another browser tab, so every player reads them on their own screen.
+- The room has five parts: the reading hall with the sealed door in the middle, the stacks to the west, Margarete's office to the north-east, the packing room with the cellar stairs south of the hall and the circulation desk to the south-east.
+- Next to their station: the cart note (on the stacks' north wall, above the cart), the script list (pinned on the office wall beside the terminal), the box label (on a stack of boxes two tiles from the packing table), the stamp instructions (on the wall above the stamp machine, in the circulation room).
+- Away from their station: the fee rules hang on the circulation room's east wall, three tiles from the ledger desk, so they're near but not on it. The card catalogue stands in the reading hall by the door, the door's keypad on the north wall beside it.
+- The handbook stands on a reading stand in the hall, next to where players arrive; the docs themselves are in another browser tab, so every player reads them on their own screen.
 
 ## Findings
 
