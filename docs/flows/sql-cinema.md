@@ -94,11 +94,13 @@ All six stations load the same `cinema.sql`, so the room has one data node; the 
 
 ## Where things are
 
-- The note by the office door (128, 32) hangs right next to the office (96, 32), but the code comes from the clicker (480, 96), about 390 px away across the foyer.
-- Ben's clipboard (608, 32) is about 70 px from his tally station (576, 96), and the fire notice (448, 32) about 70 px from the clicker (480, 96).
-- The tally's dates have to travel from the Studio door (576, 96) to the rota computer behind the box office (160, 128), about 420 px, and to the snack bar (480, 256).
-- Edith's note on the rota board (256, 32) is about 130 px from the rota computer and 160 px from the office.
-- Tobias's note (576, 256) stands at the end of the snack bar (480, 256).
+The room is the cinema's ground floor: the dark Studio with its screen and seats (top left), the art-deco foyer below it with the snack bar, the usher's post at the Studio door and the box office, and the staff room behind the box office (top right) with Edith's office door. Players arrive at the street doors on the right.
+
+- The note by the office door (672, 32) hangs right next to the office (704, 32), but the code comes from the clicker at the Studio door (352, 352), about 480 px away across the foyer.
+- Ben's clipboard (224, 320) hangs beside his tally podium (256, 352), and the fire notice (384, 320) beside the clicker (352, 352), both on the Studio's back wall.
+- The tally's dates have to travel from the Studio door (256, 352) to the rota computer in the staff room (800, 64), about 610 px, and to the snack bar (96, 384), about 160 px.
+- Edith's note on the rota board (736, 32) is about 70 px from the rota computer and next to the office.
+- Tobias's note (128, 384) is taped to the end of the snack bar, beside the snack till (96, 384).
 
 ## Findings
 
