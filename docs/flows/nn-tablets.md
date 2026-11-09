@@ -98,9 +98,11 @@ flowchart LR
 
 ## Where things are
 
-- Next to their station: Theo's note (tally), the seal's label (seal), the blueprint above its computer, Mika's note (notebook), Amara's mail beside the laptop.
-- On the north wall, a few steps away: the numeral chart (above, between tally and seal) and the sign list.
-- The crate label stands at the east end of the first row, the jar in the second row: the jar's team walks past the notebook to reach it.
+The museum basement has five parts: the stone vestibule at the foot of the stairs (the exit, the handbook, where the team arrives), the small gallery to its left, Amara's office to its right, the restoration lab below, and the crate store beside the lab, reached from the lab or from the office.
+
+- Next to their station: the seal's label (beside the glass case, in the gallery), the blueprint (on the wall right above its computer, in the office), Amara's mail (on the desk beside her laptop), Theo's note (on the wall above the light table), Mika's note (on the desk beside Mika's laptop).
+- On the gallery's wall, a few steps from the seal: the numeral chart and the sign list; the numerals are needed at the light table in the lab, a walk through the vestibule.
+- In the crate store: the crate label, 3 tiles from the open crate, and the jar's display cabinet, packed for the morning flight. The jar's team walks through the lab past Mika's desk to reach it.
 
 ## Findings
 

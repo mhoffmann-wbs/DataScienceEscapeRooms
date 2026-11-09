@@ -3880,6 +3880,302 @@ function onWall(index, src, wall, seed = 3) {
 // --- end nn-post ---
 
 // --- nn-tablets restyle (tiles 592-623) ---
+// The Varda Tablets: the basement of Hallberg City Museum at night. Sandstone walls; a small gallery
+// with the cylinder seal in its case, plinths and banners; a stone vestibule by the stairs (the exit);
+// Amara's office; the restoration lab with its big fragment table, light table and laser scanner; and
+// the crate store where the jar waits to be packed.
+{
+  const B = blockOf('nn-tablets');
+  const SAND = [206, 182, 140];
+  const SLATE = [74, 70, 76];
+  const OAK = [168, 120, 76];
+  const STONE = [188, 180, 166];
+  const STEEL = [170, 178, 190];
+  const STRAW = [226, 196, 110];
+  const PINE = [214, 178, 118];
+  const BANNER = [130, 46, 40];
+  /** The museum's wall face: sandstone blocks above a dark slate plinth. */
+  const stoneWall = (g) => {
+    g.rect(0, 0, T, T, SAND);
+    g.noise(0, 0, T, T, 0.07, B);
+    g.rect(0, 0, T, 2, sh(SAND, 0.66));
+    for (let y = 2, r = 0; y < T - 6; y += 8, r++) {
+      g.rect(0, y, T, 1, sh(SAND, 0.78));
+      for (let x = r % 2 ? 4 : 20; x < T; x += 16) g.rect(x, y, 1, 8, sh(SAND, 0.78));
+      g.rect(0, y + 1, T, 1, sh(SAND, 1.08));
+    }
+    g.rect(0, T - 6, T, 6, SLATE);
+    g.rect(0, T - 6, T, 1, sh(SLATE, 1.4));
+    g.rect(0, T - 1, T, 1, sh(SLATE, 0.7));
+  };
+  // B+0 sandstone wall front, B+1 and B+2 the same in a left and a right wall
+  drawTile(B, stoneWall);
+  drawTile(B + 1, turned(stoneWall, 'ccw'));
+  drawTile(B + 2, turned(stoneWall, 'cw'));
+  solid(B, B + 1, B + 2);
+  // B+3 gallery floor: oak parquet in a basket weave of four-strip squares
+  drawTile(B + 3, (g) => {
+    for (const [x0, y0] of [[0, 0], [16, 0], [0, 16], [16, 16]]) {
+      const across = (x0 + y0) % 32 === 0;
+      for (let i = 0; i < 4; i++) {
+        const c = sh(OAK, [1.04, 0.94, 1.0, 0.9][(i + x0 / 16) % 4]);
+        if (across) {
+          g.rect(x0, y0 + i * 4, 16, 4, c);
+          g.rect(x0, y0 + i * 4, 16, 1, sh(c, 0.8));
+        } else {
+          g.rect(x0 + i * 4, y0, 4, 16, c);
+          g.rect(x0 + i * 4, y0, 1, 16, sh(c, 0.8));
+        }
+      }
+      g.rect(x0, y0, 16, 1, sh(OAK, 0.7));
+      g.rect(x0, y0, 1, 16, sh(OAK, 0.7));
+    }
+    g.noise(0, 0, T, T, 0.08, B + 3);
+  });
+  // B+4 lab floor: pale grey vinyl tiles with a faint speckle
+  drawTile(B + 4, (g) => {
+    const c = [196, 202, 204];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.05, B + 4);
+    const r = rng(B + 4);
+    for (let i = 0; i < 18; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), sh(c, 0.8));
+    g.rect(0, 0, T, 1, sh(c, 0.82));
+    g.rect(0, 0, 1, T, sh(c, 0.82));
+  });
+  // B+5 clay dust and small chips on the floor (decor)
+  drawTile(B + 5, (g) => {
+    g.ellipse(16, 18, 13, 8, [182, 116, 74, 50]);
+    const r = rng(B + 5);
+    for (let i = 0; i < 14; i++) {
+      const x = 4 + Math.floor(r() * 24), y = 8 + Math.floor(r() * 18);
+      g.rect(x, y, 2, 2, sh(CLAY, 0.8 + r() * 0.4));
+      g.set(x, y, sh(CLAY, 1.2));
+    }
+  });
+  // B+6..B+11 the fragment table: a big sorting table, three wide and two deep, covered in labelled
+  // trays of clay fragments, with a magnifier on an arm
+  drawPiece([[B + 6, B + 7, B + 8], [B + 9, B + 10, B + 11]], (g, { obj, shadow }) => {
+    shadow(48, 60, 46, 4);
+    obj((o) => {
+      for (const x of [5, 87]) o.rect(x, 46, 4, 14, sh(OAK, 0.6));
+      for (const x of [44]) o.rect(x, 48, 4, 12, sh(OAK, 0.6));
+      o.box(1, 8, 94, 40, [228, 226, 216], 1.08, 0.82);
+      o.rect(1, 40, 94, 8, sh(OAK, 0.85));
+      o.rect(1, 40, 94, 1, sh(OAK, 1.2));
+      // trays in two rows
+      let seed = B + 6;
+      for (let j = 0; j < 2; j++)
+        for (let i = 0; i < 5; i++) {
+          const x = 5 + i * 18, y = 11 + j * 14;
+          o.box(x, y, 15, 11, [236, 230, 210], 1.05, 0.8);
+          o.rect(x + 1, y + 1, 13, 9, [208, 196, 170]);
+          const r = rng(seed++);
+          for (let k = 0; k < 5; k++) tablet(o, x + 1 + Math.floor(r() * 9), y + 1 + Math.floor(r() * 5), 4, 3, seed + k);
+          o.rect(x + 4, y + 10, 7, 2, [250, 250, 246]);
+        }
+      // the magnifier lamp
+      o.rect(84, 0, 2, 12, STEEL);
+      o.rect(70, 0, 16, 2, STEEL);
+      o.ellipse(70, 4, 6, 4, [60, 64, 74]);
+      o.ellipse(70, 4, 4, 2.5, [210, 236, 250]);
+    });
+    for (let j = 0; j < 6; j++) g.ellipse(70, 14 + j, 8 - j, 4, [255, 244, 200, 20]);
+  });
+  // B+12 tablet rack: a steel rack of shallow drawers, two pulled out with tablets on foam
+  drawTile(B + 12, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(2, 0, 28, 30, STEEL, 1.15);
+      for (let j = 0; j < 5; j++) {
+        o.box(4, 2 + j * 5, 24, 4, sh(STEEL, 1.1), 1.2);
+        o.rect(14, 3 + j * 5, 4, 1, sh(STEEL, 0.6));
+      }
+      o.box(3, 11, 26, 5, [70, 74, 84], 1.3);
+      tablet(o, 5, 11, 7, 4, B + 12);
+      tablet(o, 17, 11, 9, 4, B + 13);
+    });
+  });
+  // B+13 washing sink for fragments: a deep steel basin with a hose, brushes and a sieve
+  drawTile(B + 13, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      benchBase(o);
+      o.box(4, 9, 20, 7, STEEL, 1.2);
+      o.rect(6, 10, 16, 4, [110, 140, 150]);
+      o.rect(7, 11, 6, 1, [180, 220, 230]);
+      o.rect(20, 2, 2, 9, [200, 206, 214]);
+      o.rect(15, 2, 6, 2, [200, 206, 214]);
+      o.ellipse(27, 10, 3, 3, [120, 124, 134]);
+      o.ellipse(27, 10, 2, 2, [170, 160, 140]);
+      o.rect(25, 4, 2, 5, [200, 60, 56]);
+    });
+  });
+  // B+14 gallery plinth with a painted clay pot under its own light
+  drawTile(B + 14, (g, { obj, shadow }) => {
+    shadow(16, 30, 11, 2);
+    obj((o) => {
+      o.box(7, 17, 18, 13, [236, 232, 222], 1.1, 0.82);
+      o.ellipse(16, 11, 7, 7, CLAY);
+      o.ellipse(14, 9, 3, 3, sh(CLAY, 1.25));
+      o.box(12, 2, 8, 3, sh(CLAY, 0.85));
+      o.rect(10, 11, 13, 2, INK_BROWN);
+      for (let x = 11; x < 22; x += 3) o.set(x, 14, INK_BROWN);
+    });
+  });
+  // B+15 gallery plinth with a carved stone stele
+  drawTile(B + 15, (g, { obj, shadow }) => {
+    shadow(16, 30, 11, 2);
+    obj((o) => {
+      o.box(6, 22, 20, 8, [236, 232, 222], 1.1, 0.82);
+      o.box(9, 1, 14, 22, STONE, 1.2);
+      o.ellipse(16, 2, 7, 2, STONE);
+      const r = rng(B + 15);
+      for (let y = 5; y < 20; y += 3) for (let x = 11; x < 21; x += 3) if (r() < 0.7) o.rect(x, y, 2, 1, sh(STONE, 0.7));
+    });
+  });
+  // B+16 an open shipping crate, packed with straw
+  drawTile(B + 16, (g, { obj, shadow }) => {
+    shadow(16, 30, 14, 2);
+    obj((o) => {
+      o.box(2, 8, 28, 21, PINE, 1.2);
+      for (let y = 14; y < 28; y += 5) o.rect(2, y, 28, 1, sh(PINE, 0.75));
+      o.rect(4, 10, 24, 4, STRAW);
+      const r = rng(B + 16);
+      for (let i = 0; i < 20; i++) o.rect(3 + Math.floor(r() * 25), 6 + Math.floor(r() * 7), 3, 1, sh(STRAW, 0.8 + r() * 0.4));
+      o.box(18, 1, 12, 7, PINE, 1.2);
+    });
+  });
+  // B+17 the archive crate: a closed crate stencilled VARDA, with a big white label
+  drawTile(B + 17, (g, { obj, shadow }) => {
+    shadow(16, 30, 14, 2);
+    obj((o) => {
+      o.box(2, 4, 28, 25, PINE, 1.2);
+      o.rect(2, 4, 28, 4, sh(PINE, 1.12));
+      for (const x of [2, 27]) o.rect(x, 4, 3, 25, sh(PINE, 0.8));
+      o.box(8, 12, 16, 11, [250, 248, 238], 1, 0.86);
+      o.rect(10, 14, 12, 2, BANNER);
+      for (let y = 17; y < 22; y += 2) o.rect(10, y, 10, 1, [130, 130, 145]);
+      o.rect(6, 25, 2, 2, [40, 40, 46]);
+      o.rect(24, 25, 2, 2, [40, 40, 46]);
+    });
+  });
+  // B+18 straw spilt on the floor (decor)
+  drawTile(B + 18, (g) => {
+    const r = rng(B + 18);
+    for (let i = 0; i < 34; i++) {
+      const x = 3 + Math.floor(r() * 26), y = 6 + Math.floor(r() * 22), l = 2 + Math.floor(r() * 4);
+      g.rect(x, y, l, 1, sh(STRAW, 0.75 + r() * 0.5));
+    }
+  });
+  // B+19 drying rack: wooden frames of wire mesh with washed fragments laid out
+  drawTile(B + 19, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.rect(3, 2, 2, 28, sh(OAK, 0.7));
+      o.rect(27, 2, 2, 28, sh(OAK, 0.7));
+      for (let s = 0; s < 3; s++) {
+        const y = 3 + s * 9;
+        o.box(2, y, 28, 6, OAK, 1.2);
+        o.rect(4, y + 1, 24, 4, [150, 156, 160]);
+        for (let x = 5; x < 27; x += 4) tablet(o, x, y + 1, 3, 3, B + 19 + s * 10 + x);
+      }
+    });
+  });
+  // B+20 exhibition banner (above the avatars): a long red cloth with a Varda sign, hung from a rod
+  drawTile(B + 20, (g) => {
+    g.rect(9, 27, 16, 3, [0, 0, 0, 40]);
+    const o = canvas(T, T);
+    o.rect(4, 0, 24, 2, [60, 52, 44]);
+    o.rect(8, 2, 16, 22, BANNER);
+    o.rect(8, 2, 2, 22, sh(BANNER, 1.25));
+    o.rect(22, 2, 2, 22, sh(BANNER, 0.75));
+    for (let x = 8; x < 24; x += 4) o.rect(x, 24, 2, 2, BANNER);
+    o.ellipse(16, 11, 4, 4, [232, 196, 120]);
+    o.ellipse(16, 11, 2.5, 2.5, BANNER);
+    o.set(16, 11, [232, 196, 120]);
+    o.rect(11, 18, 10, 1, [232, 196, 120]);
+    o.rect(12, 20, 8, 1, [232, 196, 120]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+21 caged work lamp (above the avatars), hanging on its cable, with a bright cone
+  drawTile(B + 21, (g) => {
+    for (let j = 0; j < 18; j++) g.rect(Math.round(16 - (4 + j * 0.6)), 12 + j, Math.round(8 + j * 1.2), 1, [255, 246, 210, Math.round(80 - j * 4)]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 5, [40, 40, 46]);
+    o.box(12, 4, 8, 3, [60, 64, 72], 1.3);
+    o.ellipse(16, 10, 4.5, 4, [255, 248, 210]);
+    for (const x of [12, 16, 20]) o.rect(x, 6, 1, 7, [60, 64, 72]);
+    o.rect(12, 12, 9, 1, [60, 64, 72]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+22 Theo's note (a clipboard), B+23 the numeral chart, B+24 Amara's sign list (a noticeboard),
+  // B+25 the blueprint, B+26 a shelf of tablets: all hung on the sandstone wall
+  onWall(B + 22, 26, stoneWall);
+  onWall(B + 23, 179, stoneWall, 179);
+  onWall(B + 24, 9, stoneWall);
+  onWall(B + 25, 110, stoneWall, 110);
+  onWall(B + 26, 176, stoneWall, 176);
+  // B+27 a framed photo of the dig at Tell Varda on the wall: a mound under a hot sky, a tent
+  drawTile(B + 27, (g) => {
+    stoneWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 19, [70, 52, 36], 1.3);
+    o.rect(5, 5, 22, 15, [150, 196, 230]);
+    o.rect(5, 5, 22, 3, [120, 170, 220]);
+    o.ellipse(17, 20, 13, 7, [210, 170, 110]);
+    o.rect(5, 17, 22, 3, [196, 160, 104]);
+    o.rect(8, 13, 5, 4, [240, 236, 226]);
+    o.set(10, 12, [240, 236, 226]);
+    o.ellipse(23, 8, 2, 2, [255, 236, 150]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+28 packing table: bubble wrap, a tape gun and foam blocks
+  drawTile(B + 28, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      deskBase(o, PINE);
+      o.box(3, 6, 14, 9, [214, 230, 236], 1.1);
+      for (let y = 8; y < 14; y += 2) for (let x = 5; x < 16; x += 2) o.set(x, y, [255, 255, 255]);
+      o.box(19, 8, 9, 6, [230, 220, 170], 1.2);
+      o.box(21, 4, 6, 4, [200, 60, 56], 1.2);
+      o.rect(24, 1, 2, 4, [60, 64, 72]);
+    });
+  });
+  // B+29 museum bench (a seat, not solid): a low upholstered bench
+  drawTile(B + 29, (g, { obj, shadow }) => {
+    shadow(16, 27, 14, 2);
+    obj((o) => {
+      o.box(2, 11, 28, 10, [70, 60, 66], 1.3);
+      o.rect(2, 13, 28, 1, sh([70, 60, 66], 0.75));
+      for (const x of [3, 27]) o.rect(x, 21, 2, 6, [40, 40, 46]);
+    });
+  });
+  // B+30 crate store floor: bare concrete with a painted grid of pallet bays
+  drawTile(B + 30, (g) => {
+    const c = [150, 150, 146];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.08, B + 30);
+    const r = rng(B + 30);
+    for (let i = 0; i < 12; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), sh(c, 0.75));
+    g.rect(0, 0, T, 1, [236, 236, 228, 70]);
+    g.rect(0, 0, 1, T, [236, 236, 228, 70]);
+  });
+  // B+31 a spotlight on a stand, aimed at the exhibits
+  drawTile(B + 31, (g, { obj, shadow }) => {
+    shadow(16, 29, 8, 2);
+    for (let j = 0; j < 8; j++) g.rect(19 + j, 4 - Math.floor(j / 2), 3 + j, 1 + j, [255, 244, 200, 30]);
+    obj((o) => {
+      o.rect(15, 10, 2, 18, [50, 52, 60]);
+      o.rect(11, 27, 10, 2, [50, 52, 60]);
+      o.box(11, 3, 10, 7, [40, 42, 50], 1.3);
+      o.ellipse(20, 6, 2, 3, [255, 248, 210]);
+    });
+  });
+  solid(B + 6, B + 7, B + 8, B + 9, B + 10, B + 11, B + 12, B + 13, B + 14, B + 15, B + 16, B + 17, B + 19, B + 27, B + 28, B + 31);
+}
 // --- end nn-tablets ---
 
 // --- ml-seeds restyle (tiles 624-655) ---
