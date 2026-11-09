@@ -55,6 +55,43 @@ describe.each(Object.keys(MAPS))('map %s', (key) => {
       expect(blocked.has(walls.data[ty * walls.width + tx]!)).toBe(false);
     }
   });
+
+  it('lets players walk from the spawn to every door, puzzle, clue and handbook', () => {
+    const walls = lobby.layers.find((l) => l.type === 'tilelayer' && l.name === 'walls');
+    if (walls?.type !== 'tilelayer') throw new Error('no walls layer');
+    const blocked = collidingGids(lobby);
+    const { width, height, tilewidth: tw, tileheight: th } = lobby;
+    const free = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && !blocked.has(walls.data[y * width + x]!);
+    const reached = new Set<number>();
+    const queue = [[Math.floor(spawn.x / tw), Math.floor(spawn.y / th)] as const];
+    while (queue.length) {
+      const [x, y] = queue.pop()!;
+      if (!free(x, y) || reached.has(y * width + x)) continue;
+      reached.add(y * width + x);
+      queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
+    const { puzzles, clues, references } = parseMapObjects(lobby);
+    const spots = [...puzzles.map((p) => [p.puzzleId, p] as const), ...clues.map((c) => [c.clueId, c] as const), ...references.map((r) => ['handbook', r] as const)];
+    const unreachable = spots.filter(([, r]) => {
+      for (let y = Math.floor(r.y / th); y < Math.ceil((r.y + r.height) / th); y++)
+        for (let x = Math.floor(r.x / tw); x < Math.ceil((r.x + r.width) / tw); x++) if (reached.has(y * width + x)) return false;
+      return true;
+    });
+    const unreachableDoors = doors.filter((d) => {
+      const p = inFrontOf(d, th);
+      return !reached.has(Math.floor(p.y / th) * width + Math.floor(p.x / tw));
+    });
+    expect(unreachable.map(([id]) => id)).toEqual([]);
+    expect(unreachableDoors.map((d) => d.doorTo)).toEqual([]);
+  });
+
+  it('keeps solid tiles off the decor and above layers, which never block', () => {
+    const blocked = collidingGids(lobby);
+    for (const layer of lobby.layers) {
+      if (layer.type !== 'tilelayer' || (layer.name !== 'decor' && layer.name !== 'above')) continue;
+      expect(layer.data.filter((g) => blocked.has(g))).toEqual([]);
+    }
+  });
 });
 
 describe('inFrontOf', () => {

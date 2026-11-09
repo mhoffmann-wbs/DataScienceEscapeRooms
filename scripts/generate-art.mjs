@@ -3,7 +3,7 @@
 // Usage: node scripts/generate-art.mjs
 // The avatar layout here must match src/game/avatars.ts. Tile indices are referenced by the
 // maps (gid = index + 1), so append new tiles instead of reordering.
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 
 const T = 32;
@@ -138,10 +138,19 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 26 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 90 rows of 32px tiles ---------------------------------
+// Tiles 0-207 are the original set; from 208 on, each room's restyle has a block of 32 (see ROOM_BLOCKS below).
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 26;
+const TILESET_ROWS = 90;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
+
+/**
+ * Tiles that block movement on a map's walls layer. This script writes them to
+ * content/tilesets/tiles.json, which the engine and the map tests read; maps carry no tile properties.
+ */
+const SOLID = new Set();
+const solid = (...indices) => indices.forEach((i) => SOLID.add(i));
+const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
 
 /**
  * Draws tile `index`. `draw` gets the tile canvas plus `obj(fn)`, which draws `fn` on a
@@ -2755,6 +2764,456 @@ drawTile(207, (g, { obj, shadow }) => {
   });
 });
 
+// Solid tiles among 0-207: walls and furniture. Floors, doors, rugs and seats stay walkable.
+// Tiles from 208 on call solid() next to their own drawing.
+solid(
+  ...range(2, 3), ...range(7, 13), ...range(15, 35), 37, ...range(39, 41), ...range(45, 53), ...range(57, 65),
+  ...range(67, 81), ...range(83, 86), ...range(88, 94), ...range(96, 104), ...range(107, 115), ...range(122, 131),
+  ...range(133, 137), ...range(140, 143), ...range(173, 180), ...range(183, 185), ...range(188, 190), ...range(195, 205), 207,
+);
+
+// --- Room restyles ---------------------------------------------------------------------------
+// One block of 32 tiles per room, so rooms can be restyled side by side without clashing indices.
+const ROOM_BLOCKS = [
+  'python-lab', 'sql-hotel', 'sql-cinema', 'sql-train', 'pandas-market', 'ts-nordlys', 'ts-festival', 'python-docs',
+  'python-debug', 'stats-fair', 'stats-ab', 'nn-post', 'nn-tablets', 'ml-seeds', 'ml-customs', 'ml-auction',
+];
+/** The first tile index of a room's block. */
+const blockOf = (roomId) => 208 + 32 * ROOM_BLOCKS.indexOf(roomId);
+
+/** Copies tile `src` (already drawn) onto a fresh canvas, for reuse in new tiles. */
+function tileCanvas(src) {
+  const c = canvas(T, T);
+  c.paste(tiles, -(src % TILESET_COLUMNS) * T, -Math.floor(src / TILESET_COLUMNS) * T);
+  return c;
+}
+/**
+ * Draws tile `index` as wall-mounted tile `src` hung on a different wall: every pixel of `src` that is
+ * still the plain plaster of wallFront(seed) becomes the matching pixel of `wall`.
+ */
+function onWall(index, src, wall, seed = 3) {
+  drawTile(index, (g) => {
+    const from = tileCanvas(src);
+    const plaster = canvas(T, T);
+    wallFront(plaster, seed);
+    const bg = canvas(T, T);
+    wall(bg);
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const p = from.get(x, y);
+        const q = plaster.get(x, y);
+        g.set(x, y, p.every((v, i) => v === q[i]) ? bg.get(x, y) : p);
+      }
+  });
+  solid(index);
+}
+
+// --- python-lab restyle (tiles 208-239) ---
+// Quarantine: a mycology lab sealed by its own alarm. A hazard-striped airlock with the exit, Ida's
+// wood-floored office, a dark grow room of glowing mushroom beds with her escape vent, the white
+// wet lab and a frosted cold room.
+{
+  const B = blockOf('python-lab');
+  const TILE_WHITE = [226, 232, 234];
+  const TEAL = [72, 150, 146];
+  const GLOW = [120, 255, 170];
+  const RUBBER = [44, 50, 54];
+  const FROST = [206, 224, 238];
+  const STEEL = [176, 184, 196];
+  /** The lab's wall face: white ceramic tiles above a teal skirting band. */
+  const labWall = (g) => {
+    g.rect(0, 0, T, T, TILE_WHITE);
+    g.noise(0, 0, T, T, 0.04, B);
+    g.rect(0, 0, T, 2, sh(TILE_WHITE, 0.7));
+    for (let y = 2; y < T - 6; y += 8) g.rect(0, y, T, 1, sh(TILE_WHITE, 0.86));
+    for (let y = 2, r = 0; y < T - 6; y += 8, r++) for (let x = r % 2 ? 4 : 12; x < T; x += 16) g.rect(x, y, 1, 8, sh(TILE_WHITE, 0.86));
+    g.rect(0, T - 6, T, 6, TEAL);
+    g.rect(0, T - 6, T, 1, sh(TEAL, 1.3));
+    g.rect(0, T - 1, T, 1, sh(TEAL, 0.7));
+  };
+  // B+0 lab wall front
+  drawTile(B, labWall);
+  // B+1 grow-room floor: dark rubber matting with a raised dot pattern
+  drawTile(B + 1, (g) => {
+    g.rect(0, 0, T, T, RUBBER);
+    g.noise(0, 0, T, T, 0.1, B + 1);
+    for (let y = 2; y < T; y += 6) for (let x = (y / 6) % 2 ? 5 : 2; x < T; x += 6) { g.set(x, y, sh(RUBBER, 1.35)); g.set(x + 1, y + 1, sh(RUBBER, 0.7)); }
+    g.rect(0, 0, T, 1, sh(RUBBER, 0.75));
+  });
+  // B+2 cold-room floor: frosted diamond plate
+  drawTile(B + 2, (g) => {
+    g.rect(0, 0, T, T, FROST);
+    g.noise(0, 0, T, T, 0.05, B + 2);
+    for (let y = 0; y < T; y += 8)
+      for (let x = (y / 8) % 2 ? 4 : 0; x < T; x += 8) {
+        g.rect(x + 1, y + 3, 4, 1, sh(FROST, 0.82));
+        g.rect(x + 2, y + 2, 2, 1, sh(FROST, 1.1));
+      }
+    for (const [x, y] of [[6, 5], [21, 12], [13, 25], [27, 28], [3, 19]]) g.set(x, y, [255, 255, 255]);
+    g.rect(0, 0, T, 1, sh(FROST, 0.85));
+    g.rect(0, 0, 1, T, sh(FROST, 0.85));
+  });
+  // B+3 hazard stripes on the floor (decor): yellow and black, a little worn
+  drawTile(B + 3, (g) => {
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) g.set(x, y, (x + y) % 12 < 6 ? [232, 190, 40, 235] : [36, 34, 38, 235]);
+    g.noise(0, 0, T, T, 0.12, B + 3);
+    const r = rng(B + 3);
+    for (let i = 0; i < 22; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [190, 196, 200, 120]);
+  });
+  // B+4 vent grille lying on the floor where Ida dropped it (decor)
+  drawTile(B + 4, (g) => {
+    g.ellipse(17, 24, 12, 4, [0, 0, 0, 50]);
+    const o = canvas(T, T);
+    o.box(5, 10, 22, 14, [92, 98, 112]);
+    for (let y = 12; y < 23; y += 3) o.rect(7, y, 18, 1, [52, 56, 66]);
+    for (const [x, y] of [[6, 11], [25, 11], [6, 22], [25, 22]]) o.set(x, y, [190, 196, 206]);
+    o.outline();
+    // turned a little, as if it fell
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) { const p = o.get(x, y); if (p[3]) g.set(x + Math.round((y - 16) * 0.15), y, p); }
+  });
+  // B+5 red alarm beacon on the lab wall, flashing
+  drawTile(B + 5, (g) => {
+    labWall(g);
+    for (let j = 0; j < 11; j++) g.rect(Math.round(16 - (6 + j * 1.4)), 12 - j, Math.round(12 + j * 2.8), 1, [255, 60, 50, Math.round(120 - j * 10)]);
+    for (let j = 0; j < 6; j++) g.rect(10 - j, 20 + j, 12 + 2 * j, 1, [255, 60, 50, 80 - j * 12]);
+    const o = canvas(T, T);
+    o.box(11, 17, 10, 4, [70, 74, 84]);
+    o.ellipse(16, 13, 5, 5.5, [220, 40, 36]);
+    o.rect(12, 10, 8, 1, [255, 140, 120]);
+    o.rect(13, 11, 2, 4, [255, 200, 180]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+6 the open vent Ida climbed out of: a dark shaft in the lab wall, screw holes and scuffs
+  drawTile(B + 6, (g) => {
+    labWall(g);
+    const o = canvas(T, T);
+    o.box(4, 4, 24, 20, [70, 74, 88]);
+    o.rect(6, 6, 20, 16, [14, 16, 20]);
+    for (let j = 0; j < 8; j++) o.rect(6, 6 + j, 20, 1, [40, 44, 52, 255 - j * 28]);
+    o.rect(6, 18, 20, 4, [22, 24, 30]);
+    for (const [x, y] of [[5, 5], [26, 5], [5, 22], [26, 22]]) o.set(x, y, [24, 24, 28]);
+    o.outline();
+    g.paste(o);
+    for (const [x, y] of [[9, 25], [12, 24], [20, 25], [23, 24], [15, 26]]) g.rect(x, y, 2, 1, alpha(GLOW, 200));
+  });
+  // B+7 ventilation control: a steel panel with three fan dials and a CO2 readout
+  drawTile(B + 7, (g) => {
+    labWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 21, STEEL, 1.15);
+    o.rect(5, 5, 22, 6, [20, 30, 34]);
+    o.rect(6, 7, 9, 2, [255, 120, 80]);
+    o.rect(17, 7, 4, 2, [120, 230, 160]);
+    for (let i = 0; i < 3; i++) {
+      const cx = 9 + i * 7;
+      o.ellipse(cx, 17, 3, 3, [60, 64, 76]);
+      o.ellipse(cx, 17, 2, 2, [210, 214, 222]);
+      o.rect(cx, 15, 1, 2, [220, 50, 50]);
+    }
+    o.rect(5, 21, 22, 1, [232, 190, 40]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B, B + 5, B + 6, B + 7);
+  // B+8, B+9 mushroom grow bed: a soil tray on legs, crowded with glowing caps
+  drawPiece([[B + 8, B + 9]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    for (let j = 0; j < 6; j++) g.ellipse(32, 14, 30 + j, 11 + j, alpha(GLOW, 14));
+    obj((o) => {
+      o.box(2, 7, 60, 17, [96, 100, 112], 1.2);
+      o.rect(4, 9, 56, 13, [52, 36, 26]);
+      o.noise(4, 9, 56, 13, 0.3, B + 8);
+      o.rect(5, 24, 3, 6, [96, 100, 112]);
+      o.rect(56, 24, 3, 6, [96, 100, 112]);
+    });
+    // caps in two rows, back row first so the front ones overlap it
+    const r = rng(B + 9);
+    for (const row of [12, 18])
+      for (let x = 8; x < 58; x += 7) {
+        const cx = x + Math.floor(r() * 3);
+        const cap = r() < 0.7 ? [140, 250, 180] : [120, 214, 255];
+        const big = r() < 0.5;
+        g.ellipse(cx + 0.5, row, 6, 4, alpha(cap, 45));
+        g.rect(cx, row, 2, 4, [226, 228, 206]);
+        g.ellipse(cx + 1, row, big ? 3.5 : 2.5, big ? 2.5 : 2, sh(cap, 0.7));
+        g.ellipse(cx + 1, row - 0.5, big ? 3 : 2, big ? 1.8 : 1.4, cap);
+        g.set(cx, row - 1, [240, 255, 245]);
+      }
+  });
+  // B+10 glow on the floor next to the beds (decor)
+  drawTile(B + 10, (g) => {
+    for (let j = 0; j < 8; j++) g.ellipse(16, 16, 16 - j * 2, 14 - j * 1.6, alpha(GLOW, 10));
+  });
+  // B+11 fume hood: a steel cabinet with a raised glass sash and a lit interior
+  drawTile(B + 11, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(2, 0, 28, 30, STEEL, 1.15);
+      o.rect(4, 3, 24, 14, [250, 236, 170]);
+      for (let j = 0; j < 14; j++) o.rect(4, 3 + j, 24, 1, alpha([255, 250, 220], 60 + j * 8));
+      o.rect(4, 3, 24, 1, [255, 255, 240]);
+      o.box(9, 11, 5, 6, [196, 232, 240], 1.05);
+      o.rect(10, 13, 3, 3, [230, 130, 200]);
+      o.rect(4, 16, 24, 2, [140, 148, 160]);
+      o.rect(5, 18, 22, 1, [200, 230, 240]);
+      o.rect(4, 20, 24, 8, sh(STEEL, 0.9));
+      o.rect(14, 23, 4, 1, [90, 96, 108]);
+      o.rect(24, 21, 3, 2, [120, 230, 160]);
+    });
+  });
+  // B+12 emergency shower and eyewash: a green sign, a pull handle and a grated basin
+  drawTile(B + 12, (g, { obj }) => {
+    obj((o) => {
+      o.rect(15, 2, 2, 22, [200, 206, 214]);
+      o.ellipse(16, 4, 7, 3, [62, 170, 96]);
+      o.ellipse(16, 3, 5, 1.5, [120, 220, 150]);
+      o.rect(22, 6, 1, 10, [232, 190, 40]);
+      o.box(20, 15, 5, 3, [232, 190, 40]);
+      o.box(5, 18, 22, 10, [62, 170, 96], 1.2);
+      o.rect(8, 20, 16, 6, [200, 206, 214]);
+      for (let x = 10; x < 23; x += 3) o.rect(x, 21, 1, 4, [130, 136, 148]);
+    });
+  });
+  // B+13 biohazard bin: a yellow pedal bin with the trefoil and a red bag peeking out
+  drawTile(B + 13, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      o.box(8, 10, 16, 18, [232, 190, 40], 1.2);
+      o.box(7, 7, 18, 4, [214, 170, 30], 1.2);
+      o.rect(10, 6, 5, 2, [200, 50, 50]);
+      o.ellipse(16, 19, 4, 4, [36, 34, 38]);
+      o.ellipse(16, 19, 2, 2, [232, 190, 40]);
+      o.set(16, 15, [232, 190, 40]);
+      o.set(13, 21, [232, 190, 40]);
+      o.set(19, 21, [232, 190, 40]);
+      o.rect(10, 28, 4, 1, [60, 60, 66]);
+    });
+  });
+  // B+14 spill (decor): a broken jar and a puddle of glowing spores
+  drawTile(B + 14, (g) => {
+    g.ellipse(16, 19, 12, 6, alpha(GLOW, 70));
+    g.ellipse(14, 18, 8, 4, alpha(GLOW, 120));
+    g.ellipse(13, 17, 3, 1.5, alpha([230, 255, 240], 160));
+    const o = canvas(T, T);
+    o.rect(20, 12, 4, 3, [200, 228, 236]);
+    o.rect(9, 22, 3, 2, [200, 228, 236]);
+    o.rect(24, 21, 2, 2, [200, 228, 236]);
+    o.rect(17, 14, 3, 2, [150, 110, 80]);
+    o.outline([60, 80, 70]);
+    g.paste(o);
+    for (const [x, y] of [[6, 14], [27, 17], [19, 25], [8, 24]]) g.set(x, y, GLOW);
+  });
+  // B+15 lab stool (a seat, not solid)
+  drawTile(B + 15, (g, { obj, shadow }) => {
+    shadow(16, 28, 7, 2);
+    obj((o) => {
+      o.rect(15, 18, 2, 9, [130, 136, 148]);
+      o.rect(11, 26, 10, 1, [130, 136, 148]);
+      o.ellipse(16, 16, 7, 4, [60, 64, 76]);
+      o.ellipse(16, 15, 6, 2.5, [84, 90, 104]);
+    });
+  });
+  // B+16 office chair (a seat, not solid): a black swivel chair seen from behind
+  drawTile(B + 16, (g, { obj, shadow }) => {
+    shadow(16, 28, 9, 2);
+    obj((o) => {
+      for (const dx of [-7, 0, 7]) o.rect(16 + dx, 26, 2, 2, [40, 40, 46]);
+      o.rect(15, 20, 2, 6, [90, 94, 104]);
+      o.box(8, 14, 16, 7, [52, 54, 64], 1.25);
+      o.box(9, 3, 14, 12, [60, 62, 74], 1.25);
+      o.rect(11, 5, 10, 1, [86, 90, 104]);
+    });
+  });
+  // B+17 biohazard sign on the lab wall
+  drawTile(B + 17, (g) => {
+    labWall(g);
+    const o = canvas(T, T);
+    for (let j = 0; j < 17; j++) o.rect(16 - Math.floor(j * 0.62), 4 + j, 1 + 2 * Math.floor(j * 0.62), 1, [232, 190, 40]);
+    o.ellipse(16, 14.5, 3.5, 3.5, [36, 34, 38]);
+    o.ellipse(16, 14.5, 1.5, 1.5, [232, 190, 40]);
+    o.rect(15, 9, 2, 3, [36, 34, 38]);
+    o.rect(11, 17, 3, 2, [36, 34, 38]);
+    o.rect(18, 17, 3, 2, [36, 34, 38]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+18 cold-room sign on the lab wall: a blue plate with a snowflake and -20 °C
+  drawTile(B + 18, (g) => {
+    labWall(g);
+    const o = canvas(T, T);
+    o.box(5, 5, 22, 16, [52, 110, 190], 1.2);
+    for (let i = -4; i <= 4; i++) {
+      o.set(11 + i, 12, [255, 255, 255]);
+      o.set(11, 12 + i, [255, 255, 255]);
+      if (Math.abs(i) < 4) { o.set(11 + i, 12 + i, [255, 255, 255]); o.set(11 + i, 12 - i, [255, 255, 255]); }
+    }
+    o.rect(17, 10, 2, 1, [255, 255, 255]);
+    o.rect(20, 8, 4, 1, [255, 255, 255]);
+    o.rect(20, 8, 1, 7, [255, 255, 255]);
+    o.rect(17, 15, 7, 1, [200, 220, 255]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+19 cryo rack: a steel shelf of frosted sample boxes
+  drawTile(B + 19, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(2, 0, 28, 30, [150, 160, 176], 1.15);
+      for (let s = 0; s < 3; s++) {
+        const y = 2 + s * 9;
+        o.rect(4, y, 24, 7, [60, 70, 86]);
+        for (let i = 0; i < 3; i++) {
+          const col = [[230, 120, 120], [120, 170, 240], [240, 220, 120]][(i + s) % 3];
+          o.box(5 + i * 8, y + 2, 6, 5, col);
+          o.rect(5 + i * 8, y + 2, 6, 1, [245, 250, 255]);
+        }
+        o.rect(4, y + 7, 24, 2, [190, 200, 214]);
+      }
+      for (const [x, y] of [[7, 3], [22, 12], [14, 21], [26, 4]]) o.set(x, y, [255, 255, 255]);
+    });
+  });
+  // B+20 liquid nitrogen dewar: a squat steel flask with a vapour wisp
+  drawTile(B + 20, (g, { obj, shadow }) => {
+    shadow(16, 29, 10, 2);
+    obj((o) => {
+      o.ellipse(16, 20, 9, 9, STEEL);
+      o.ellipse(14, 17, 4, 5, sh(STEEL, 1.25));
+      o.rect(12, 6, 8, 6, sh(STEEL, 0.85));
+      o.box(11, 4, 10, 3, [52, 110, 190]);
+      o.rect(9, 22, 14, 2, [52, 110, 190]);
+    });
+    for (let j = 0; j < 5; j++) g.ellipse(18 + j, 2 - j * 0.3, 3, 1.5, [240, 248, 255, 70]);
+  });
+  // B+21 hanging lamp (above the avatars): a white enamel shade and a soft cone of light
+  drawTile(B + 21, (g) => {
+    for (let j = 0; j < 14; j++) g.rect(Math.round(16 - (5 + j)), 9 + j, 10 + 2 * j, 1, [255, 250, 220, Math.round(46 - j * 3)]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 3, [60, 64, 76]);
+    o.ellipse(16, 7, 7, 4, [236, 240, 244]);
+    o.rect(9, 7, 14, 1, [200, 206, 214]);
+    o.ellipse(16, 8, 3, 1, [255, 252, 220]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+22 sink bench: a white bench with a steel basin, a swan-neck tap and a soap bottle
+  drawTile(B + 22, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      benchBase(o);
+      o.box(7, 12, 16, 4, STEEL, 1.2);
+      o.rect(9, 13, 12, 2, [110, 120, 134]);
+      o.rect(19, 4, 2, 9, [200, 206, 214]);
+      o.rect(15, 4, 5, 2, [200, 206, 214]);
+      o.box(25, 6, 4, 7, [120, 200, 230]);
+    });
+  });
+  // B+23 glowing footprints (decor): Ida walked through the spores on her way to the vent
+  drawTile(B + 23, (g) => {
+    const step = (x, y) => {
+      g.ellipse(x, y, 2.5, 3.5, alpha(GLOW, 170));
+      g.ellipse(x, y + 5.5, 2, 1.6, alpha(GLOW, 170));
+      g.ellipse(x, y + 2, 4.5, 6, alpha(GLOW, 30));
+    };
+    step(10, 20);
+    step(20, 8);
+  });
+  // B+24 stepladder below the vent
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 29, 10, 2);
+    obj((o) => {
+      o.rect(8, 2, 3, 27, [220, 170, 40]);
+      o.rect(21, 2, 3, 27, [220, 170, 40]);
+      for (let y = 7; y < 28; y += 6) o.box(9, y, 14, 3, [200, 206, 214]);
+      o.box(7, 0, 18, 4, [200, 150, 30]);
+    });
+  });
+  // B+25 window from the lab into the office: a glass pane with a desk lamp's warm light behind
+  drawTile(B + 25, (g) => {
+    labWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 20, [200, 206, 214], 1.15);
+    o.rect(5, 5, 22, 16, [96, 74, 56]);
+    for (let j = 0; j < 16; j++) o.rect(5, 5 + j, 22, 1, alpha([255, 214, 150], 30 + j * 5));
+    o.rect(5, 16, 22, 5, [130, 92, 58]);
+    o.rect(16, 5, 1, 16, [200, 206, 214]);
+    for (let i = 0; i < 5; i++) o.set(7 + i, 11 - i, [255, 255, 255, 150]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+26 sample trolley: a steel cart with racks of test tubes
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 29, 12, 2);
+    obj((o) => {
+      o.box(4, 10, 24, 4, STEEL, 1.2);
+      o.box(4, 20, 24, 3, STEEL, 1.2);
+      o.rect(5, 14, 2, 13, [130, 136, 148]);
+      o.rect(25, 14, 2, 13, [130, 136, 148]);
+      for (let i = 0; i < 6; i++) {
+        o.rect(7 + i * 3, 3, 2, 8, [200, 228, 236]);
+        o.rect(7 + i * 3, 7, 2, 3, [[230, 130, 200], [120, 220, 160], [255, 200, 120]][i % 3]);
+      }
+      o.box(6, 8, 20, 3, [60, 64, 76]);
+      for (const x of [6, 25]) o.ellipse(x, 28, 2, 2, [40, 40, 46]);
+    });
+  });
+  solid(B + 11, B + 12, B + 13, B + 17, B + 18, B + 19, B + 20, B + 22, B + 24, B + 25, B + 26);
+  // B+27, B+28 lab wall front in a left wall and a right wall (turned like the lobby's side walls)
+  drawTile(B + 27, turned(labWall, 'ccw'));
+  drawTile(B + 28, turned(labWall, 'cw'));
+  solid(B + 27, B + 28);
+  // B+29 manual clipboard, B+30 air-quality poster and B+31 keypad, hung on the lab wall
+  onWall(B + 29, 26, labWall);
+  onWall(B + 30, 25, labWall);
+  onWall(B + 31, 13, labWall);
+}
+// --- end python-lab ---
+
+// --- sql-hotel restyle (tiles 240-271) ---
+// --- end sql-hotel ---
+
+// --- sql-cinema restyle (tiles 272-303) ---
+// --- end sql-cinema ---
+
+// --- sql-train restyle (tiles 304-335) ---
+// --- end sql-train ---
+
+// --- pandas-market restyle (tiles 336-367) ---
+// --- end pandas-market ---
+
+// --- ts-nordlys restyle (tiles 368-399) ---
+// --- end ts-nordlys ---
+
+// --- ts-festival restyle (tiles 400-431) ---
+// --- end ts-festival ---
+
+// --- python-docs restyle (tiles 432-463) ---
+// --- end python-docs ---
+
+// --- python-debug restyle (tiles 464-495) ---
+// --- end python-debug ---
+
+// --- stats-fair restyle (tiles 496-527) ---
+// --- end stats-fair ---
+
+// --- stats-ab restyle (tiles 528-559) ---
+// --- end stats-ab ---
+
+// --- nn-post restyle (tiles 560-591) ---
+// --- end nn-post ---
+
+// --- nn-tablets restyle (tiles 592-623) ---
+// --- end nn-tablets ---
+
+// --- ml-seeds restyle (tiles 624-655) ---
+// --- end ml-seeds ---
+
+// --- ml-customs restyle (tiles 656-687) ---
+// --- end ml-customs ---
+
+// --- ml-auction restyle (tiles 688-719) ---
+// --- end ml-auction ---
+
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.
 // Recolourable parts are drawn in marker colours that encode a shade factor f as v = f * 100:
@@ -2996,4 +3455,16 @@ mkdirSync('content/tilesets', { recursive: true });
 mkdirSync('content/sprites', { recursive: true });
 writeFileSync('content/tilesets/tiles.png', png(tiles));
 writeFileSync('content/sprites/avatar-parts.png', png(sheet));
-console.log('wrote content/tilesets/tiles.png and content/sprites/avatar-parts.png');
+const tilecount = TILESET_COLUMNS * TILESET_ROWS;
+writeFileSync('content/tilesets/tiles.json', JSON.stringify({ tilecount, solid: [...SOLID].sort((a, b) => a - b) }) + '\n');
+
+// Keep every map's embedded tileset in step with the image (Tiled and Phaser read its size from there).
+const mapFiles = ['content/lobby/map.json', ...readdirSync('content/rooms').map((r) => `content/rooms/${r}/map.json`)];
+for (const file of mapFiles) {
+  const map = JSON.parse(readFileSync(file, 'utf8'));
+  const ts = map.tilesets[0];
+  Object.assign(ts, { imagewidth: TILESET_COLUMNS * T, imageheight: TILESET_ROWS * T, columns: TILESET_COLUMNS, tilecount });
+  delete ts.tiles;
+  writeFileSync(file, JSON.stringify(map, null, 1) + '\n');
+}
+console.log('wrote content/tilesets/tiles.png, tiles.json, content/sprites/avatar-parts.png and synced the maps');

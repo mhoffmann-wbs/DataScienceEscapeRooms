@@ -356,6 +356,12 @@ The plan's "degree 8 overfits" was dropped: raw powers of age beyond 3 make `Lin
 
 **Open:** prototype each room's data so the answers are robust (well-separated clusters, a clear optimum in every search, the same top four containers for any reasonable model); decide the door's place; check that the handbooks stay at each room's level (`ml-courier` and `ml-avalanche` don't re-explain `train_test_split`). Order of work: infrastructure (packages, `show_scatter`, door), then `ml-seeds`, `ml-customs`, `ml-auction` (all built), then the two advanced rooms.
 
+### 22. Room restyle: every room its own look, like the lobby (in progress)
+Each room gets its own layout, size and art instead of the shared 22 x 15 template with a half wall: separate areas that tell the story, themed walls and floors, decoration on the optional `decor` and `above` layers, and furniture that fills the space without blocking the way.
+- **Groundwork** ✅: solid tiles are declared in `scripts/generate-art.mjs` and written to `content/tilesets/tiles.json` (maps carry no tile properties any more; this fixed two lobby wall tiles players could walk into); optional `decor` and `above` tile layers; a block of 32 tiles per room from 208 on; `onWall` to re-hang wall props on a new wall face; a map test that every door, puzzle, clue and handbook can be walked to from the spawn.
+- **Quarantine** (`python-lab`) ✅: 28 x 18; the hazard-striped airlock with the exit as the hub, Ida's office, the dark grow room with glowing mushroom beds, her footprints to the open vent, the wet lab and the frosted cold room.
+- The other fifteen rooms: pending.
+
 ## Known limits
 
 - **One shared lobby:** everyone using the site meets in the same lobby, a full P2P mesh. It is meant for about 10–30 people at once; several classes playing at the same time would make it heavy. If that happens, split the lobby again (e.g. a lobby name in the URL) rather than adding a server.

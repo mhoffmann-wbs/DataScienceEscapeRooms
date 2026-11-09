@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import tilesetInfo from '../../content/tilesets/tiles.json';
 
 // The subset of the Tiled JSON format the engine reads. Maps are authored in Tiled;
-// conventions: tile layers "floor" and "walls", an object layer "objects",
-// tiles with a boolean `collides` property block movement.
+// conventions: tile layers "floor" and "walls" (plus optional "decor" between them and "above"
+// over the avatars), an object layer "objects"; tiles listed as solid in tiles.json block movement on "walls".
 
 const propertySchema = z.object({ name: z.string(), type: z.string(), value: z.unknown() });
 
@@ -162,15 +163,10 @@ export function pickSpawnPoint(spawn: Rect, random: () => number = Math.random):
   };
 }
 
-/** Global tile ids whose tileset tile has `collides: true`. */
+/** Global tile ids that block movement on the walls layer: the tiles scripts/generate-art.mjs marks solid. */
 export function collidingGids(map: TiledMap): Set<number> {
-  const gids = new Set<number>();
-  for (const ts of map.tilesets) {
-    for (const tile of ts.tiles ?? []) {
-      if (tile.properties?.some((p) => p.name === 'collides' && p.value === true)) gids.add(ts.firstgid + tile.id);
-    }
-  }
-  return gids;
+  const firstgid = map.tilesets[0]?.firstgid ?? 1;
+  return new Set(tilesetInfo.solid.map((id) => firstgid + id));
 }
 
 export function containsPoint(r: Rect, x: number, y: number): boolean {

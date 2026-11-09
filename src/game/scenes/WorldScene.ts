@@ -10,7 +10,7 @@ import { bus, type Interactable } from '../events';
 import { NEARBY_RADIUS } from '../../net/session';
 import { LOBBY, MAPS } from '../maps';
 import { getArriveAt, getMapKey, getPresence, getProfile } from '../registry';
-import { containsPoint, inFrontOf, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Door, type Rect } from '../tiled';
+import { collidingGids, containsPoint, inFrontOf, parseMapObjects, pickSpawnPoint, tiledMapSchema, type AreaSpot, type Door, type Rect } from '../tiled';
 
 const SPEED = 160;
 const ZOOM = 1.5;
@@ -22,6 +22,8 @@ const UI_INSET_BOTTOM = 64;
 const GOTO_WAIT_MS = 15_000;
 /** The feet sit this far below the sprite's centre; walls are checked there. */
 const FEET_OFFSET_Y = 10;
+/** Depth of the "above" tile layer: over every avatar (depth = y), under the name labels (y + 10000). */
+const ABOVE_DEPTH = 9000;
 
 type MoveKeys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -69,7 +71,8 @@ export class WorldScene extends Phaser.Scene {
     const profile = getProfile(this);
     this.presence = getPresence(this);
     const mapKey = getMapKey(this);
-    const { spawn, doors, puzzles, clues, references, areas } = parseMapObjects(tiledMapSchema.parse(MAPS[mapKey]));
+    const mapData = tiledMapSchema.parse(MAPS[mapKey]);
+    const { spawn, doors, puzzles, clues, references, areas } = parseMapObjects(mapData);
     this.areas = areas;
     this.currentArea = undefined;
     this.spots = [
@@ -84,11 +87,16 @@ export class WorldScene extends Phaser.Scene {
     const map = this.make.tilemap({ key: mapKey });
     const tileset = map.addTilesetImage('tiles', 'tiles');
     if (!tileset) throw new Error(`Tileset missing for map ${mapKey}`);
+    const hasLayer = (name: string) => mapData.layers.some((l) => l.type === 'tilelayer' && l.name === name);
     map.createLayer('floor', tileset);
+    // Optional: rugs, puddles, cables and shadows over the floor, under the furniture; never solid.
+    if (hasLayer('decor')) map.createLayer('decor', tileset);
     const walls = map.createLayer('walls', tileset);
     // Without the gpu flag createLayer makes a plain TilemapLayer; the check narrows the type.
     if (!(walls instanceof Phaser.Tilemaps.TilemapLayer)) throw new Error(`Map ${mapKey} has no walls layer`);
-    walls.setCollisionByProperty({ collides: true });
+    walls.setCollision([...collidingGids(mapData)]);
+    // Optional: things players walk under (hanging lamps, canopies, luggage racks), drawn over the avatars but under their labels.
+    if (hasLayer('above')) map.createLayer('above', tileset)?.setDepth(ABOVE_DEPTH);
     this.walls = walls;
     this.goto = null;
 
