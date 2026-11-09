@@ -3197,6 +3197,355 @@ function onWall(index, src, wall, seed = 3) {
 // --- end stats-fair ---
 
 // --- stats-ab restyle (tiles 528-559) ---
+// The Chocolate Experiment: Kakaowerk Kleeberg at midnight. A marble foyer with the exit and the
+// release console, Ana's wood-floored analytics office, a checkered blind-tasting room and the long
+// packing hall: conveyor lines, the checkweigher, a copper conche, moulds, pallets and cocoa sacks.
+{
+  const B = blockOf('stats-ab');
+  const CREAM = [234, 222, 198];
+  const COCOA = [92, 56, 38];
+  const CHOC = [118, 70, 44];
+  const MILK = [168, 112, 70];
+  const COPPER = [200, 124, 72];
+  const GOLD = [214, 172, 78];
+  const BRAND = [150, 36, 54];
+  const STEEL = [176, 184, 196];
+  const WRAPS = [[150, 36, 54], [64, 110, 170], [214, 172, 78], [70, 140, 90], [120, 70, 44]];
+  /** The factory's wall face: cream glazed bricks above a chocolate-brown band with a gold line. */
+  const factoryWall = (g) => {
+    g.rect(0, 0, T, T, CREAM);
+    g.noise(0, 0, T, T, 0.05, B);
+    g.rect(0, 0, T, 2, sh(CREAM, 0.66));
+    for (let y = 2, r = 0; y < T - 7; y += 6, r++) {
+      g.rect(0, y, T, 1, sh(CREAM, 0.84));
+      for (let x = r % 2 ? 0 : 8; x < T; x += 16) g.rect(x, y, 1, 6, sh(CREAM, 0.84));
+      g.rect(0, y + 1, T, 1, sh(CREAM, 1.06));
+    }
+    g.rect(0, T - 7, T, 7, COCOA);
+    g.rect(0, T - 7, T, 1, sh(COCOA, 1.35));
+    g.rect(0, T - 5, T, 1, GOLD);
+    g.rect(0, T - 1, T, 1, sh(COCOA, 0.7));
+  };
+  /** A chocolate bar in a coloured wrapper, seen from above. */
+  const wrapped = (o, x, y, col, w = 7, h = 4) => {
+    o.box(x, y, w, h, col, 1.25);
+    o.rect(x + 2, y + 1, Math.max(1, w - 4), h - 2, [246, 236, 214]);
+  };
+  // B+0 factory wall front
+  drawTile(B, factoryWall);
+  // B+1 packing hall floor: sealed grey-green concrete with speckles and a seam
+  drawTile(B + 1, (g) => {
+    const c = [148, 152, 142];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.07, B + 1);
+    const r = rng(B + 1);
+    for (let i = 0; i < 26; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), sh(c, r() < 0.5 ? 0.8 : 1.15));
+    g.rect(0, 0, T, 1, sh(c, 0.8));
+    g.rect(0, 0, 1, T, sh(c, 0.8));
+    g.rect(1, 1, T - 1, 1, sh(c, 1.06));
+  });
+  // B+2 tasting room floor: cream and cocoa checks
+  drawTile(B + 2, (g) => {
+    for (const [x, y] of [[0, 0], [16, 0], [0, 16], [16, 16]]) {
+      const c = (x + y) % 32 ? [170, 122, 86] : [232, 220, 196];
+      g.rect(x, y, 16, 16, c);
+      g.rect(x, y, 16, 1, sh(c, 1.1));
+      g.rect(x, y + 15, 16, 1, sh(c, 0.86));
+    }
+    g.noise(0, 0, T, T, 0.06, B + 2);
+  });
+  // B+3 foyer floor: polished caramel marble slabs with pale veins
+  drawTile(B + 3, (g) => {
+    const c = [196, 150, 112];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.05, B + 3);
+    for (let i = 0; i < 26; i++) g.set(3 + i, 6 + Math.round(Math.sin(i / 4) * 3 + i / 3), sh(c, 1.22));
+    for (let i = 0; i < 14; i++) g.set(16 + i, 22 + Math.round(Math.sin(i / 3) * 2), sh(c, 1.16));
+    for (let i = 0; i < 6; i++) g.set(4 + i, 26 - i, [255, 244, 226, 90]);
+    g.rect(0, 0, T, 1, sh(c, 0.74));
+    g.rect(0, 0, 1, T, sh(c, 0.74));
+    g.rect(1, 1, T - 1, 1, sh(c, 1.1));
+  });
+  // B+4, B+5 factory wall front in a left and a right wall
+  drawTile(B + 4, turned(factoryWall, 'ccw'));
+  drawTile(B + 5, turned(factoryWall, 'cw'));
+  solid(B, B + 4, B + 5);
+  // B+6..B+9 conveyor line, four tiles: a wrapping hood on the left, then a belt of bars on rollers
+  drawPiece([[B + 6, B + 7, B + 8, B + 9]], (g, { obj, shadow }) => {
+    shadow(64, 29, 62, 3);
+    obj((o) => {
+      o.box(0, 11, 128, 11, [58, 60, 70], 1.3);
+      for (let x = 2; x < 128; x += 4) o.rect(x, 12, 1, 9, [76, 80, 94]);
+      o.rect(0, 21, 128, 2, STEEL);
+      for (const x of [3, 40, 84, 121]) o.rect(x, 23, 3, 7, sh(STEEL, 0.7));
+      // the wrapping hood
+      o.box(2, 2, 28, 19, [206, 210, 216], 1.15);
+      o.rect(2, 2, 28, 3, BRAND);
+      o.rect(2, 4, 28, 1, sh(BRAND, 0.75));
+      o.rect(5, 8, 10, 5, [30, 40, 36]);
+      o.rect(6, 9, 6, 1, [120, 230, 160]);
+      o.rect(6, 11, 4, 1, [255, 200, 120]);
+      o.ellipse(22, 10, 2.5, 2.5, [230, 60, 50]);
+      o.ellipse(22, 10, 1, 1, [255, 170, 160]);
+      for (let x = 4; x < 28; x += 3) o.rect(x, 16, 2, 5, [150, 156, 166]);
+      const r = rng(B + 6);
+      for (let x = 34, i = 0; x < 122; x += 11, i++) wrapped(o, x + Math.floor(r() * 2), 13 + (i % 2), WRAPS[i % WRAPS.length]);
+    });
+  });
+  // B+10 the checkweigher: a steel platform with a bar on it and a display head reading 100.8
+  drawTile(B + 10, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      o.box(1, 14, 30, 8, STEEL, 1.2);
+      o.rect(3, 16, 26, 1, sh(STEEL, 0.8));
+      o.rect(4, 22, 3, 8, sh(STEEL, 0.7));
+      o.rect(25, 22, 3, 8, sh(STEEL, 0.7));
+      o.rect(14, 22, 4, 6, [70, 74, 84]);
+      o.rect(23, 4, 3, 11, [90, 96, 108]);
+      o.box(14, 0, 17, 8, [52, 56, 70], 1.3);
+      o.rect(15, 2, 15, 4, [20, 30, 26]);
+      for (const [x, w] of [[16, 2], [19, 2], [22, 1], [24, 2]]) o.rect(x, 3, w, 2, [120, 240, 160]);
+      o.set(27, 3, [255, 90, 70]);
+      o.set(28, 3, [255, 90, 70]);
+      wrapped(o, 4, 9, BRAND, 9, 5);
+    });
+  });
+  // B+11..B+14 the conche: a round copper tank of molten chocolate with a stirring arm, on legs
+  drawPiece([[B + 11, B + 12], [B + 13, B + 14]], (g, { obj, shadow }) => {
+    shadow(32, 58, 28, 5);
+    obj((o) => {
+      o.rect(9, 44, 4, 14, sh(STEEL, 0.6));
+      o.rect(51, 44, 4, 14, sh(STEEL, 0.6));
+      o.rect(30, 46, 4, 12, sh(STEEL, 0.6));
+      o.ellipse(32, 36, 27, 16, sh(COPPER, 0.8));
+      o.rect(5, 22, 54, 14, COPPER);
+      for (let x = 6; x < 58; x += 1) {
+        const f = 1 + 0.35 * Math.cos(((x - 32) / 27) * 1.5);
+        o.rect(x, 22, 1, 14, sh(COPPER, f > 1.2 ? 1.25 : f > 1.05 ? 1.05 : 0.85));
+      }
+      o.ellipse(32, 22, 27, 12, sh(COPPER, 1.15));
+      o.ellipse(32, 22, 24, 10, [60, 34, 22]);
+      o.ellipse(32, 23, 22, 8.5, CHOC);
+      // the swirl of the stirred chocolate
+      for (let a = 0; a < 26; a++) {
+        const t = a / 4, rr = 2 + a * 0.75;
+        o.set(32 + Math.cos(t) * rr * 0.95, 23 + Math.sin(t) * rr * 0.36, sh(MILK, 1.1));
+      }
+      o.ellipse(26, 20, 4, 1.4, [190, 132, 88, 200]);
+      o.rect(12, 30, 40, 2, sh(COPPER, 0.7));
+      o.box(28, 4, 8, 12, [70, 74, 84], 1.3);
+      o.rect(31, 14, 2, 9, STEEL);
+      o.rect(19, 20, 26, 2, STEEL);
+      o.box(40, 34, 13, 9, [52, 56, 70], 1.3);
+      o.rect(42, 36, 6, 2, [120, 230, 160]);
+      o.ellipse(50, 37, 1.5, 1.5, [230, 60, 50]);
+      o.rect(10, 37, 6, 3, GOLD);
+    });
+    // drips running down the side
+    for (const [x, l] of [[14, 6], [18, 4], [47, 5]]) g.rect(x, 30, 2, l, alpha(CHOC, 230));
+  });
+  // B+15 chocolate spill on the floor (decor)
+  drawTile(B + 15, (g) => {
+    g.ellipse(15, 18, 12, 7, alpha(COCOA, 220));
+    g.ellipse(24, 23, 5, 3, alpha(COCOA, 220));
+    g.ellipse(13, 16, 7, 3, alpha(CHOC, 230));
+    g.ellipse(11, 15, 3, 1, [210, 160, 120, 200]);
+    g.ellipse(6, 26, 2, 1.5, alpha(COCOA, 220));
+  });
+  // B+16 floor drain (decor): a round steel grate
+  drawTile(B + 16, (g) => {
+    g.ellipse(16, 17, 9, 6, [70, 74, 80]);
+    g.ellipse(16, 16, 8, 5, [128, 134, 142]);
+    for (let x = 10; x < 23; x += 3) g.rect(x, 13, 1, 7, [52, 56, 62]);
+    g.ellipse(16, 17, 9, 6, [0, 0, 0, 30]);
+  });
+  // B+17 hanging factory lamp (above the avatars): a green enamel dome and a strong cone of light
+  drawTile(B + 17, (g) => {
+    for (let j = 0; j < 21; j++) g.rect(Math.round(16 - (5 + j * 0.55)), 11 + j, Math.round(10 + j * 1.1), 1, [255, 240, 180, Math.round(95 - j * 3.5)]);
+    g.ellipse(16, 29, 10, 2.5, [255, 244, 200, 60]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 3, [40, 44, 50]);
+    o.ellipse(16, 8, 10, 5.5, [52, 112, 88]);
+    o.ellipse(15, 6, 6, 2.5, sh([52, 112, 88], 1.4));
+    o.rect(6, 9, 21, 2, [36, 78, 62]);
+    o.ellipse(16, 11, 5, 2, [255, 252, 220]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+18 overhead pipe (above the avatars): a copper chocolate pipe with a hanger and a flange
+  drawTile(B + 18, (g) => {
+    const o = canvas(T, T);
+    o.rect(14, 0, 3, 7, [60, 64, 72]);
+    o.box(0, 6, T, 7, COPPER, 1.3, 0.7);
+    o.rect(0, 8, T, 1, sh(COPPER, 1.45));
+    o.box(12, 4, 7, 11, sh(COPPER, 0.85), 1.25);
+    o.outline();
+    g.paste(o);
+    g.ellipse(16, 24, 12, 2, [0, 0, 0, 40]);
+  });
+  // B+19 blind-tasting booth: a white table with a divider, a plate of two squares, a card and water
+  drawTile(B + 19, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      o.box(1, 1, 30, 12, [196, 186, 168], 1.15);
+      o.rect(3, 3, 26, 1, sh([196, 186, 168], 0.85));
+      o.box(1, 12, 30, 10, [244, 240, 232], 1.05, 0.85);
+      o.rect(3, 22, 3, 8, COCOA);
+      o.rect(26, 22, 3, 8, COCOA);
+      o.ellipse(11, 15, 6, 3, [255, 255, 255]);
+      o.box(7, 13, 4, 3, CHOC, 1.3);
+      o.box(12, 13, 4, 3, sh(CHOC, 1.2), 1.3);
+      paper(o, 18, 13, 6, 7);
+      o.box(26, 10, 3, 5, [190, 226, 240]);
+    });
+  });
+  // B+20 mould trolley: a steel rack of trays with rows of moulded bars
+  drawTile(B + 20, (g, { obj, shadow }) => {
+    shadow(16, 29, 12, 2);
+    obj((o) => {
+      o.rect(4, 2, 2, 26, sh(STEEL, 0.8));
+      o.rect(26, 2, 2, 26, sh(STEEL, 0.8));
+      for (let s = 0; s < 3; s++) {
+        const y = 3 + s * 8;
+        o.box(3, y, 26, 6, STEEL, 1.2);
+        for (let i = 0; i < 5; i++) o.box(5 + i * 5, y + 1, 4, 3, s === 1 ? sh(CHOC, 1.3) : CHOC, 1.3);
+      }
+      for (const x of [5, 27]) o.ellipse(x, 29, 2, 1.5, [40, 40, 46]);
+    });
+  });
+  // B+21 the tasting protocol: a clipboard on a wooden easel by the tasting room's door
+  drawTile(B + 21, (g, { obj, shadow }) => {
+    shadow(16, 29, 10, 2);
+    obj((o) => {
+      o.rect(8, 6, 2, 24, WOOD_DARK);
+      o.rect(22, 6, 2, 24, WOOD_DARK);
+      o.rect(15, 2, 2, 22, sh(WOOD_DARK, 0.85));
+      o.box(6, 2, 20, 22, [196, 150, 96], 1.15);
+      o.rect(12, 1, 8, 3, STEEL);
+      o.box(8, 5, 16, 17, [250, 248, 238], 1, 0.86);
+      o.rect(9, 6, 14, 3, BRAND);
+      for (let y = 10; y < 21; y += 2) o.rect(10, y, 10 - (y % 3), 1, [130, 130, 145]);
+      o.ellipse(20, 18, 2, 2, GOLD);
+    });
+  });
+  // B+22, B+23 the night guard's desk: a curved wood counter with a monitor, a logbook and a bell
+  drawPiece([[B + 22, B + 23]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(2, 12, 60, 16, WOOD, 1.25);
+      o.rect(2, 14, 60, 1, sh(WOOD, 0.8));
+      o.rect(2, 20, 60, 2, GOLD);
+      o.box(26, 16, 12, 9, BRAND, 1.2);
+      o.ellipse(32, 20, 3, 3, GOLD);
+      o.box(6, 1, 18, 12, [52, 56, 70], 1.3);
+      o.rect(8, 3, 14, 8, [24, 40, 46]);
+      for (let i = 0; i < 4; i++) o.rect(9 + (i % 2) * 7, 4 + Math.floor(i / 2) * 4, 5, 3, [70, 110, 120]);
+      o.rect(12, 13, 6, 1, [70, 74, 84]);
+      o.box(36, 7, 14, 6, [240, 236, 222], 1, 0.85);
+      o.rect(43, 7, 1, 6, [180, 170, 150]);
+      o.ellipse(56, 10, 3, 2.5, GOLD);
+      o.rect(55, 7, 2, 1, sh(GOLD, 1.3));
+    });
+  });
+  // B+24 chocolate display cabinet: a glass case of wrapped bars on a wooden base
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(3, 0, 26, 21, [210, 230, 236], 1.1);
+      for (let s = 0; s < 3; s++) {
+        o.rect(4, 6 + s * 6, 24, 1, [170, 190, 200]);
+        for (let i = 0; i < 3; i++) wrapped(o, 5 + i * 8, 2 + s * 6, WRAPS[(i + s * 2) % WRAPS.length], 6, 4);
+      }
+      for (let i = 0; i < 6; i++) o.set(6 + i, 18 - i * 2, [255, 255, 255, 160]);
+      o.box(2, 20, 28, 10, CHOC, 1.25);
+      o.rect(4, 24, 24, 1, GOLD);
+    });
+  });
+  // B+25, B+26 the Kleeberg sign on the factory wall: a gold-framed plate with a cocoa pod and lettering
+  drawPiece([[B + 25, B + 26]], (g) => {
+    const wall = canvas(T, T);
+    factoryWall(wall);
+    g.paste(wall);
+    g.paste(wall, T);
+    const o = canvas(2 * T, T);
+    o.box(3, 4, 58, 18, BRAND, 1.25);
+    o.rect(4, 5, 56, 1, GOLD);
+    o.rect(4, 20, 56, 1, GOLD);
+    o.ellipse(12, 13, 5, 6.5, [176, 104, 48]);
+    o.ellipse(12, 13, 3.5, 5.5, [206, 136, 66]);
+    for (let y = 8; y < 19; y += 2) o.set(12, y, [140, 76, 34]);
+    o.rect(12, 5, 1, 2, [70, 120, 60]);
+    // K L E E B E R G as blocky gold letters
+    const letters = ['K', 'L', 'E', 'E', 'B', 'E', 'R', 'G'];
+    const font = {
+      K: ['101', '110', '100', '110', '101'], L: ['100', '100', '100', '100', '111'], E: ['111', '100', '110', '100', '111'],
+      B: ['110', '101', '110', '101', '110'], R: ['110', '101', '110', '101', '101'], G: ['111', '100', '101', '101', '111'],
+    };
+    letters.forEach((ch, i) => font[ch].forEach((row, y) => [...row].forEach((b, x) => b === '1' && o.set(21 + i * 5 + x, 10 + y, sh(GOLD, 1.2)))));
+    o.outline();
+    g.paste(o);
+  });
+  // B+27 Ana's testing binder: a low shelf of ring binders with the thick red one open on top
+  drawTile(B + 27, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      o.box(2, 12, 28, 17, WOOD, 1.25);
+      o.rect(4, 14, 24, 13, sh(WOOD, 0.6));
+      for (let i = 0; i < 6; i++) {
+        const col = [BRAND, [64, 110, 170], [70, 140, 90], GOLD, [64, 110, 170], [230, 226, 214]][i];
+        o.box(5 + i * 4, 15, 3, 12, col, 1.2);
+        o.rect(6 + i * 4, 23, 1, 2, [250, 248, 238]);
+      }
+      o.box(6, 4, 20, 9, BRAND, 1.2);
+      o.box(7, 2, 9, 9, [250, 248, 238], 1, 0.86);
+      o.box(16, 2, 9, 9, [250, 248, 238], 1, 0.86);
+      for (let y = 4; y < 10; y += 2) { o.rect(9, y, 5, 1, [130, 130, 145]); o.rect(18, y, 5, 1, [130, 130, 145]); }
+      for (let y = 3; y < 10; y += 2) o.set(16, y, STEEL);
+    });
+  });
+  // B+28 a pallet of chocolate cartons, shrink-wrapped
+  drawTile(B + 28, (g, { obj, shadow }) => {
+    shadow(16, 30, 14, 2);
+    obj((o) => {
+      o.box(1, 25, 30, 5, [170, 130, 84], 1.25);
+      for (const x of [3, 14, 25]) o.rect(x, 27, 4, 3, [90, 64, 40]);
+      const carton = [196, 150, 100];
+      for (const [x, y] of [[2, 14], [16, 14], [2, 3], [16, 3]]) {
+        o.box(x, y, 14, 11, carton, 1.2);
+        o.rect(x, y + 4, 14, 1, sh(carton, 0.8));
+        o.ellipse(x + 7, y + 7, 2.5, 2, BRAND);
+      }
+    });
+    for (let y = 3; y < 25; y += 5) g.rect(2, y, 28, 1, [255, 255, 255, 50]);
+  });
+  // B+29 spilt cocoa beans (decor)
+  drawTile(B + 29, (g) => {
+    const r = rng(B + 29);
+    for (let i = 0; i < 16; i++) {
+      const x = 4 + Math.floor(r() * 24), y = 6 + Math.floor(r() * 22);
+      g.ellipse(x + 0.5, y + 1, 2.5, 1.5, [0, 0, 0, 50]);
+      g.ellipse(x, y, 2.5, 1.6, [110, 62, 40]);
+      g.set(x - 1, y - 1, [170, 110, 74]);
+      g.set(x + 1, y, [70, 38, 24]);
+    }
+  });
+  // B+30 the factory clock on the wall: midnight
+  drawTile(B + 30, (g) => {
+    factoryWall(g);
+    const o = canvas(T, T);
+    o.ellipse(16, 12, 10, 10, COCOA);
+    o.ellipse(16, 12, 8.5, 8.5, [250, 246, 232]);
+    for (let a = 0; a < 12; a++) o.set(16 + Math.round(Math.sin((a / 6) * Math.PI) * 7), 12 - Math.round(Math.cos((a / 6) * Math.PI) * 7), COCOA);
+    o.rect(16, 5, 1, 7, [30, 30, 36]);
+    o.rect(15, 7, 1, 5, [30, 30, 36]);
+    o.set(16, 12, BRAND);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 6, B + 7, B + 8, B + 9, B + 10, B + 11, B + 12, B + 13, B + 14, B + 19, B + 20, B + 21, B + 22, B + 23, B + 24, B + 25, B + 26, B + 27, B + 28, B + 30);
+  // B+31 the quality manual's clipboard, hung on the factory wall
+  onWall(B + 31, 26, factoryWall);
+}
 // --- end stats-ab ---
 
 // --- nn-post restyle (tiles 560-591) ---
