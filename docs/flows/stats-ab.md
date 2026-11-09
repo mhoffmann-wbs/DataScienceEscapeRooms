@@ -91,11 +91,13 @@ flowchart LR
 
 ## Where things are
 
-- Next to its station: the tasting protocol (2 tiles from the tasting room).
-- On the north wall, about 4 tiles above their stations: the quality manual (packing line scale) and Ana's note (Ana's laptop).
-- Ana's laptop and the dashboard stand 4 tiles apart in the same row, so the PIN is a short hand-off.
-- The agenda hangs on the north wall directly above the console, 8 tiles away.
-- The planning board stands in the north-west corner, about 10 tiles from the tasting room in the south: the hand-off that makes the team walk and talk.
+The factory has four parts: the marble foyer with the exit, the release console and Ana's binder (where the team arrives), the blind-tasting room off the foyer, the long packing hall below, and Ana's office, reached only through the hall.
+
+- Next to its station: the tasting protocol, on an easel at the tasting room's door, 6 tiles from the fridge.
+- On the wall right above their stations: Ana's note (2 tiles above Ana's laptop, in the office) and the quality manual (3 tiles above the packing line scale, in the hall).
+- Ana's laptop and the dashboard stand 5 tiles apart in the same office, so the PIN is a short hand-off.
+- The agenda hangs in Ana's office; the console stands by the exit in the foyer, a walk through the packing hall away.
+- The planning board hangs in the office's north-west corner; the tasting room's fridge is reached from the foyer, about 20 tiles of walking through the hall: the hand-off that makes the team walk and talk.
 
 ## Findings
 
