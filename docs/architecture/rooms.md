@@ -16,6 +16,12 @@ Puzzles should combine the room with the code: **clues** (photos, posters, manua
 
 **Don't lock stations by game mechanics alone.** Instead of `requires`, either make the task need an earlier result (a value from another station's reveal, like the calibration values in `stats-fair` or the registered significance level in `stats-ab`), so players find out for themselves what they're missing, and list it in `uses`; or put the station behind a code **lock** whose code turns up elsewhere (the ticket office laptop's PIN in `stats-fair` is the duck pond's win chance). `requires` remains for older rooms.
 
+**Every clue exists once.** A value or rule lives in exactly one place: its clue, a reveal, or the task text. Don't repeat a clue's content in the intro, the task, starter comments, check messages, another clue or a reveal (a clue that says "2 % may be 15 ml short" doesn't also say "that means 285 ml"; the team works that out).
+
+**Only hints say where to look.** Task text, starter comments and check messages never point to a clue or another station ("the sign says which sums win", "(see Kai's note)", "from the cup log", "the fair map says…"). The team finds out for itself what it's missing; the first hint is the place for "Kai left a note at the till".
+
+**Every station has a clear goal.** The task says what the team is finding out, in one sentence near the top ("Is the game fair?"), and ends in something the check verifies, not only a chart or a question to think about. Yes/no questions become booleans (`fair`, `legal`, `could_be_luck`). A value a clue states (the flyer's €65) is the value the data gives, not one that is close to it. Leave out steps that only reproduce a fixed result (a `sample(…, random_state=7)` mean), and don't solve part of the task in the starter (a ready-made list of all outcomes).
+
 ## Rooms are data, not code
 - Each room is a folder `content/rooms/<roomId>/`; the folder name is the roomId. It contains:
   - `map.json`: the Tiled export, with one `puzzle` object per manifest puzzle and one `clue` object per manifest clue.

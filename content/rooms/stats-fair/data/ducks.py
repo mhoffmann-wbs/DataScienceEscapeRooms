@@ -14,16 +14,20 @@ _stars = (
 stars = pd.Series([int(c) for c in _stars], name="stars")
 
 
-def _duck_check(p_win, profit, observed):
+def _duck_check(p_win, profit, observed, honest):
     '''The duck pond's check: the chance to win, Bruno's expected profit and tonight's share.'''
     from numbers import Real
     problems = []
     if not isinstance(p_win, Real) or abs(p_win - 0.16943) > 0.0001:
-        problems.append("p_win is off: the chance of 3 or more stars when fishing 6 ducks. / p_win stimmt nicht: die Chance auf 3 oder mehr Sterne beim Angeln von 6 Enten.")
+        problems.append("p_win is off: the chance of winning a teddy in one game. / p_win stimmt nicht: die Chance, in einem Spiel einen Teddy zu gewinnen.")
     if not isinstance(profit, Real) or abs(profit - 1.1528) > 0.005:
         problems.append("profit is off: what a game brings in minus the teddy's price times the chance to win it. / profit stimmt nicht: was ein Spiel einbringt, minus Teddypreis mal Gewinnchance.")
     if not isinstance(observed, Real) or abs(observed - 0.1675) > 0.0001:
-        problems.append("observed is off: the share of tonight's games with 3 or more stars. / observed stimmt nicht: der Anteil der heutigen Spiele mit 3 oder mehr Sternen.")
+        problems.append("observed is off: the share of tonight's games that won a teddy. / observed stimmt nicht: der Anteil der heutigen Spiele, die einen Teddy gewonnen haben.")
+    if not isinstance(honest, (bool, np.bool_)):
+        problems.append("honest should be True or False. / honest soll True oder False sein.")
+    elif not honest:
+        problems.append("honest is off: compare tonight's share with the chance in theory. / honest stimmt nicht: Vergleicht den heutigen Anteil mit der Chance in der Theorie.")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"

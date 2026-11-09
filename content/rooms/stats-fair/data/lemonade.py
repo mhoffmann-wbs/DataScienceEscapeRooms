@@ -15,7 +15,7 @@ cups = pd.Series([
 ], name="ml")
 
 
-def _cup_check(mean_raw, median_raw, clean, mean, median, sd):
+def _cup_check(mean_raw, median_raw, clean, mean, median, sd, mean_moved, median_moved):
     '''The cup log's check: the raw and the clean description.'''
     from numbers import Real
     problems = []
@@ -26,13 +26,17 @@ def _cup_check(mean_raw, median_raw, clean, mean, median, sd):
         if abs(mean_raw - 311.342) > 0.01 or median_raw != 296:
             problems.append("mean_raw and median_raw describe the log as it is, before any cleaning. / mean_raw und median_raw beschreiben das Protokoll, wie es ist, vor jeder Bereinigung.")
         if not hasattr(clean, "__len__") or len(clean) != 116:
-            problems.append(f"clean has {len(clean) if hasattr(clean, '__len__') else 0} cups, but the log has 116 real ones (see Kai's note). / clean hat {len(clean) if hasattr(clean, '__len__') else 0} Becher, das Protokoll hat aber 116 echte (siehe Kais Notiz).")
+            problems.append(f"clean has {len(clean) if hasattr(clean, '__len__') else 0} cups, but the log has 116 real ones. / clean hat {len(clean) if hasattr(clean, '__len__') else 0} Becher, das Protokoll hat aber 116 echte.")
         elif abs(mean - 296.388) > 0.01 or median != 296:
             problems.append("mean and median should describe the clean cups. / mean und median sollen die bereinigten Becher beschreiben.")
         elif abs(sd - 7.840) < 0.005:
             problems.append("sd divides by n. For a sample, divide by n - 1 (pandas' .std() does that; numpy needs ddof=1). / sd teilt durch n. Für eine Stichprobe teilt durch n - 1 (pandas' .std() macht das; numpy braucht ddof=1).")
         elif abs(sd - 7.874) > 0.005:
             problems.append("sd is off: the standard deviation of the clean cups. / sd stimmt nicht: die Standardabweichung der bereinigten Becher.")
+    if not all(isinstance(v, (bool, np.bool_)) for v in (mean_moved, median_moved)):
+        problems.append("mean_moved and median_moved should be True or False. / mean_moved und median_moved sollen True oder False sein.")
+    elif not mean_moved or median_moved:
+        problems.append("mean_moved or median_moved is off: compare each value before and after cleaning. / mean_moved oder median_moved stimmt nicht: Vergleicht jeden Wert vor und nach dem Bereinigen.")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"

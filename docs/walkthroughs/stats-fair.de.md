@@ -6,7 +6,7 @@
 
 > Kleeberger Herbstmarkt, Viertel nach Mitternacht. Besucher haben sich beschwert, dass ein Spiel gezinkt ist, also hat euch die Marktkommission als Prüfteam nach Feierabend geschickt. Dann ist hinter euch das Tor zugefallen.
 >
-> Der Nachtwächter hat eine Notiz am Tor hinterlassen: Jeder Stand, den ihr fertig geprüft habt, bekommt ein Siegel mit einer Ziffer, und die Siegel öffnen das Tor. Prüft die Protokolle der Stände mit Python und findet heraus, welche Zahlen Zufall sind und welche nicht. Dieser Raum lädt Python mit pandas und scipy: Das erste Rätsel, das ihr öffnet, braucht einen Moment.
+> Prüft die Protokolle der Stände mit Python, findet heraus, welche Zahlen Zufall sind und welche nicht, und findet einen Weg hinaus. Dieser Raum lädt Python mit pandas und scipy: Das erste Rätsel, das ihr öffnet, braucht einen Moment.
 
 ## Überblick
 
@@ -14,9 +14,9 @@
 |---|---|---|---|
 | 1 | Das Becherprotokoll am Limonadenstand | Mittelwert vs. Median, Ausreißer und Datenfehler, die Stichproben-Standardabweichung, Histogramme | 🔎 Kais Notiz an der Kasse |
 | 2 | Glückssieben | Ergebnisraum und klassische Wahrscheinlichkeit, relative Häufigkeiten, die Binomialverteilung (cdf), wann ein Ergebnis zu unwahrscheinlich für Zufall ist | 🔎 Das Schild der Glückssieben, 🔎 Das Prüfhandbuch |
-| 3 | Der Ententeich | Die Binomialverteilung (pmf, cdf, sf), Erwartungswert, Theorie mit beobachteten Häufigkeiten vergleichen | 🔎 Das Schild am Ententeich |
+| 3 | Der Ententeich | Die Binomialverteilung (cdf, sf), Erwartungswert, Theorie mit beobachteten Häufigkeiten vergleichen | 🔎 Das Schild am Ententeich |
 | 4 | Die Abfüllmaschine | Die Normalverteilung, z-Werte, die Verteilungsfunktion und ihre Umkehrung (ppf), von der Stichprobe zum Modell | 1. Das Becherprotokoll am Limonadenstand (sein Ergebnis), 🔎 Die Füllmengenverordnung |
-| 5 | Das Kassenhäuschen | Grundgesamtheit vs. Stichprobe, Parameter vs. Kennzahl, zufällige vs. verzerrte Stichproben, wie stark ein Stichprobenmittel schwankt | 🔒 3. Der Ententeich, 🔎 Brunos Flyer für Sponsoren |
+| 5 | Das Kassenhäuschen | Grundgesamtheit vs. Stichprobe, zufällige vs. verzerrte Stichproben, wie stark ein Stichprobenmittel schwankt | 🔒 3. Der Ententeich, 🔎 Brunos Flyer für Sponsoren |
 | 6 | Das Tor des Festplatzes (Abschluss-Schloss) | Die Prüfung zusammenführen: Welche Befunde sind Zufall und welche nicht | 2. Glückssieben (sein Ergebnis), 3. Der Ententeich (sein Ergebnis), 4. Die Abfüllmaschine (sein Ergebnis), 5. Das Kassenhäuschen (sein Ergebnis), 🔎 Der Festplatzplan |
 
 **Abschluss-Code:** `1836`
@@ -31,13 +31,12 @@
 
 **Aufgabe:**
 
-> Kai verkauft Limonade in 300-ml-Bechern. Das Becherprotokoll von heute Abend ist als `cups` geladen: die Milliliter jedes Bechers, wie sie an der Kasse eingetippt wurden. Bevor jemand den Stand beurteilt, beschreibt das Protokoll und bereinigt es: Kais Notiz sagt, wie Fehler hineingeraten.
+> Kai verkauft Limonade in 300-ml-Bechern. Das Becherprotokoll von heute Abend ist als `cups` geladen: die Milliliter jedes Bechers, wie sie an der Kasse eingetippt wurden, samt Fehlern. Wie viel enthalten die echten Becher, und wie stark schwanken sie?
 >
 > 1. Beschreibt das Protokoll, wie es ist: `mean_raw` und `median_raw`.
 > 2. Behaltet nur die echten Becher, als `clean`.
 > 3. Beschreibt die bereinigten Becher: `mean`, `median` und ihre Standardabweichung `sd` (sie sind eine Stichprobe der Becher der Maschine).
->
-> Welcher von Mittelwert und Median hat sich beim Bereinigen bewegt?
+> 4. Welcher der beiden hat sich beim Bereinigen um mehr als 1 ml bewegt? Antwortet mit `mean_moved` und `median_moved` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -51,10 +50,13 @@ show_hist(cups, title="Becher wie eingetippt")
 mean_raw = None     # Mittelwert des Protokolls, wie es ist
 median_raw = None   # Median des Protokolls, wie es ist
 
-clean = cups        # nur die echten Becher (siehe Kais Notiz)
+clean = cups        # nur die echten Becher
 mean = None
 median = None
 sd = None           # Standardabweichung der bereinigten Becher
+
+mean_moved = None   # True oder False
+median_moved = None # True oder False
 ```
 
 </details>
@@ -71,11 +73,13 @@ clean = cups[(cups > 0) & (cups <= 400)]
 mean = clean.mean()
 median = clean.median()
 sd = clean.std()
+mean_moved = abs(mean - mean_raw) > 1
+median_moved = abs(median - median_raw) > 1
 print(round(mean_raw, 1), median_raw, "->", round(mean, 1), median, round(sd, 1))
 show_hist(clean, title="Clean cups")
 ```
 
-**Geprüftes Ergebnis** (`_cup_check(mean_raw, median_raw, clean, mean, median, sd)`):
+**Geprüftes Ergebnis** (`_cup_check(mean_raw, median_raw, clean, mean, median, sd, mean_moved, median_moved)`):
 
 ```json
 "sealed"
@@ -83,17 +87,17 @@ show_hist(clean, title="Clean cups")
 
 **Zeigt nach dem Lösen:**
 
-> Kalibrierwerte für die Abfüllmaschine: Die Becher von heute Abend enthalten im Mittel **296,4 ml**, mit einer Standardabweichung von **7,9 ml**.
+> Die echten Becher von heute Abend enthalten im Mittel **296,4 ml**, mit einer Standardabweichung von **7,9 ml**.
 >
 > Der Median blieb beim Bereinigen bei 296 ml; der Mittelwert fiel um 15 ml. Ein einziger Tippfehler hat ihn verschoben.
 >
-> Das Prüfsiegel des Stands gibt es an der Abfüllmaschine, sobald sie kalibriert ist.
+> Kais Stand bekommt sein Prüfsiegel, sobald seine Abfüllmaschine die Prüfung besteht.
 
 **Hinweise:**
 
-1. `cups.mean()` und `cups.median()` beschreiben das Rohprotokoll. `cups.sort_values()` zeigt die seltsamen Einträge an beiden Enden.
+1. `cups.mean()` und `cups.median()` beschreiben das Rohprotokoll. `cups.sort_values()` zeigt die seltsamen Einträge an beiden Enden. Kai hat an der Kasse eine Notiz hinterlassen, wie sie ins Protokoll geraten.
 2. Kais Notiz: Verschüttete Becher wurden als 0 eingetippt, und kein Becher fasst mehr als 400 ml. Ein Filter behält den Rest: `cups[(cups > 0) & (cups <= 400)]`.
-3. `clean = cups[(cups > 0) & (cups <= 400)]`, dann `clean.mean()`, `clean.median()` und `clean.std()`. pandas' `.std()` teilt durch n − 1, die Stichproben-Standardabweichung.
+3. `clean = cups[(cups > 0) & (cups <= 400)]`, dann `clean.mean()`, `clean.median()` und `clean.std()`. pandas' `.std()` teilt durch n − 1, die Stichproben-Standardabweichung. Der Mittelwert fiel von 311,3 auf 296,4 ml (`mean_moved = True`), der Median blieb bei 296 (`median_moved = False`).
 
 ### 2. Glückssieben
 
@@ -103,12 +107,12 @@ show_hist(clean, title="Clean cups")
 
 **Aufgabe:**
 
-> Bei der Glückssieben würfelt man mit zwei Würfeln und gewinnt mit bestimmten Summen: Das Schild am Stand sagt, mit welchen, und welche Chance es verspricht. Das Protokoll der 900 Spiele von heute Abend ist als `games` geladen (Spalten `die1` und `die2`).
+> Das Protokoll der 900 Spiele von heute Abend an der Glückssieben ist als `games` geladen (Spalten `die1` und `die2`). Ist das Spiel fair?
 >
-> 1. Bestimmt die theoretische Gewinnchance `p_theory` aus allen 36 gleich wahrscheinlichen Ergebnissen zweier fairer Würfel.
+> 1. Bestimmt die Gewinnchance mit fairen Würfeln, `p_theory`, aus allen 36 gleich wahrscheinlichen Ergebnissen zweier Würfel.
 > 2. Zählt die heutigen Gewinne: `wins`.
 > 3. Wie wahrscheinlich ist mit fairen Würfeln ein Abend mit höchstens so vielen Gewinnen? Die Zahl der Gewinne in 900 Spielen folgt einer Binomialverteilung. Speichert diese Wahrscheinlichkeit als `p_value`.
-> 4. Das Prüfhandbuch sagt, wann ein Ergebnis als verdächtig gilt. Speichert seine Grenze als Wahrscheinlichkeit, `threshold`, und euer Urteil als `rigged` (`True` oder `False`).
+> 4. Euer Urteil: `fair` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -119,14 +123,10 @@ from scipy import stats
 # games ist geladen: eine Zeile pro Spiel, Spalten die1 und die2.
 print(games.head())
 
-outcomes = list(product(range(1, 7), repeat=2))   # alle 36 Paare (die1, die2)
-p_theory = None    # Anteil der Ergebnisse, die gewinnen (siehe Schild)
-
+p_theory = None    # Gewinnchance mit zwei fairen Würfeln
 wins = None        # heute gewonnene Spiele
 p_value = None     # P(höchstens `wins` Gewinne in 900 Spielen) mit fairen Würfeln
-
-threshold = None   # die Grenze des Prüfhandbuchs, als Wahrscheinlichkeit
-rigged = None      # True oder False
+fair = None        # True oder False
 ```
 
 </details>
@@ -141,13 +141,12 @@ outcomes = list(product(range(1, 7), repeat=2))
 p_theory = sum(1 for a, b in outcomes if a + b in (7, 11)) / len(outcomes)
 wins = int((games.die1 + games.die2).isin([7, 11]).sum())
 p_value = stats.binom.cdf(wins, len(games), p_theory)
-threshold = 0.01
-rigged = p_value < threshold
-print(round(p_theory, 4), wins, round(len(games) * p_theory), round(p_value, 4), rigged)
+fair = p_value > 0.01
+print(round(p_theory, 4), wins, round(len(games) * p_theory), round(p_value, 4), fair)
 print(games.stack().value_counts().sort_index())
 ```
 
-**Geprüftes Ergebnis** (`_dice_check(p_theory, wins, p_value, threshold, rigged)`):
+**Geprüftes Ergebnis** (`_dice_check(p_theory, wins, p_value, fair)`):
 
 ```json
 "sealed"
@@ -161,42 +160,37 @@ print(games.stack().value_counts().sort_index())
 
 **Hinweise:**
 
-1. Das Schild am Stand sagt, welche Summen gewinnen. `sum(1 for a, b in outcomes if a + b in (...))` zählt die Gewinn-Ergebnisse; teilt durch 36. Im Protokoll markiert `(games.die1 + games.die2).isin([...])` die Gewinne.
-2. Mit fairen Würfeln sind die Gewinne in 900 Spielen binomialverteilt mit n = 900 und p = `p_theory`. Die Wahrscheinlichkeit für höchstens k Erfolge ist die Verteilungsfunktion: `stats.binom.cdf(k, n, p)`. Das Prüfhandbuch nennt die Grenze; dann `rigged = p_value < threshold`.
-3. Eine 7 oder eine 11 gewinnt: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) und `p_value = stats.binom.cdf(wins, 900, p_theory)` (etwa 0,0014). Das Handbuch sagt 1 von 100: `threshold = 0.01`, also ist `rigged = p_value < threshold` gleich `True`. `games.stack().value_counts()` zeigt, welche Augenzahlen fehlen.
+1. Das Schild am Stand sagt, welche Summen gewinnen. `list(product(range(1, 7), repeat=2))` listet alle 36 Paare (die1, die2); `sum(1 for a, b in outcomes if a + b in (...))` zählt die Gewinn-Ergebnisse, dann teilt durch 36. Im Protokoll markiert `(games.die1 + games.die2).isin([...])` die Gewinne.
+2. Mit fairen Würfeln sind die Gewinne in 900 Spielen binomialverteilt mit n = 900 und p = `p_theory`. Die Wahrscheinlichkeit für höchstens k Erfolge ist die Verteilungsfunktion: `stats.binom.cdf(k, n, p)`. Das Prüfhandbuch sagt, wie unwahrscheinlich ein Ergebnis sein muss, damit ein Spiel als verdächtig gilt.
+3. Eine 7 oder eine 11 gewinnt: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) und `p_value = stats.binom.cdf(wins, 900, p_theory)` (etwa 0,0014). Die Grenze des Handbuchs ist 1 von 100, also ist `fair = p_value > 0.01` gleich `False`. `games.stack().value_counts()` zeigt, welche Augenzahlen fehlen.
 
 ### 3. Der Ententeich
 
-**Übt:** Die Binomialverteilung (pmf, cdf, sf), Erwartungswert, Theorie mit beobachteten Häufigkeiten vergleichen  
+**Übt:** Die Binomialverteilung (cdf, sf), Erwartungswert, Theorie mit beobachteten Häufigkeiten vergleichen  
 **Braucht:** 🔎 Das Schild am Ententeich  
 **Daten:** [ducks.py](../../content/rooms/stats-fair/data/ducks.py)
 
 **Aufgabe:**
 
-> Am Ententeich angelt man 6 Enten; das Schild sagt, wie viele einen Stern haben und was gewinnt. Das Protokoll von heute Abend ist als `stars` geladen: die geangelten Sterne in jedem von 400 Spielen.
+> Das Protokoll des Ententeichs von heute Abend ist als `stars` geladen: die geangelten Sterne in jedem von 400 Spielen. Ist der Teich ehrlich, und was verdient Bruno daran?
 >
 > 1. Die Zahl der Sterne in einem Spiel ist binomialverteilt. Berechnet die Chance auf einen Teddy, `p_win`, mit scipy.
-> 2. Bruno bezahlt die Teddys. Was verdient er im Schnitt pro Spiel? Speichert den erwarteten Gewinn pro Spiel in Euro als `profit`.
-> 3. Vergleicht mit heute Abend: der Anteil der Spiele, die einen Teddy gewonnen haben, `observed`.
+> 2. Bruno bezahlt die Teddys. Speichert seinen erwarteten Gewinn pro Spiel in Euro als `profit`.
+> 3. Der Anteil der heutigen Spiele, die einen Teddy gewonnen haben: `observed`.
+> 4. Euer Urteil: `honest` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
 ```python
 from scipy import stats
-from helpers import show_bars
 
 # stars ist geladen: geangelte Sterne in jedem der 400 Spiele von heute Abend.
 print(stars.value_counts().sort_index())
 
-n, p = None, None   # Enten pro Spiel, Chance auf einen Stern pro Ente (siehe Schild)
-p_win = None        # P(genug Sterne für einen Teddy)
+p_win = None        # P(ein Teddy)
 profit = None       # Brunos erwarteter Gewinn pro Spiel, in Euro
-observed = None     # Anteil der heutigen Spiele, die gewonnen haben
-
-# Um Theorie und heute Abend zu vergleichen, zum Beispiel:
-# theorie = stats.binom.pmf(range(7), n, p)
-# heute = stars.value_counts(normalize=True).reindex(range(7), fill_value=0)
-# show_bars(theorie, heute, x=range(7), labels=["binomial", "heute"])
+observed = None     # Anteil der heutigen Spiele, die einen Teddy gewonnen haben
+honest = None       # True oder False
 ```
 
 </details>
@@ -211,13 +205,14 @@ n, p = 6, 0.25
 p_win = stats.binom.sf(2, n, p)
 profit = 2 - 5 * p_win
 observed = (stars >= 3).mean()
+honest = abs(observed - p_win) < 0.02
 theory = stats.binom.pmf(range(7), n, p)
 tonight = stars.value_counts(normalize=True).reindex(range(7), fill_value=0)
 show_bars(theory, tonight, x=range(7), labels=["binomial", "tonight"], title="Stars per game")
-print(round(p_win, 4), round(profit, 2), observed)
+print(round(p_win, 4), round(profit, 2), observed, honest)
 ```
 
-**Geprüftes Ergebnis** (`_duck_check(p_win, profit, observed)`):
+**Geprüftes Ergebnis** (`_duck_check(p_win, profit, observed, honest)`):
 
 ```json
 "sealed"
@@ -233,9 +228,9 @@ print(round(p_win, 4), round(profit, 2), observed)
 
 **Hinweise:**
 
-1. n = 6 Enten und p = 1/4. P(3 oder mehr) = 1 − P(höchstens 2): `1 - stats.binom.cdf(2, n, p)`, oder direkt `stats.binom.sf(2, n, p)`.
-2. Erwarteter Gewinn = was ein Spiel einbringt minus was es im Schnitt kostet: das Los für 2 € minus Teddypreis mal `p_win`. Der Preis steht auf dem Schild.
-3. `p_win = stats.binom.sf(2, 6, 0.25)` (0,1694), `profit = 2 - 5 * p_win` (1,15 €) und `observed = (stars >= 3).mean()`.
+1. Das Schild am Teich hat, was ihr braucht: wie oft eine Ente einen Stern hat, wie viele Enten ein Spiel angelt, was gewinnt und was ein Spiel kostet. Auf der Rückseite steht, was Bruno ein Teddy kostet.
+2. n = 6 Enten und p = 1/4. P(3 oder mehr) = 1 − P(höchstens 2): `1 - stats.binom.cdf(2, n, p)`, oder direkt `stats.binom.sf(2, n, p)`. Erwarteter Gewinn = das Los für 2 € minus Teddypreis mal `p_win`. Der heutige Anteil ist `(stars >= 3).mean()`.
+3. `p_win = stats.binom.sf(2, 6, 0.25)` (0,1694), `profit = 2 - 5 * p_win` (1,15 €) und `observed = (stars >= 3).mean()` (0,1675): so nah an der Theorie, wie Zufall nur sein kann, also `honest = True`. Zum Ansehen: `show_bars(stats.binom.pmf(range(7), 6, 0.25), stars.value_counts(normalize=True).reindex(range(7), fill_value=0), x=range(7), labels=["binomial", "heute"])`.
 
 ### 4. Die Abfüllmaschine
 
@@ -245,27 +240,27 @@ print(round(p_win, 4), round(profit, 2), observed)
 
 **Aufgabe:**
 
-> Kais Limonadenmaschine füllt die Becher normalverteilt um die eingestellte Menge. Ihr Kalibrieraufkleber ist noch leer: Er braucht Mittelwert und Standardabweichung der echten Becher von heute Abend, aus dem Becherprotokoll.
+> Kais Limonadenmaschine füllt die Becher normalverteilt um die eingestellte Menge. Ihr Kalibrieraufkleber ist noch leer: Er braucht Mittelwert und Standardabweichung der echten Becher von heute Abend. Hält die Maschine, so wie sie heute eingestellt ist, das Gesetz über zu knapp gefüllte Becher ein? Und worauf soll Kai sie einstellen?
 >
-> Das Gesetz erlaubt nur wenige zu knapp gefüllte Becher: Die Füllmengenverordnung sagt, ab wie viel unter 300 ml ein Becher zu knapp ist und welcher Anteil der Becher das sein darf. Mit einer Normalverteilung und diesen Werten:
->
-> 1. Wie viele Standardabweichungen vom Mittelwert liegt die Grenze der Verordnung? Speichert es als `z`.
-> 2. Welcher Anteil der Becher enthält weniger als die Grenze? Speichert ihn als `share_below` (zwischen 0 und 1).
-> 3. Auf welchen Mittelwert (`target`, in ml) muss Kai die Maschine bei gleicher Streuung einstellen, damit genau der erlaubte Anteil der Becher unter der Grenze liegt?
+> 1. Wie viele Standardabweichungen vom Mittelwert liegt die gesetzliche Grenze für einen zu knappen Becher? Speichert es als `z`.
+> 2. Welcher Anteil der Becher enthält weniger als diese Grenze? Speichert ihn als `share_below` (zwischen 0 und 1).
+> 3. Ist die Maschine so, wie sie ist, zulässig? Speichert `legal` (`True` oder `False`).
+> 4. Auf welchen Mittelwert (`target`, in ml) muss Kai die Maschine bei gleicher Streuung einstellen, damit genau der Anteil, den das Gesetz erlaubt, unter der Grenze liegt?
 
 <details><summary>Startcode</summary>
 
 ```python
 from scipy import stats
 
-mu = None       # Mittelwert der echten Becher von heute (Becherprotokoll)
+mu = None       # Mittelwert der echten Becher von heute
 sigma = None    # ihre Standardabweichung
 
-limit = None    # ml: darunter ist ein 300-ml-Becher zu knapp (Füllmengenverordnung)
+limit = None    # ml: darunter ist ein 300-ml-Becher zu knapp
 allowed = None  # der Anteil der Becher, der zu knapp sein darf (zwischen 0 und 1)
 
 z = None             # wie viele Standardabweichungen limit von mu entfernt liegt
 share_below = None   # P(Becher < limit)
+legal = None         # True oder False
 target = None        # der Mittelwert, bei dem genau der erlaubte Anteil unter limit liegt
 ```
 
@@ -277,14 +272,15 @@ target = None        # der Mittelwert, bei dem genau der erlaubte Anteil unter l
 from scipy import stats
 
 mu, sigma = 296.4, 7.9
-limit, allowed = 285, 0.02
+limit, allowed = 300 - 15, 0.02
 z = (limit - mu) / sigma
 share_below = stats.norm.cdf(limit, mu, sigma)
+legal = share_below <= allowed
 target = limit - stats.norm.ppf(allowed) * sigma
-print(round(z, 2), round(share_below, 4), round(target, 1))
+print(round(z, 2), round(share_below, 4), legal, round(target, 1))
 ```
 
-**Geprüftes Ergebnis** (`_filler_check(z, share_below, target)`):
+**Geprüftes Ergebnis** (`_filler_check(z, share_below, legal, target)`):
 
 ```json
 "sealed"
@@ -300,11 +296,11 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 
 1. mu und sigma sind der bereinigte Mittelwert und die Standardabweichung aus dem Becherprotokoll am Limonadenstand. Grenze und erlaubter Anteil stehen in der Füllmengenverordnung, die die Kommission ausgehängt hat.
 2. `z = (limit - mu) / sigma`. `stats.norm.cdf(limit, mu, sigma)` ist der Anteil unter der Grenze (dasselbe wie `stats.norm.cdf(z)`). Für den Zielwert ist der z-Wert mit dem erlaubten Anteil darunter `stats.norm.ppf(allowed)`.
-3. Mit mu = 296,4, sigma = 7,9, limit = 285 (15 ml zu wenig) und allowed = 0,02: z ≈ −1,44, share_below ≈ 0,075 und `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301,2 ml.
+3. Mit mu = 296,4, sigma = 7,9, limit = 300 − 15 = 285 und allowed = 0,02: z ≈ −1,44, share_below ≈ 0,075, mehr als 0,02, also `legal = False`; und `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301,2 ml.
 
 ### 5. Das Kassenhäuschen
 
-**Übt:** Grundgesamtheit vs. Stichprobe, Parameter vs. Kennzahl, zufällige vs. verzerrte Stichproben, wie stark ein Stichprobenmittel schwankt  
+**Übt:** Grundgesamtheit vs. Stichprobe, zufällige vs. verzerrte Stichproben, wie stark ein Stichprobenmittel schwankt  
 **Braucht:** 🔒 3. Der Ententeich, 🔎 Brunos Flyer für Sponsoren  
 **Daten:** [tickets.py](../../content/rooms/stats-fair/data/tickets.py)
 
@@ -314,12 +310,14 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 
 **Aufgabe:**
 
-> Brunos Laptop weiß, was jeder Besucher heute Abend mit seinem bargeldlosen Armband ausgegeben hat: `wristbands`, alle 6.000 Besucher. Außerdem liegen dort seine Umfragen, `surveys`: eine Zeile pro befragtem Gast, mit `place` (Ort), `day` (Tag) und `spent`. Eine davon ist die Quelle seines Flyers für Sponsoren.
+> Brunos Flyer für Sponsoren behauptet etwas darüber, was Besucher ausgeben. Hätte eine ehrliche Zufallsumfrage so hoch ausfallen können?
+>
+> Brunos Laptop weiß, was jeder Besucher heute Abend mit seinem bargeldlosen Armband ausgegeben hat: `wristbands`, alle 6.000 Besucher. Außerdem liegen dort seine Umfragen, `surveys`: eine Zeile pro befragtem Gast, mit `place` (Ort), `day` (Tag) und `spent`.
 >
 > 1. Der Mittelwert aller Besucher ist ein Parameter der Grundgesamtheit: `mu`.
-> 2. Eine Zufallsstichprobe von 40 Besuchern, `wristbands.sample(40, random_state=7)`, liefert eine Schätzung dafür: `sample_mean`.
-> 3. Der Mittelwert der Umfrage hinter dem Flyer: `flyer_mean`.
-> 4. Kann die Zahl des Flyers Pech sein? Zieht 1.000 Zufallsstichproben von 40 Besuchern und speichert ihre Mittelwerte in `means`. Kommt irgendeine davon an den Flyer heran?
+> 2. Der Mittelwert der Umfrage hinter dem Flyer: `flyer_mean`.
+> 3. Zieht 1.000 Zufallsstichproben von 40 Besuchern, speichert ihre Mittelwerte in `means` und den größten davon als `max_mean`.
+> 4. Euer Urteil: Hätte eine Zufallsstichprobe die Zahl des Flyers liefern können? Speichert `could_be_luck` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -331,10 +329,12 @@ from helpers import show_hist
 print(surveys.groupby(["place", "day"]).size())
 
 mu = None
-sample_mean = None   # Mittelwert von wristbands.sample(40, random_state=7)
-flyer_mean = None    # Mittelwert der einen Umfrage hinter dem Flyer
+flyer_mean = None      # Mittelwert der einen Umfrage hinter dem Flyer
 
-means = []           # Mittelwerte von 1.000 Zufallsstichproben von 40 Besuchern
+means = []             # Mittelwerte von 1.000 Zufallsstichproben von 40 Besuchern
+max_mean = None        # der größte davon
+
+could_be_luck = None   # True oder False
 
 # show_hist(means, title="Mittelwerte von Zufallsstichproben von 40")
 ```
@@ -347,15 +347,16 @@ means = []           # Mittelwerte von 1.000 Zufallsstichproben von 40 Besuchern
 from helpers import show_hist
 
 mu = wristbands.mean()
-sample_mean = wristbands.sample(40, random_state=7).mean()
 flyer = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")]
 flyer_mean = flyer.spent.mean()
 means = [wristbands.sample(40).mean() for i in range(1000)]
-print(len(flyer), round(mu, 2), round(sample_mean, 2), round(flyer_mean, 2), round(min(means), 2), round(max(means), 2))
+max_mean = max(means)
+could_be_luck = max_mean >= flyer_mean
+print(len(flyer), round(mu, 2), round(flyer_mean, 2), round(min(means), 2), round(max_mean, 2), could_be_luck)
 show_hist(means, title="Means of 1,000 random samples of 40")
 ```
 
-**Geprüftes Ergebnis** (`_ticket_check(mu, sample_mean, flyer_mean, means)`):
+**Geprüftes Ergebnis** (`_ticket_check(mu, flyer_mean, means, max_mean, could_be_luck)`):
 
 ```json
 "sealed"
@@ -363,15 +364,15 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Zeigt nach dem Lösen:**
 
-> Die Besucher von heute Abend haben im Schnitt **33,51 €** ausgegeben. Eine Zufallsstichprobe von 40 landet nah dran (34,23 €), und 1.000 Zufallsstichproben bleiben zwischen etwa 25 € und 45 €. Die Umfrage des Flyers im VIP-Zelt sagt 65,18 €: Das ist kein Pech, sondern eine verzerrte Stichprobe. Gefragt wurden nur Vielausgeber. Der Flyer täuscht die Sponsoren.
+> Die Besucher von heute Abend haben im Schnitt **33,51 €** ausgegeben, und 1.000 Zufallsstichproben von 40 bleiben zwischen etwa 25 € und 45 €. Die Umfrage des Flyers im VIP-Zelt sagt 65 €: Das ist kein Pech, sondern eine verzerrte Stichprobe. Gefragt wurden nur Vielausgeber. Der Flyer täuscht die Sponsoren.
 >
 > Prüfsiegel für das Kassenhäuschen: **1**
 
 **Hinweise:**
 
-1. `wristbands.mean()` ist der Mittelwert der Grundgesamtheit, `wristbands.sample(40, random_state=7).mean()` der Mittelwert einer Zufallsstichprobe. Der Flyer nennt seine Quelle im Kleingedruckten: Filtert `surveys` nach Ort und Tag, etwa `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
-2. In einer Schleife zieht `wristbands.sample(40).mean()` jedes Mal eine neue Zufallsstichprobe; hängt jeden Mittelwert an `means` an. `show_hist(means)` zeigt, wie stark ein Stichprobenmittel von 40 zufällig schwanken kann.
-3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (65,18 €) und `means = [wristbands.sample(40).mean() for i in range(1000)]`. Sie bleiben zwischen etwa 25 € und 45 €, weit weg von 65 €: Die Umfrage hatte kein Pech, sie hat nur VIP-Gäste gefragt.
+1. `wristbands.mean()` ist der Mittelwert der Grundgesamtheit. Der Flyer nennt seine Quelle im Kleingedruckten: Filtert `surveys` nach Ort und Tag, etwa `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
+2. In einer Schleife zieht `wristbands.sample(40).mean()` jedes Mal eine neue Zufallsstichprobe; hängt jeden Mittelwert an `means` an. `max(means)` ist der höchste, den eine davon erreicht hat; `show_hist(means)` zeigt, wie stark ein Stichprobenmittel von 40 zufällig schwankt.
+3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (65 €), `means = [wristbands.sample(40).mean() for i in range(1000)]` und `max_mean = max(means)` (etwa 45 €). Nicht einmal die glücklichste Zufallsstichprobe kommt an 65 € heran, also ist `could_be_luck = max_mean >= flyer_mean` gleich `False`: Die Umfrage hat nur VIP-Gäste gefragt.
 
 ### 6. Das Tor des Festplatzes (Abschluss-Schloss)
 
@@ -381,8 +382,6 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 **Aufgabe:**
 
 > Das Tor hat ein vierstelliges Tastenfeld und die Notiz des Nachtwächters: „Jeder Stand, den ihr fertig geprüft habt, bekommt ein Siegel mit einer Ziffer. Gebt die Siegel in der Reihenfolge der Standnummern ein.“
->
-> Der Festplatzplan sagt, welcher Stand welche Nummer hat.
 
 **Antwort:** `1836`
 
@@ -435,8 +434,6 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 > FÜLLMENGENVERORDNUNG (Auszug, von der Kommission ausgehängt)
 >
 > Nach Volumen verkaufte Getränke: Höchstens **2 %** der Portionen dürfen mehr als **15 ml** unter der angegebenen Menge liegen.
->
-> Für einen 300-ml-Becher heißt das: höchstens 2 % der Becher unter 285 ml.
 
 ### 🔎 Das Prüfhandbuch
 
@@ -479,4 +476,4 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Die Normalverteilung:** [`z = (x - mu) / sigma`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`stats.norm.cdf(x, loc=mu, scale=sigma)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`stats.norm.ppf(q, loc=mu, scale=sigma)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html)
 
-**Grundgesamtheit und Stichprobe:** [`Population vs. sample`](https://docs.python.org/3/library/statistics.html#statistics.pstdev), [`s.sample(n, random_state=seed)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sample.html), `Sampling bias`, [`[expr for i in range(1000)]`](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)
+**Grundgesamtheit und Stichprobe:** [`Population vs. sample`](https://docs.python.org/3/library/statistics.html#statistics.pstdev), [`s.sample(n)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sample.html), `Sampling bias`, [`[expr for i in range(1000)]`](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)

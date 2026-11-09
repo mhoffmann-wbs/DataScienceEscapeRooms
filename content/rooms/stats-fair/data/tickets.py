@@ -297,24 +297,22 @@ surveys = pd.DataFrame({
         56, 46, 30, 55, 11, 74, 36, 69, 43, 75, 76, 26, 18, 47, 33, 20, 17, 35, 56, 99,
         73, 50, 32, 91, 24, 25, 65, 64, 58, 57, 30, 43, 59, 57, 72, 46, 14, 25, 91, 61,
         63, 45, 26, 38, 50, 48, 58, 46, 78, 23, 51, 68, 15, 14, 57, 67, 19, 72, 69, 46,
-        19, 70, 90, 65, 82, 36, 23, 47, 36, 54, 36, 35, 21, 91, 38, 90, 105, 21, 29, 76,
+        19, 70, 90, 65, 82, 36, 23, 47, 36, 54, 36, 35, 21, 91, 38, 90, 98, 21, 29, 76,
         13, 65, 67, 22, 35, 61, 59, 49, 23, 43, 39, 23, 57, 81, 75, 49, 69, 12, 29, 62,
         82, 31, 65, 19, 67, 37, 58, 17, 42, 25, 51, 74, 57, 44, 29,
     ],
 })
 
 
-def _ticket_check(mu, sample_mean, flyer_mean, means):
-    '''The ticket office's check: parameter, statistic, the flyer's survey, and the spread of sample means.'''
+def _ticket_check(mu, flyer_mean, means, max_mean, could_be_luck):
+    '''The ticket office's check: the parameter, the flyer's survey, the spread of sample means and the verdict.'''
     from numbers import Real
     problems = []
     if not isinstance(mu, Real) or abs(mu - 33.509) > 0.001:
         problems.append("mu is off: the mean of all wristbands. / mu stimmt nicht: der Mittelwert aller Armbänder.")
-    if not isinstance(sample_mean, Real) or abs(sample_mean - 34.225) > 0.001:
-        problems.append("sample_mean is off: the mean of wristbands.sample(40, random_state=7). / sample_mean stimmt nicht: der Mittelwert von wristbands.sample(40, random_state=7).")
-    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65.175) > 0.001:
-        if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in [35.825, 50.133, 35.88, 47.711]):
-            problems.append("flyer_mean comes from the wrong survey: the flyer's small print says which one. / flyer_mean kommt aus der falschen Umfrage: Das Kleingedruckte auf dem Flyer sagt, welche.")
+    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65) > 0.001:
+        if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in [35.825, 50.133, 35.88, 47.659]):
+            problems.append("flyer_mean comes from the wrong survey. / flyer_mean kommt aus der falschen Umfrage.")
         else:
             problems.append("flyer_mean is off: the mean of the one survey behind the flyer (filter surveys by place and day). / flyer_mean stimmt nicht: der Mittelwert der einen Umfrage hinter dem Flyer (filtert surveys nach place und day).")
     try:
@@ -325,6 +323,12 @@ def _ticket_check(mu, sample_mean, flyer_mean, means):
         problems.append("means needs the means of many random samples of 40 (1,000 is good). / means braucht die Mittelwerte vieler Zufallsstichproben von 40 (1.000 sind gut).")
     elif abs(m.mean() - 33.51) > 0.6 or not 2.6 < m.std() < 4.0:
         problems.append("Your means don't look like means of random samples of 40 wristbands. / Eure Mittelwerte sehen nicht nach Zufallsstichproben von 40 Armbändern aus.")
+    elif not isinstance(max_mean, Real) or abs(max_mean - m.max()) > 1e-9:
+        problems.append("max_mean is off: the largest of your means. / max_mean stimmt nicht: der größte eurer Mittelwerte.")
+    if not isinstance(could_be_luck, (bool, np.bool_)):
+        problems.append("could_be_luck should be True or False. / could_be_luck soll True oder False sein.")
+    elif could_be_luck:
+        problems.append("could_be_luck is off: did any random sample come close to the flyer? / could_be_luck stimmt nicht: Kam irgendeine Zufallsstichprobe an den Flyer heran?")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"

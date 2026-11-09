@@ -6,7 +6,7 @@
 
 > Kleeberg's autumn fair, a quarter past midnight. Players have complained that a game is rigged, so the fair commission sent you, its inspection team, after closing time. Then the gate locked behind you.
 >
-> The night guard left a note on the gate: every stall you finish inspecting gets a seal with one digit, and the seals open the gate. Check the stalls' logs with Python and find out which numbers are chance and which are not. This room loads Python with pandas and scipy: the first puzzle you open takes a little while.
+> Check the stalls' logs with Python, find out which numbers are chance and which are not, and find your way out. This room loads Python with pandas and scipy: the first puzzle you open takes a little while.
 
 ## Overview
 
@@ -14,9 +14,9 @@
 |---|---|---|---|
 | 1 | The lemonade stand's cup log | Mean vs. median, outliers and data errors, the sample standard deviation, histograms | 🔎 Kai's note at the till |
 | 2 | Lucky Seven | Sample space and classical probability, relative frequencies, the binomial distribution (cdf), when a result is too unlikely to be chance | 🔎 The Lucky Seven sign, 🔎 The inspection handbook |
-| 3 | The duck pond | The binomial distribution (pmf, cdf, sf), expected value, comparing theory with observed frequencies | 🔎 The duck pond sign |
+| 3 | The duck pond | The binomial distribution (cdf, sf), expected value, comparing theory with observed frequencies | 🔎 The duck pond sign |
 | 4 | The filling machine | The normal distribution, z-scores, the cdf and its inverse (ppf), from a sample to a model | 1. The lemonade stand's cup log (its result), 🔎 The fill regulation |
-| 5 | The ticket office | Population vs. sample, parameter vs. statistic, random vs. biased samples, how much a sample mean varies | 🔒 3. The duck pond, 🔎 Bruno's flyer for sponsors |
+| 5 | The ticket office | Population vs. sample, random vs. biased samples, how much a sample mean varies | 🔒 3. The duck pond, 🔎 Bruno's flyer for sponsors |
 | 6 | The fairground gate (Final lock) | Putting the inspection together: which findings are chance and which are not | 2. Lucky Seven (its result), 3. The duck pond (its result), 4. The filling machine (its result), 5. The ticket office (its result), 🔎 The fair map |
 
 **Final code:** `1836`
@@ -31,13 +31,12 @@
 
 **Task:**
 
-> Kai sells lemonade in 300 ml cups. Tonight's cup log is loaded as `cups`: the millilitres of every cup, as typed in at the till. Before anyone judges the stall, describe the log, and clean it: Kai's note says how mistakes get into it.
+> Kai sells lemonade in 300 ml cups. Tonight's cup log is loaded as `cups`: the millilitres of every cup, as typed in at the till, mistakes included. How much do the real cups hold, and how much do they vary?
 >
 > 1. Describe the log as it is: `mean_raw` and `median_raw`.
 > 2. Keep only the real cups, as `clean`.
 > 3. Describe the clean cups: `mean`, `median` and their standard deviation `sd` (they are a sample of the machine's cups).
->
-> Which of mean and median moved when you cleaned the log?
+> 4. Which of the two moved by more than 1 ml when you cleaned the log? Answer with `mean_moved` and `median_moved` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -51,10 +50,13 @@ show_hist(cups, title="Cups as typed in")
 mean_raw = None     # mean of the log as it is
 median_raw = None   # median of the log as it is
 
-clean = cups        # only the real cups (see Kai's note)
+clean = cups        # only the real cups
 mean = None
 median = None
 sd = None           # standard deviation of the clean cups
+
+mean_moved = None   # True or False
+median_moved = None # True or False
 ```
 
 </details>
@@ -71,11 +73,13 @@ clean = cups[(cups > 0) & (cups <= 400)]
 mean = clean.mean()
 median = clean.median()
 sd = clean.std()
+mean_moved = abs(mean - mean_raw) > 1
+median_moved = abs(median - median_raw) > 1
 print(round(mean_raw, 1), median_raw, "->", round(mean, 1), median, round(sd, 1))
 show_hist(clean, title="Clean cups")
 ```
 
-**Checked result** (`_cup_check(mean_raw, median_raw, clean, mean, median, sd)`):
+**Checked result** (`_cup_check(mean_raw, median_raw, clean, mean, median, sd, mean_moved, median_moved)`):
 
 ```json
 "sealed"
@@ -83,17 +87,17 @@ show_hist(clean, title="Clean cups")
 
 **Reveals when solved:**
 
-> Calibration values for the filling machine: tonight's cups hold **296.4 ml** on average, with a standard deviation of **7.9 ml**.
+> Tonight's real cups hold **296.4 ml** on average, with a standard deviation of **7.9 ml**.
 >
 > The median stayed at 296 ml while you cleaned the log; the mean dropped by 15 ml. One typo was enough to move it.
 >
-> The stand's inspection seal comes from the filling machine, once it is calibrated.
+> Kai's stand gets its inspection seal once its filling machine passes.
 
 **Hints:**
 
-1. `cups.mean()` and `cups.median()` describe the raw log. `cups.sort_values()` shows the strange entries at both ends.
+1. `cups.mean()` and `cups.median()` describe the raw log. `cups.sort_values()` shows the strange entries at both ends. Kai left a note at the till about how they get into the log.
 2. Kai's note: spilled cups were typed in as 0, and no cup holds more than 400 ml. A filter keeps the rest: `cups[(cups > 0) & (cups <= 400)]`.
-3. `clean = cups[(cups > 0) & (cups <= 400)]`, then `clean.mean()`, `clean.median()` and `clean.std()`. pandas' `.std()` divides by n − 1, the sample standard deviation.
+3. `clean = cups[(cups > 0) & (cups <= 400)]`, then `clean.mean()`, `clean.median()` and `clean.std()`. pandas' `.std()` divides by n − 1, the sample standard deviation. The mean fell from 311.3 to 296.4 ml (`mean_moved = True`), the median stayed at 296 (`median_moved = False`).
 
 ### 2. Lucky Seven
 
@@ -103,12 +107,12 @@ show_hist(clean, title="Clean cups")
 
 **Task:**
 
-> At Lucky Seven you roll two dice and win with certain sums: the sign at the stall says which ones, and what chance it promises. The log of tonight's 900 games is loaded as `games` (columns `die1` and `die2`).
+> The log of tonight's 900 games at Lucky Seven is loaded as `games` (columns `die1` and `die2`). Is the game fair?
 >
-> 1. Work out the theoretical chance of winning, `p_theory`, from all 36 equally likely outcomes of two fair dice.
+> 1. Work out the chance of winning with fair dice, `p_theory`, from all 36 equally likely outcomes of two dice.
 > 2. Count tonight's wins: `wins`.
 > 3. With fair dice, how likely is a night with at most this many wins? The number of wins in 900 games follows a binomial distribution. Store that probability as `p_value`.
-> 4. The inspection handbook says when a result counts as suspicious. Store its limit as a probability, `threshold`, and your verdict as `rigged` (`True` or `False`).
+> 4. Your verdict: `fair` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -119,14 +123,10 @@ from scipy import stats
 # games is loaded: one row per game, columns die1 and die2.
 print(games.head())
 
-outcomes = list(product(range(1, 7), repeat=2))   # all 36 (die1, die2) pairs
-p_theory = None    # share of outcomes that win (see the sign)
-
+p_theory = None    # chance of a win with two fair dice
 wins = None        # games won tonight
 p_value = None     # P(at most `wins` wins in 900 games) with fair dice
-
-threshold = None   # the inspection handbook's limit, as a probability
-rigged = None      # True or False
+fair = None        # True or False
 ```
 
 </details>
@@ -141,13 +141,12 @@ outcomes = list(product(range(1, 7), repeat=2))
 p_theory = sum(1 for a, b in outcomes if a + b in (7, 11)) / len(outcomes)
 wins = int((games.die1 + games.die2).isin([7, 11]).sum())
 p_value = stats.binom.cdf(wins, len(games), p_theory)
-threshold = 0.01
-rigged = p_value < threshold
-print(round(p_theory, 4), wins, round(len(games) * p_theory), round(p_value, 4), rigged)
+fair = p_value > 0.01
+print(round(p_theory, 4), wins, round(len(games) * p_theory), round(p_value, 4), fair)
 print(games.stack().value_counts().sort_index())
 ```
 
-**Checked result** (`_dice_check(p_theory, wins, p_value, threshold, rigged)`):
+**Checked result** (`_dice_check(p_theory, wins, p_value, fair)`):
 
 ```json
 "sealed"
@@ -161,42 +160,37 @@ print(games.stack().value_counts().sort_index())
 
 **Hints:**
 
-1. The sign at the stall says which sums win. `sum(1 for a, b in outcomes if a + b in (...))` counts the winning outcomes; divide by 36. In the log, `(games.die1 + games.die2).isin([...])` marks the wins.
-2. With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`. The inspection handbook gives the limit; then `rigged = p_value < threshold`.
-3. A 7 or an 11 wins: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). The handbook says 1 in 100: `threshold = 0.01`, so `rigged = p_value < threshold` is `True`. `games.stack().value_counts()` shows which faces are missing.
+1. The sign at the stall says which sums win. `list(product(range(1, 7), repeat=2))` lists all 36 (die1, die2) pairs; `sum(1 for a, b in outcomes if a + b in (...))` counts the winning ones, then divide by 36. In the log, `(games.die1 + games.die2).isin([...])` marks the wins.
+2. With fair dice, the wins in 900 games are binomial with n = 900 and p = `p_theory`. The probability of at most k successes is the cumulative distribution function: `stats.binom.cdf(k, n, p)`. The inspection handbook says how unlikely a result must be before a game counts as suspicious.
+3. A 7 or an 11 wins: `p_theory = 8 / 36`, `wins = int((games.die1 + games.die2).isin([7, 11]).sum())` (163) and `p_value = stats.binom.cdf(wins, 900, p_theory)` (about 0.0014). The handbook's limit is 1 in 100, so `fair = p_value > 0.01` is `False`. `games.stack().value_counts()` shows which faces are missing.
 
 ### 3. The duck pond
 
-**Practises:** The binomial distribution (pmf, cdf, sf), expected value, comparing theory with observed frequencies  
+**Practises:** The binomial distribution (cdf, sf), expected value, comparing theory with observed frequencies  
 **Needs:** 🔎 The duck pond sign  
 **Data:** [ducks.py](../../content/rooms/stats-fair/data/ducks.py)
 
 **Task:**
 
-> At the duck pond, players fish 6 ducks; the sign says how many have a star and what wins. Tonight's log is loaded as `stars`: the stars fished in each of 400 games.
+> Tonight's log of the duck pond is loaded as `stars`: the stars fished in each of 400 games. Is the pond honest, and what does it earn Bruno?
 >
 > 1. The number of stars in a game is binomial. Compute the chance to win a teddy, `p_win`, with scipy.
-> 2. Bruno pays for the teddies. What does he earn per game on average? Store the expected profit per game in euros as `profit`.
-> 3. Compare with tonight: the share of games that won a teddy, `observed`.
+> 2. Bruno pays for the teddies. Store his expected profit per game in euros as `profit`.
+> 3. The share of tonight's games that won a teddy: `observed`.
+> 4. Your verdict: `honest` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
 ```python
 from scipy import stats
-from helpers import show_bars
 
 # stars is loaded: stars fished in each of tonight's 400 games.
 print(stars.value_counts().sort_index())
 
-n, p = None, None   # ducks per game, chance of a star per duck (see the sign)
-p_win = None        # P(enough stars for a teddy)
+p_win = None        # P(a teddy)
 profit = None       # Bruno's expected profit per game, in euros
-observed = None     # share of tonight's games that won
-
-# To compare theory and tonight, for example:
-# theory = stats.binom.pmf(range(7), n, p)
-# tonight = stars.value_counts(normalize=True).reindex(range(7), fill_value=0)
-# show_bars(theory, tonight, x=range(7), labels=["binomial", "tonight"])
+observed = None     # share of tonight's games that won a teddy
+honest = None       # True or False
 ```
 
 </details>
@@ -211,13 +205,14 @@ n, p = 6, 0.25
 p_win = stats.binom.sf(2, n, p)
 profit = 2 - 5 * p_win
 observed = (stars >= 3).mean()
+honest = abs(observed - p_win) < 0.02
 theory = stats.binom.pmf(range(7), n, p)
 tonight = stars.value_counts(normalize=True).reindex(range(7), fill_value=0)
 show_bars(theory, tonight, x=range(7), labels=["binomial", "tonight"], title="Stars per game")
-print(round(p_win, 4), round(profit, 2), observed)
+print(round(p_win, 4), round(profit, 2), observed, honest)
 ```
 
-**Checked result** (`_duck_check(p_win, profit, observed)`):
+**Checked result** (`_duck_check(p_win, profit, observed, honest)`):
 
 ```json
 "sealed"
@@ -233,9 +228,9 @@ print(round(p_win, 4), round(profit, 2), observed)
 
 **Hints:**
 
-1. n = 6 ducks and p = 1/4. P(3 or more) = 1 − P(at most 2): `1 - stats.binom.cdf(2, n, p)`, or directly `stats.binom.sf(2, n, p)`.
-2. Expected profit = what a game brings in minus what it costs on average: the €2 ticket minus the teddy's price times `p_win`. The price is on the sign.
-3. `p_win = stats.binom.sf(2, 6, 0.25)` (0.1694), `profit = 2 - 5 * p_win` (€1.15) and `observed = (stars >= 3).mean()`.
+1. The sign at the pond has what you need: how often a duck has a star, how many ducks a game fishes, what wins and what a game costs. Its back says what a teddy costs Bruno.
+2. n = 6 ducks and p = 1/4. P(3 or more) = 1 − P(at most 2): `1 - stats.binom.cdf(2, n, p)`, or directly `stats.binom.sf(2, n, p)`. Expected profit = the €2 ticket minus the teddy's price times `p_win`. Tonight's share is `(stars >= 3).mean()`.
+3. `p_win = stats.binom.sf(2, 6, 0.25)` (0.1694), `profit = 2 - 5 * p_win` (€1.15) and `observed = (stars >= 3).mean()` (0.1675): as close to the theory as chance gets, so `honest = True`. To see it, `show_bars(stats.binom.pmf(range(7), 6, 0.25), stars.value_counts(normalize=True).reindex(range(7), fill_value=0), x=range(7), labels=["binomial", "tonight"])`.
 
 ### 4. The filling machine
 
@@ -245,27 +240,27 @@ print(round(p_win, 4), round(profit, 2), observed)
 
 **Task:**
 
-> Kai's lemonade machine fills cups normally distributed around the volume it is set to. Its calibration sticker is still blank: it needs the mean and standard deviation of tonight's real cups, from the cup log.
+> Kai's lemonade machine fills cups normally distributed around the volume it is set to. Its calibration sticker is still blank: it needs the mean and standard deviation of tonight's real cups. Does the machine, as set tonight, obey the law on short-filled cups? And what should Kai set it to?
 >
-> The law allows only a few cups to fall short: the fill regulation says how far below 300 ml counts as short, and what share of cups may be. With a normal distribution and those values:
->
-> 1. How many standard deviations from the mean is the regulation's limit? Store it as `z`.
-> 2. What share of cups holds less than the limit? Store it as `share_below` (between 0 and 1).
-> 3. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly the allowed share of cups holds less than the limit?
+> 1. How many standard deviations from the mean is the legal limit for a short cup? Store it as `z`.
+> 2. What share of cups holds less than that limit? Store it as `share_below` (between 0 and 1).
+> 3. Is the machine legal as it is? Store `legal` (`True` or `False`).
+> 4. To what mean (`target`, in ml) must Kai set the machine, with the same spread, so that exactly the share the law allows holds less than the limit?
 
 <details><summary>Starter code</summary>
 
 ```python
 from scipy import stats
 
-mu = None       # mean of tonight's real cups (cup log)
+mu = None       # mean of tonight's real cups
 sigma = None    # their standard deviation
 
-limit = None    # ml: below this, a 300 ml cup counts as short (fill regulation)
+limit = None    # ml: below this, a 300 ml cup counts as short
 allowed = None  # the share of cups that may be short (between 0 and 1)
 
 z = None             # how many standard deviations limit is from mu
 share_below = None   # P(cup < limit)
+legal = None         # True or False
 target = None        # the mean that leaves exactly the allowed share below limit
 ```
 
@@ -277,14 +272,15 @@ target = None        # the mean that leaves exactly the allowed share below limi
 from scipy import stats
 
 mu, sigma = 296.4, 7.9
-limit, allowed = 285, 0.02
+limit, allowed = 300 - 15, 0.02
 z = (limit - mu) / sigma
 share_below = stats.norm.cdf(limit, mu, sigma)
+legal = share_below <= allowed
 target = limit - stats.norm.ppf(allowed) * sigma
-print(round(z, 2), round(share_below, 4), round(target, 1))
+print(round(z, 2), round(share_below, 4), legal, round(target, 1))
 ```
 
-**Checked result** (`_filler_check(z, share_below, target)`):
+**Checked result** (`_filler_check(z, share_below, legal, target)`):
 
 ```json
 "sealed"
@@ -300,11 +296,11 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 
 1. mu and sigma are the clean mean and standard deviation from the cup log at the lemonade stand. The limit and the allowed share are on the fill regulation the commission pinned up.
 2. `z = (limit - mu) / sigma`. `stats.norm.cdf(limit, mu, sigma)` is the share below the limit (the same as `stats.norm.cdf(z)`). For the target, the z with the allowed share below it is `stats.norm.ppf(allowed)`.
-3. With mu = 296.4, sigma = 7.9, limit = 285 (15 ml short) and allowed = 0.02: z ≈ −1.44, share_below ≈ 0.075, and `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301.2 ml.
+3. With mu = 296.4, sigma = 7.9, limit = 300 − 15 = 285 and allowed = 0.02: z ≈ −1.44, share_below ≈ 0.075, more than 0.02, so `legal = False`; and `target = limit - stats.norm.ppf(allowed) * sigma` ≈ 301.2 ml.
 
 ### 5. The ticket office
 
-**Practises:** Population vs. sample, parameter vs. statistic, random vs. biased samples, how much a sample mean varies  
+**Practises:** Population vs. sample, random vs. biased samples, how much a sample mean varies  
 **Needs:** 🔒 3. The duck pond, 🔎 Bruno's flyer for sponsors  
 **Data:** [tickets.py](../../content/rooms/stats-fair/data/tickets.py)
 
@@ -314,12 +310,14 @@ print(round(z, 2), round(share_below, 4), round(target, 1))
 
 **Task:**
 
-> Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his surveys, `surveys`: one row per guest asked, with `place`, `day` and `spent`. One of them is the source of his flyer for sponsors.
+> Bruno's flyer for sponsors makes a claim about what visitors spend. Could an honest random survey have come out that high?
+>
+> Bruno's laptop knows what every visitor spent tonight on their cashless wristband: `wristbands`, all 6,000 visitors. It also holds his surveys, `surveys`: one row per guest asked, with `place`, `day` and `spent`.
 >
 > 1. The mean of all visitors is a parameter of the population: `mu`.
-> 2. A random sample of 40 visitors, `wristbands.sample(40, random_state=7)`, gives an estimate of it: `sample_mean`.
-> 3. The mean of the survey behind the flyer: `flyer_mean`.
-> 4. Could the flyer's figure be bad luck? Draw 1,000 random samples of 40 visitors and keep their means in `means`. Does any of them come close to the flyer?
+> 2. The mean of the survey behind the flyer: `flyer_mean`.
+> 3. Draw 1,000 random samples of 40 visitors, keep their means in `means`, and store the largest of them as `max_mean`.
+> 4. Your verdict: could a random sample have produced the flyer's figure? Store `could_be_luck` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -331,10 +329,12 @@ from helpers import show_hist
 print(surveys.groupby(["place", "day"]).size())
 
 mu = None
-sample_mean = None   # mean of wristbands.sample(40, random_state=7)
-flyer_mean = None    # mean of the one survey behind the flyer
+flyer_mean = None      # mean of the one survey behind the flyer
 
-means = []           # means of 1,000 random samples of 40 visitors
+means = []             # means of 1,000 random samples of 40 visitors
+max_mean = None        # the largest of them
+
+could_be_luck = None   # True or False
 
 # show_hist(means, title="Means of random samples of 40")
 ```
@@ -347,15 +347,16 @@ means = []           # means of 1,000 random samples of 40 visitors
 from helpers import show_hist
 
 mu = wristbands.mean()
-sample_mean = wristbands.sample(40, random_state=7).mean()
 flyer = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")]
 flyer_mean = flyer.spent.mean()
 means = [wristbands.sample(40).mean() for i in range(1000)]
-print(len(flyer), round(mu, 2), round(sample_mean, 2), round(flyer_mean, 2), round(min(means), 2), round(max(means), 2))
+max_mean = max(means)
+could_be_luck = max_mean >= flyer_mean
+print(len(flyer), round(mu, 2), round(flyer_mean, 2), round(min(means), 2), round(max_mean, 2), could_be_luck)
 show_hist(means, title="Means of 1,000 random samples of 40")
 ```
 
-**Checked result** (`_ticket_check(mu, sample_mean, flyer_mean, means)`):
+**Checked result** (`_ticket_check(mu, flyer_mean, means, max_mean, could_be_luck)`):
 
 ```json
 "sealed"
@@ -363,15 +364,15 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Reveals when solved:**
 
-> Tonight's visitors spent **€33.51** on average. A random sample of 40 lands close (€34.23), and 1,000 random samples stay between about €25 and €45. The flyer's survey in the VIP tent says €65.18: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.
+> Tonight's visitors spent **€33.51** on average, and 1,000 random samples of 40 stay between about €25 and €45. The flyer's survey in the VIP tent says €65: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.
 >
 > Inspection seal for the ticket office: **1**
 
 **Hints:**
 
-1. `wristbands.mean()` is the population mean, and `wristbands.sample(40, random_state=7).mean()` one random sample's mean. The flyer names its source in the small print: filter `surveys` by place and day, as in `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
-2. In a loop, `wristbands.sample(40).mean()` draws a new random sample each time; append each mean to `means`. `show_hist(means)` shows how much a sample mean of 40 can vary by chance.
-3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (€65.18) and `means = [wristbands.sample(40).mean() for i in range(1000)]`. They stay between about €25 and €45, nowhere near €65: the survey isn't unlucky, it only asked VIP guests.
+1. `wristbands.mean()` is the population mean. The flyer names its source in the small print: filter `surveys` by place and day, as in `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
+2. In a loop, `wristbands.sample(40).mean()` draws a new random sample each time; append each mean to `means`. `max(means)` is the highest any of them reached; `show_hist(means)` shows how much a sample mean of 40 varies by chance.
+3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (€65), `means = [wristbands.sample(40).mean() for i in range(1000)]` and `max_mean = max(means)` (about €45). Not even the luckiest random sample comes near €65, so `could_be_luck = max_mean >= flyer_mean` is `False`: the survey only asked VIP guests.
 
 ### 6. The fairground gate (Final lock)
 
@@ -381,8 +382,6 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 **Task:**
 
 > The gate has a four-digit keypad and the night guard's note: "Every stall you finish inspecting gets a seal with one digit. Enter the seals in the order of the stall numbers."
->
-> The fair map says which stall has which number.
 
 **Answer:** `1836`
 
@@ -435,8 +434,6 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 > FILL QUANTITY REGULATION (excerpt, pinned up by the commission)
 >
 > Drinks sold by volume: at most **2 %** of servings may hold more than **15 ml** less than the stated volume.
->
-> For a 300 ml cup, that means: at most 2 % of cups below 285 ml.
 
 ### 🔎 The inspection handbook
 
@@ -479,4 +476,4 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **The normal distribution:** [`z = (x - mu) / sigma`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`stats.norm.cdf(x, loc=mu, scale=sigma)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html), [`stats.norm.ppf(q, loc=mu, scale=sigma)`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html)
 
-**Populations and samples:** [`Population vs. sample`](https://docs.python.org/3/library/statistics.html#statistics.pstdev), [`s.sample(n, random_state=seed)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sample.html), `Sampling bias`, [`[expr for i in range(1000)]`](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)
+**Populations and samples:** [`Population vs. sample`](https://docs.python.org/3/library/statistics.html#statistics.pstdev), [`s.sample(n)`](https://pandas.pydata.org/docs/reference/api/pandas.Series.sample.html), `Sampling bias`, [`[expr for i in range(1000)]`](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)

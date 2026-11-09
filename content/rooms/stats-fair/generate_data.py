@@ -39,7 +39,7 @@ import pandas as pd
 cups = pd.Series({ints(cups, 15)}, name="ml")
 
 
-def _cup_check(mean_raw, median_raw, clean, mean, median, sd):
+def _cup_check(mean_raw, median_raw, clean, mean, median, sd, mean_moved, median_moved):
     '''The cup log's check: the raw and the clean description.'''
     from numbers import Real
     problems = []
@@ -50,13 +50,17 @@ def _cup_check(mean_raw, median_raw, clean, mean, median, sd):
         if abs(mean_raw - 311.342) > 0.01 or median_raw != 296:
             problems.append("mean_raw and median_raw describe the log as it is, before any cleaning. / mean_raw und median_raw beschreiben das Protokoll, wie es ist, vor jeder Bereinigung.")
         if not hasattr(clean, "__len__") or len(clean) != 116:
-            problems.append(f"clean has {{len(clean) if hasattr(clean, '__len__') else 0}} cups, but the log has 116 real ones (see Kai's note). / clean hat {{len(clean) if hasattr(clean, '__len__') else 0}} Becher, das Protokoll hat aber 116 echte (siehe Kais Notiz).")
+            problems.append(f"clean has {{len(clean) if hasattr(clean, '__len__') else 0}} cups, but the log has 116 real ones. / clean hat {{len(clean) if hasattr(clean, '__len__') else 0}} Becher, das Protokoll hat aber 116 echte.")
         elif abs(mean - 296.388) > 0.01 or median != 296:
             problems.append("mean and median should describe the clean cups. / mean und median sollen die bereinigten Becher beschreiben.")
         elif abs(sd - 7.840) < 0.005:
             problems.append("sd divides by n. For a sample, divide by n - 1 (pandas' .std() does that; numpy needs ddof=1). / sd teilt durch n. Für eine Stichprobe teilt durch n - 1 (pandas' .std() macht das; numpy braucht ddof=1).")
         elif abs(sd - 7.874) > 0.005:
             problems.append("sd is off: the standard deviation of the clean cups. / sd stimmt nicht: die Standardabweichung der bereinigten Becher.")
+    if not all(isinstance(v, (bool, np.bool_)) for v in (mean_moved, median_moved)):
+        problems.append("mean_moved and median_moved should be True or False. / mean_moved und median_moved sollen True oder False sein.")
+    elif not mean_moved or median_moved:
+        problems.append("mean_moved or median_moved is off: compare each value before and after cleaning. / mean_moved oder median_moved stimmt nicht: Vergleicht jeden Wert vor und nach dem Bereinigen.")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"
@@ -78,28 +82,23 @@ _die2 = {digits(die2)}
 games = pd.DataFrame({{"die1": [int(c) for c in _die1], "die2": [int(c) for c in _die2]}})
 
 
-def _dice_check(p_theory, wins, p_value, threshold, rigged):
+def _dice_check(p_theory, wins, p_value, fair):
     '''Lucky Seven's check: the theoretical chance, the wins, how unlikely they are, and the verdict.'''
     from numbers import Real
     problems = []
     if not isinstance(p_theory, Real) or abs(p_theory - 8 / 36) > 0.0005:
         if isinstance(p_theory, Real) and abs(p_theory - 6 / 36) < 0.0005:
-            problems.append("p_theory only counts one of the winning sums. The sign says which win. / p_theory zählt nur eine der Gewinnsummen. Das Schild sagt, welche gewinnen.")
+            problems.append("p_theory only counts one of the winning sums. / p_theory zählt nur eine der Gewinnsummen.")
         else:
-            problems.append("p_theory is off: winning outcomes (see the sign) divided by all 36 outcomes. / p_theory stimmt nicht: Gewinn-Ergebnisse (siehe Schild) geteilt durch alle 36 Ergebnisse.")
+            problems.append("p_theory is off: winning outcomes divided by all 36 outcomes. / p_theory stimmt nicht: Gewinn-Ergebnisse geteilt durch alle 36 Ergebnisse.")
     if not isinstance(wins, Real) or wins != 163:
-        problems.append("wins is off: count the games whose two dice add up to a winning sum (see the sign). / wins stimmt nicht: Zählt die Spiele, deren zwei Würfel zusammen eine Gewinnsumme ergeben (siehe Schild).")
+        problems.append("wins is off: count the games whose two dice add up to a winning sum. / wins stimmt nicht: Zählt die Spiele, deren zwei Würfel zusammen eine Gewinnsumme ergeben.")
     if not isinstance(p_value, Real) or abs(p_value - 0.00140) > 0.0002:
         problems.append("p_value is off: the probability of at most that many wins in 900 games with fair dice (binomial). / p_value stimmt nicht: die Wahrscheinlichkeit für höchstens so viele Gewinne in 900 Spielen mit fairen Würfeln (binomial).")
-    if not isinstance(threshold, Real) or abs(threshold - 0.01) > 1e-9:
-        if isinstance(threshold, Real) and threshold in (1, 100):
-            problems.append("threshold should be a probability between 0 and 1. / threshold soll eine Wahrscheinlichkeit zwischen 0 und 1 sein.")
-        else:
-            problems.append("threshold is off: the probability below which the inspection handbook calls a game suspicious. / threshold stimmt nicht: die Wahrscheinlichkeit, unter der das Prüfhandbuch ein Spiel verdächtig nennt.")
-    if not isinstance(rigged, (bool, np.bool_)):
-        problems.append("rigged should be True or False: compare p_value with the threshold. / rigged soll True oder False sein: Vergleicht p_value mit dem Schwellenwert.")
-    elif not rigged:
-        problems.append("rigged is off: is p_value below the handbook's threshold? / rigged stimmt nicht: Liegt p_value unter dem Schwellenwert des Handbuchs?")
+    if not isinstance(fair, (bool, np.bool_)):
+        problems.append("fair should be True or False. / fair soll True oder False sein.")
+    elif fair:
+        problems.append("fair is off: is a night this bad rare enough to call the game suspicious? / fair stimmt nicht: Ist ein so schlechter Abend selten genug, um das Spiel verdächtig zu nennen?")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"
@@ -118,16 +117,20 @@ _stars = {digits(stars)}
 stars = pd.Series([int(c) for c in _stars], name="stars")
 
 
-def _duck_check(p_win, profit, observed):
+def _duck_check(p_win, profit, observed, honest):
     '''The duck pond's check: the chance to win, Bruno's expected profit and tonight's share.'''
     from numbers import Real
     problems = []
     if not isinstance(p_win, Real) or abs(p_win - 0.16943) > 0.0001:
-        problems.append("p_win is off: the chance of 3 or more stars when fishing 6 ducks. / p_win stimmt nicht: die Chance auf 3 oder mehr Sterne beim Angeln von 6 Enten.")
+        problems.append("p_win is off: the chance of winning a teddy in one game. / p_win stimmt nicht: die Chance, in einem Spiel einen Teddy zu gewinnen.")
     if not isinstance(profit, Real) or abs(profit - 1.1528) > 0.005:
         problems.append("profit is off: what a game brings in minus the teddy's price times the chance to win it. / profit stimmt nicht: was ein Spiel einbringt, minus Teddypreis mal Gewinnchance.")
     if not isinstance(observed, Real) or abs(observed - 0.1675) > 0.0001:
-        problems.append("observed is off: the share of tonight's games with 3 or more stars. / observed stimmt nicht: der Anteil der heutigen Spiele mit 3 oder mehr Sternen.")
+        problems.append("observed is off: the share of tonight's games that won a teddy. / observed stimmt nicht: der Anteil der heutigen Spiele, die einen Teddy gewonnen haben.")
+    if not isinstance(honest, (bool, np.bool_)):
+        problems.append("honest should be True or False. / honest soll True oder False sein.")
+    elif not honest:
+        problems.append("honest is off: compare tonight's share with the chance in theory. / honest stimmt nicht: Vergleicht den heutigen Anteil mit der Chance in der Theorie.")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"
@@ -139,6 +142,7 @@ def _duck_check(p_win, profit, observed):
 rng = np.random.default_rng(23)
 spent = np.round(rng.gamma(2.2, 14.0, 6000)).astype(int) + 3
 vip = np.round(rng.gamma(6.0, 9.5, 40)).astype(int) + 4
+vip[np.argmax(vip)] -= vip.sum() - 40 * 65   # the survey's mean is exactly the flyer's €65
 groups = [
     ("Main entrance", "Saturday", np.round(rng.gamma(2.2, 14.0, 40)).astype(int) + 3),
     ("VIP tent", "Friday", np.round(rng.gamma(6.0, 8.0, 30)).astype(int) + 4),
@@ -167,17 +171,15 @@ surveys = pd.DataFrame({{
 }})
 
 
-def _ticket_check(mu, sample_mean, flyer_mean, means):
-    '''The ticket office's check: parameter, statistic, the flyer's survey, and the spread of sample means.'''
+def _ticket_check(mu, flyer_mean, means, max_mean, could_be_luck):
+    '''The ticket office's check: the parameter, the flyer's survey, the spread of sample means and the verdict.'''
     from numbers import Real
     problems = []
     if not isinstance(mu, Real) or abs(mu - 33.509) > 0.001:
         problems.append("mu is off: the mean of all wristbands. / mu stimmt nicht: der Mittelwert aller Armbänder.")
-    if not isinstance(sample_mean, Real) or abs(sample_mean - 34.225) > 0.001:
-        problems.append("sample_mean is off: the mean of wristbands.sample(40, random_state=7). / sample_mean stimmt nicht: der Mittelwert von wristbands.sample(40, random_state=7).")
-    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65.175) > 0.001:
+    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65) > 0.001:
         if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in {others!r}):
-            problems.append("flyer_mean comes from the wrong survey: the flyer's small print says which one. / flyer_mean kommt aus der falschen Umfrage: Das Kleingedruckte auf dem Flyer sagt, welche.")
+            problems.append("flyer_mean comes from the wrong survey. / flyer_mean kommt aus der falschen Umfrage.")
         else:
             problems.append("flyer_mean is off: the mean of the one survey behind the flyer (filter surveys by place and day). / flyer_mean stimmt nicht: der Mittelwert der einen Umfrage hinter dem Flyer (filtert surveys nach place und day).")
     try:
@@ -188,6 +190,12 @@ def _ticket_check(mu, sample_mean, flyer_mean, means):
         problems.append("means needs the means of many random samples of 40 (1,000 is good). / means braucht die Mittelwerte vieler Zufallsstichproben von 40 (1.000 sind gut).")
     elif abs(m.mean() - 33.51) > 0.6 or not 2.6 < m.std() < 4.0:
         problems.append("Your means don't look like means of random samples of 40 wristbands. / Eure Mittelwerte sehen nicht nach Zufallsstichproben von 40 Armbändern aus.")
+    elif not isinstance(max_mean, Real) or abs(max_mean - m.max()) > 1e-9:
+        problems.append("max_mean is off: the largest of your means. / max_mean stimmt nicht: der größte eurer Mittelwerte.")
+    if not isinstance(could_be_luck, (bool, np.bool_)):
+        problems.append("could_be_luck should be True or False. / could_be_luck soll True oder False sein.")
+    elif could_be_luck:
+        problems.append("could_be_luck is off: did any random sample come close to the flyer? / could_be_luck stimmt nicht: Kam irgendeine Zufallsstichprobe an den Flyer heran?")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"

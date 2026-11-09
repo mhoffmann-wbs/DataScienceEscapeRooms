@@ -34,28 +34,23 @@ _die2 = (
 games = pd.DataFrame({"die1": [int(c) for c in _die1], "die2": [int(c) for c in _die2]})
 
 
-def _dice_check(p_theory, wins, p_value, threshold, rigged):
+def _dice_check(p_theory, wins, p_value, fair):
     '''Lucky Seven's check: the theoretical chance, the wins, how unlikely they are, and the verdict.'''
     from numbers import Real
     problems = []
     if not isinstance(p_theory, Real) or abs(p_theory - 8 / 36) > 0.0005:
         if isinstance(p_theory, Real) and abs(p_theory - 6 / 36) < 0.0005:
-            problems.append("p_theory only counts one of the winning sums. The sign says which win. / p_theory zählt nur eine der Gewinnsummen. Das Schild sagt, welche gewinnen.")
+            problems.append("p_theory only counts one of the winning sums. / p_theory zählt nur eine der Gewinnsummen.")
         else:
-            problems.append("p_theory is off: winning outcomes (see the sign) divided by all 36 outcomes. / p_theory stimmt nicht: Gewinn-Ergebnisse (siehe Schild) geteilt durch alle 36 Ergebnisse.")
+            problems.append("p_theory is off: winning outcomes divided by all 36 outcomes. / p_theory stimmt nicht: Gewinn-Ergebnisse geteilt durch alle 36 Ergebnisse.")
     if not isinstance(wins, Real) or wins != 163:
-        problems.append("wins is off: count the games whose two dice add up to a winning sum (see the sign). / wins stimmt nicht: Zählt die Spiele, deren zwei Würfel zusammen eine Gewinnsumme ergeben (siehe Schild).")
+        problems.append("wins is off: count the games whose two dice add up to a winning sum. / wins stimmt nicht: Zählt die Spiele, deren zwei Würfel zusammen eine Gewinnsumme ergeben.")
     if not isinstance(p_value, Real) or abs(p_value - 0.00140) > 0.0002:
         problems.append("p_value is off: the probability of at most that many wins in 900 games with fair dice (binomial). / p_value stimmt nicht: die Wahrscheinlichkeit für höchstens so viele Gewinne in 900 Spielen mit fairen Würfeln (binomial).")
-    if not isinstance(threshold, Real) or abs(threshold - 0.01) > 1e-9:
-        if isinstance(threshold, Real) and threshold in (1, 100):
-            problems.append("threshold should be a probability between 0 and 1. / threshold soll eine Wahrscheinlichkeit zwischen 0 und 1 sein.")
-        else:
-            problems.append("threshold is off: the probability below which the inspection handbook calls a game suspicious. / threshold stimmt nicht: die Wahrscheinlichkeit, unter der das Prüfhandbuch ein Spiel verdächtig nennt.")
-    if not isinstance(rigged, (bool, np.bool_)):
-        problems.append("rigged should be True or False: compare p_value with the threshold. / rigged soll True oder False sein: Vergleicht p_value mit dem Schwellenwert.")
-    elif not rigged:
-        problems.append("rigged is off: is p_value below the handbook's threshold? / rigged stimmt nicht: Liegt p_value unter dem Schwellenwert des Handbuchs?")
+    if not isinstance(fair, (bool, np.bool_)):
+        problems.append("fair should be True or False. / fair soll True oder False sein.")
+    elif fair:
+        problems.append("fair is off: is a night this bad rare enough to call the game suspicious? / fair stimmt nicht: Ist ein so schlechter Abend selten genug, um das Spiel verdächtig zu nennen?")
     for p in problems:
         print(p)
     return "sealed" if not problems else "rejected"
