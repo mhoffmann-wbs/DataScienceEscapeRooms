@@ -9,9 +9,11 @@ interface Props {
   solo?: boolean;
   onLeave: () => void;
   onStay: () => void;
+  /** Shows the room's intro again. */
+  onIntro?: () => void;
 }
 
-export function LeaveRoomDialog({ finished, onEnd, solo, onLeave, onStay }: Props) {
+export function LeaveRoomDialog({ finished, onEnd, solo, onLeave, onStay, onIntro }: Props) {
   const { t } = useTranslation();
   const canEnd = !finished && !!onEnd;
   return (
@@ -19,6 +21,11 @@ export function LeaveRoomDialog({ finished, onEnd, solo, onLeave, onStay }: Prop
       <p>{t(finished ? 'room.leaveBodyFinished' : 'room.leaveBody')}</p>
       {canEnd && <p className="muted">{t(solo ? 'room.endBodySolo' : 'room.endBody')}</p>}
       <div className="modal-actions">
+        {onIntro && (
+          <button type="button" onClick={onIntro}>
+            {t('room.rereadIntro')}
+          </button>
+        )}
         <button type="button" onClick={onStay}>
           {t('room.stay')}
         </button>

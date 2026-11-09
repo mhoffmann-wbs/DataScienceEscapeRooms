@@ -164,6 +164,7 @@
     "timer": "Time since the run started",
     "team": "Team ({{count}})",
     "progress": "{{solved}}/{{total}} solved",
+    "rereadIntro": "Read the intro again",
     "introStart": "Let's go",
     "escapedTitle": "You escaped!",
     "escapedBody_one": "Your team escaped in {{time}} using {{count}} hint.",

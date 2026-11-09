@@ -327,6 +327,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
   const leave = useCallback(() => setDialog((d) => (d?.kind === 'puzzle' || d?.kind === 'clue' || d?.kind === 'reference' || d?.kind === 'leave' ? null : d)), []);
   const close = useCallback(() => setDialog(null), []);
   const openDebrief = useCallback(() => setDialog({ kind: 'escaped' }), []);
+  const openIntro = useCallback(() => setDialog({ kind: 'intro' }), []);
   const puzzle = dialog?.kind === 'puzzle' ? getPuzzle(roomId, dialog.puzzleId) : undefined;
 
   return (
@@ -336,7 +337,7 @@ function RoomOverlays({ session, lobby, solo, observer, profile, author, onGoTo,
       {puzzle && <PuzzleDialog key={puzzle.id} roomId={roomId} puzzle={puzzle} run={run} author={!!author} notebook={session.notebook} codeShare={session.codeShare} presence={session.presence} onClose={close} />}
       {dialog?.kind === 'clue' && <ClueDialog roomId={roomId} clueId={dialog.clueId} notebook={session.notebook} onClose={close} />}
       {dialog?.kind === 'reference' && <ReferenceDialog roomId={roomId} onClose={close} />}
-      {dialog?.kind === 'leave' && !ending && <LeaveRoomDialog finished={escaped} solo={solo} onEnd={canEnd ? endRun : undefined} onLeave={() => onLeaveRoom(escaped)} onStay={close} />}
+      {dialog?.kind === 'leave' && !ending && <LeaveRoomDialog finished={escaped} solo={solo} onEnd={canEnd ? endRun : undefined} onLeave={() => onLeaveRoom(escaped)} onStay={close} onIntro={openIntro} />}
       {ended && !ending && <RunEndedDialog onLobby={() => onLeaveRoom(true)} />}
       {dialog?.kind === 'intro' && <IntroDialog roomId={roomId} onClose={close} />}
       {dialog?.kind === 'escaped' && <DebriefDialog roomId={roomId} state={state} onLobby={() => onLeaveRoom(true)} onClose={close} />}

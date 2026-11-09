@@ -164,6 +164,7 @@
     "timer": "Zeit seit Spielbeginn",
     "team": "Team ({{count}})",
     "progress": "{{solved}}/{{total}} gelöst",
+    "rereadIntro": "Einleitung nochmal lesen",
     "introStart": "Los geht's",
     "escapedTitle": "Ihr seid entkommen!",
     "escapedBody_one": "Euer Team ist in {{time}} entkommen und hat {{count}} Tipp benutzt.",
