@@ -99,9 +99,8 @@ flowchart LR
 
 ## Where things are
 
-- Every clue stands next to its station: Finn's note two tiles from the climate panel, the whiteboard above the feeding station, the cabinet note two tiles from the cabinet, the tally sheet and the sensor manual two tiles from their desks, the checklist beside the keypad.
-- North half: climate panel and Finn's note (west wall), feeding station and whiteboard (east), keypad and checklist by the door. A hedge of plant beds splits the room; the census tablet and sensor hub stand in the south half.
-- The handbook stands in the north-east corner.
+- Every clue stands next to its station: Finn's note two tiles from the climate panel, the sensor manual two tiles from the sensor hub, the whiteboard above the feeding station, the cabinet note two tiles from the cabinet, the tally sheet two tiles from the census desk, the checklist beside the keypad.
+- Players arrive in the airlock (top centre) with the door, keypad, checklist and handbook. West of it is Ole's tech room with the climate panel and the sensor hub; a strip curtain leads south into the tropical hall: the feeding corner in the north-east, the emergence cabinet on the west side, the lily pond in the middle and the volunteers' desk with the census tablet in the south-east.
 
 ## Findings
 

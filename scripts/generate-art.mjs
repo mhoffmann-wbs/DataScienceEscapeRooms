@@ -3524,6 +3524,278 @@ function onWall(index, src, wall, seed = 3) {
 // --- end python-docs ---
 
 // --- python-debug restyle (tiles 464-495) ---
+// The Butterfly House: a tropical glasshouse on a November night. Glass walls in white frames, an
+// airlock with a strip curtain, Ole's tech room, and the hall itself: gravel paths, a boardwalk,
+// a lily pond, palms and plant beds with butterflies in the air.
+{
+  const B = blockOf('python-debug');
+  const FRAME = [220, 228, 222];
+  const PANE = [34, 66, 72];
+  const SILL = [150, 120, 100];
+  const MULCH = [86, 60, 42];
+  const GRAVEL = [196, 186, 162];
+  const PLANK = [168, 124, 82];
+  const WATER = [52, 120, 140];
+  const FROND = [56, 146, 76];
+  const BUTTERFLY_COLOURS = [[70, 140, 255], [255, 150, 40], [250, 230, 90], [230, 70, 90], [190, 120, 240]];
+  /** The glasshouse wall: night-dark panes in white frames over a brick sill, leaves pressed to the glass. */
+  const glassWall = (g) => {
+    g.rect(0, 0, T, T, PANE);
+    for (let j = 0; j < 22; j++) g.rect(0, j, T, 1, alpha([90, 140, 130], 50 - j * 2));
+    g.ellipse(6, 20, 7, 3, alpha(sh(FROND, 0.6), 200));
+    g.ellipse(27, 16, 6, 2.5, alpha(sh(FROND, 0.5), 200));
+    const r = rng(B);
+    for (let i = 0; i < 14; i++) g.set(2 + Math.floor(r() * 28), 3 + Math.floor(r() * 18), [200, 230, 226, 150]);
+    g.rect(0, 0, T, 2, sh(FRAME, 0.7));
+    g.rect(0, 2, T, 1, FRAME);
+    g.rect(0, 0, 2, 26, FRAME);
+    g.rect(16, 0, 2, 26, FRAME);
+    g.rect(0, 12, T, 1, FRAME);
+    g.rect(2, 3, 1, 9, alpha([255, 255, 255], 90));
+    g.rect(18, 3, 1, 9, alpha([255, 255, 255], 90));
+    g.rect(0, 24, T, 8, SILL);
+    g.noise(0, 24, T, 8, 0.12, B + 50);
+    for (const y of [27, 30]) g.rect(0, y, T, 1, sh(SILL, 0.75));
+    for (const [x, y] of [[8, 24], [24, 27], [14, 30]]) g.rect(x, y, 1, 3, sh(SILL, 0.75));
+    g.rect(0, 24, T, 1, sh(SILL, 1.25));
+    g.rect(0, T - 1, T, 1, sh(SILL, 0.6));
+  };
+  // B+0 glass wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, glassWall);
+  drawTile(B + 1, turned(glassWall, 'ccw'));
+  drawTile(B + 2, turned(glassWall, 'cw'));
+  // B+3 boardwalk: weathered planks running across
+  drawTile(B + 3, (g) => {
+    const r = rng(B + 3);
+    for (let y = 0; y < T; y += 8) {
+      g.rect(0, y, T, 8, sh(PLANK, 0.88 + r() * 0.2));
+      g.rect(0, y, T, 1, sh(PLANK, 1.2));
+      g.rect(0, y + 7, T, 1, sh(PLANK, 0.6));
+      const seam = Math.floor(r() * 24) + 4;
+      g.rect(seam, y, 1, 8, sh(PLANK, 0.6));
+      g.set(seam - 3, y + 3, sh(PLANK, 0.5));
+      g.set(seam + 3, y + 3, sh(PLANK, 0.5));
+    }
+    g.noise(0, 0, T, T, 0.1, B + 3);
+  });
+  // B+4 bark mulch between the beds, with a few fallen leaves
+  drawTile(B + 4, (g) => {
+    g.rect(0, 0, T, T, MULCH);
+    const r = rng(B + 4);
+    for (let i = 0; i < 90; i++) g.rect(Math.floor(r() * 31), Math.floor(r() * 31), 2, 1, sh(MULCH, 0.7 + r() * 0.7));
+    for (const [x, y, c] of [[6, 8, [120, 150, 60]], [22, 21, [170, 120, 50]], [25, 5, [90, 140, 70]]]) {
+      g.ellipse(x, y, 2.5, 1.5, c);
+      g.set(x - 2, y + 1, sh(c, 0.7));
+    }
+  });
+  // B+5 gravel path
+  drawTile(B + 5, (g) => {
+    g.rect(0, 0, T, T, GRAVEL);
+    const r = rng(B + 5);
+    for (let i = 0; i < 160; i++) {
+      const x = Math.floor(r() * T), y = Math.floor(r() * T);
+      g.set(x, y, sh(GRAVEL, 0.72 + r() * 0.5));
+      if (r() < 0.3) g.set(x + 1, y, sh(GRAVEL, 1.15));
+    }
+  });
+  // B+6..B+11 lily pond, three tiles wide and two tall: water in a ring of stones, pads, a lotus and koi
+  drawPiece([[B + 6, B + 7, B + 8], [B + 9, B + 10, B + 11]], (g, { obj }) => {
+    obj((o) => {
+      o.ellipse(48, 32, 47, 31, [128, 124, 116]);
+      const r = rng(B + 6);
+      for (let i = 0; i < 40; i++) {
+        const t = (i / 40) * Math.PI * 2;
+        o.ellipse(48 + Math.cos(t) * 43, 32 + Math.sin(t) * 27, 4 + r() * 2, 3 + r() * 1.5, sh([140, 136, 126], 0.85 + r() * 0.3));
+      }
+      o.ellipse(48, 33, 40, 24, WATER);
+      for (let j = 0; j < 10; j++) o.ellipse(48, 30 - j, 38 - j * 3, 20 - j * 2, alpha(sh(WATER, 1.2), 30));
+      o.ellipse(48, 37, 36, 18, alpha(sh(WATER, 0.7), 90));
+    });
+    for (const [x, y, rx] of [[26, 26, 6], [64, 22, 7], [40, 44, 5], [72, 40, 6]]) {
+      g.ellipse(x, y, rx, rx * 0.6, [70, 150, 70]);
+      g.ellipse(x - 1, y - 1, rx - 2, rx * 0.4, [96, 178, 90]);
+      g.rect(x, y - 1, rx, 1, sh(WATER, 0.9));
+    }
+    g.ellipse(64, 19, 3, 2.5, [250, 180, 210]);
+    g.ellipse(64, 18, 1.5, 1.2, [255, 240, 200]);
+    for (const [x, y, c] of [[46, 30, [240, 120, 40]], [56, 38, [250, 250, 240]]]) {
+      g.ellipse(x, y, 4, 1.8, c);
+      g.rect(x + 4, y - 1, 2, 3, sh(c, 0.85));
+      g.set(x - 2, y - 1, [30, 30, 30]);
+    }
+    for (const [x, y] of [[34, 34], [58, 26]]) { g.rect(x, y, 5, 1, [200, 236, 240, 150]); g.rect(x + 1, y + 2, 3, 1, [200, 236, 240, 110]); }
+  });
+  /** A big tropical leaf: an ellipse with a midrib, drawn at an angle from a base point. */
+  const leaf = (o, x, y, dx, dy, len, wid, col) => {
+    const n = Math.max(Math.abs(dx), Math.abs(dy));
+    for (let i = 0; i <= len; i++) {
+      const t = i / len;
+      const w = Math.sin(t * Math.PI) * wid;
+      const cx = x + (dx / n) * i, cy = y + (dy / n) * i;
+      o.ellipse(cx, cy, w + 0.5, w * 0.7 + 0.5, i % 3 ? col : sh(col, 0.9));
+    }
+    for (let i = 1; i < len; i++) o.set(x + (dx / n) * i, y + (dy / n) * i, sh(col, 1.35));
+  };
+  // B+12, B+13 raised plant bed: a timber box of soil, big leaves and red and orange flowers
+  drawPiece([[B + 12, B + 13]], (g, { obj, shadow }) => {
+    shadow(32, 29, 31, 3);
+    obj((o) => {
+      o.box(1, 16, 62, 13, [120, 84, 54], 1.25);
+      o.rect(1, 21, 62, 1, [96, 66, 42]);
+      o.rect(3, 15, 58, 3, [60, 42, 30]);
+      const r = rng(B + 12);
+      for (let i = 0; i < 9; i++) {
+        const x = 6 + i * 6.5;
+        leaf(o, x, 17, (r() - 0.5) * 6, -6, 11 + Math.floor(r() * 5), 3.2, sh(FROND, 0.8 + r() * 0.4));
+      }
+      for (const [x, y, c] of [[12, 6, [230, 60, 60]], [28, 3, [255, 150, 40]], [44, 7, [240, 80, 150]], [56, 4, [255, 200, 60]]]) {
+        o.ellipse(x, y, 3, 2.5, c);
+        o.ellipse(x, y - 1, 1.5, 1, sh(c, 1.4));
+      }
+    });
+  });
+  // B+14, B+15 palm planter: a round stone pot with the trunk rising out of it (the crown is on the above layer)
+  drawPiece([[B + 14, B + 15]], (g, { obj, shadow }) => {
+    shadow(32, 29, 18, 3);
+    obj((o) => {
+      for (let y = 0; y < 22; y++) {
+        const x = 30 + Math.round(Math.sin(y / 6) * 1.5);
+        o.rect(x, y, 5, 1, y % 4 ? [130, 100, 66] : [100, 76, 50]);
+      }
+      o.ellipse(32, 22, 16, 5, [176, 110, 80]);
+      o.box(18, 22, 28, 7, [176, 110, 80], 1.2);
+      o.ellipse(32, 22, 13, 3, [70, 50, 36]);
+      leaf(o, 26, 21, -6, -2, 8, 2.5, FROND);
+      leaf(o, 38, 21, 6, -2, 8, 2.5, sh(FROND, 0.85));
+    });
+  });
+  // B+16..B+19 palm crown (above the avatars): fronds spreading from the top of the trunk
+  drawPiece([[B + 16, B + 17], [B + 18, B + 19]], (g) => {
+    const o = canvas(64, 64);
+    const fronds = [[-1, 0.25, 26], [1, 0.25, 26], [-1, -0.4, 30], [1, -0.4, 30], [-0.45, -1, 32], [0.45, -1, 32], [0, -1, 34], [-0.6, 0.8, 14], [0.6, 0.8, 14]];
+    fronds.forEach(([dx, dy, len], i) => leaf(o, 32, 46, dx * 10, dy * 10, len, 5.5, sh(FROND, 0.8 + (i % 4) * 0.12)));
+    o.ellipse(32, 46, 4, 3, [110, 84, 54]);
+    for (const [x, y] of [[29, 49], [35, 50]]) o.ellipse(x, y, 2.5, 2.5, [150, 110, 60]);
+    o.outline([20, 50, 30]);
+    g.paste(o);
+  });
+  // B+20 vines hanging from the roof (above the avatars)
+  drawTile(B + 20, (g) => {
+    const o = canvas(T, T);
+    for (const [x, len] of [[5, 26], [14, 16], [22, 30], [28, 12]]) {
+      for (let y = 0; y < len; y++) o.set(x + Math.round(Math.sin(y / 4 + x) * 1.2), y, [60, 110, 50]);
+      for (let y = 3; y < len; y += 4) {
+        const cx = x + Math.round(Math.sin(y / 4 + x) * 1.2);
+        o.ellipse(cx + (y % 8 ? 2 : -2), y, 2.5, 1.6, y % 8 ? FROND : sh(FROND, 1.2));
+      }
+    }
+    o.outline([20, 50, 30]);
+    g.paste(o);
+  });
+  /** A butterfly seen from above: four wing lobes around a dark body. */
+  const butterfly = (o, x, y, col, s = 1) => {
+    o.ellipse(x - 2.5 * s, y - 1.5 * s, 2.5 * s, 2 * s, col);
+    o.ellipse(x + 2.5 * s, y - 1.5 * s, 2.5 * s, 2 * s, col);
+    o.ellipse(x - 2 * s, y + 1.5 * s, 1.8 * s, 1.6 * s, sh(col, 0.8));
+    o.ellipse(x + 2 * s, y + 1.5 * s, 1.8 * s, 1.6 * s, sh(col, 0.8));
+    o.set(x - 3 * s, y - 2 * s, sh(col, 1.5));
+    o.set(x + 2 * s, y - 2 * s, sh(col, 1.5));
+    o.rect(x, y - 2, 1, 5, [30, 26, 30]);
+  };
+  // B+21 butterflies in the air (above the avatars)
+  drawTile(B + 21, (g) => {
+    const o = canvas(T, T);
+    butterfly(o, 8, 9, BUTTERFLY_COLOURS[0], 1.3);
+    butterfly(o, 23, 6, BUTTERFLY_COLOURS[1]);
+    butterfly(o, 18, 22, BUTTERFLY_COLOURS[2], 1.1);
+    o.outline([30, 26, 40]);
+    g.paste(o);
+  });
+  // B+22 climate controller on the glass wall: a steel box, a red error display and a crashed status light
+  drawTile(B + 22, (g) => {
+    glassWall(g);
+    const o = canvas(T, T);
+    o.box(4, 3, 24, 22, [200, 204, 196], 1.15);
+    o.rect(6, 5, 20, 8, [30, 20, 24]);
+    o.rect(8, 7, 4, 4, [255, 70, 60]);
+    o.rect(13, 7, 2, 4, [255, 70, 60]);
+    o.rect(16, 7, 8, 1, [255, 70, 60]);
+    o.rect(16, 9, 6, 1, [255, 140, 120]);
+    o.ellipse(10, 18, 3, 3, [90, 96, 104]);
+    o.rect(10, 16, 1, 3, [255, 255, 255]);
+    o.ellipse(20, 18, 2.5, 2.5, [230, 50, 40]);
+    o.set(19, 17, [255, 200, 190]);
+    o.rect(6, 22, 20, 1, [120, 200, 120]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+23 noticeboard, B+24 clipboard, B+25 keypad and B+26 whiteboard, hung on the glass wall
+  onWall(B + 23, 9, glassWall);
+  onWall(B + 24, 26, glassWall);
+  onWall(B + 25, 13, glassWall);
+  onWall(B + 26, 22, glassWall);
+  // B+27 feeding station: a table of cut fruit and nectar dishes with sponges, butterflies already on it
+  drawTile(B + 27, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      deskBase(o, [150, 110, 72]);
+      o.ellipse(9, 12, 5, 2.5, [240, 240, 236]);
+      o.ellipse(8, 11, 2.5, 1.8, [255, 150, 40]);
+      o.ellipse(11, 12, 2.5, 1.8, [255, 170, 60]);
+      o.ellipse(23, 12, 5, 2.5, [240, 240, 236]);
+      o.rect(20, 10, 6, 2, [250, 220, 90]);
+      o.ellipse(16, 8, 3, 1.5, [120, 200, 230]);
+      o.rect(14, 7, 4, 1, [250, 220, 90]);
+    });
+    const o = canvas(T, T);
+    butterfly(o, 10, 6, BUTTERFLY_COLOURS[0]);
+    butterfly(o, 24, 5, BUTTERFLY_COLOURS[4]);
+    o.outline([30, 26, 40]);
+    g.paste(o);
+  });
+  // B+28 strip curtain in the airlock opening (above the avatars): clear PVC strips on a rail
+  drawTile(B + 28, (g) => {
+    g.rect(0, 0, T, 3, [150, 156, 164]);
+    g.rect(0, 0, T, 1, [200, 206, 214]);
+    for (let x = 1; x < T; x += 5) {
+      g.rect(x, 3, 4, 27, [210, 236, 240, 90]);
+      g.rect(x, 3, 1, 27, [240, 255, 255, 150]);
+      g.rect(x + 3, 3, 1, 27, [140, 180, 190, 110]);
+    }
+  });
+  // B+29 puddle on the path with leaves in it, from the misting (decor)
+  drawTile(B + 29, (g) => {
+    g.ellipse(16, 18, 12, 6, [70, 110, 120, 130]);
+    g.ellipse(14, 17, 7, 3, [160, 200, 210, 90]);
+    g.ellipse(21, 20, 3, 1.5, [120, 160, 60]);
+    g.ellipse(9, 16, 2.5, 1.5, [180, 120, 50]);
+    for (const [x, y] of [[26, 9], [5, 26], [28, 26]]) g.set(x, y, [120, 170, 190, 200]);
+  });
+  // B+30 heliconia in a pot: red lobster-claw flowers over long leaves
+  drawTile(B + 30, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      leaf(o, 16, 22, -5, -6, 14, 3, FROND);
+      leaf(o, 16, 22, 5, -6, 14, 3, sh(FROND, 0.85));
+      leaf(o, 16, 22, 0, -6, 16, 3, sh(FROND, 1.1));
+      for (let i = 0; i < 4; i++) {
+        o.rect(12 + (i % 2) * 6, 5 + i * 3, 4, 2, [230, 50, 40]);
+        o.set(12 + (i % 2) * 6, 5 + i * 3, [255, 220, 60]);
+      }
+      o.box(9, 21, 14, 8, [176, 110, 80], 1.2);
+    });
+  });
+  // B+31 garden bench (a seat, not solid): slatted wood on iron legs, seen from behind
+  drawTile(B + 31, (g, { obj, shadow }) => {
+    shadow(16, 28, 14, 2);
+    obj((o) => {
+      for (const x of [3, 27]) o.rect(x, 12, 2, 16, [50, 54, 58]);
+      for (let y = 4; y < 12; y += 3) o.box(1, y, 30, 2, PLANK, 1.25);
+      for (let y = 14; y < 22; y += 3) o.box(1, y, 30, 2, sh(PLANK, 1.08), 1.25);
+    });
+  });
+  solid(B, B + 1, B + 2, ...range(B + 6, B + 15), ...range(B + 22, B + 27), B + 30);
+}
 // --- end python-debug ---
 
 // --- stats-fair restyle (tiles 496-527) ---
