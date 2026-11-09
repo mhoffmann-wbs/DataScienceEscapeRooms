@@ -376,6 +376,7 @@ Each room gets its own layout, size and art instead of the shared 22 x 15 templa
   - `ml-seeds` 30 x 20: the lift landing with mine rails, the curator's office, the sorting hall and the flooded archive with a boardwalk; the cold store seen through its wall.
   - `ml-customs` 30 x 21: the night office, Hanne's records room, the container yard and the quay with a gantry crane and the MV Kestrel alongside.
   - `ml-auction` 30 x 20: a marble foyer, Albers's study, the gallery, the saleroom with the rostrum on a dais, and the workshop.
+- **Map build scripts** ✅: each room's layout is an ASCII script in `scripts/maps/<roomId>.mjs` that writes its `map.json` (helpers in `scripts/maps/mapkit.mjs`, a preview with `scripts/maps/render.mjs`).
 - **To check in playtests:** walking distances changed with the layouts. In `stats-ab` the agenda now hangs in Ana's office, far from the console; in `sql-train` every clue stands next to its station, which may make the room easier.
 
 ## Known limits
@@ -397,6 +398,8 @@ Add new ideas here before they move into a step.
 - **Italic text in manifests:** RichText only knows `**bold**` and `` `code` ``; a single `*star*` shows literally. Either support it or add a manifest test that rejects it.
 - **Clue shortcut for authors:** `#/room/<id>?clue=<id>` to check clue texts without walking.
 - **Scoreboard export:** let the instructor export and import the scoreboard as JSON from the panel, as a backup that doesn't depend on returning browsers.
+- **Ambient animation in rooms:** a few tiles that animate (flickering alarm beacons, swaying lanterns and string lights, rippling water in the fountain, the lily pond and the harbour, the turning carousel), e.g. tile animations listed next to the tiles in `generate-art.mjs` and played by `WorldScene` on the `decor`, `walls` and `above` layers.
+- **Darkness in the night rooms:** a dark overlay for rooms set at night (Pier 9, the Night Train, the Rigged Fair, the Night Post) that lifts in a soft circle around each player and around light sources such as lamps and beacons, e.g. a render texture over the map with erased light circles; switched on by a map or manifest property.
 - **Paired t-test station:** a follow-up tasting where the same tasters rate both recipes (`ttest_rel`), next to the independent design of `stats-ab`.
 - **Handbook from the HUD:** once a team has found the handbook, a 📖 button in the room HUD could reopen it from anywhere, so nobody has to walk back to the lectern mid-puzzle.
 - **Go to from the map:** the instructor's "Go to" menu also on avatar name labels and in the instructor panel's member list.
