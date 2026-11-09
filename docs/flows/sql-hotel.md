@@ -98,10 +98,12 @@ All six stations load the same `hotel.sql`, so the room has one data node; the e
 
 ## Where things are
 
-- The guard's notes (544, 224) are about 115 px from the bar till but 430 px from reception, which needs them.
-- The newspaper in the lounge (480, 128) is next to the bar till, 350 px from reception and 220–270 px from the door-lock server and encoder.
-- The logbook beside reception (96, 128) is about 400 px from the security PC that needs it; Victor's statement on the manager's desk (544, 320) is 190–260 px from the door-lock server and encoder.
-- The floor plan (224, 32) is about 140 px from reception, the one hard clue that stands close.
+The room is a hotel ground floor: the marble lobby with the reception counter and the lift (right, with the exit and spawn), the staff back office (top left, through an opening behind the counter) and the bar with its card room (bottom left, through an arch from the lobby and a doorway from the office).
+
+- The guard's notes, on his stand by the lift (704, 64), are about 200 px from reception, which needs them, and 660 px from the bar till, which needs their time.
+- The newspaper in the lounge (512, 384) is 256 px from reception, 370–450 px from the door-lock server and encoder, and 384 px from the bar till.
+- The logbook on the reception counter (544, 128) is about 300 px from the security PC in the back office that needs it; Victor's statement on the card table where he played all night (320, 448) is about 380–400 px from the door-lock server and encoder.
+- The floor plan on the back-office wall (96, 32) is about 430 px from reception.
 
 ## Findings
 
