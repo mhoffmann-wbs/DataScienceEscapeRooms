@@ -95,8 +95,9 @@ flowchart LR
 
 ## Where things are
 
-- Next to their station: Kai's note (lemonade), the duck pond sign, the Lucky Seven sign, Bruno's flyer (ticket office).
-- On the north wall, away from their stations: the inspection handbook, the fill regulation and the fair map (the map hangs at the opposite end from the gate). The filling machine stands in the south row, the fill regulation on the north wall. So Lucky Seven, the filling machine and the gate each need a walk to the north wall.
+- Players arrive on the cobbled plaza by the gate (east), with the gate's keypad and the pocket guide. The ticket office stands at the top of the plaza; the duck pond and Lucky Seven line the sawdust midway along the north hoarding; the carousel and high striker are in the middle; the lemonade stand and the filling machine are in the food court in the south-west.
+- Next to their station: Kai's note (two tiles from the lemonade stand), the duck pond sign, the Lucky Seven sign, Bruno's flyer (ticket office).
+- On the north hoarding, away from their stations: the inspection handbook (above the midway, between the two games), the fill regulation (towards the plaza) and the fair map (at the west end, the opposite end from the gate). The filling machine stands in the south-west, the fill regulation on the north wall. So Lucky Seven, the filling machine and the gate each need a walk to the north wall.
 
 ## Findings
 

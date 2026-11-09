@@ -3799,6 +3799,254 @@ function onWall(index, src, wall, seed = 3) {
 // --- end python-debug ---
 
 // --- stats-fair restyle (tiles 496-527) ---
+// The Rigged Fair: Kleeberg's autumn fair after midnight. A painted fairground hoarding with bulbs
+// all round, trampled night grass, a sawdust midway past the stalls, a cobbled plaza at the east
+// gate, a carousel in the middle, a high striker and a food court under string lights.
+{
+  const B = blockOf('stats-fair');
+  const BOARD_RED = [150, 44, 54];
+  const BOARD_CREAM = [222, 204, 160];
+  const NIGHT_GRASS = [44, 72, 48];
+  const SAWDUST = [178, 146, 100];
+  const COBBLE = [104, 102, 110];
+  const BULB = [255, 214, 120];
+  const BULB_COLOURS = [[255, 90, 90], [255, 214, 90], [110, 200, 255], [130, 240, 140], [240, 130, 240]];
+  const GOLDEN = [222, 182, 82];
+  /** A row of lit bulbs with soft halos along y, every `step` pixels. */
+  const bulbs = (g, y, step, cols = [BULB], x0 = 2) => {
+    let i = 0;
+    for (let x = x0; x < T; x += step, i++) {
+      const c = cols[i % cols.length];
+      g.ellipse(x + 0.5, y + 0.5, 3.5, 3.5, alpha(c, 50));
+      g.rect(x, y, 2, 2, c);
+      g.set(x, y, sh(c, 1.4));
+    }
+  };
+  /** The fairground hoarding: red and cream boards under a navy rail of bulbs. */
+  const hoarding = (g) => {
+    for (let x = 0; x < T; x += 4) g.rect(x, 0, 4, T, (x / 4) % 2 ? BOARD_CREAM : BOARD_RED);
+    g.noise(0, 0, T, T, 0.08, B);
+    for (let x = 0; x < T; x += 4) g.rect(x, 0, 1, T, sh((x / 4) % 2 ? BOARD_CREAM : BOARD_RED, 0.7));
+    for (let j = 0; j < T; j++) g.rect(0, j, T, 1, [12, 16, 40, 60 + Math.round(j * 1.5)]);
+    g.rect(0, 0, T, 8, [34, 38, 70]);
+    g.rect(0, 0, T, 2, [20, 22, 44]);
+    g.rect(0, 8, T, 1, GOLDEN);
+    bulbs(g, 4, 8, [BULB], 3);
+    g.rect(0, 22, T, 1, GOLDEN);
+    g.rect(0, T - 4, T, 4, [36, 34, 40]);
+    g.rect(0, T - 4, T, 1, [70, 66, 76]);
+  };
+  // B+0 hoarding, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, hoarding);
+  drawTile(B + 1, turned(hoarding, 'ccw'));
+  drawTile(B + 2, turned(hoarding, 'cw'));
+  // B+3 trampled grass at night
+  drawTile(B + 3, (g) => {
+    g.rect(0, 0, T, T, NIGHT_GRASS);
+    const r = rng(B + 3);
+    for (let i = 0; i < 70; i++) {
+      const x = Math.floor(r() * T), y = Math.floor(r() * T);
+      g.rect(x, y, 1, 2, sh(NIGHT_GRASS, 0.75 + r() * 0.6));
+    }
+    for (let i = 0; i < 4; i++) g.ellipse(4 + r() * 24, 4 + r() * 24, 3, 1.5, alpha(sh(NIGHT_GRASS, 0.7), 140));
+  });
+  // B+4 sawdust and straw on the midway
+  drawTile(B + 4, (g) => {
+    g.rect(0, 0, T, T, SAWDUST);
+    g.noise(0, 0, T, T, 0.14, B + 4);
+    const r = rng(B + 4);
+    for (let i = 0; i < 26; i++) {
+      const x = Math.floor(r() * 30), y = Math.floor(r() * 31);
+      g.rect(x, y, 2 + Math.floor(r() * 3), 1, r() < 0.5 ? [226, 200, 120] : sh(SAWDUST, 0.7));
+    }
+  });
+  // B+5 cobbles at the gate
+  drawTile(B + 5, (g) => {
+    g.rect(0, 0, T, T, sh(COBBLE, 0.55));
+    const r = rng(B + 5);
+    for (let row = 0; row < 4; row++)
+      for (let i = -1; i < 5; i++) {
+        const x = i * 8 + (row % 2 ? 4 : 0) + 4, y = row * 8 + 4;
+        const c = sh(COBBLE, 0.85 + r() * 0.3);
+        g.ellipse(x, y, 3.6, 3.2, c);
+        g.rect(x - 2, y - 2, 2, 1, sh(c, 1.25));
+      }
+  });
+  // B+6..B+14 carousel, three tiles square: a striped canopy on a golden pole, horses round the edge
+  drawPiece([[B + 6, B + 7, B + 8], [B + 9, B + 10, B + 11], [B + 12, B + 13, B + 14]], (g, { obj, shadow }) => {
+    shadow(48, 86, 44, 8);
+    for (let j = 0; j < 8; j++) g.ellipse(48, 72, 46 - j * 2, 20 - j, alpha(BULB, 10));
+    obj((o) => {
+      // platform
+      o.ellipse(48, 76, 44, 14, [120, 64, 50]);
+      o.ellipse(48, 73, 44, 13, [200, 170, 120]);
+      o.ellipse(48, 73, 36, 9, [184, 150, 100]);
+      // poles and horses
+      for (let i = 0; i < 5; i++) {
+        const x = 14 + i * 17;
+        o.rect(x, 34, 2, 38, GOLDEN);
+        const hc = [[250, 246, 236], [150, 100, 70], [250, 246, 236], [60, 50, 50], [250, 246, 236]][i];
+        o.box(x - 6, 54 + (i % 2) * 4, 13, 7, hc, 1.2);
+        o.rect(x + 5, 50 + (i % 2) * 4, 4, 6, hc);
+        o.rect(x + 7, 49 + (i % 2) * 4, 3, 2, sh(hc, 0.8));
+        o.rect(x - 5, 61 + (i % 2) * 4, 2, 5, hc);
+        o.rect(x + 3, 61 + (i % 2) * 4, 2, 5, hc);
+        o.rect(x - 2, 54 + (i % 2) * 4, 5, 2, [200, 50, 60]);
+      }
+      o.rect(46, 20, 4, 54, GOLDEN);
+      // canopy: a striped cone with a scalloped edge
+      for (let y = 4; y < 36; y++) {
+        const half = 6 + (y - 4) * 1.35;
+        for (let x = Math.round(48 - half); x <= 48 + half; x++) {
+          const seg = Math.floor(((x - 48) / half + 1) * 5);
+          o.set(x, y, seg % 2 ? [236, 230, 214] : [200, 44, 60]);
+        }
+      }
+      for (let x = 6; x < 92; x += 8) o.ellipse(x + 4, 36, 4, 3, Math.floor(x / 8) % 2 ? [236, 230, 214] : [200, 44, 60]);
+      o.rect(5, 34, 87, 2, GOLDEN);
+      o.ellipse(48, 4, 4, 3, GOLDEN);
+      o.rect(47, 0, 2, 3, GOLDEN);
+    });
+    bulbs(g, 34, 8, BULB_COLOURS, 0);
+    for (let x = 8; x < 96; x += 8) {
+      const c = BULB_COLOURS[(x / 8) % 5];
+      g.ellipse(x + 0.5, 34.5, 3.5, 3.5, alpha(c, 50));
+      g.rect(x, 34, 2, 2, c);
+    }
+  });
+  // B+15 string lights strung across the fair (above the avatars)
+  drawTile(B + 15, (g) => {
+    for (let x = 0; x < T; x++) g.set(x, 6 + Math.round(Math.sin((x / T) * Math.PI) * 4), [30, 30, 36]);
+    for (const [i, x] of [4, 12, 20, 28].entries()) {
+      const y = 7 + Math.round(Math.sin((x / T) * Math.PI) * 4);
+      const c = BULB_COLOURS[i % 5];
+      g.ellipse(x, y + 2, 6, 6, alpha(c, 45));
+      g.ellipse(x, y + 2, 3.5, 3.5, alpha(c, 90));
+      g.rect(x - 1, y, 3, 4, c);
+      g.set(x, y + 1, [255, 255, 240]);
+    }
+  });
+  // B+16..B+18 a striped awning (above the avatars): left end, middle, right end
+  const awning = (g, left, right) => {
+    const o = canvas(T, T);
+    for (let x = 0; x < T; x++) {
+      const red = Math.floor(x / 8) % 2 === 0;
+      o.rect(x, 2, 1, 12, red ? [200, 44, 60] : [236, 230, 214]);
+    }
+    for (let x = 0; x < T; x += 8) o.ellipse(x + 4, 14, 4, 3, Math.floor(x / 8) % 2 === 0 ? [200, 44, 60] : [236, 230, 214]);
+    o.rect(0, 2, T, 1, [255, 255, 255]);
+    if (left) o.rect(0, 2, 2, 22, [120, 90, 60]);
+    if (right) o.rect(T - 2, 2, 2, 22, [120, 90, 60]);
+    o.outline();
+    g.paste(o);
+  };
+  drawTile(B + 16, (g) => awning(g, true, false));
+  drawTile(B + 17, (g) => awning(g, false, false));
+  drawTile(B + 18, (g) => awning(g, false, true));
+  // B+19 the gate post: a sturdy post with a four-digit keypad and the night guard's note
+  drawTile(B + 19, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      o.box(11, 4, 10, 25, [92, 72, 54], 1.25);
+      o.box(9, 1, 14, 4, [70, 54, 40], 1.25);
+      o.box(10, 8, 12, 12, [60, 64, 76], 1.2);
+      o.rect(12, 10, 8, 2, [120, 230, 160]);
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) o.rect(12 + i * 3, 13 + j * 2, 2, 1, [210, 214, 222]);
+      paper(o, 12, 21, 8, 6);
+      o.rect(15, 21, 2, 1, [220, 60, 60]);
+    });
+  });
+  // B+20 clipboard, B+21 noticeboard and B+22 the fair map poster, hung on the hoarding
+  onWall(B + 20, 26, hoarding);
+  onWall(B + 21, 9, hoarding);
+  onWall(B + 22, 65, hoarding);
+  // B+23 lamp post: a cast-iron post with a lantern (its glow is B+24 on the above layer)
+  drawTile(B + 23, (g, { obj, shadow }) => {
+    shadow(16, 29, 6, 2);
+    obj((o) => {
+      o.box(14, 8, 4, 20, [44, 48, 56], 1.4);
+      o.box(11, 26, 10, 3, [44, 48, 56], 1.3);
+      o.box(11, 0, 10, 9, [44, 48, 56], 1.4);
+      o.rect(12, 2, 8, 5, [255, 224, 140]);
+      o.rect(13, 3, 3, 2, [255, 250, 220]);
+    });
+  });
+  // B+24 a lantern's glow (above the avatars)
+  drawTile(B + 24, (g) => {
+    for (let j = 0; j < 10; j++) g.ellipse(16, 5, 16 - j * 1.4, 12 - j, alpha(BULB, 12 + j * 3));
+    g.ellipse(16, 5, 4, 3, alpha([255, 250, 220], 160));
+  });
+  // B+25 candy-floss cart: a striped cart with a pink cloud in a drum and a pole of bags
+  drawTile(B + 25, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      o.box(3, 14, 26, 11, [236, 230, 214], 1.1);
+      for (let x = 5; x < 28; x += 6) o.rect(x, 15, 3, 9, [230, 120, 160]);
+      o.ellipse(8, 27, 3, 3, [50, 50, 56]);
+      o.ellipse(24, 27, 3, 3, [50, 50, 56]);
+      o.ellipse(12, 12, 7, 3, [200, 206, 214]);
+      o.ellipse(12, 9, 6, 4, [255, 190, 220]);
+      o.ellipse(11, 8, 3, 2, [255, 225, 240]);
+      o.rect(24, 1, 2, 13, [200, 206, 214]);
+      for (const [x, y, c] of [[20, 3, [190, 230, 255]], [26, 4, [255, 190, 220]], [21, 8, [255, 190, 220]], [27, 9, [190, 230, 255]]]) o.ellipse(x, y, 2.5, 3, c);
+    });
+  });
+  // B+26 hay bales, stacked
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      const hay = [214, 180, 90];
+      o.box(2, 17, 14, 11, hay, 1.2);
+      o.box(16, 17, 14, 11, sh(hay, 0.95), 1.2);
+      o.box(8, 7, 15, 11, sh(hay, 1.05), 1.2);
+      for (const [x, y, w] of [[2, 21, 14], [16, 21, 14], [8, 11, 15]]) { o.rect(x, y, w, 1, [150, 110, 50]); o.rect(x, y + 3, w, 1, [150, 110, 50]); }
+      o.noise(2, 7, 28, 21, 0.18, B + 26);
+    });
+  });
+  // B+27 balloons tied to a stall (above the avatars)
+  drawTile(B + 27, (g) => {
+    const o = canvas(T, T);
+    for (const [x, y, c] of [[9, 7, [230, 60, 70]], [17, 4, [250, 210, 70]], [24, 8, [90, 160, 240]], [14, 12, [120, 210, 120]], [21, 14, [230, 120, 220]]]) {
+      for (let j = 0; j < 30 - y; j++) o.set(16 + Math.round(((x - 16) * (30 - y - j)) / (30 - y)), y + 4 + j, [220, 220, 220]);
+      o.ellipse(x, y, 4, 4.8, c);
+      o.ellipse(x - 1.5, y - 2, 1.2, 1.5, sh(c, 1.5));
+    }
+    o.outline();
+    g.paste(o);
+  });
+  // B+28 litter on the midway: a dropped popcorn tub and torn tickets (decor)
+  drawTile(B + 28, (g) => {
+    g.rect(6, 15, 9, 7, [0, 0, 0, 50]);
+    g.rect(5, 13, 8, 7, [236, 230, 214]);
+    for (let x = 5; x < 13; x += 3) g.rect(x, 13, 1, 7, [200, 44, 60]);
+    for (const [x, y] of [[14, 15], [16, 18], [13, 20], [18, 14], [19, 21]]) g.ellipse(x, y, 1.5, 1.2, [255, 244, 200]);
+    g.rect(21, 7, 6, 3, [230, 180, 70]);
+    g.rect(24, 7, 1, 3, [180, 130, 40]);
+    g.rect(7, 25, 5, 3, [120, 190, 230]);
+  });
+  // B+29 warm light pool on the ground (decor)
+  drawTile(B + 29, (g) => {
+    for (let j = 0; j < 8; j++) g.ellipse(16, 16, 16 - j * 2, 14 - j * 1.6, alpha(BULB, 14));
+  });
+  // B+30, B+31 high striker: the bell and the top of the tower (above), the base with the lever pad (walls)
+  drawPiece([[B + 30], [B + 31]], (g, { obj, shadow }) => {
+    shadow(16, 61, 13, 3);
+    obj((o) => {
+      o.box(12, 6, 8, 50, [236, 230, 214], 1.1);
+      for (let y = 10; y < 54; y += 8) o.rect(12, y, 8, 3, [200, 44, 60]);
+      o.rect(15, 8, 2, 46, [60, 60, 70]);
+      o.box(13, 36, 6, 4, [250, 210, 70]);
+      o.ellipse(16, 4, 6, 4, GOLDEN);
+      o.ellipse(15, 3, 2, 1.5, [255, 240, 190]);
+      o.box(4, 52, 24, 8, [120, 84, 54], 1.2);
+      o.box(9, 50, 14, 4, [60, 60, 70], 1.2);
+      o.box(22, 40, 3, 14, [150, 110, 70]);
+      o.box(20, 38, 7, 4, [90, 90, 100]);
+    });
+    for (const y of [16, 26]) for (const x of [10, 22]) { g.ellipse(x, y, 2.5, 2.5, alpha(BULB, 70)); g.rect(x - 1, y - 1, 2, 2, BULB); }
+  });
+  solid(B, B + 1, B + 2, ...range(B + 6, B + 14), B + 19, B + 20, B + 21, B + 22, B + 23, B + 25, B + 26, B + 31);
+}
 // --- end stats-fair ---
 
 // --- stats-ab restyle (tiles 528-559) ---
