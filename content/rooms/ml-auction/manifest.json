@@ -38,8 +38,8 @@
         "de": "Die Faustregel"
       },
       "text": {
-        "en": "Konrad Albers priced watches for Vossberg & Daughters for 31 years. His spreadsheet died with his laptop, but his first rule of thumb is still pinned above his desk: a straight line on graph paper, the hammer price against the condition grade. The number beside it is smudged.\n\nThe last four years of sales are loaded as `sales`, one row per watch sold, indexed by lot number: its age in years, the maker's tier (1 = no-name, 5 = the great houses), the case diameter in mm, the condition grade (1 = worn, 5 = as new), whether box and papers came with it (`box_papers`), the movement and the hammer price in euros (`price`).\n\n1. Fit a straight line through all sales: `price` against `condition`.\n2. Enter how many euros one condition grade adds, rounded to whole euros.",
-        "de": "Konrad Albers hat 31 Jahre lang Uhren für Vossberg & Töchter bewertet. Seine Tabelle ist mit seinem Laptop gestorben, aber seine erste Faustregel hängt noch über seinem Schreibtisch: eine Gerade auf Millimeterpapier, der Zuschlagspreis gegen den Zustandsgrad. Die Zahl daneben ist verwischt.\n\nDie Verkäufe der letzten vier Jahre sind als `sales` geladen, eine Zeile pro verkaufter Uhr, indiziert nach Losnummer: ihr Alter in Jahren, die Klasse des Herstellers (1 = namenlos, 5 = die großen Häuser), der Gehäusedurchmesser in mm, der Zustandsgrad (1 = abgenutzt, 5 = wie neu), ob Box und Papiere dabei waren (`box_papers`), das Uhrwerk und der Zuschlagspreis in Euro (`price`).\n\n1. Legt eine Gerade durch alle Verkäufe: `price` gegen `condition`.\n2. Gebt ein, wie viele Euro ein Zustandsgrad hinzufügt, auf ganze Euro gerundet."
+        "en": "Albers's first rule of thumb still hangs above his desk, its number smudged. How many euros did he add for one condition grade?\n\nThe last four years of sales are loaded as `sales`, one row per watch sold, indexed by lot number: its age in years, the maker's tier (1 = no-name, 5 = the great houses), the case diameter in mm, the condition grade (1 = worn, 5 = as new), whether box and papers came with it (`box_papers`), the movement and the hammer price in euros (`price`).\n\n1. Fit a straight line through all sales: `price` against `condition`.\n2. Enter how many euros one condition grade adds, rounded to whole euros.",
+        "de": "Albers' erste Faustregel hängt noch über seinem Schreibtisch, ihre Zahl verwischt. Wie viele Euro hat er für einen Zustandsgrad aufgeschlagen?\n\nDie Verkäufe der letzten vier Jahre sind als `sales` geladen, eine Zeile pro verkaufter Uhr, indiziert nach Losnummer: ihr Alter in Jahren, die Klasse des Herstellers (1 = namenlos, 5 = die großen Häuser), der Gehäusedurchmesser in mm, der Zustandsgrad (1 = abgenutzt, 5 = wie neu), ob Box und Papiere dabei waren (`box_papers`), das Uhrwerk und der Zuschlagspreis in Euro (`price`).\n\n1. Legt eine Gerade durch alle Verkäufe: `price` gegen `condition`.\n2. Gebt ein, wie viele Euro ein Zustandsgrad hinzufügt, auf ganze Euro gerundet."
       },
       "workspace": "python",
       "data": "sales.py",
@@ -85,18 +85,18 @@
         "de": "Die Schätzungen vom letzten Jahr"
       },
       "text": {
-        "en": "Before the house copies Albers's methods, Ilse Vossberg wants to know whether they were any good. On the ledger table lies last autumn's sale sheet: for each of its 120 lots, Albers's printed estimate and the hammer price, loaded as `last_sale`.\n\n1. Measure how far his estimates were from the hammer prices: store `mae`, `rmse` and `r2`.\n2. Store as `baseline_mae` how far off the cheapest appraiser in town would have been, the one in Ilse's memo.",
-        "de": "Bevor das Haus Albers' Methoden übernimmt, will Ilse Vossberg wissen, ob sie etwas taugten. Auf dem Tisch mit dem Kassenbuch liegt der Auktionsbogen vom letzten Herbst: für jedes seiner 120 Lose Albers' gedruckte Schätzung und der Zuschlagspreis, geladen als `last_sale`.\n\n1. Messt, wie weit seine Schätzungen von den Zuschlagspreisen entfernt waren: Speichert `mae`, `rmse` und `r2`.\n2. Speichert als `baseline_mae`, wie weit der billigste Gutachter der Stadt danebengelegen hätte, der aus Ilses Notiz."
+        "en": "Before the house copies Albers's methods, Ilse Vossberg wants to know whether they were any good: did his estimates beat a cheap guess? On the ledger table lies last autumn's sale sheet: for each of its 120 lots, Albers's printed estimate and the hammer price, loaded as `last_sale`.\n\n1. Measure how far his estimates were from the hammer prices: store `mae`, `rmse` and `r2`.\n2. Store as `baseline_mae` how far off the cheapest appraiser in town would have been.\n3. Your verdict: were Albers's estimates any good? Store `good` (`True` or `False`).",
+        "de": "Bevor das Haus Albers' Methoden übernimmt, will Ilse Vossberg wissen, ob sie etwas taugten: Haben seine Schätzungen ein billiges Raten geschlagen? Auf dem Tisch mit dem Kassenbuch liegt der Auktionsbogen vom letzten Herbst: für jedes seiner 120 Lose Albers' gedruckte Schätzung und der Zuschlagspreis, geladen als `last_sale`.\n\n1. Messt, wie weit seine Schätzungen von den Zuschlagspreisen entfernt waren: Speichert `mae`, `rmse` und `r2`.\n2. Speichert als `baseline_mae`, wie weit der billigste Gutachter der Stadt danebengelegen hätte.\n3. Euer Urteil: Taugten Albers' Schätzungen etwas? Speichert `good` (`True` oder `False`)."
       },
       "workspace": "python",
       "data": "sales.py",
       "starter": {
-        "en": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\nprint(last_sale.head())   # last autumn's 120 lots\nhammer = last_sale[\"hammer\"]       # what the watch sold for\nestimate = last_sale[\"estimate\"]   # what Albers printed in the catalogue\n\nmae = (hammer - estimate).mean()\nprint(f\"Albers was off by {mae:.0f} € per lot on average\")\n\nrmse = None\nr2 = None\nbaseline_mae = None   # the cheapest appraiser in town\n",
-        "de": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\nprint(last_sale.head())   # die 120 Lose vom letzten Herbst\nhammer = last_sale[\"hammer\"]       # wofür die Uhr verkauft wurde\nestimate = last_sale[\"estimate\"]   # was Albers im Katalog gedruckt hat\n\nmae = (hammer - estimate).mean()\nprint(f\"Albers lag im Schnitt {mae:.0f} € pro Los daneben\")\n\nrmse = None\nr2 = None\nbaseline_mae = None   # der billigste Gutachter der Stadt\n"
+        "en": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\nprint(last_sale.head())   # last autumn's 120 lots\nhammer = last_sale[\"hammer\"]       # what the watch sold for\nestimate = last_sale[\"estimate\"]   # what Albers printed in the catalogue\n\nmae = (hammer - estimate).mean()\nprint(f\"Albers was off by {mae:.0f} € per lot on average\")\n\nrmse = None\nr2 = None\nbaseline_mae = None   # the cheapest appraiser in town\ngood = None           # True or False\n",
+        "de": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\nprint(last_sale.head())   # die 120 Lose vom letzten Herbst\nhammer = last_sale[\"hammer\"]       # wofür die Uhr verkauft wurde\nestimate = last_sale[\"estimate\"]   # was Albers im Katalog gedruckt hat\n\nmae = (hammer - estimate).mean()\nprint(f\"Albers lag im Schnitt {mae:.0f} € pro Los daneben\")\n\nrmse = None\nr2 = None\nbaseline_mae = None   # der billigste Gutachter der Stadt\ngood = None           # True oder False\n"
       },
       "check": {
         "type": "python",
-        "expr": "_estimates_check(mae, rmse, r2, baseline_mae)",
+        "expr": "_estimates_check(mae, rmse, r2, baseline_mae, good)",
         "hash": "4ef6960dbe9ba25d7561200dd6bff74b825d961655c1c9e2729852e8f9c60264"
       },
       "reveal": {
@@ -112,16 +112,16 @@
       ],
       "hints": [
         {
-          "en": "Positive and negative misses cancel in `(hammer - estimate).mean()`. MAE averages their sizes: `mean_absolute_error(hammer, estimate)`.",
-          "de": "Positive und negative Fehler heben sich in `(hammer - estimate).mean()` auf. Der MAE mittelt ihre Beträge: `mean_absolute_error(hammer, estimate)`."
+          "en": "Ilse's memo says how she measures an appraiser, and who the cheapest one in town is. Positive and negative misses cancel in `(hammer - estimate).mean()`. MAE averages their sizes: `mean_absolute_error(hammer, estimate)`.",
+          "de": "Ilses Notiz sagt, wie sie einen Gutachter misst und wer der billigste der Stadt ist. Positive und negative Fehler heben sich in `(hammer - estimate).mean()` auf. Der MAE mittelt ihre Beträge: `mean_absolute_error(hammer, estimate)`."
         },
         {
           "en": "RMSE is the square root of `mean_squared_error(hammer, estimate)`. `r2_score` takes the truth first: `r2_score(hammer, estimate)`.",
           "de": "Der RMSE ist die Wurzel aus `mean_squared_error(hammer, estimate)`. `r2_score` nimmt die Wahrheit zuerst: `r2_score(hammer, estimate)`."
         },
         {
-          "en": "The cheapest appraiser guesses `hammer.mean()` for every lot: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))`.",
-          "de": "Der billigste Gutachter rät für jedes Los `hammer.mean()`: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))`."
+          "en": "The cheapest appraiser guesses `hammer.mean()` for every lot: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))` (952 €). Albers missed by far less, so `good = mae < baseline_mae` is `True`.",
+          "de": "Der billigste Gutachter rät für jedes Los `hammer.mean()`: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))` (952 €). Albers lag weit weniger daneben, also ist `good = mae < baseline_mae` gleich `True`."
         }
       ]
     },
@@ -132,18 +132,18 @@
         "de": "Der lange Schwanz"
       },
       "text": {
-        "en": "A bar chart of every hammer price hangs on the saleroom wall: a tall hump of cheap watches and a thin tail of dear ones. Albers's assistant drew it, and wrote a note under it.\n\n1. Split the sales as the house rule says.\n2. Fit `LinearRegression` on the numeric columns twice: once on the price, once on the log of the price. Score both on the test part, in euros, as `mae_linear` and `mae_log`.\n3. In the log model, how much does one condition grade add to the price? Store it in percent as `percent`.",
-        "de": "An der Wand des Auktionssaals hängt ein Balkendiagramm aller Zuschlagspreise: ein hoher Buckel billiger Uhren und ein dünner Schwanz teurer. Albers' Assistentin hat es gezeichnet und eine Notiz darunter geschrieben.\n\n1. Teilt die Verkäufe, wie es die Hausregel sagt.\n2. Trainiert `LinearRegression` zweimal auf den Zahlenspalten: einmal auf den Preis, einmal auf den Log des Preises. Bewertet beide auf dem Testteil, in Euro, als `mae_linear` und `mae_log`.\n3. Wie viel fügt im Log-Modell ein Zustandsgrad zum Preis hinzu? Speichert es in Prozent als `percent`."
+        "en": "A bar chart of every hammer price hangs on the saleroom wall. Should the house's model predict the price, or the log of the price?\n\n1. Split the sales into a training and a test part.\n2. Fit `LinearRegression` on the numeric columns twice: once on the price, once on the log of the price. Score both on the test part, in euros, as `mae_linear` and `mae_log`.\n3. In the log model, how much does one condition grade add to the price? Store it in percent as `percent`.\n4. Does the log model miss the test lots by less? Store `log_better` (`True` or `False`).",
+        "de": "An der Wand des Auktionssaals hängt ein Balkendiagramm aller Zuschlagspreise. Soll das Modell des Hauses den Preis vorhersagen oder den Log des Preises?\n\n1. Teilt die Verkäufe in einen Trainings- und einen Testteil.\n2. Trainiert `LinearRegression` zweimal auf den Zahlenspalten: einmal auf den Preis, einmal auf den Log des Preises. Bewertet beide auf dem Testteil, in Euro, als `mae_linear` und `mae_log`.\n3. Wie viel fügt im Log-Modell ein Zustandsgrad zum Preis hinzu? Speichert es in Prozent als `percent`.\n4. Liegt das Log-Modell bei den Testlosen weniger daneben? Speichert `log_better` (`True` oder `False`)."
       },
       "workspace": "python",
       "data": "sales.py",
       "starter": {
-        "en": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom helpers import show_hist\n\nshow_hist(sales[\"price\"], bins=40, title=\"Hammer prices\")\n\nX = sales[[\"age\", \"maker_tier\", \"case_mm\", \"condition\", \"box_papers\"]]   # the numeric columns\ny = sales[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # see the house rule\n\nlinear = LinearRegression().fit(X_train, y_train)\nmae_linear = mean_absolute_error(y_test, linear.predict(X_test))\nprint(\"linear:\", round(mae_linear), \"€\")\n\nmae_log = None   # the same model fitted on np.log(y_train), scored in euros\npercent = None   # what one condition grade adds in the log model, in percent\n",
-        "de": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom helpers import show_hist\n\nshow_hist(sales[\"price\"], bins=40, title=\"Zuschlagspreise\")\n\nX = sales[[\"age\", \"maker_tier\", \"case_mm\", \"condition\", \"box_papers\"]]   # die Zahlenspalten\ny = sales[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # siehe die Hausregel\n\nlinear = LinearRegression().fit(X_train, y_train)\nmae_linear = mean_absolute_error(y_test, linear.predict(X_test))\nprint(\"linear:\", round(mae_linear), \"€\")\n\nmae_log = None   # dasselbe Modell, trainiert auf np.log(y_train), bewertet in Euro\npercent = None   # was ein Zustandsgrad im Log-Modell hinzufügt, in Prozent\n"
+        "en": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom helpers import show_hist\n\nshow_hist(sales[\"price\"], bins=40, title=\"Hammer prices\")\n\nX = sales[[\"age\", \"maker_tier\", \"case_mm\", \"condition\", \"box_papers\"]]   # the numeric columns\ny = sales[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # the training and test part\n\nlinear = LinearRegression().fit(X_train, y_train)\nmae_linear = mean_absolute_error(y_test, linear.predict(X_test))\nprint(\"linear:\", round(mae_linear), \"€\")\n\nmae_log = None   # the same model fitted on np.log(y_train), scored in euros\npercent = None   # what one condition grade adds in the log model, in percent\nlog_better = None   # True or False\n",
+        "de": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom helpers import show_hist\n\nshow_hist(sales[\"price\"], bins=40, title=\"Zuschlagspreise\")\n\nX = sales[[\"age\", \"maker_tier\", \"case_mm\", \"condition\", \"box_papers\"]]   # die Zahlenspalten\ny = sales[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y)   # Trainings- und Testteil\n\nlinear = LinearRegression().fit(X_train, y_train)\nmae_linear = mean_absolute_error(y_test, linear.predict(X_test))\nprint(\"linear:\", round(mae_linear), \"€\")\n\nmae_log = None   # dasselbe Modell, trainiert auf np.log(y_train), bewertet in Euro\npercent = None   # was ein Zustandsgrad im Log-Modell hinzufügt, in Prozent\nlog_better = None   # True oder False\n"
       },
       "check": {
         "type": "python",
-        "expr": "_tail_check(mae_linear, mae_log, percent)",
+        "expr": "_tail_check(mae_linear, mae_log, percent, log_better)",
         "hash": "b8bb763b29c3aca5c99d2e002418641d5ee03797190a539305d545c54076e224"
       },
       "reveal": {
@@ -160,16 +160,16 @@
       ],
       "hints": [
         {
-          "en": "The house rule gives the split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Then `log_model = LinearRegression().fit(X_train, np.log(y_train))`.",
-          "de": "Die Hausregel nennt den Split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Dann `log_model = LinearRegression().fit(X_train, np.log(y_train))`."
+          "en": "The note under the chart says how bidders pay for a better grade. The house rule for valuations gives the split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Then `log_model = LinearRegression().fit(X_train, np.log(y_train))`.",
+          "de": "Die Notiz unter dem Diagramm sagt, wie Bieter für einen besseren Grad zahlen. Die Hausregel für Bewertungen nennt den Split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Dann `log_model = LinearRegression().fit(X_train, np.log(y_train))`."
         },
         {
           "en": "The log model predicts log euros. `np.exp(log_model.predict(X_test))` turns them back into euros; compare those with `y_test`.",
           "de": "Das Log-Modell sagt Log-Euro vorher. `np.exp(log_model.predict(X_test))` macht wieder Euro daraus; vergleicht diese mit `y_test`."
         },
         {
-          "en": "`condition` is the fourth column, so its coefficient is `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`.",
-          "de": "`condition` ist die vierte Spalte, ihr Koeffizient also `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`."
+          "en": "`condition` is the fourth column, so its coefficient is `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. The log model misses by 717 € instead of 971 €: `log_better = mae_log < mae_linear` is `True`.",
+          "de": "`condition` ist die vierte Spalte, ihr Koeffizient also `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. Das Log-Modell liegt um 717 € statt 971 € daneben: `log_better = mae_log < mae_linear` ist `True`."
         }
       ]
     },
@@ -180,18 +180,18 @@
         "de": "Das Uhrwerk"
       },
       "text": {
-        "en": "The display case by the window holds the house's teaching collection: one automatic, one hand-wound and one quartz watch, each with its box and papers, and a card about the three kinds of movement. Albers always told consignors that box and papers add a third to the price. Ilse doubts it.\n\n1. Fit the log model on all sales with every column, the movement included. `LinearRegression` can't read words: encode the movement.\n2. Store what box and papers add to the price, in percent, as `box_percent`. Compare it with a model that leaves the movement out.",
-        "de": "Die Vitrine am Fenster enthält die Lehrsammlung des Hauses: eine Automatikuhr, eine mit Handaufzug und eine Quarzuhr, jede mit Box und Papieren, und eine Karte über die drei Arten von Uhrwerken. Albers hat den Einlieferern immer gesagt, Box und Papiere bringen ein Drittel mehr. Ilse bezweifelt das.\n\n1. Trainiert das Log-Modell auf allen Verkäufen mit jeder Spalte, das Uhrwerk eingeschlossen. `LinearRegression` kann keine Wörter lesen: Kodiert das Uhrwerk.\n2. Speichert, was Box und Papiere zum Preis hinzufügen, in Prozent, als `box_percent`. Vergleicht es mit einem Modell, das das Uhrwerk weglässt."
+        "en": "The display case by the window holds the house's teaching collection: one automatic, one hand-wound and one quartz watch, each with its box and papers. Albers always told consignors that box and papers add a third to the price. Ilse doubts it. What do box and papers really add?\n\n1. Fit the log model on all sales with every column, the movement included. `LinearRegression` can't read words: encode the movement.\n2. Store what box and papers add to the price, in percent, as `box_percent`.\n3. Fit the same model without the movement, and store what box and papers seem to add there, in percent, as `without_percent`.",
+        "de": "Die Vitrine am Fenster enthält die Lehrsammlung des Hauses: eine Automatikuhr, eine mit Handaufzug und eine Quarzuhr, jede mit Box und Papieren. Albers hat den Einlieferern immer gesagt, Box und Papiere bringen ein Drittel mehr. Ilse bezweifelt das. Was bringen Box und Papiere wirklich?\n\n1. Trainiert das Log-Modell auf allen Verkäufen mit jeder Spalte, das Uhrwerk eingeschlossen. `LinearRegression` kann keine Wörter lesen: Kodiert das Uhrwerk.\n2. Speichert, was Box und Papiere zum Preis hinzufügen, in Prozent, als `box_percent`.\n3. Trainiert dasselbe Modell ohne das Uhrwerk und speichert, was Box und Papiere dort scheinbar hinzufügen, in Prozent, als `without_percent`."
       },
       "workspace": "python",
       "data": "sales.py",
       "starter": {
-        "en": "import numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\nX = sales.drop(columns=\"price\")   # every column, the movement included\ny = sales[\"price\"]                # the target: see the long tail\n\nmodel = LinearRegression().fit(X, y)\nprint(pd.Series(model.coef_, index=X.columns).round(3))\n\nbox_percent = None   # what box and papers add to the price, in percent\n",
-        "de": "import numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\nX = sales.drop(columns=\"price\")   # jede Spalte, das Uhrwerk eingeschlossen\ny = sales[\"price\"]                # die Zielvariable: siehe den langen Schwanz\n\nmodel = LinearRegression().fit(X, y)\nprint(pd.Series(model.coef_, index=X.columns).round(3))\n\nbox_percent = None   # was Box und Papiere zum Preis hinzufügen, in Prozent\n"
+        "en": "import numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\nX = sales.drop(columns=\"price\")   # every column, the movement included\ny = sales[\"price\"]                # the target\n\nmodel = LinearRegression().fit(X, y)\nprint(pd.Series(model.coef_, index=X.columns).round(3))\n\nbox_percent = None   # what box and papers add to the price, in percent\nwithout_percent = None   # the same, in a model without the movement\n",
+        "de": "import numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\nX = sales.drop(columns=\"price\")   # jede Spalte, das Uhrwerk eingeschlossen\ny = sales[\"price\"]                # die Zielvariable\n\nmodel = LinearRegression().fit(X, y)\nprint(pd.Series(model.coef_, index=X.columns).round(3))\n\nbox_percent = None   # was Box und Papiere zum Preis hinzufügen, in Prozent\nwithout_percent = None   # dasselbe in einem Modell ohne das Uhrwerk\n"
       },
       "check": {
         "type": "python",
-        "expr": "_movement_check(box_percent)",
+        "expr": "_movement_check(box_percent, without_percent)",
         "hash": "7a18956000c796adcaa1bff074de998277adfec908904cdb384d529afc84490b"
       },
       "lock": {
@@ -219,16 +219,16 @@
       ],
       "hints": [
         {
-          "en": "The error says it can't convert `'automatic'` to a number. `pd.get_dummies(X, dtype=int)` replaces the movement column with one 0/1 column per kind. And the target should be `np.log(y)`, as at the long tail.",
-          "de": "Der Fehler sagt, dass er `'automatic'` nicht in eine Zahl umwandeln kann. `pd.get_dummies(X, dtype=int)` ersetzt die Spalte movement durch eine 0/1-Spalte pro Art. Und die Zielvariable sollte `np.log(y)` sein, wie beim langen Schwanz."
+          "en": "The card in the display case tells how the three movements differ. The error says it can't convert `'automatic'` to a number. `pd.get_dummies(X, dtype=int)` replaces the movement column with one 0/1 column per kind. And the target should be `np.log(y)`, as at the long tail.",
+          "de": "Die Karte in der Vitrine sagt, wie sich die drei Uhrwerke unterscheiden. Der Fehler sagt, dass er `'automatic'` nicht in eine Zahl umwandeln kann. `pd.get_dummies(X, dtype=int)` ersetzt die Spalte movement durch eine 0/1-Spalte pro Art. Und die Zielvariable sollte `np.log(y)` sein, wie beim langen Schwanz."
         },
         {
           "en": "`coefs = pd.Series(model.coef_, index=X.columns)` names the coefficients. A log coefficient `b` adds `(np.exp(b) - 1) * 100` percent.",
           "de": "`coefs = pd.Series(model.coef_, index=X.columns)` benennt die Koeffizienten. Ein Log-Koeffizient `b` fügt `(np.exp(b) - 1) * 100` Prozent hinzu."
         },
         {
-          "en": "`X = pd.get_dummies(sales.drop(columns=\"price\"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, then `box_percent = (np.exp(coefs[\"box_papers\"]) - 1) * 100`. For the comparison, fit again without the movement columns.",
-          "de": "`X = pd.get_dummies(sales.drop(columns=\"price\"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, dann `box_percent = (np.exp(coefs[\"box_papers\"]) - 1) * 100`. Für den Vergleich trainiert ohne die Uhrwerk-Spalten."
+          "en": "`X = pd.get_dummies(sales.drop(columns=\"price\"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, then `box_percent = (np.exp(coefs[\"box_papers\"]) - 1) * 100`. For `without_percent`, fit again without the three movement columns and do the same.",
+          "de": "`X = pd.get_dummies(sales.drop(columns=\"price\"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, dann `box_percent = (np.exp(coefs[\"box_papers\"]) - 1) * 100`. Für `without_percent` trainiert ohne die drei Uhrwerk-Spalten und rechnet genauso."
         }
       ]
     },
@@ -239,8 +239,8 @@
         "de": "Das verdächtige Los"
       },
       "text": {
-        "en": "The newspaper on the coffee table carries the story: a forged watch went through Vossberg's spring sale. Since then the workshop has re-examined every watch the house sold, so `sales` records what each watch really is, not what the bidders believed. Somewhere in it is a sale that its features can't explain.\n\n1. Fit a model of the price on the watches' features and compute each sale's residual.\n2. Find the sale that lies furthest above what its features justify. Store its lot number as `lot`.",
-        "de": "Die Zeitung auf dem Couchtisch bringt die Geschichte: Eine gefälschte Uhr ist durch Vossbergs Frühjahrsauktion gegangen. Seitdem hat die Werkstatt jede Uhr nachgeprüft, die das Haus verkauft hat, also hält `sales` fest, was jede Uhr wirklich ist, nicht was die Bieter glaubten. Irgendwo darin steckt ein Verkauf, den seine Merkmale nicht erklären können.\n\n1. Trainiert ein Modell des Preises auf den Merkmalen der Uhren und berechnet das Residuum jedes Verkaufs.\n2. Findet den Verkauf, der am weitesten über dem liegt, was seine Merkmale rechtfertigen. Speichert seine Losnummer als `lot`."
+        "en": "Which of the sales was the forged watch? The workshop has re-examined every watch the house sold, so `sales` records what each watch really is, not what the bidders believed. Somewhere in it is a sale that its features can't explain.\n\n1. Fit a model of the price on the watches' features and compute each sale's residual.\n2. Find the sale that lies furthest above what its features justify. Store its lot number as `lot`.",
+        "de": "Welcher der Verkäufe war die gefälschte Uhr? Die Werkstatt hat jede Uhr nachgeprüft, die das Haus verkauft hat, also hält `sales` fest, was jede Uhr wirklich ist, nicht was die Bieter glaubten. Irgendwo darin steckt ein Verkauf, den seine Merkmale nicht erklären können.\n\n1. Trainiert ein Modell des Preises auf den Merkmalen der Uhren und berechnet das Residuum jedes Verkaufs.\n2. Findet den Verkauf, der am weitesten über dem liegt, was seine Merkmale rechtfertigen. Speichert seine Losnummer als `lot`."
       },
       "workspace": "python",
       "data": "sales.py",
@@ -278,8 +278,8 @@
       ],
       "hints": [
         {
-          "en": "The starter's top three are dear antiques by the great houses: in euros, a small share of a big price is a big residual. Which target did the long tail recommend?",
-          "de": "Die drei Spitzenreiter des Startcodes sind teure Antiquitäten der großen Häuser: In Euro ist ein kleiner Anteil eines großen Preises ein großes Residuum. Welche Zielvariable hat der lange Schwanz empfohlen?"
+          "en": "The evening paper on the coffee table describes the forgery. The starter's top three are dear antiques by the great houses: in euros, a small share of a big price is a big residual. Which target did the long tail recommend?",
+          "de": "Die Abendzeitung auf dem Couchtisch beschreibt die Fälschung. Die drei Spitzenreiter des Startcodes sind teure Antiquitäten der großen Häuser: In Euro ist ein kleiner Anteil eines großen Preises ein großes Residuum. Welche Zielvariable hat der lange Schwanz empfohlen?"
         },
         {
           "en": "Fit on `np.log(y)` and take `residuals = np.log(y) - model.predict(X)`. The movement helps too: `pd.get_dummies(sales.drop(columns=\"price\"), dtype=int)`.",
@@ -298,8 +298,8 @@
         "de": "Der Katalog"
       },
       "text": {
-        "en": "The proof of Saturday's catalogue lies on the press, with eight empty estimate fields. `catalogue` holds the eight lots, indexed by lot number, with the same columns as `sales`, in the printer's order. The press starts at 06:00.\n\n1. Build the house's valuation model from everything you learned tonight. Before you trust it, plot its residuals against age: the watchmaker's note says why.\n2. Store an estimate in euros for each lot as `estimates`: a list in the catalogue's order, or a Series indexed by lot number.",
-        "de": "Der Probedruck des Katalogs für Samstag liegt auf der Druckmaschine, mit acht leeren Feldern für Schätzpreise. `catalogue` enthält die acht Lose, indiziert nach Losnummer, mit denselben Spalten wie `sales`, in der Reihenfolge der Druckerei. Die Maschine läuft um 06:00 an.\n\n1. Baut das Bewertungsmodell des Hauses aus allem, was ihr heute Nacht gelernt habt. Bevor ihr ihm traut, zeichnet seine Residuen gegen das Alter: Die Notiz des Uhrmachers sagt, warum.\n2. Speichert für jedes Los eine Schätzung in Euro als `estimates`: eine Liste in der Reihenfolge des Katalogs oder eine Series, indiziert nach Losnummer."
+        "en": "The proof of Saturday's catalogue lies on the press, with eight empty estimate fields. `catalogue` holds the eight lots, indexed by lot number, with the same columns as `sales`, in the printer's order. The press starts at 06:00. What is each lot worth?\n\n1. Build the house's valuation model from everything you learned tonight. Before you trust it, plot its residuals against age.\n2. Store an estimate in euros for each lot as `estimates`: a list in the catalogue's order, or a Series indexed by lot number.",
+        "de": "Der Probedruck des Katalogs für Samstag liegt auf der Druckmaschine, mit acht leeren Feldern für Schätzpreise. `catalogue` enthält die acht Lose, indiziert nach Losnummer, mit denselben Spalten wie `sales`, in der Reihenfolge der Druckerei. Die Maschine läuft um 06:00 an. Was ist jedes Los wert?\n\n1. Baut das Bewertungsmodell des Hauses aus allem, was ihr heute Nacht gelernt habt. Bevor ihr ihm traut, zeichnet seine Residuen gegen das Alter.\n2. Speichert für jedes Los eine Schätzung in Euro als `estimates`: eine Liste in der Reihenfolge des Katalogs oder eine Series, indiziert nach Losnummer."
       },
       "workspace": "python",
       "data": "sales.py",
@@ -341,8 +341,8 @@
       ],
       "hints": [
         {
-          "en": "Uncomment the plot: the residuals form a U over age, too low for young and old watches. Add the age squared as a column: `X[\"age2\"] = X[\"age\"] ** 2`, or `PolynomialFeatures(2)` on `X[[\"age\"]]`. Leave out the forged lot: `sales.drop(1964)`.",
-          "de": "Nehmt den Plot wieder rein: Die Residuen bilden über dem Alter ein U, zu niedrig für junge und alte Uhren. Nehmt das Alter zum Quadrat als Spalte dazu: `X[\"age2\"] = X[\"age\"] ** 2` oder `PolynomialFeatures(2)` auf `X[[\"age\"]]`. Lasst das gefälschte Los weg: `sales.drop(1964)`."
+          "en": "The watchmaker's note on the case clock and the insurer's letter both matter here. Uncomment the plot: the residuals form a U over age, too low for young and old watches. Add the age squared as a column: `X[\"age2\"] = X[\"age\"] ** 2`, or `PolynomialFeatures(2)` on `X[[\"age\"]]`. Leave out the forged lot: `sales.drop(1964)`.",
+          "de": "Die Notiz des Uhrmachers an der Standuhr und der Brief des Versicherers sind hier beide wichtig. Nehmt den Plot wieder rein: Die Residuen bilden über dem Alter ein U, zu niedrig für junge und alte Uhren. Nehmt das Alter zum Quadrat als Spalte dazu: `X[\"age2\"] = X[\"age\"] ** 2` oder `PolynomialFeatures(2)` auf `X[[\"age\"]]`. Lasst das gefälschte Los weg: `sales.drop(1964)`."
         },
         {
           "en": "The catalogue needs the same columns in the same order: `C = pd.get_dummies(catalogue, dtype=int)`, add `age2` the same way, then `C = C[X.columns]`.",
@@ -396,8 +396,8 @@
         "de": "Die Hausregel für Bewertungen"
       },
       "text": {
-        "en": "VOSSBERG & DAUGHTERS · rule 4, valuations\n\nA valuation model is judged on lots it has not seen. Hold back a fifth of the sales as the test part (**test_size=0.2**), with **random_state=6**, the hour the printer starts, so that everyone gets the same split.\n\nJudge it in **euros**: that is what the bidders pay.",
-        "de": "VOSSBERG & TÖCHTER · Regel 4, Bewertungen\n\nEin Bewertungsmodell wird an Losen gemessen, die es nicht gesehen hat. Haltet ein Fünftel der Verkäufe als Testteil zurück (**test_size=0.2**), mit **random_state=6**, der Stunde, zu der die Druckerei anfängt, damit alle denselben Split bekommen.\n\nMesst es in **Euro**: Das ist, was die Bieter zahlen."
+        "en": "VOSSBERG & DAUGHTERS · rule 4, valuations\n\nA valuation model is judged on lots it has not seen. Hold back a fifth of the sales as the test part (**test_size=0.2**), with **random_state=6**, the hour the printer starts, so that everyone gets the same split.",
+        "de": "VOSSBERG & TÖCHTER · Regel 4, Bewertungen\n\nEin Bewertungsmodell wird an Losen gemessen, die es nicht gesehen hat. Haltet ein Fünftel der Verkäufe als Testteil zurück (**test_size=0.2**), mit **random_state=6**, der Stunde, zu der die Druckerei anfängt, damit alle denselben Split bekommen."
       }
     },
     {
@@ -418,8 +418,8 @@
         "de": "Die Abendzeitung"
       },
       "text": {
-        "en": "KLEEBERGER ABENDBLATT\n\n**Forged watch sold at Vossberg's spring sale**\n\nA bidder paid thousands for a watch that turned out to be a cheap quartz movement in a fake case and dial. \"It looked like nothing special on paper,\" a dealer said. \"Its price was the only thing about it that made no sense.\" The auction house has had its workshop re-examine every watch it sold in the last four years and recorded what each one really is.",
-        "de": "KLEEBERGER ABENDBLATT\n\n**Gefälschte Uhr bei Vossbergs Frühjahrsauktion verkauft**\n\nEin Bieter zahlte Tausende für eine Uhr, die sich als billiges Quarzwerk in falschem Gehäuse und Zifferblatt herausstellte. „Auf dem Papier sah sie nach nichts Besonderem aus“, sagte ein Händler. „Ihr Preis war das Einzige an ihr, das keinen Sinn ergab.“ Das Auktionshaus hat jede Uhr, die es in den letzten vier Jahren verkauft hat, von seiner Werkstatt nachprüfen lassen und festgehalten, was jede wirklich ist."
+        "en": "KLEEBERGER ABENDBLATT\n\n**Forged watch sold at Vossberg's spring sale**\n\nA bidder paid thousands for a watch that turned out to be a cheap quartz movement in a fake case and dial. \"It looked like nothing special on paper,\" a dealer said. \"Its price was the only thing about it that made no sense.\"",
+        "de": "KLEEBERGER ABENDBLATT\n\n**Gefälschte Uhr bei Vossbergs Frühjahrsauktion verkauft**\n\nEin Bieter zahlte Tausende für eine Uhr, die sich als billiges Quarzwerk in falschem Gehäuse und Zifferblatt herausstellte. „Auf dem Papier sah sie nach nichts Besonderem aus“, sagte ein Händler. „Ihr Preis war das Einzige an ihr, das keinen Sinn ergab.“"
       }
     },
     {

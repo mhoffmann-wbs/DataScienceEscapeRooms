@@ -4,7 +4,7 @@
 
 ## Geschichte
 
-> Nachtschicht im Zollamt an Pier 9, Hafen Kleeberg. Um 04:30 legt die MV Kestrel mit 40 Containern an, um 07:00 legt sie wieder ab. Der Kran kann vier davon absetzen, damit die Crew sie öffnet.
+> Nachtschicht im Zollamt an Pier 9, Hafen Kleeberg. Um 04:30 legt die MV Kestrel mit 40 Containern an, um 07:00 legt sie wieder ab.
 >
 > Der XR-90-Scanner, der sie früher ausgesucht hat, ist um Mitternacht abgestürzt und startet nicht mehr. Was das Amt noch hat: das Protokoll von 3.000 Kontrollen aus den letzten zwei Jahren, jede mit ihren Messwerten und dem, was drin war, und die Notizen der Leute, die diesen Job vorher gemacht haben.
 >
@@ -89,10 +89,11 @@ print(export_text(tree, feature_names=list(X.columns)))
 
 **Aufgabe:**
 
-> Der Bildschirm über dem Nachtschalter zeigt noch die Bilanz des XR-90, daneben hängt ein Poster. Der Scanner hat jeden Container der letzten zwei Jahre angesehen, und `old_flag` in `inspections` sagt, wo er Alarm geschlagen hat (1) und wo er still blieb (0). War er wirklich so gut?
+> Der Bildschirm über dem Nachtschalter zeigt noch die Bilanz des XR-90. Der Scanner hat jeden Container der letzten zwei Jahre angesehen, und `old_flag` in `inspections` sagt, wo er Alarm geschlagen hat (1) und wo er still blieb (0). Wie gut hat er Schmuggler gefunden?
 >
 > 1. Vergleicht `old_flag` mit `contraband`: die Konfusionsmatrix und den Klassifikationsbericht.
 > 2. Speichert `accuracy` (den Anteil der Container, die der Scanner richtig beurteilt hat), `missed` (Schmuggel-Container, die er durchgelassen hat) und `recall` (den Anteil des Schmuggelguts, den er markiert hat).
+> 3. Euer Urteil: Würdet ihr dem XR-90 die Wahl der Container anvertrauen? Speichert `trust` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -102,11 +103,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 y = inspections["contraband"]    # 1 = beim Öffnen Schmuggelware gefunden
 flag = inspections["old_flag"]   # 1 = der XR-90 hat Alarm geschlagen
 
-accuracy = (y == flag).mean()
-print(f"Genauigkeit: {accuracy:.1%}")
-
+accuracy = None  # Anteil der Container, die der Scanner richtig beurteilt hat
 missed = None    # Schmuggel-Container, die der Scanner durchgelassen hat
 recall = None    # Anteil des Schmuggelguts, den er markiert hat
+trust = None     # True oder False
 ```
 
 </details>
@@ -125,10 +125,11 @@ accuracy = accuracy_score(y, flag)
 tn, fp, fn, tp = confusion_matrix(y, flag).ravel()
 missed = int(fn)
 recall = recall_score(y, flag)
-print(accuracy, missed, recall)
+trust = bool(recall > 0.5)
+print(accuracy, missed, recall, trust)
 ```
 
-**Geprüftes Ergebnis** (`_dashboard_check(accuracy, missed, recall)`):
+**Geprüftes Ergebnis** (`_dashboard_check(accuracy, missed, recall, trust)`):
 
 ```json
 "exposed"
@@ -142,9 +143,9 @@ print(accuracy, missed, recall)
 
 **Hinweise:**
 
-1. `print(confusion_matrix(y, flag))`: Die Zeilen sind, was wirklich drin war (0, 1), die Spalten, was der Scanner gesagt hat (0, 1).
+1. Das Poster neben dem Bildschirm behauptet etwas über den XR-90; prüft es nach. `print(confusion_matrix(y, flag))`: Die Zeilen sind, was wirklich drin war (0, 1), die Spalten, was der Scanner gesagt hat (0, 1).
 2. Der Scanner hat einen Container verpasst, wenn er Schmuggelware enthielt (Zeile 1) und der Scanner sauber sagte (Spalte 0). `tn, fp, fn, tp = confusion_matrix(y, flag).ravel()` packt die vier Felder aus.
-3. `missed = fn` und `recall = tp / (tp + fn)`, oder `recall_score(y, flag)` aus `sklearn.metrics`. `print(classification_report(y, flag))` zeigt Precision und Recall für beide Klassen.
+3. `missed = fn` und `recall = tp / (tp + fn)`, oder `recall_score(y, flag)` aus `sklearn.metrics`. `print(classification_report(y, flag))` zeigt Precision und Recall für beide Klassen. `accuracy_score(y, flag)` ist 93,5 %, aber ein Recall von 12 % heißt `trust = False`.
 
 ### 3. Die Nachbarn
 
@@ -154,11 +155,10 @@ print(accuracy, missed, recall)
 
 **Aufgabe:**
 
-> Jonas von der Tagschicht hatte eine Idee, bevor er nach Hause ging: jeden neuen Container nach den früheren Kontrollen beurteilen, die ihm am ähnlichsten sind, seinen nächsten Nachbarn. Sein Terminal zeigt noch den Versuch, und am Bildschirm klebt ein Zettel.
+> Jonas von der Tagschicht hatte eine Idee, bevor er nach Hause ging: jeden neuen Container nach den früheren Kontrollen beurteilen, die ihm am ähnlichsten sind, seinen nächsten Nachbarn. Sein Terminal zeigt noch den Versuch. Wie viele Nachbarn beurteilen einen Container am besten?
 >
-> 1. Teilt die Kontrollen, wie es die Regel der Hafenmeisterin sagt.
-> 2. Sucht mit `GridSearchCV` die beste Zahl von Nachbarn, so wie Jonas' Zettel es beschreibt, auf dem Trainingsteil. Speichert die trainierte Suche als `search`.
-> 3. Jonas' Nachbarn sahen seltsam aus. Findet heraus, warum, und behebt es.
+> 1. Teilt die Kontrollen in einen Trainings- und einen Testteil.
+> 2. Sucht mit `GridSearchCV` auf dem Trainingsteil die beste Zahl von Nachbarn. Speichert die trainierte Suche als `search`.
 
 <details><summary>Startcode</summary>
 
@@ -170,7 +170,7 @@ from helpers import show_plot
 
 X = inspections.drop(columns=["old_flag", "contraband"])   # die fünf Messwerte
 y = inspections["contraband"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # der Prüfsplit: siehe die Regel der Hafenmeisterin
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # Trainings- und Testteil
 
 model = KNeighborsClassifier()
 search = GridSearchCV(model, {"n_neighbors": [5]}, scoring="accuracy", cv=5)
@@ -219,7 +219,7 @@ show_plot(pd.Series(search.cv_results_["mean_test_score"], index=range(1, 32, 2)
 
 **Hinweise:**
 
-1. Nehmt den Split aus der Regel der Hafenmeisterin: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`. Schaut dann auf die Nachbarn, die der Startcode ausgibt: In welcher Spalte stimmen sie überein?
+1. Nehmt den Split aus der Regel der Hafenmeisterin: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`. Jonas' Zettel am Bildschirm sagt, wie er suchen wollte. Schaut dann auf die Nachbarn, die der Startcode ausgibt: In welcher Spalte stimmen sie überein?
 2. `value_per_kg` reicht bis in die Tausende, bestimmt also jeden Abstand. `make_pipeline(StandardScaler(), KNeighborsClassifier())` skaliert zuerst. In einer Pipeline bekommt der Schlüssel im Raster den Namen des Schritts: `kneighborsclassifier__n_neighbors`.
 3. `search = GridSearchCV(pipe, {"kneighborsclassifier__n_neighbors": list(range(1, 32, 2))}, scoring="f1", cv=5)`, dann `search.fit(X_train, y_train)` und `search.best_params_`.
 
@@ -235,9 +235,9 @@ show_plot(pd.Series(search.cv_results_["mean_test_score"], index=range(1, 32, 2)
 
 **Aufgabe:**
 
-> Letztes Jahr hat ein Berater dem Zollamt einen Baum verkauft, der auf seinen Trainingsdaten 100 % richtig lag und bei den neuen Ankünften schlechter war als Hannes drei Fragen. Der Ordner mit den Experimenten liegt im Aktenschrank.
+> Letztes Jahr hat ein Berater dem Zollamt einen Baum verkauft, der auf seinen Trainingsdaten 100 % richtig lag und bei den neuen Ankünften schlechter war als Hannes drei Fragen. Wie tief soll ein Baum wachsen? Der Ordner mit den Experimenten liegt im Aktenschrank.
 >
-> 1. Teilt die Kontrollen, wie es die Regel der Hafenmeisterin sagt.
+> 1. Teilt die Kontrollen in einen Trainings- und einen Testteil.
 > 2. Trainiert für jede `max_depth` von 1 bis 15 einen Baum auf dem Trainingsteil und speichert seine Genauigkeit auf dem Trainingsteil in `train_scores` und auf dem Testteil in `test_scores` (Tiefe 1 zuerst).
 > 3. Zeichnet beide und speichert die Tiefe, die ungesehene Container am besten beurteilt, als `depth`.
 
@@ -251,7 +251,7 @@ from helpers import show_plot
 
 X = inspections.drop(columns=["old_flag", "contraband"])   # die fünf Messwerte
 y = inspections["contraband"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # der Prüfsplit: siehe die Regel der Hafenmeisterin
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # Trainings- und Testteil
 
 train_scores = []   # Genauigkeit auf dem Trainingsteil, Tiefe 1 bis 15
 test_scores = []    # Genauigkeit auf dem Testteil
@@ -320,11 +320,11 @@ depth = 3
 
 **Aufgabe:**
 
-> Die große Tafel an der Wand zeigt für jeden Container die Wahrscheinlichkeit für Schmuggelware, aus einer logistischen Regression, und ein Regler legt fest, ab welcher Wahrscheinlichkeit ein Container geöffnet wird. Bei 0,5 öffnet die Tafel wenige Container und lässt viele Schmuggler durch.
+> Die große Tafel an der Wand zeigt für jeden Container die Wahrscheinlichkeit für Schmuggelware, aus einer logistischen Regression, und ein Regler legt fest, ab welcher Wahrscheinlichkeit ein Container geöffnet wird. Bei 0,5 öffnet die Tafel wenige Container und lässt viele Schmuggler durch. Wo soll der Regler stehen?
 >
-> 1. Trainiert `LogisticRegression` auf dem standardisierten Trainingsteil des Prüfsplits, als `model`.
+> 1. Trainiert `LogisticRegression` auf dem standardisierten Trainingsteil, als `model`.
 > 2. Seine Koeffizienten sagen, wie stark jedes Feature die Chancen erhöht. Speichert den Spaltennamen des riskantesten Features als `riskiest`.
-> 3. Stellt den Regler ein, wie der Chef es angeordnet hat: Speichert die Stufe als `threshold` und wie viele Container des Testteils sie öffnet als `opened`.
+> 3. Stellt den Regler ein: Speichert seine Stufe als `threshold` und wie viele Container des Testteils sie öffnet als `opened`.
 
 <details><summary>Startcode</summary>
 
@@ -338,7 +338,7 @@ from sklearn.metrics import recall_score
 
 X = inspections.drop(columns=["old_flag", "contraband"])   # die fünf Messwerte
 y = inspections["contraband"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # der Prüfsplit: siehe die Regel der Hafenmeisterin
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # Trainings- und Testteil
 
 model = make_pipeline(StandardScaler(), LogisticRegression()).fit(X_train, y_train)
 print(model[-1].coef_)   # ein Koeffizient pro Spalte von X, in Reihenfolge
@@ -393,7 +393,7 @@ opened = int((p >= threshold).sum())
 
 **Hinweise:**
 
-1. Teilt, wie es die Regel der Hafenmeisterin sagt. `model[-1]` ist der letzte Schritt der Pipeline, die logistische Regression; `pd.Series(model[-1].coef_[0], index=X.columns)` benennt jeden Koeffizienten.
+1. Teilt, wie es die Regel der Hafenmeisterin sagt, und stellt den Regler so ein, wie es die Anordnung des Chefs an der Wand sagt. `model[-1]` ist der letzte Schritt der Pipeline, die logistische Regression; `pd.Series(model[-1].coef_[0], index=X.columns)` benennt jeden Koeffizienten.
 2. `p >= t` öffnet jeden Container mit einer Wahrscheinlichkeit von mindestens `t`. Gebt für jede Stufe des Reglers (0,5, 0,45, … 0,05) `recall_score(y_test, p >= t)` und `(p >= t).sum()` aus.
 3. Geht den Regler hinunter und haltet bei der ersten Stufe an, deren Recall mindestens 0,8 ist: Das ist `threshold`. `opened = int((p >= threshold).sum())`.
 
@@ -409,9 +409,9 @@ opened = int((p >= threshold).sum())
 
 **Aufgabe:**
 
-> Die MV Kestrel liegt am Kai. Ihr Manifest listet die 40 Container von heute Nacht, geladen als `arrivals` und indiziert nach Containernummer, mit denselben Messwerten wie die Kontrollen: Der Alarm des Scanners fehlt, denn der Scanner ist kaputt. Der Kran kann vier Container absetzen, bevor das Schiff ablegt.
+> Die MV Kestrel liegt am Kai. Ihr Manifest listet die 40 Container von heute Nacht, geladen als `arrivals` und indiziert nach Containernummer, mit denselben Messwerten wie die Kontrollen: Der Alarm des Scanners fehlt, denn der Scanner ist kaputt. Der Kran kann vier Container absetzen, bevor das Schiff ablegt: welche vier?
 >
-> 1. Trainiert das Modell, dem ihr am meisten traut, auf den Kontrollen, als `model`. Es muss den Test des Chefs bestehen.
+> 1. Trainiert das Modell, dem ihr am meisten traut, auf den Kontrollen, als `model`.
 > 2. Bewertet alle 40 Ankünfte mit `predict_proba`.
 > 3. Speichert die Containernummern der vier riskantesten als `opened`.
 
@@ -431,7 +431,7 @@ X = inspections.drop(columns=["old_flag", "contraband"])   # die fünf Messwerte
 y = inspections["contraband"]
 model = None   # euer bestes Modell, trainiert auf den Kontrollen
 
-# risk = model.predict_proba(arrivals)[:, 1]
+risk = None    # die Wahrscheinlichkeit für Schmuggelware je Ankunft
 opened = []    # die vier Containernummern zum Öffnen
 ```
 
@@ -469,7 +469,7 @@ opened = risk.index[:4].tolist()
 
 **Hinweise:**
 
-1. Jedes Modell von heute Nacht reicht, wenn es gut trainiert ist: ein Baum mit der Tiefe, die am Aktenschrank gewonnen hat, ein skaliertes KNN mit dem k der Nachbarn oder die logistische Regression der Quotentafel. Trainiert es auf `X` und `y` (alle Kontrollen, ohne `old_flag`).
+1. Der Kranplan sagt, welchem Test der Chef jedes Modell unterzieht. Jedes Modell von heute Nacht reicht, wenn es gut trainiert ist: ein Baum mit der Tiefe, die am Aktenschrank gewonnen hat, ein skaliertes KNN mit dem k der Nachbarn oder die logistische Regression der Quotentafel. Trainiert es auf `X` und `y` (alle Kontrollen, ohne `old_flag`).
 2. `model.predict_proba(arrivals)` schlägt fehl: Das Manifest listet die Spalten in einer anderen Reihenfolge. `arrivals[X.columns]` bringt sie in die Reihenfolge, die das Modell gelernt hat.
 3. `risk = pd.Series(model.predict_proba(arrivals[X.columns])[:, 1], index=arrivals.index).sort_values(ascending=False)`, dann `opened = risk.index[:4].tolist()`.
 
@@ -493,10 +493,8 @@ opened = risk.index[:4].tolist()
 
 > Ein Hochglanzposter des Herstellers:
 >
-> **XR-90 · 93 % richtig!**
+> **XR-90 · 93,5 % richtig!**
 > Zwei Jahre an Pier 9 und kaum ein Fehlalarm.
->
-> Kleingedrucktes: old_flag = 1, wenn der XR-90 Alarm schlägt. contraband = 1, wenn der Container beim Öffnen Schmuggelware enthielt.
 
 ### 🔎 Die Prüfregel der Hafenmeisterin
 
@@ -505,8 +503,6 @@ opened = risk.index[:4].tolist()
 > HAFEN KLEEBERG · Prüfregel 7
 >
 > Ein Modell wird an Containern gemessen, die es nie gesehen hat. Haltet ein Viertel der Kontrollen als Testteil zurück (**test_size=0.25**), mit demselben Anteil Schmuggelware in beiden Teilen (**stratify=y**), und nehmt **random_state=9** (Pier 9), damit jede Schicht denselben Split bekommt.
->
-> Der Alarm des Scanners ist kein Feature: Heute Nacht gibt es keinen.
 
 ### 🔎 Jonas' Zettel am Terminal
 
@@ -526,15 +522,13 @@ opened = risk.index[:4].tolist()
 
 > Von Oberinspektor Mirković, für die Nachtschicht:
 >
-> Der Regler der Quotentafel geht von **0,50** in Schritten von **0,05** nach unten. Stellt ihn auf die **höchste** Stufe, die auf dem Testteil des Prüfsplits noch mindestens **4 von 5** Schmugglern fängt (Recall ≥ 0,8). Jede Stufe tiefer öffnet mehr Kisten, und dafür haben wir nicht die Leute.
+> Der Regler der Quotentafel geht von **0,50** in Schritten von **0,05** nach unten. Stellt ihn auf die **höchste** Stufe, die auf dem Testteil noch mindestens **4 von 5** Schmugglern fängt (Recall ≥ 0,8). Jede Stufe tiefer öffnet mehr Kisten, und dafür haben wir nicht die Leute.
 
 ### 🔎 Der Kranplan für heute Nacht
 
 *Gebraucht von: 6. Das Kranpult*
 
 > MV Kestrel · Liegeplatz Pier 9 · 40 Container · am Kai 04:30, legt ab 07:00
->
-> Der Kran kann **4 Container** zur Kontrolle absetzen.
 >
 > Der Test des Chefs für jedes Modell: Die Akademie hat 1.000 versiegelte frühere Kontrollen mit 70 Schmuggelfällen. Unter den **100**, die euer Modell am riskantesten bewertet, müssen mindestens **40** dieser Fälle sein.
 

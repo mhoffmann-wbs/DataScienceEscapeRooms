@@ -31,7 +31,7 @@
 
 **Task:**
 
-> Konrad Albers priced watches for Vossberg & Daughters for 31 years. His spreadsheet died with his laptop, but his first rule of thumb is still pinned above his desk: a straight line on graph paper, the hammer price against the condition grade. The number beside it is smudged.
+> Albers's first rule of thumb still hangs above his desk, its number smudged. How many euros did he add for one condition grade?
 >
 > The last four years of sales are loaded as `sales`, one row per watch sold, indexed by lot number: its age in years, the maker's tier (1 = no-name, 5 = the great houses), the case diameter in mm, the condition grade (1 = worn, 5 = as new), whether box and papers came with it (`box_papers`), the movement and the hammer price in euros (`price`).
 >
@@ -86,10 +86,11 @@ print(round(model.coef_[0]))
 
 **Task:**
 
-> Before the house copies Albers's methods, Ilse Vossberg wants to know whether they were any good. On the ledger table lies last autumn's sale sheet: for each of its 120 lots, Albers's printed estimate and the hammer price, loaded as `last_sale`.
+> Before the house copies Albers's methods, Ilse Vossberg wants to know whether they were any good: did his estimates beat a cheap guess? On the ledger table lies last autumn's sale sheet: for each of its 120 lots, Albers's printed estimate and the hammer price, loaded as `last_sale`.
 >
 > 1. Measure how far his estimates were from the hammer prices: store `mae`, `rmse` and `r2`.
-> 2. Store as `baseline_mae` how far off the cheapest appraiser in town would have been, the one in Ilse's memo.
+> 2. Store as `baseline_mae` how far off the cheapest appraiser in town would have been.
+> 3. Your verdict: were Albers's estimates any good? Store `good` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -106,6 +107,7 @@ print(f"Albers was off by {mae:.0f} € per lot on average")
 rmse = None
 r2 = None
 baseline_mae = None   # the cheapest appraiser in town
+good = None           # True or False
 ```
 
 </details>
@@ -122,10 +124,11 @@ mae = mean_absolute_error(hammer, estimate)
 rmse = mean_squared_error(hammer, estimate) ** 0.5
 r2 = r2_score(hammer, estimate)
 baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))
+good = bool(mae < baseline_mae)
 print(round(mae, 1), round(rmse, 1), round(r2, 3), round(baseline_mae, 1))
 ```
 
-**Checked result** (`_estimates_check(mae, rmse, r2, baseline_mae)`):
+**Checked result** (`_estimates_check(mae, rmse, r2, baseline_mae, good)`):
 
 ```json
 "appraised"
@@ -139,9 +142,9 @@ print(round(mae, 1), round(rmse, 1), round(r2, 3), round(baseline_mae, 1))
 
 **Hints:**
 
-1. Positive and negative misses cancel in `(hammer - estimate).mean()`. MAE averages their sizes: `mean_absolute_error(hammer, estimate)`.
+1. Ilse's memo says how she measures an appraiser, and who the cheapest one in town is. Positive and negative misses cancel in `(hammer - estimate).mean()`. MAE averages their sizes: `mean_absolute_error(hammer, estimate)`.
 2. RMSE is the square root of `mean_squared_error(hammer, estimate)`. `r2_score` takes the truth first: `r2_score(hammer, estimate)`.
-3. The cheapest appraiser guesses `hammer.mean()` for every lot: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))`.
+3. The cheapest appraiser guesses `hammer.mean()` for every lot: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))` (952 €). Albers missed by far less, so `good = mae < baseline_mae` is `True`.
 
 ### 3. The long tail
 
@@ -151,11 +154,12 @@ print(round(mae, 1), round(rmse, 1), round(r2, 3), round(baseline_mae, 1))
 
 **Task:**
 
-> A bar chart of every hammer price hangs on the saleroom wall: a tall hump of cheap watches and a thin tail of dear ones. Albers's assistant drew it, and wrote a note under it.
+> A bar chart of every hammer price hangs on the saleroom wall. Should the house's model predict the price, or the log of the price?
 >
-> 1. Split the sales as the house rule says.
+> 1. Split the sales into a training and a test part.
 > 2. Fit `LinearRegression` on the numeric columns twice: once on the price, once on the log of the price. Score both on the test part, in euros, as `mae_linear` and `mae_log`.
 > 3. In the log model, how much does one condition grade add to the price? Store it in percent as `percent`.
+> 4. Does the log model miss the test lots by less? Store `log_better` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -170,7 +174,7 @@ show_hist(sales["price"], bins=40, title="Hammer prices")
 
 X = sales[["age", "maker_tier", "case_mm", "condition", "box_papers"]]   # the numeric columns
 y = sales["price"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # see the house rule
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # the training and test part
 
 linear = LinearRegression().fit(X_train, y_train)
 mae_linear = mean_absolute_error(y_test, linear.predict(X_test))
@@ -178,6 +182,7 @@ print("linear:", round(mae_linear), "€")
 
 mae_log = None   # the same model fitted on np.log(y_train), scored in euros
 percent = None   # what one condition grade adds in the log model, in percent
+log_better = None   # True or False
 ```
 
 </details>
@@ -202,10 +207,11 @@ mae_linear = mean_absolute_error(y_test, linear.predict(X_test))
 log_model = LinearRegression().fit(X_train, np.log(y_train))
 mae_log = mean_absolute_error(y_test, np.exp(log_model.predict(X_test)))
 percent = (np.exp(log_model.coef_[3]) - 1) * 100
+log_better = bool(mae_log < mae_linear)
 print(round(mae_linear), round(mae_log), round(percent, 1))
 ```
 
-**Checked result** (`_tail_check(mae_linear, mae_log, percent)`):
+**Checked result** (`_tail_check(mae_linear, mae_log, percent, log_better)`):
 
 ```json
 "tamed"
@@ -219,9 +225,9 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 **Hints:**
 
-1. The house rule gives the split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Then `log_model = LinearRegression().fit(X_train, np.log(y_train))`.
+1. The note under the chart says how bidders pay for a better grade. The house rule for valuations gives the split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Then `log_model = LinearRegression().fit(X_train, np.log(y_train))`.
 2. The log model predicts log euros. `np.exp(log_model.predict(X_test))` turns them back into euros; compare those with `y_test`.
-3. `condition` is the fourth column, so its coefficient is `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`.
+3. `condition` is the fourth column, so its coefficient is `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. The log model misses by 717 € instead of 971 €: `log_better = mae_log < mae_linear` is `True`.
 
 ### 4. The movement
 
@@ -235,10 +241,11 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 **Task:**
 
-> The display case by the window holds the house's teaching collection: one automatic, one hand-wound and one quartz watch, each with its box and papers, and a card about the three kinds of movement. Albers always told consignors that box and papers add a third to the price. Ilse doubts it.
+> The display case by the window holds the house's teaching collection: one automatic, one hand-wound and one quartz watch, each with its box and papers. Albers always told consignors that box and papers add a third to the price. Ilse doubts it. What do box and papers really add?
 >
 > 1. Fit the log model on all sales with every column, the movement included. `LinearRegression` can't read words: encode the movement.
-> 2. Store what box and papers add to the price, in percent, as `box_percent`. Compare it with a model that leaves the movement out.
+> 2. Store what box and papers add to the price, in percent, as `box_percent`.
+> 3. Fit the same model without the movement, and store what box and papers seem to add there, in percent, as `without_percent`.
 
 <details><summary>Starter code</summary>
 
@@ -248,12 +255,13 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 X = sales.drop(columns="price")   # every column, the movement included
-y = sales["price"]                # the target: see the long tail
+y = sales["price"]                # the target
 
 model = LinearRegression().fit(X, y)
 print(pd.Series(model.coef_, index=X.columns).round(3))
 
 box_percent = None   # what box and papers add to the price, in percent
+without_percent = None   # the same, in a model without the movement
 ```
 
 </details>
@@ -274,10 +282,11 @@ box_percent = (np.exp(coefs["box_papers"]) - 1) * 100
 
 numeric = X.drop(columns=["movement_automatic", "movement_manual", "movement_quartz"])
 without = LinearRegression().fit(numeric, y)
-print("without the movement:", round((np.exp(without.coef_[4]) - 1) * 100, 1))
+without_percent = (np.exp(pd.Series(without.coef_, index=numeric.columns)["box_papers"]) - 1) * 100
+print("without the movement:", round(without_percent, 1))
 ```
 
-**Checked result** (`_movement_check(box_percent)`):
+**Checked result** (`_movement_check(box_percent, without_percent)`):
 
 ```json
 "wound"
@@ -291,9 +300,9 @@ print("without the movement:", round((np.exp(without.coef_[4]) - 1) * 100, 1))
 
 **Hints:**
 
-1. The error says it can't convert `'automatic'` to a number. `pd.get_dummies(X, dtype=int)` replaces the movement column with one 0/1 column per kind. And the target should be `np.log(y)`, as at the long tail.
+1. The card in the display case tells how the three movements differ. The error says it can't convert `'automatic'` to a number. `pd.get_dummies(X, dtype=int)` replaces the movement column with one 0/1 column per kind. And the target should be `np.log(y)`, as at the long tail.
 2. `coefs = pd.Series(model.coef_, index=X.columns)` names the coefficients. A log coefficient `b` adds `(np.exp(b) - 1) * 100` percent.
-3. `X = pd.get_dummies(sales.drop(columns="price"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, then `box_percent = (np.exp(coefs["box_papers"]) - 1) * 100`. For the comparison, fit again without the movement columns.
+3. `X = pd.get_dummies(sales.drop(columns="price"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, then `box_percent = (np.exp(coefs["box_papers"]) - 1) * 100`. For `without_percent`, fit again without the three movement columns and do the same.
 
 ### 5. The suspicious lot
 
@@ -307,7 +316,7 @@ print("without the movement:", round((np.exp(without.coef_[4]) - 1) * 100, 1))
 
 **Task:**
 
-> The newspaper on the coffee table carries the story: a forged watch went through Vossberg's spring sale. Since then the workshop has re-examined every watch the house sold, so `sales` records what each watch really is, not what the bidders believed. Somewhere in it is a sale that its features can't explain.
+> Which of the sales was the forged watch? The workshop has re-examined every watch the house sold, so `sales` records what each watch really is, not what the bidders believed. Somewhere in it is a sale that its features can't explain.
 >
 > 1. Fit a model of the price on the watches' features and compute each sale's residual.
 > 2. Find the sale that lies furthest above what its features justify. Store its lot number as `lot`.
@@ -366,7 +375,7 @@ print(sales.loc[lot])
 
 **Hints:**
 
-1. The starter's top three are dear antiques by the great houses: in euros, a small share of a big price is a big residual. Which target did the long tail recommend?
+1. The evening paper on the coffee table describes the forgery. The starter's top three are dear antiques by the great houses: in euros, a small share of a big price is a big residual. Which target did the long tail recommend?
 2. Fit on `np.log(y)` and take `residuals = np.log(y) - model.predict(X)`. The movement helps too: `pd.get_dummies(sales.drop(columns="price"), dtype=int)`.
 3. `lot = residuals.idxmax()` is the index label, the lot number, of the largest residual.
 
@@ -382,9 +391,9 @@ print(sales.loc[lot])
 
 **Task:**
 
-> The proof of Saturday's catalogue lies on the press, with eight empty estimate fields. `catalogue` holds the eight lots, indexed by lot number, with the same columns as `sales`, in the printer's order. The press starts at 06:00.
+> The proof of Saturday's catalogue lies on the press, with eight empty estimate fields. `catalogue` holds the eight lots, indexed by lot number, with the same columns as `sales`, in the printer's order. The press starts at 06:00. What is each lot worth?
 >
-> 1. Build the house's valuation model from everything you learned tonight. Before you trust it, plot its residuals against age: the watchmaker's note says why.
+> 1. Build the house's valuation model from everything you learned tonight. Before you trust it, plot its residuals against age.
 > 2. Store an estimate in euros for each lot as `estimates`: a list in the catalogue's order, or a Series indexed by lot number.
 
 <details><summary>Starter code</summary>
@@ -449,7 +458,7 @@ print(estimates)
 
 **Hints:**
 
-1. Uncomment the plot: the residuals form a U over age, too low for young and old watches. Add the age squared as a column: `X["age2"] = X["age"] ** 2`, or `PolynomialFeatures(2)` on `X[["age"]]`. Leave out the forged lot: `sales.drop(1964)`.
+1. The watchmaker's note on the case clock and the insurer's letter both matter here. Uncomment the plot: the residuals form a U over age, too low for young and old watches. Add the age squared as a column: `X["age2"] = X["age"] ** 2`, or `PolynomialFeatures(2)` on `X[["age"]]`. Leave out the forged lot: `sales.drop(1964)`.
 2. The catalogue needs the same columns in the same order: `C = pd.get_dummies(catalogue, dtype=int)`, add `age2` the same way, then `C = C[X.columns]`.
 3. The model predicts log euros: `estimates = pd.Series(np.exp(model.predict(C)), index=catalogue.index)`.
 
@@ -490,8 +499,6 @@ print(estimates)
 > VOSSBERG & DAUGHTERS · rule 4, valuations
 >
 > A valuation model is judged on lots it has not seen. Hold back a fifth of the sales as the test part (**test_size=0.2**), with **random_state=6**, the hour the printer starts, so that everyone gets the same split.
->
-> Judge it in **euros**: that is what the bidders pay.
 
 ### 🔎 The card in the display case
 
@@ -513,7 +520,7 @@ print(estimates)
 >
 > **Forged watch sold at Vossberg's spring sale**
 >
-> A bidder paid thousands for a watch that turned out to be a cheap quartz movement in a fake case and dial. "It looked like nothing special on paper," a dealer said. "Its price was the only thing about it that made no sense." The auction house has had its workshop re-examine every watch it sold in the last four years and recorded what each one really is.
+> A bidder paid thousands for a watch that turned out to be a cheap quartz movement in a fake case and dial. "It looked like nothing special on paper," a dealer said. "Its price was the only thing about it that made no sense."
 
 ### 🔎 The insurer's letter
 

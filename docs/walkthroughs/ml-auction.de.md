@@ -31,7 +31,7 @@
 
 **Aufgabe:**
 
-> Konrad Albers hat 31 Jahre lang Uhren für Vossberg & Töchter bewertet. Seine Tabelle ist mit seinem Laptop gestorben, aber seine erste Faustregel hängt noch über seinem Schreibtisch: eine Gerade auf Millimeterpapier, der Zuschlagspreis gegen den Zustandsgrad. Die Zahl daneben ist verwischt.
+> Albers' erste Faustregel hängt noch über seinem Schreibtisch, ihre Zahl verwischt. Wie viele Euro hat er für einen Zustandsgrad aufgeschlagen?
 >
 > Die Verkäufe der letzten vier Jahre sind als `sales` geladen, eine Zeile pro verkaufter Uhr, indiziert nach Losnummer: ihr Alter in Jahren, die Klasse des Herstellers (1 = namenlos, 5 = die großen Häuser), der Gehäusedurchmesser in mm, der Zustandsgrad (1 = abgenutzt, 5 = wie neu), ob Box und Papiere dabei waren (`box_papers`), das Uhrwerk und der Zuschlagspreis in Euro (`price`).
 >
@@ -86,10 +86,11 @@ print(round(model.coef_[0]))
 
 **Aufgabe:**
 
-> Bevor das Haus Albers' Methoden übernimmt, will Ilse Vossberg wissen, ob sie etwas taugten. Auf dem Tisch mit dem Kassenbuch liegt der Auktionsbogen vom letzten Herbst: für jedes seiner 120 Lose Albers' gedruckte Schätzung und der Zuschlagspreis, geladen als `last_sale`.
+> Bevor das Haus Albers' Methoden übernimmt, will Ilse Vossberg wissen, ob sie etwas taugten: Haben seine Schätzungen ein billiges Raten geschlagen? Auf dem Tisch mit dem Kassenbuch liegt der Auktionsbogen vom letzten Herbst: für jedes seiner 120 Lose Albers' gedruckte Schätzung und der Zuschlagspreis, geladen als `last_sale`.
 >
 > 1. Messt, wie weit seine Schätzungen von den Zuschlagspreisen entfernt waren: Speichert `mae`, `rmse` und `r2`.
-> 2. Speichert als `baseline_mae`, wie weit der billigste Gutachter der Stadt danebengelegen hätte, der aus Ilses Notiz.
+> 2. Speichert als `baseline_mae`, wie weit der billigste Gutachter der Stadt danebengelegen hätte.
+> 3. Euer Urteil: Taugten Albers' Schätzungen etwas? Speichert `good` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -106,6 +107,7 @@ print(f"Albers lag im Schnitt {mae:.0f} € pro Los daneben")
 rmse = None
 r2 = None
 baseline_mae = None   # der billigste Gutachter der Stadt
+good = None           # True oder False
 ```
 
 </details>
@@ -122,10 +124,11 @@ mae = mean_absolute_error(hammer, estimate)
 rmse = mean_squared_error(hammer, estimate) ** 0.5
 r2 = r2_score(hammer, estimate)
 baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))
+good = bool(mae < baseline_mae)
 print(round(mae, 1), round(rmse, 1), round(r2, 3), round(baseline_mae, 1))
 ```
 
-**Geprüftes Ergebnis** (`_estimates_check(mae, rmse, r2, baseline_mae)`):
+**Geprüftes Ergebnis** (`_estimates_check(mae, rmse, r2, baseline_mae, good)`):
 
 ```json
 "appraised"
@@ -139,9 +142,9 @@ print(round(mae, 1), round(rmse, 1), round(r2, 3), round(baseline_mae, 1))
 
 **Hinweise:**
 
-1. Positive und negative Fehler heben sich in `(hammer - estimate).mean()` auf. Der MAE mittelt ihre Beträge: `mean_absolute_error(hammer, estimate)`.
+1. Ilses Notiz sagt, wie sie einen Gutachter misst und wer der billigste der Stadt ist. Positive und negative Fehler heben sich in `(hammer - estimate).mean()` auf. Der MAE mittelt ihre Beträge: `mean_absolute_error(hammer, estimate)`.
 2. Der RMSE ist die Wurzel aus `mean_squared_error(hammer, estimate)`. `r2_score` nimmt die Wahrheit zuerst: `r2_score(hammer, estimate)`.
-3. Der billigste Gutachter rät für jedes Los `hammer.mean()`: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))`.
+3. Der billigste Gutachter rät für jedes Los `hammer.mean()`: `baseline_mae = mean_absolute_error(hammer, [hammer.mean()] * len(hammer))` (952 €). Albers lag weit weniger daneben, also ist `good = mae < baseline_mae` gleich `True`.
 
 ### 3. Der lange Schwanz
 
@@ -151,11 +154,12 @@ print(round(mae, 1), round(rmse, 1), round(r2, 3), round(baseline_mae, 1))
 
 **Aufgabe:**
 
-> An der Wand des Auktionssaals hängt ein Balkendiagramm aller Zuschlagspreise: ein hoher Buckel billiger Uhren und ein dünner Schwanz teurer. Albers' Assistentin hat es gezeichnet und eine Notiz darunter geschrieben.
+> An der Wand des Auktionssaals hängt ein Balkendiagramm aller Zuschlagspreise. Soll das Modell des Hauses den Preis vorhersagen oder den Log des Preises?
 >
-> 1. Teilt die Verkäufe, wie es die Hausregel sagt.
+> 1. Teilt die Verkäufe in einen Trainings- und einen Testteil.
 > 2. Trainiert `LinearRegression` zweimal auf den Zahlenspalten: einmal auf den Preis, einmal auf den Log des Preises. Bewertet beide auf dem Testteil, in Euro, als `mae_linear` und `mae_log`.
 > 3. Wie viel fügt im Log-Modell ein Zustandsgrad zum Preis hinzu? Speichert es in Prozent als `percent`.
+> 4. Liegt das Log-Modell bei den Testlosen weniger daneben? Speichert `log_better` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -170,7 +174,7 @@ show_hist(sales["price"], bins=40, title="Zuschlagspreise")
 
 X = sales[["age", "maker_tier", "case_mm", "condition", "box_papers"]]   # die Zahlenspalten
 y = sales["price"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # siehe die Hausregel
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # Trainings- und Testteil
 
 linear = LinearRegression().fit(X_train, y_train)
 mae_linear = mean_absolute_error(y_test, linear.predict(X_test))
@@ -178,6 +182,7 @@ print("linear:", round(mae_linear), "€")
 
 mae_log = None   # dasselbe Modell, trainiert auf np.log(y_train), bewertet in Euro
 percent = None   # was ein Zustandsgrad im Log-Modell hinzufügt, in Prozent
+log_better = None   # True oder False
 ```
 
 </details>
@@ -202,10 +207,11 @@ mae_linear = mean_absolute_error(y_test, linear.predict(X_test))
 log_model = LinearRegression().fit(X_train, np.log(y_train))
 mae_log = mean_absolute_error(y_test, np.exp(log_model.predict(X_test)))
 percent = (np.exp(log_model.coef_[3]) - 1) * 100
+log_better = bool(mae_log < mae_linear)
 print(round(mae_linear), round(mae_log), round(percent, 1))
 ```
 
-**Geprüftes Ergebnis** (`_tail_check(mae_linear, mae_log, percent)`):
+**Geprüftes Ergebnis** (`_tail_check(mae_linear, mae_log, percent, log_better)`):
 
 ```json
 "tamed"
@@ -219,9 +225,9 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 **Hinweise:**
 
-1. Die Hausregel nennt den Split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Dann `log_model = LinearRegression().fit(X_train, np.log(y_train))`.
+1. Die Notiz unter dem Diagramm sagt, wie Bieter für einen besseren Grad zahlen. Die Hausregel für Bewertungen nennt den Split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Dann `log_model = LinearRegression().fit(X_train, np.log(y_train))`.
 2. Das Log-Modell sagt Log-Euro vorher. `np.exp(log_model.predict(X_test))` macht wieder Euro daraus; vergleicht diese mit `y_test`.
-3. `condition` ist die vierte Spalte, ihr Koeffizient also `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`.
+3. `condition` ist die vierte Spalte, ihr Koeffizient also `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. Das Log-Modell liegt um 717 € statt 971 € daneben: `log_better = mae_log < mae_linear` ist `True`.
 
 ### 4. Das Uhrwerk
 
@@ -235,10 +241,11 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 **Aufgabe:**
 
-> Die Vitrine am Fenster enthält die Lehrsammlung des Hauses: eine Automatikuhr, eine mit Handaufzug und eine Quarzuhr, jede mit Box und Papieren, und eine Karte über die drei Arten von Uhrwerken. Albers hat den Einlieferern immer gesagt, Box und Papiere bringen ein Drittel mehr. Ilse bezweifelt das.
+> Die Vitrine am Fenster enthält die Lehrsammlung des Hauses: eine Automatikuhr, eine mit Handaufzug und eine Quarzuhr, jede mit Box und Papieren. Albers hat den Einlieferern immer gesagt, Box und Papiere bringen ein Drittel mehr. Ilse bezweifelt das. Was bringen Box und Papiere wirklich?
 >
 > 1. Trainiert das Log-Modell auf allen Verkäufen mit jeder Spalte, das Uhrwerk eingeschlossen. `LinearRegression` kann keine Wörter lesen: Kodiert das Uhrwerk.
-> 2. Speichert, was Box und Papiere zum Preis hinzufügen, in Prozent, als `box_percent`. Vergleicht es mit einem Modell, das das Uhrwerk weglässt.
+> 2. Speichert, was Box und Papiere zum Preis hinzufügen, in Prozent, als `box_percent`.
+> 3. Trainiert dasselbe Modell ohne das Uhrwerk und speichert, was Box und Papiere dort scheinbar hinzufügen, in Prozent, als `without_percent`.
 
 <details><summary>Startcode</summary>
 
@@ -248,12 +255,13 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 X = sales.drop(columns="price")   # jede Spalte, das Uhrwerk eingeschlossen
-y = sales["price"]                # die Zielvariable: siehe den langen Schwanz
+y = sales["price"]                # die Zielvariable
 
 model = LinearRegression().fit(X, y)
 print(pd.Series(model.coef_, index=X.columns).round(3))
 
 box_percent = None   # was Box und Papiere zum Preis hinzufügen, in Prozent
+without_percent = None   # dasselbe in einem Modell ohne das Uhrwerk
 ```
 
 </details>
@@ -274,10 +282,11 @@ box_percent = (np.exp(coefs["box_papers"]) - 1) * 100
 
 numeric = X.drop(columns=["movement_automatic", "movement_manual", "movement_quartz"])
 without = LinearRegression().fit(numeric, y)
-print("without the movement:", round((np.exp(without.coef_[4]) - 1) * 100, 1))
+without_percent = (np.exp(pd.Series(without.coef_, index=numeric.columns)["box_papers"]) - 1) * 100
+print("without the movement:", round(without_percent, 1))
 ```
 
-**Geprüftes Ergebnis** (`_movement_check(box_percent)`):
+**Geprüftes Ergebnis** (`_movement_check(box_percent, without_percent)`):
 
 ```json
 "wound"
@@ -291,9 +300,9 @@ print("without the movement:", round((np.exp(without.coef_[4]) - 1) * 100, 1))
 
 **Hinweise:**
 
-1. Der Fehler sagt, dass er `'automatic'` nicht in eine Zahl umwandeln kann. `pd.get_dummies(X, dtype=int)` ersetzt die Spalte movement durch eine 0/1-Spalte pro Art. Und die Zielvariable sollte `np.log(y)` sein, wie beim langen Schwanz.
+1. Die Karte in der Vitrine sagt, wie sich die drei Uhrwerke unterscheiden. Der Fehler sagt, dass er `'automatic'` nicht in eine Zahl umwandeln kann. `pd.get_dummies(X, dtype=int)` ersetzt die Spalte movement durch eine 0/1-Spalte pro Art. Und die Zielvariable sollte `np.log(y)` sein, wie beim langen Schwanz.
 2. `coefs = pd.Series(model.coef_, index=X.columns)` benennt die Koeffizienten. Ein Log-Koeffizient `b` fügt `(np.exp(b) - 1) * 100` Prozent hinzu.
-3. `X = pd.get_dummies(sales.drop(columns="price"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, dann `box_percent = (np.exp(coefs["box_papers"]) - 1) * 100`. Für den Vergleich trainiert ohne die Uhrwerk-Spalten.
+3. `X = pd.get_dummies(sales.drop(columns="price"), dtype=int)`, `model = LinearRegression().fit(X, np.log(y))`, dann `box_percent = (np.exp(coefs["box_papers"]) - 1) * 100`. Für `without_percent` trainiert ohne die drei Uhrwerk-Spalten und rechnet genauso.
 
 ### 5. Das verdächtige Los
 
@@ -307,7 +316,7 @@ print("without the movement:", round((np.exp(without.coef_[4]) - 1) * 100, 1))
 
 **Aufgabe:**
 
-> Die Zeitung auf dem Couchtisch bringt die Geschichte: Eine gefälschte Uhr ist durch Vossbergs Frühjahrsauktion gegangen. Seitdem hat die Werkstatt jede Uhr nachgeprüft, die das Haus verkauft hat, also hält `sales` fest, was jede Uhr wirklich ist, nicht was die Bieter glaubten. Irgendwo darin steckt ein Verkauf, den seine Merkmale nicht erklären können.
+> Welcher der Verkäufe war die gefälschte Uhr? Die Werkstatt hat jede Uhr nachgeprüft, die das Haus verkauft hat, also hält `sales` fest, was jede Uhr wirklich ist, nicht was die Bieter glaubten. Irgendwo darin steckt ein Verkauf, den seine Merkmale nicht erklären können.
 >
 > 1. Trainiert ein Modell des Preises auf den Merkmalen der Uhren und berechnet das Residuum jedes Verkaufs.
 > 2. Findet den Verkauf, der am weitesten über dem liegt, was seine Merkmale rechtfertigen. Speichert seine Losnummer als `lot`.
@@ -366,7 +375,7 @@ print(sales.loc[lot])
 
 **Hinweise:**
 
-1. Die drei Spitzenreiter des Startcodes sind teure Antiquitäten der großen Häuser: In Euro ist ein kleiner Anteil eines großen Preises ein großes Residuum. Welche Zielvariable hat der lange Schwanz empfohlen?
+1. Die Abendzeitung auf dem Couchtisch beschreibt die Fälschung. Die drei Spitzenreiter des Startcodes sind teure Antiquitäten der großen Häuser: In Euro ist ein kleiner Anteil eines großen Preises ein großes Residuum. Welche Zielvariable hat der lange Schwanz empfohlen?
 2. Trainiert auf `np.log(y)` und nehmt `residuals = np.log(y) - model.predict(X)`. Das Uhrwerk hilft auch: `pd.get_dummies(sales.drop(columns="price"), dtype=int)`.
 3. `lot = residuals.idxmax()` ist das Index-Label, die Losnummer, des größten Residuums.
 
@@ -382,9 +391,9 @@ print(sales.loc[lot])
 
 **Aufgabe:**
 
-> Der Probedruck des Katalogs für Samstag liegt auf der Druckmaschine, mit acht leeren Feldern für Schätzpreise. `catalogue` enthält die acht Lose, indiziert nach Losnummer, mit denselben Spalten wie `sales`, in der Reihenfolge der Druckerei. Die Maschine läuft um 06:00 an.
+> Der Probedruck des Katalogs für Samstag liegt auf der Druckmaschine, mit acht leeren Feldern für Schätzpreise. `catalogue` enthält die acht Lose, indiziert nach Losnummer, mit denselben Spalten wie `sales`, in der Reihenfolge der Druckerei. Die Maschine läuft um 06:00 an. Was ist jedes Los wert?
 >
-> 1. Baut das Bewertungsmodell des Hauses aus allem, was ihr heute Nacht gelernt habt. Bevor ihr ihm traut, zeichnet seine Residuen gegen das Alter: Die Notiz des Uhrmachers sagt, warum.
+> 1. Baut das Bewertungsmodell des Hauses aus allem, was ihr heute Nacht gelernt habt. Bevor ihr ihm traut, zeichnet seine Residuen gegen das Alter.
 > 2. Speichert für jedes Los eine Schätzung in Euro als `estimates`: eine Liste in der Reihenfolge des Katalogs oder eine Series, indiziert nach Losnummer.
 
 <details><summary>Startcode</summary>
@@ -449,7 +458,7 @@ print(estimates)
 
 **Hinweise:**
 
-1. Nehmt den Plot wieder rein: Die Residuen bilden über dem Alter ein U, zu niedrig für junge und alte Uhren. Nehmt das Alter zum Quadrat als Spalte dazu: `X["age2"] = X["age"] ** 2` oder `PolynomialFeatures(2)` auf `X[["age"]]`. Lasst das gefälschte Los weg: `sales.drop(1964)`.
+1. Die Notiz des Uhrmachers an der Standuhr und der Brief des Versicherers sind hier beide wichtig. Nehmt den Plot wieder rein: Die Residuen bilden über dem Alter ein U, zu niedrig für junge und alte Uhren. Nehmt das Alter zum Quadrat als Spalte dazu: `X["age2"] = X["age"] ** 2` oder `PolynomialFeatures(2)` auf `X[["age"]]`. Lasst das gefälschte Los weg: `sales.drop(1964)`.
 2. Der Katalog braucht dieselben Spalten in derselben Reihenfolge: `C = pd.get_dummies(catalogue, dtype=int)`, `age2` genauso dazunehmen, dann `C = C[X.columns]`.
 3. Das Modell sagt Log-Euro vorher: `estimates = pd.Series(np.exp(model.predict(C)), index=catalogue.index)`.
 
@@ -490,8 +499,6 @@ print(estimates)
 > VOSSBERG & TÖCHTER · Regel 4, Bewertungen
 >
 > Ein Bewertungsmodell wird an Losen gemessen, die es nicht gesehen hat. Haltet ein Fünftel der Verkäufe als Testteil zurück (**test_size=0.2**), mit **random_state=6**, der Stunde, zu der die Druckerei anfängt, damit alle denselben Split bekommen.
->
-> Messt es in **Euro**: Das ist, was die Bieter zahlen.
 
 ### 🔎 Die Karte in der Vitrine
 
@@ -513,7 +520,7 @@ print(estimates)
 >
 > **Gefälschte Uhr bei Vossbergs Frühjahrsauktion verkauft**
 >
-> Ein Bieter zahlte Tausende für eine Uhr, die sich als billiges Quarzwerk in falschem Gehäuse und Zifferblatt herausstellte. „Auf dem Papier sah sie nach nichts Besonderem aus“, sagte ein Händler. „Ihr Preis war das Einzige an ihr, das keinen Sinn ergab.“ Das Auktionshaus hat jede Uhr, die es in den letzten vier Jahren verkauft hat, von seiner Werkstatt nachprüfen lassen und festgehalten, was jede wirklich ist.
+> Ein Bieter zahlte Tausende für eine Uhr, die sich als billiges Quarzwerk in falschem Gehäuse und Zifferblatt herausstellte. „Auf dem Papier sah sie nach nichts Besonderem aus“, sagte ein Händler. „Ihr Preis war das Einzige an ihr, das keinen Sinn ergab.“
 
 ### 🔎 Der Brief des Versicherers
 

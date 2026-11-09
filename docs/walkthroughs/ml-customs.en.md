@@ -4,7 +4,7 @@
 
 ## Story
 
-> Night shift at the customs office on Pier 9, Port of Kleeberg. At 04:30 the MV Kestrel comes alongside with 40 containers, and at 07:00 she sails again. The crane can set down four of them for the crew to open.
+> Night shift at the customs office on Pier 9, Port of Kleeberg. At 04:30 the MV Kestrel comes alongside with 40 containers, and at 07:00 she sails again.
 >
 > The XR-90 scanner, which used to pick them, crashed at midnight and won't boot. What the office still has: the log of 3,000 inspections from the last two years, each with its measurements and what was found inside, and the notes of the people who did this job before.
 >
@@ -89,10 +89,11 @@ print(export_text(tree, feature_names=list(X.columns)))
 
 **Task:**
 
-> The screen above the night desk still shows the XR-90's record, with a poster beside it. The scanner looked at every container of the last two years, and `old_flag` in `inspections` says where it raised the alarm (1) and where it stayed quiet (0). Was it really that good?
+> The screen above the night desk still shows the XR-90's record. The scanner looked at every container of the last two years, and `old_flag` in `inspections` says where it raised the alarm (1) and where it stayed quiet (0). How good was it at catching smugglers?
 >
 > 1. Compare `old_flag` with `contraband`: the confusion matrix and the classification report.
 > 2. Store `accuracy` (the share of containers the scanner judged right), `missed` (contraband containers it let through) and `recall` (the share of contraband it flagged).
+> 3. Your verdict: would you trust the XR-90 to pick the containers? Store `trust` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -102,11 +103,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 y = inspections["contraband"]    # 1 = contraband found when opened
 flag = inspections["old_flag"]   # 1 = the XR-90 raised its alarm
 
-accuracy = (y == flag).mean()
-print(f"Accuracy: {accuracy:.1%}")
-
+accuracy = None  # share of containers the scanner judged right
 missed = None    # contraband containers the scanner let through
 recall = None    # share of the contraband it flagged
+trust = None     # True or False
 ```
 
 </details>
@@ -125,10 +125,11 @@ accuracy = accuracy_score(y, flag)
 tn, fp, fn, tp = confusion_matrix(y, flag).ravel()
 missed = int(fn)
 recall = recall_score(y, flag)
-print(accuracy, missed, recall)
+trust = bool(recall > 0.5)
+print(accuracy, missed, recall, trust)
 ```
 
-**Checked result** (`_dashboard_check(accuracy, missed, recall)`):
+**Checked result** (`_dashboard_check(accuracy, missed, recall, trust)`):
 
 ```json
 "exposed"
@@ -142,9 +143,9 @@ print(accuracy, missed, recall)
 
 **Hints:**
 
-1. `print(confusion_matrix(y, flag))`: rows are what was really inside (0, 1), columns what the scanner said (0, 1).
+1. The poster beside the screen makes a claim about the XR-90; put it to the test. `print(confusion_matrix(y, flag))`: rows are what was really inside (0, 1), columns what the scanner said (0, 1).
 2. The scanner missed a container when it was contraband (row 1) and the scanner said clean (column 0). `tn, fp, fn, tp = confusion_matrix(y, flag).ravel()` unpacks the four cells.
-3. `missed = fn` and `recall = tp / (tp + fn)`, or `recall_score(y, flag)` from `sklearn.metrics`. `print(classification_report(y, flag))` shows precision and recall for both classes.
+3. `missed = fn` and `recall = tp / (tp + fn)`, or `recall_score(y, flag)` from `sklearn.metrics`. `print(classification_report(y, flag))` shows precision and recall for both classes. `accuracy_score(y, flag)` is 93.5 %, but a recall of 12 % means `trust = False`.
 
 ### 3. The neighbours
 
@@ -154,11 +155,10 @@ print(accuracy, missed, recall)
 
 **Task:**
 
-> Jonas from the day shift had an idea before he went home: judge each new container by the past inspections that look most like it, its nearest neighbours. His terminal still shows the attempt, and a note sticks to the screen.
+> Jonas from the day shift had an idea before he went home: judge each new container by the past inspections that look most like it, its nearest neighbours. His terminal still shows the attempt. How many neighbours judge a container best?
 >
-> 1. Split the inspections as the harbour master's rule says.
-> 2. Search for the best number of neighbours with `GridSearchCV`, the way Jonas's note describes, on the training part. Store the fitted search as `search`.
-> 3. Jonas's neighbours looked odd. Find out why, and fix it.
+> 1. Split the inspections into a training and a test part.
+> 2. Search for the best number of neighbours with `GridSearchCV` on the training part. Store the fitted search as `search`.
 
 <details><summary>Starter code</summary>
 
@@ -170,7 +170,7 @@ from helpers import show_plot
 
 X = inspections.drop(columns=["old_flag", "contraband"])   # the five measurements
 y = inspections["contraband"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # the audit split: see the harbour master's rule
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # the training and test part
 
 model = KNeighborsClassifier()
 search = GridSearchCV(model, {"n_neighbors": [5]}, scoring="accuracy", cv=5)
@@ -219,7 +219,7 @@ show_plot(pd.Series(search.cv_results_["mean_test_score"], index=range(1, 32, 2)
 
 **Hints:**
 
-1. Use the split from the harbour master's rule: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`. Then look at the neighbours the starter prints: which column do they agree on?
+1. Use the split from the harbour master's rule: `train_test_split(X, y, test_size=0.25, stratify=y, random_state=9)`. Jonas's note on the screen says how he wanted to search. Then look at the neighbours the starter prints: which column do they agree on?
 2. `value_per_kg` runs into the thousands, so it decides every distance. `make_pipeline(StandardScaler(), KNeighborsClassifier())` scales first. In a pipeline the grid's key gets the step's name: `kneighborsclassifier__n_neighbors`.
 3. `search = GridSearchCV(pipe, {"kneighborsclassifier__n_neighbors": list(range(1, 32, 2))}, scoring="f1", cv=5)`, then `search.fit(X_train, y_train)` and `search.best_params_`.
 
@@ -235,9 +235,9 @@ show_plot(pd.Series(search.cv_results_["mean_test_score"], index=range(1, 32, 2)
 
 **Task:**
 
-> Last year a consultant sold the customs office a tree that got 100 % right on its training data, and it was worse on the new arrivals than Hanne's three questions. The binder with the experiments is in the filing cabinet.
+> Last year a consultant sold the customs office a tree that got 100 % right on its training data, and it was worse on the new arrivals than Hanne's three questions. How deep should a tree grow? The binder with the experiments is in the filing cabinet.
 >
-> 1. Split the inspections as the harbour master's rule says.
+> 1. Split the inspections into a training and a test part.
 > 2. For every `max_depth` from 1 to 15, fit a tree on the training part and store its accuracy on the training part in `train_scores` and on the test part in `test_scores` (depth 1 first).
 > 3. Plot both, and store the depth that judges unseen containers best as `depth`.
 
@@ -251,7 +251,7 @@ from helpers import show_plot
 
 X = inspections.drop(columns=["old_flag", "contraband"])   # the five measurements
 y = inspections["contraband"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # the audit split: see the harbour master's rule
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # the training and test part
 
 train_scores = []   # accuracy on the training part, depth 1 to 15
 test_scores = []    # accuracy on the test part
@@ -320,11 +320,11 @@ depth = 3
 
 **Task:**
 
-> The big board on the wall shows each container's chance of contraband, from a logistic regression, and a dial sets from which chance on a container gets opened. At 0.5 the board opens few containers, and lets many smugglers through.
+> The big board on the wall shows each container's chance of contraband, from a logistic regression, and a dial sets from which chance on a container gets opened. At 0.5 the board opens few containers, and lets many smugglers through. Where should the dial stand?
 >
-> 1. Fit `LogisticRegression` on the standardised training part of the audit split, as `model`.
+> 1. Fit `LogisticRegression` on the standardised training part, as `model`.
 > 2. Its coefficients say how much each feature raises the odds. Store the column name of the riskiest feature as `riskiest`.
-> 3. Set the dial as the chief ordered: store the step as `threshold`, and how many containers of the test part it opens as `opened`.
+> 3. Set the dial: store its step as `threshold`, and how many containers of the test part it opens as `opened`.
 
 <details><summary>Starter code</summary>
 
@@ -338,7 +338,7 @@ from sklearn.metrics import recall_score
 
 X = inspections.drop(columns=["old_flag", "contraband"])   # the five measurements
 y = inspections["contraband"]
-X_train, X_test, y_train, y_test = train_test_split(X, y)   # the audit split: see the harbour master's rule
+X_train, X_test, y_train, y_test = train_test_split(X, y)   # the training and test part
 
 model = make_pipeline(StandardScaler(), LogisticRegression()).fit(X_train, y_train)
 print(model[-1].coef_)   # one coefficient per column of X, in order
@@ -393,7 +393,7 @@ opened = int((p >= threshold).sum())
 
 **Hints:**
 
-1. Split as the harbour master's rule says. `model[-1]` is the pipeline's last step, the logistic regression; `pd.Series(model[-1].coef_[0], index=X.columns)` names each coefficient.
+1. Split as the harbour master's rule says, and set the dial as the chief's order on the wall says. `model[-1]` is the pipeline's last step, the logistic regression; `pd.Series(model[-1].coef_[0], index=X.columns)` names each coefficient.
 2. `p >= t` opens every container with a chance of at least `t`. For each step on the dial (0.5, 0.45, … 0.05), print `recall_score(y_test, p >= t)` and `(p >= t).sum()`.
 3. Go down the dial and stop at the first step whose recall is at least 0.8: that is `threshold`. `opened = int((p >= threshold).sum())`.
 
@@ -409,9 +409,9 @@ opened = int((p >= threshold).sum())
 
 **Task:**
 
-> The MV Kestrel is alongside. Its manifest lists tonight's 40 containers, loaded as `arrivals` and indexed by container number, with the same measurements as the inspections: the scanner's alarm is missing, since the scanner is down. The crane can set down four containers before the ship sails.
+> The MV Kestrel is alongside. Its manifest lists tonight's 40 containers, loaded as `arrivals` and indexed by container number, with the same measurements as the inspections: the scanner's alarm is missing, since the scanner is down. The crane can set down four containers before the ship sails: which four?
 >
-> 1. Train the model you trust most on the inspections, as `model`. It must pass the chief's test.
+> 1. Train the model you trust most on the inspections, as `model`.
 > 2. Score all 40 arrivals with `predict_proba`.
 > 3. Store the container numbers of the four riskiest as `opened`.
 
@@ -431,7 +431,7 @@ X = inspections.drop(columns=["old_flag", "contraband"])   # the five measuremen
 y = inspections["contraband"]
 model = None   # your best model, trained on the inspections
 
-# risk = model.predict_proba(arrivals)[:, 1]
+risk = None    # each arrival's chance of contraband
 opened = []    # the four container numbers to open
 ```
 
@@ -469,7 +469,7 @@ opened = risk.index[:4].tolist()
 
 **Hints:**
 
-1. Any of tonight's models will do if it is trained well: a tree of the depth that won at the filing cabinet, a scaled KNN with the neighbours' k, or the odds board's logistic regression. Train it on `X` and `y` (all inspections, without `old_flag`).
+1. The crane schedule says what test the chief puts every model through. Any of tonight's models will do if it is trained well: a tree of the depth that won at the filing cabinet, a scaled KNN with the neighbours' k, or the odds board's logistic regression. Train it on `X` and `y` (all inspections, without `old_flag`).
 2. `model.predict_proba(arrivals)` fails: the manifest lists the columns in another order. `arrivals[X.columns]` puts them in the order the model learned.
 3. `risk = pd.Series(model.predict_proba(arrivals[X.columns])[:, 1], index=arrivals.index).sort_values(ascending=False)`, then `opened = risk.index[:4].tolist()`.
 
@@ -493,10 +493,8 @@ opened = risk.index[:4].tolist()
 
 > A glossy poster from the manufacturer:
 >
-> **XR-90 · 93 % right!**
+> **XR-90 · 93.5 % right!**
 > Two years on Pier 9 and hardly a false alarm.
->
-> Small print: old_flag = 1 when the XR-90 raises the alarm. contraband = 1 when the container held contraband on opening.
 
 ### 🔎 The harbour master's audit rule
 
@@ -505,8 +503,6 @@ opened = risk.index[:4].tolist()
 > PORT OF KLEEBERG · audit rule 7
 >
 > A model is judged on containers it has never seen. Hold back a quarter of the inspections as the test part (**test_size=0.25**), with the same share of contraband in both parts (**stratify=y**), and use **random_state=9** (Pier 9), so that every shift gets the same split.
->
-> The scanner's alarm is no feature: tonight there is none.
 
 ### 🔎 Jonas's note on the terminal
 
@@ -526,15 +522,13 @@ opened = risk.index[:4].tolist()
 
 > From Chief Inspector Mirković, for the night shift:
 >
-> The odds board's dial goes down from **0.50** in steps of **0.05**. Set it to the **highest** step that still catches at least **4 in 5** smugglers on the audit test part (recall ≥ 0.8). Every step lower opens more boxes, and we don't have the hands for that.
+> The odds board's dial goes down from **0.50** in steps of **0.05**. Set it to the **highest** step that still catches at least **4 in 5** smugglers on the test part (recall ≥ 0.8). Every step lower opens more boxes, and we don't have the hands for that.
 
 ### 🔎 Tonight's crane schedule
 
 *Used by: 6. The crane console*
 
 > MV Kestrel · berth Pier 9 · 40 containers · alongside 04:30, sails 07:00
->
-> The crane can set down **4 containers** for inspection.
 >
 > The chief's test for any model: the academy keeps 1,000 sealed past inspections with 70 smuggling cases. Among the **100** your model scores riskiest, at least **40** of those cases must be found.
 

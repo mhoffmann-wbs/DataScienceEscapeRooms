@@ -236,7 +236,7 @@ def _tray_check(labels):
         return _problems_or(["labels needs one group per envelope on the tray (200). / labels braucht eine Gruppe pro Umschlag auf dem Tablett (200)."], "")
     problems = []
     if len(set(a.tolist())) != 3:
-        problems.append(f"labels has {len(set(a.tolist()))} groups; the shelf label says three species. / labels hat {len(set(a.tolist()))} Gruppen; das Regaletikett sagt drei Arten.")
+        problems.append(f"labels has {len(set(a.tolist()))} groups; the tray holds three species. / labels hat {len(set(a.tolist()))} Gruppen, das Tablett enthält drei Arten.")
     else:
         groups = [set(a[_TRAY_SPECIES == i].tolist()) for i in range(3)]
         if any(len(g) > 1 for g in groups) or len(set().union(*groups)) < 3:
@@ -244,7 +244,7 @@ def _tray_check(labels):
                      if any(set(a[_TRAY_SPECIES == i].tolist()) & set(a[_TRAY_SPECIES == j].tolist()) for j in range(3) if j != i)]
             split = [s for s, g in zip(("rye", "lentil", "bean"), groups) if len(g) > 1]
             if split:
-                problems.append("Envelopes with the same tag ended up in different groups. Compare your groups with the tags on the tray. / Umschläge mit demselben Etikett sind in verschiedenen Gruppen gelandet. Vergleicht eure Gruppen mit den Etiketten auf dem Tablett.")
+                problems.append("Envelopes with the same tag ended up in different groups. / Umschläge mit demselben Etikett sind in verschiedenen Gruppen gelandet.")
             if mixed:
                 problems.append("Envelopes with different tags share a group. Look at the numbers: which column decides the distances? / Umschläge mit verschiedenen Etiketten teilen sich eine Gruppe. Schaut auf die Zahlen: Welche Spalte bestimmt die Abstände?")
     return _problems_or(problems, "sorted")

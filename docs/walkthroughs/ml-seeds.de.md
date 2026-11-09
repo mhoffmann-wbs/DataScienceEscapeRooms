@@ -31,12 +31,11 @@
 
 **Aufgabe:**
 
-> Vor dem Hochwasser hat die Kuratorin die Sortiermaschine an einem Regal getestet: 200 Umschläge, die laut Regaletikett drei Arten enthalten. Sie sind als `tray` geladen: Länge und Breite in mm, Gewicht in mg und Helligkeit von 0 (schwarz) bis 255 (weiß). Ein paar Umschläge haben ihr Etikett behalten; sie hängen am Schreibtisch neben dem Tablett.
+> Vor dem Hochwasser hat die Kuratorin die Sortiermaschine an einem Regal getestet: 200 Umschläge, die laut Regaletikett drei Arten enthalten. Welche Umschläge enthalten dieselbe Art?
 >
-> 1. Teilt die Umschläge mit `KMeans` in drei Cluster und speichert den Cluster jedes Umschlags als `labels` (einer pro Zeile von `tray`, in dieser Reihenfolge).
-> 2. Prüft eure Gruppen an den etikettierten Umschlägen: Gleiches Etikett gehört zusammen, verschiedene Etiketten auseinander.
+> Sie sind als `tray` geladen: Länge und Breite in mm, Gewicht in mg und Helligkeit von 0 (schwarz) bis 255 (weiß).
 >
-> KMeans vergleicht Abstände zwischen Zeilen. Schaut auf die Zahlen in jeder Spalte: Zählt jede Spalte gleich viel?
+> 1. Teilt die Umschläge mit `KMeans` in drei Cluster und speichert den Cluster jedes Umschlags als `labels` (einer pro Zeile von `tray`, in dieser Reihenfolge). Jeder Cluster soll eine Art sein.
 
 <details><summary>Startcode</summary>
 
@@ -85,7 +84,7 @@ show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray, scaled")
 
 **Hinweise:**
 
-1. Führt den Startcode aus und vergleicht die Gruppen mit den Etiketten. `tray.describe()` zeigt, wie verschieden die Wertebereiche der Spalten sind.
+1. Ein paar Umschläge haben ihr Etikett behalten; sie hängen am Schreibtisch neben dem Tablett. Führt den Startcode aus und vergleicht seine Gruppen mit den Etiketten. KMeans vergleicht Abstände zwischen Zeilen: `tray.describe()` zeigt, wie verschieden die Wertebereiche der Spalten sind.
 2. Das Gewicht reicht bis zu mehreren hundert Milligramm, die Breite nur bis etwa 12 mm, also sind die Abstände fast nur Gewicht. `StandardScaler` bringt jede Spalte auf dieselbe Skala (Mittelwert 0, Standardabweichung 1).
 3. `X = StandardScaler().fit_transform(tray)` (importiert aus `sklearn.preprocessing`), dann `labels = KMeans(n_clusters=3, n_init=10, random_state=0).fit_predict(X)`.
 
@@ -100,8 +99,8 @@ show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray, scaled")
 > Das überflutete Archiv ist als `archive` geladen: alle 1.507 Umschläge, die die Maschine gemessen hat, mit denselben vier Spalten wie das Tablett. Wie viele Arten stecken darin? Niemand hat es irgendwo aufgeschrieben, wo es trocken geblieben ist.
 >
 > 1. Skaliert das Archiv und trainiert `KMeans` für jedes k von 1 bis 10. Speichert die `inertia_` jedes Modells in der Liste `inertias` (k = 1 zuerst).
-> 2. Die Inertia fällt immer, wenn k wächst. Speichert außerdem den Silhouette-Score für k = 2 bis 10 in `silhouettes`.
-> 3. Zeichnet beides, lest es so, wie die Notiz der Kuratorin sagt, und speichert eure Wahl als `k`.
+> 2. Speichert außerdem den Silhouette-Score für k = 2 bis 10 in `silhouettes`.
+> 3. Zeichnet beides und speichert die Zahl der Arten, auf die sie zeigen, als `k`.
 
 <details><summary>Startcode</summary>
 
@@ -113,7 +112,7 @@ from sklearn.metrics import silhouette_score
 from helpers import show_plot
 
 # archive ist geladen: 1.507 Umschläge, mit der Umschlagnummer als Index.
-X = archive          # erst skalieren (die Lehre vom Testtablett)
+X = archive          # die Merkmale, die KMeans vergleicht
 
 inertias = []        # k = 1 bis 10
 silhouettes = []     # k = 2 bis 10
@@ -163,7 +162,7 @@ k = 6
 
 **Hinweise:**
 
-1. Skaliert das Archiv wie beim Tablett: `X = StandardScaler().fit_transform(archive)`. Hängt in der Schleife `km.inertia_` an `inertias` an.
+1. Skaliert das Archiv wie beim Tablett: `X = StandardScaler().fit_transform(archive)`. Hängt in der Schleife `km.inertia_` an `inertias` an. Das Whiteboard der Kuratorin sagt, wie sie die beiden Kurven liest.
 2. Die Silhouette braucht mindestens zwei Cluster: `if k > 1: silhouettes.append(silhouette_score(X, km.labels_))`. Zeichnet sie wie die Inertia, mit `index=range(2, 11)`.
 3. Inertia: Der Ellbogen ist da, wo der steile Fall abflacht. Silhouette: der höchste Punkt. Beide zeigen auf dasselbe k; speichert es.
 
@@ -175,11 +174,12 @@ k = 6
 
 **Aufgabe:**
 
-> Die Saatgutbank hat schon immer mit dieser Maschine sortiert, und ihre Schubladen haben nie ganz zu den Karten der Kuratorin gepasst. Sie rechnet auch mit KMeans, aber ihr Wartungsblatt sagt, wie sie startet.
+> Die Saatgutbank hat schon immer mit dieser Maschine sortiert, und ihre Schubladen haben nie ganz zu den Karten der Kuratorin gepasst. Sie rechnet auch mit KMeans. Warum stimmen ihre Schubladen nicht?
 >
 > 1. Lasst KMeans auf dem skalierten Archiv so laufen wie die alte Maschine, als `old`. Übergebt die Startzentren mit `init=`: eine Zeile pro Cluster, skaliert wie das Archiv.
-> 2. Lasst es auf die moderne Art laufen, als `best`: sechs Cluster, k-means++-Starts und `n_init=10`.
-> 3. Vergleicht `old.inertia_` mit `best.inertia_` und wie viele Umschläge in jeder Schublade landen. Was ist schiefgegangen?
+> 2. Lasst es auf die moderne Art laufen, als `best`: mit gleich vielen Clustern, k-means++-Starts und `n_init=10`.
+> 3. Zählt die Umschläge in jeder Schublade der alten Maschine und speichert, wie viele in der vollsten landen, als `biggest`.
+> 4. Vergleicht `old.inertia_` mit `best.inertia_`. Sind die Cluster der alten Maschine so gut wie die modernen? Speichert `as_good` (`True` oder `False`).
 
 <details><summary>Startcode</summary>
 
@@ -191,12 +191,12 @@ from sklearn.cluster import KMeans
 scaler = StandardScaler()
 X = scaler.fit_transform(archive)
 
-start = None   # die sechs Startumschläge vom Wartungsblatt, skaliert
+start = None   # die Startumschläge der alten Maschine, skaliert
 old = None     # KMeans so, wie die alte Maschine es laufen lässt
 best = None    # KMeans mit k-means++ und n_init=10
 
-# print(old.inertia_, best.inertia_)
-# print(np.bincount(old.labels_))
+biggest = None # Umschläge in der vollsten Schublade der alten Maschine
+as_good = None # True oder False
 ```
 
 </details>
@@ -215,10 +215,12 @@ old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)
 best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)
 print(round(old.inertia_, 1), round(best.inertia_, 1))
 print("old drawers:", np.bincount(old.labels_))
+biggest = np.bincount(old.labels_).max()
+as_good = bool(old.inertia_ <= best.inertia_ * 1.01)
 print("best drawers:", np.bincount(best.labels_))
 ```
 
-**Geprüftes Ergebnis** (`_sorter_check(old, best)`):
+**Geprüftes Ergebnis** (`_sorter_check(old, best, biggest, as_good)`):
 
 ```json
 "explained"
@@ -232,9 +234,9 @@ print("best drawers:", np.bincount(best.labels_))
 
 **Hinweise:**
 
-1. Das Wartungsblatt nennt sechs Umschlagnummern. `archive.loc[[2, 3, 4, 8, 1, 7]]` wählt diese Zeilen über die Umschlagnummer aus, und `scaler.transform(...)` skaliert sie wie den Rest.
+1. Das Wartungsblatt der alten Sortiermaschine sagt, wie sie startet: Es nennt sechs Umschlagnummern. `archive.loc[[2, 3, 4, 8, 1, 7]]` wählt diese Zeilen über die Umschlagnummer aus, und `scaler.transform(...)` skaliert sie wie den Rest.
 2. `old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)`. Mit festen Startpunkten ist an diesem Lauf nichts zufällig.
-3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. Vergleicht die Inertias; `np.bincount(old.labels_)` zählt die Umschläge in jeder Schublade.
+3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. `np.bincount(old.labels_)` zählt die Umschläge in jeder Schublade, also `biggest = np.bincount(old.labels_).max()`. Die alte Inertia ist etwa dreimal so hoch wie die beste, also `as_good = False`.
 
 ### 4. Der Karteikasten
 
@@ -248,10 +250,10 @@ print("best drawers:", np.bincount(best.labels_))
 
 **Aufgabe:**
 
-> Die Cluster sind da, aber welcher ist welcher? KMeans nummeriert seine Cluster in keiner bestimmten Reihenfolge, und die Nummern können sich von einem Training zum nächsten ändern. Die Bauern bestellen nach den **Katalognummern** auf den Artenkarten der Kuratorin.
+> Die Cluster sind da, aber welcher ist welcher? KMeans nummeriert seine Cluster in keiner bestimmten Reihenfolge, und die Nummern können sich von einem Training zum nächsten ändern. Die Bauern bestellen nach **Katalognummer**.
 >
 > 1. Trainiert `KMeans` auf dem skalierten Archiv mit so vielen Clustern, wie es Arten gibt, als `km`, und behaltet seinen `scaler`.
-> 2. Rechnet die Clusterzentren mit `scaler.inverse_transform` in Millimeter, Milligramm und Helligkeit zurück und vergleicht sie mit den Artenkarten.
+> 2. Rechnet die Clusterzentren mit `scaler.inverse_transform` in Millimeter, Milligramm und Helligkeit zurück und findet heraus, welche Art jedes Zentrum ist.
 > 3. Speichert das Ergebnis als `catalogue`: ein Dict von jeder Clusternummer zu ihrer Katalognummer, etwa `{0: 3, 1: 5, ...}`.
 
 <details><summary>Startcode</summary>
@@ -270,7 +272,7 @@ centres = pd.DataFrame(km.cluster_centers_, columns=archive.columns)   # noch sk
 centres["envelopes"] = np.bincount(km.labels_)
 print(centres.round(2))
 
-catalogue = {}   # Clusternummer -> Katalognummer auf den Artenkarten
+catalogue = {}   # Clusternummer -> Katalognummer
 ```
 
 </details>
@@ -316,7 +318,7 @@ print(catalogue)
 
 **Hinweise:**
 
-1. Setzt `n_clusters` auf die Zahl der Arten, die das Terminal gefunden hat. Die Zentren in `km.cluster_centers_` sind in skalierten Einheiten, die auf den Karten nichts bedeuten.
+1. Setzt `n_clusters` auf die Zahl der Arten, die das Terminal gefunden hat. Die Zentren in `km.cluster_centers_` sind in skalierten Einheiten, die auf den Artenkarten der Kuratorin neben dem Karteikasten nichts bedeuten.
 2. `scaler.inverse_transform(km.cluster_centers_)` rechnet sie in mm, mg und Helligkeit zurück. Steckt sie in einen DataFrame mit den Spalten des Archivs und sucht dann zu jedem Zentrum seine Karte.
 3. Wählt für jedes Zentrum die Karte mit der nächsten Länge, Breite, Gewicht und Helligkeit: Ein Zentrum mit etwa 15 mm und 600 mg ist die Ackerbohne, Katalognummer 4. Schreibt dann `catalogue = {0: ..., 1: ..., ...}` mit euren eigenen Clusternummern.
 
@@ -328,11 +330,11 @@ print(catalogue)
 
 **Aufgabe:**
 
-> Das Hochwasser hat nicht nur Etiketten abgelöst, es hat auch etwas hereingespült. KMeans steckt jeden Umschlag in irgendeinen Cluster, aber ein Samen kann dem Roggen am nächsten liegen, ohne Roggen zu sein.
+> Das Hochwasser hat nicht nur Etiketten abgelöst, es hat auch etwas hereingespült. KMeans steckt jeden Umschlag in irgendeinen Cluster, aber ein Samen kann dem Roggen am nächsten liegen, ohne Roggen zu sein. Welche Umschläge enthalten fremde Samen?
 >
 > 1. Trainiert `KMeans` auf dem skalierten Archiv, mit einem Cluster pro Art.
 > 2. `km.transform(X)` gibt den Abstand jedes Umschlags zu jedem Zentrum. Bestimmt für jeden Umschlag den Abstand zu seinem **nächsten** Zentrum.
-> 3. Wendet die Prüfregel an und speichert die Umschlagnummern der fremden Samen als Liste `foreign`.
+> 3. Speichert die Umschlagnummern der fremden Samen als Liste `foreign`.
 
 <details><summary>Startcode</summary>
 
@@ -384,8 +386,8 @@ print(archive.loc[foreign])
 
 **Hinweise:**
 
-1. `km.transform(X)` hat eine Zeile pro Umschlag und eine Spalte pro Zentrum. Das nächste Zentrum ist die kleinste Zahl in jeder Zeile: `.min(axis=1)`.
-2. Das Histogramm zeigt einen großen Haufen kleiner Abstände und ein paar weit draußen. Die Prüfregel am Schwarzen Brett nennt die Grenze.
+1. `km.transform(X)` hat eine Zeile pro Umschlag und eine Spalte pro Zentrum. Das nächste Zentrum ist die kleinste Zahl in jeder Zeile: `.min(axis=1)`. Der Aushang der Pflanzengesundheitsprüfung am Schwarzen Brett sagt, wann ein Samen als fremd gilt.
+2. Das Histogramm zeigt einen großen Haufen kleiner Abstände und ein paar weit draußen.
 3. `foreign = archive.index[distance > 2].tolist()`: Der Index enthält die Umschlagnummern, nicht die Zeilenpositionen.
 
 ### 6. Das Kühllager (Abschluss-Schloss)
@@ -403,8 +405,7 @@ print(archive.loc[foreign])
 > Hinter der Tür warten die sechs Bestellzettel der Genossenschaft, geladen als `orders`, einer pro Feld. Jeder Hof hat mit seiner Bestellung den Probensamen vom letzten Jahr geschickt, und die Maschine hat jeden gemessen: dieselben vier Spalten wie im Archiv. Besät jedes Feld mit seiner Art, nach Katalognummer.
 >
 > 1. Ordnet jede Probe mit dem Scaler und dem KMeans-Modell des Archivs einer Art zu.
-> 2. Die Feldkarte sagt, was mit einer Probe geschieht, die keine von unseren ist.
-> 3. Speichert `fields`: sechs Katalognummern, Feld 1 zuerst.
+> 2. Speichert `fields`: sechs Katalognummern, Feld 1 zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -416,7 +417,7 @@ from sklearn.cluster import KMeans
 
 print(orders)   # ein Probensamen pro Feld, gemessen wie das Archiv
 
-# Der Scaler und das KMeans-Modell des Archivs, und euer catalogue vom Karteikasten:
+# Der Scaler und das KMeans-Modell des Archivs, und der catalogue für dieses Modell:
 scaler = None
 km = None
 catalogue = {}
@@ -462,7 +463,7 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 **Hinweise:**
 
-1. Trainiert den Scaler und das KMeans-Modell auf dem Archiv, wie zuvor. Neue Proben werden nur skaliert, mit `scaler.transform(orders)`: Trainiert den Scaler nie auf ihnen.
+1. Trainiert den Scaler und das KMeans-Modell auf dem Archiv, wie zuvor. Neue Proben werden nur skaliert, mit `scaler.transform(orders)`: Trainiert den Scaler nie auf ihnen. Die Feldkarte der Genossenschaft sagt, was mit einer Probe geschieht, die keine von unseren ist.
 2. `km.transform(scaler.transform(orders))` gibt den Abstand jeder Probe zu jedem Zentrum: Der kleinste ist ihr Cluster (`argmin`), und seine Größe sagt, ob man ihm trauen kann.
 3. Für jedes Feld: Ist der nächste Abstand größer als 2, tragt 0 ein; sonst `catalogue[nächster Cluster]`. Clusternummern gehören zu einem Training, also baut `catalogue` für dieses `km` (der Code vom Karteikasten mit demselben `random_state` ergibt dieselben Nummern).
 
@@ -510,7 +511,6 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 > Cluster: 6
 > Startzentren: Umschläge 2, 3, 4, 8, 1, 7 (in dieser Reihenfolge)
 > Neustarts: keine, spart Zeit! (n_init = 1)
-> Skalierung: Standard, wie das Archiv
 >
 > Letzte Wartung: 2009
 
@@ -526,9 +526,9 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 *Gebraucht von: 6. Das Kühllager*
 
-> Sechs Felder, nummeriert von 1 bis 6 wie auf den Bestellzetteln. Jedes Feld wird mit der Katalognummer der Art seiner Probe besät.
+> Sechs Felder, nummeriert von 1 bis 6 wie auf den Bestellzetteln.
 >
-> Eine Probe, die der Sammlung fremd ist (Prüfregel 4), bekommt kein Saatgut: Das Feld bleibt brach. Tragt **0** dafür ein.
+> Eine Probe, die der Sammlung fremd ist, bekommt kein Saatgut: Das Feld bleibt brach. Tragt **0** dafür ein.
 
 ## Handbuch im Raum: 📖 Der Clustering-Ordner der Saatgutbank
 

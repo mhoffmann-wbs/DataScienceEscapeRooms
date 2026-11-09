@@ -4097,7 +4097,7 @@ def _number(v):
         return None
 
 
-def _dashboard_check(accuracy, missed, recall):
+def _dashboard_check(accuracy, missed, recall, trust):
     '''The dashboard's check: the old scanner's accuracy, how many smugglers it let through, and its recall.'''
     y = inspections["contraband"].values
     flag = inspections["old_flag"].values
@@ -4121,6 +4121,10 @@ def _dashboard_check(accuracy, missed, recall):
             problems.append("missed isn't the number of contraband containers with old_flag 0. The confusion matrix has it. / missed ist nicht die Zahl der Schmuggel-Container mit old_flag 0. Die Konfusionsmatrix hat sie.")
     if abs(r - true_recall) > 0.001:
         problems.append("recall isn't the share of contraband the scanner flagged. / recall ist nicht der Anteil des Schmuggelguts, den der Scanner markiert hat.")
+    if not isinstance(trust, (bool, np.bool_)):
+        problems.append("trust should be True or False. / trust soll True oder False sein.")
+    elif trust:
+        problems.append("trust is off: how many of the smugglers did the scanner catch? / trust stimmt nicht: Wie viele der Schmuggler hat der Scanner gefangen?")
     return _problems_or(problems, "exposed")
 
 
@@ -4137,15 +4141,15 @@ def _neighbours_check(search):
     if not any("scaler" in s for s in _steps(est)):
         problems.append("The pipeline doesn't scale: value_per_kg (up to thousands of euros) rules every distance. Put a StandardScaler before the KNN. / Die Pipeline skaliert nicht: value_per_kg (bis zu Tausenden Euro) bestimmt jeden Abstand. Setzt einen StandardScaler vor das KNN.")
     elif search.scoring != "f1":
-        problems.append("The note says how to judge k: scoring=\"f1\". / Der Zettel sagt, wie k bewertet wird: scoring=\"f1\".")
+        problems.append("The search doesn't judge k by the right score. / Die Suche bewertet k nicht mit dem richtigen Maß.")
     else:
         ks = [int(v) for v in np.ravel([p for key, p in search.param_grid.items() if key.endswith("n_neighbors")][0])] if isinstance(search.param_grid, dict) else []
         if sorted(ks) != [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31]:
-            problems.append("The grid should try every odd k from 1 to 31, as on the note. / Das Raster soll jedes ungerade k von 1 bis 31 probieren, wie auf dem Zettel.")
+            problems.append("The grid doesn't try the right values of k. / Das Raster probiert nicht die richtigen Werte für k.")
         elif len(search.cv_results_["mean_test_score"]) and getattr(search, "n_splits_", 5) != 5:
-            problems.append("Use five folds: cv=5. / Nehmt fünf Folds: cv=5.")
+            problems.append("The search doesn't use the right number of folds. / Die Suche nutzt nicht die richtige Zahl von Folds.")
         elif abs(search.best_score_ - _BEST_F1) > 0.002:
-            problems.append("The scores don't match the training part of the audit split. Split as the harbour master's rule says, and fit the search on X_train and y_train. / Die Werte passen nicht zum Trainingsteil des Prüfsplits. Teilt, wie es die Regel der Hafenmeisterin sagt, und trainiert die Suche auf X_train und y_train.")
+            problems.append("The scores don't match the training part of the audit split. Check the split's arguments, and fit the search on X_train and y_train. / Die Werte passen nicht zum Trainingsteil des Prüfsplits. Prüft die Argumente des Splits und trainiert die Suche auf X_train und y_train.")
         elif list(search.best_params_.values())[0] != _BEST_K:
             problems.append("best_params_ doesn't hold the best k of this search. / best_params_ enthält nicht das beste k dieser Suche.")
     return _problems_or(problems, "neighbourly")
@@ -4166,7 +4170,7 @@ def _depth_check(train_scores, test_scores, depth):
     problems = []
     # Trees with another random_state differ by about 0.001 on average, another split by 0.003 or more.
     if np.abs(np.array(te) - ref).mean() > 0.0028:
-        problems.append("The test scores don't match the audit split. Split as the harbour master's rule says, without old_flag among the features. / Die Testwerte passen nicht zum Prüfsplit. Teilt, wie es die Regel der Hafenmeisterin sagt, ohne old_flag unter den Features.")
+        problems.append("The test scores don't match the audit split. Check the split's arguments, and leave old_flag out of the features. / Die Testwerte passen nicht zum Prüfsplit. Prüft die Argumente des Splits und lasst old_flag aus den Features.")
     elif tr[-1] < 0.99:
         problems.append("At depth 15 the tree should know its training data almost by heart (train accuracy near 1.0). Is max_depth set from the loop? / Bei Tiefe 15 sollte der Baum seine Trainingsdaten fast auswendig kennen (Trainingsgenauigkeit nahe 1.0). Wird max_depth aus der Schleife gesetzt?")
     elif depth != _BEST_DEPTH:
@@ -4191,12 +4195,12 @@ def _odds_check(model, riskiest, threshold, opened):
         try:
             p = model.predict_proba(X_test)[:, 1]
         except Exception:
-            return _problems_or(["model can't score the audit split's test part. Fit it on the five features, without old_flag. / model kann den Testteil des Prüfsplits nicht bewerten. Trainiert es auf den fünf Features, ohne old_flag."], "")
+            return _problems_or(["model can't score the test part. Fit it on the five features, without old_flag. / model kann den Testteil nicht bewerten. Trainiert es auf den fünf Features, ohne old_flag."], "")
         y = y_test.values
         rec = ((p >= t) & (y == 1)).sum() / y.sum()
         if abs(t - _STEP) > 1e-6:
             if rec < 0.8:
-                problems.append(f"At {t} the board catches only {rec:.0%} of the test set's smugglers; the chief wants at least 4 in 5. / Bei {t} fängt die Tafel nur {rec:.0%} der Schmuggler im Testteil; der Chef will mindestens 4 von 5.")
+                problems.append(f"At {t} the board catches only {rec:.0%} of the test set's smugglers: not enough. / Bei {t} fängt die Tafel nur {rec:.0%} der Schmuggler im Testteil: nicht genug.")
             else:
                 problems.append("This step catches enough, but a higher step on the dial does too, and opens fewer containers. / Diese Stufe fängt genug, aber eine höhere Stufe auf dem Regler auch, und sie öffnet weniger Container.")
         elif int((p >= t).sum()) != _OPENED:
@@ -4217,7 +4221,7 @@ def _arrivals_check(model, opened):
     problems = []
     found = int(_SEALED_Y[np.argsort(-s, kind="stable")[:100]].sum())
     if found < 40:
-        problems.append(f"Chief's test failed: among the 100 sealed inspections your model scores riskiest are only {found} of the {_SEALED_Y.sum()} smuggling cases; 40 are needed. Scale for KNN, prune a tree. / Test des Chefs nicht bestanden: Unter den 100 versiegelten Kontrollen, die euer Modell am riskantesten bewertet, sind nur {found} der {_SEALED_Y.sum()} Schmuggelfälle; 40 sind nötig. Skaliert für KNN, beschneidet einen Baum.")
+        problems.append(f"Chief's test failed: among the sealed inspections your model scores riskiest are only {found} of the {_SEALED_Y.sum()} smuggling cases. Scale for KNN, prune a tree. / Test des Chefs nicht bestanden: Unter den versiegelten Kontrollen, die euer Modell am riskantesten bewertet, sind nur {found} der {_SEALED_Y.sum()} Schmuggelfälle. Skaliert für KNN, beschneidet einen Baum.")
     try:
         got = sorted(int(v) for v in opened)
     except (TypeError, ValueError):

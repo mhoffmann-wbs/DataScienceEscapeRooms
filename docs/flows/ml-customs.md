@@ -15,7 +15,7 @@ flowchart LR
 
   subgraph p1["Open from the start"]
     rules["1 · The inspector's rule card<br/>decision tree, export_text, target leak"]
-    dashboard["2 · The proud dashboard<br/>accuracy paradox, confusion matrix"]
+    dashboard["2 · The proud dashboard<br/>accuracy paradox, confusion matrix, verdict trust"]
     neighbours["3 · The neighbours<br/>scaled KNN, GridSearchCV, F1"]
   end
 
@@ -35,14 +35,14 @@ flowchart LR
   d_all --> odds
   d_all -->|"📄 arrivals: 40 containers, columns reordered"| arrivals
 
-  inspectorcard -.->|"🔎 three questions; no scanner alarm, no verdict"| rules
-  xr90poster -.->|"🔎 93 % claim; old_flag / contraband legend"| dashboard
+  inspectorcard -.->|"🔎 tree shape; no scanner alarm, no verdict"| rules
+  xr90poster -.->|"🔎 claim: 93.5 % right"| dashboard
   auditrule -->|"🔎 test_size 0.25, stratify, random_state 9"| neighbours
   auditrule -->|"🔎 test_size 0.25, stratify, random_state 9"| pruning
   auditrule -->|"🔎 test_size 0.25, stratify, random_state 9"| odds
   jonasnote -->|"🔎 odd k 1–31, scoring f1, cv 5"| neighbours
   chieforder -->|"🔎 dial 0.50 down by 0.05; recall ≥ 0.8"| odds
-  craneschedule -.->|"🔎 open 4; chief's test 40 of 70 in top 100"| arrivals
+  craneschedule -.->|"🔎 chief's test: 40 of 70 in top 100"| arrivals
 
   rules ==>|"🔒 85 = root threshold 8.5 %"| pruning
   rules -.->|"📤 how to fit and read a tree"| pruning
@@ -96,7 +96,15 @@ flowchart LR
 
 ## Findings
 
-- **Soft clues.** Hanne's card only confirms what the tree prints (depth 3 is in the starter, dropping the columns in the hints); the poster's legend repeats the starter's comments; the crane schedule's chief's test is also printed by the grader. All three carry story and support, so they stay.
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **No task names its clues any more.** The dashboard's task no longer mentions the poster, the neighbours' no longer says "as the harbour master's rule says" or "the way Jonas's note describes" (nor repeats the note's "his neighbours looked odd"), the overgrown tree's and the odds board's no longer point to the audit rule, the odds board's no longer says "as the chief ordered", and the crane console's no longer says the model "must pass the chief's test". The starters' "see the harbour master's rule" comments are gone, and no check message names the note, the rule or the chief's numbers any more ("as on the note", "the chief wants at least 4 in 5", "40 are needed"). Where to look is now in each puzzle's first hint.
+- **Every clue once.** The intro and the crane schedule no longer repeat the crane console's "four containers"; the audit rule no longer repeats Hanne's card on the scanner's alarm; the poster lost its small print, which repeated the task's and starter's column legend; the handbook's examples no longer use the audit rule's `test_size=0.25` or Jonas's `cv=5`.
+- **Every station has a goal and ends in a check.** The dashboard's "Was it really that good?" is now the verdict `trust` (`False`), and its starter no longer computes `accuracy` for the team. The poster's claim is exactly what the data gives (93.5 %, it said 93 %). The neighbours, the overgrown tree, the odds board and the crane console open with their question; the crane console's commented-out `predict_proba` line is now a `risk` variable.
+
+Earlier findings:
+
+- **Soft clues.** Hanne's card only confirms what the tree prints (depth 3 is in the task, dropping the columns in the hints); the poster's claim only gives the dashboard something to test; the crane schedule's chief's test is also run by the grader. All three carry story and support, so they stay.
 - **The dashboard and the rule card matter through locks only.** Their reveals feed no task, just the combinations 182 and 85; without the locks both could be skipped.
 - **Depth and k are hard only through the PIN.** The final accepts any model that passes the chief's test, so the overgrown tree and the neighbours feed it as lessons (soft) and as PIN digits (hard).
-- **The audit rule is the room's busiest clue.** Three graders reject any other split; a team that misses it gets a message naming the harbour master's rule.
+- **The audit rule is the room's busiest clue.** Three graders reject any other split; a team that misses it gets a message to check the split's arguments, and the first hint names the rule.

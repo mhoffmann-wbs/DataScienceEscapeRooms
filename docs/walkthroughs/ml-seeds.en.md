@@ -31,12 +31,11 @@
 
 **Task:**
 
-> Before the flood, the curator was testing the sorting machine on one shelf: 200 envelopes that, says the shelf label, hold three species. They are loaded as `tray`: length and width in mm, weight in mg, and brightness from 0 (black) to 255 (white). A few envelopes kept their tag; they're pinned on the desk next to the tray.
+> Before the flood, the curator was testing the sorting machine on one shelf: 200 envelopes that, says the shelf label, hold three species. Which envelopes hold the same species?
 >
-> 1. Group the envelopes into three clusters with `KMeans`, and store each envelope's cluster as `labels` (one per row of `tray`, in order).
-> 2. Check your groups against the tagged envelopes: the same tag belongs together, different tags apart.
+> They are loaded as `tray`: length and width in mm, weight in mg, and brightness from 0 (black) to 255 (white).
 >
-> KMeans compares distances between rows. Look at the numbers in each column: does every column count the same?
+> 1. Group the envelopes into three clusters with `KMeans`, and store each envelope's cluster as `labels` (one per row of `tray`, in order). Each cluster should be one species.
 
 <details><summary>Starter code</summary>
 
@@ -85,7 +84,7 @@ show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray, scaled")
 
 **Hints:**
 
-1. Run the starter and compare the groups with the tags. `tray.describe()` shows how different the columns' ranges are.
+1. A few envelopes kept their tags; they're pinned on the desk next to the tray. Run the starter and compare its groups with the tags. KMeans compares distances between rows: `tray.describe()` shows how different the columns' ranges are.
 2. Weight goes up to several hundred milligrams, width only to about 12 mm, so the distances are almost only weight. `StandardScaler` puts every column on the same scale (mean 0, standard deviation 1).
 3. `X = StandardScaler().fit_transform(tray)` (import it from `sklearn.preprocessing`), then `labels = KMeans(n_clusters=3, n_init=10, random_state=0).fit_predict(X)`.
 
@@ -100,8 +99,8 @@ show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray, scaled")
 > The flooded archive is loaded as `archive`: all 1,507 envelopes the machine measured, with the same four columns as the tray. How many species are in it? Nobody wrote it down anywhere dry.
 >
 > 1. Scale the archive and fit `KMeans` for every k from 1 to 10. Store each model's `inertia_` in the list `inertias` (k = 1 first).
-> 2. Inertia always falls as k grows. Also store the silhouette score for k = 2 to 10 in `silhouettes`.
-> 3. Plot both, read them as the curator's note says, and store your choice as `k`.
+> 2. Also store the silhouette score for k = 2 to 10 in `silhouettes`.
+> 3. Plot both, and store the number of species they point to as `k`.
 
 <details><summary>Starter code</summary>
 
@@ -113,7 +112,7 @@ from sklearn.metrics import silhouette_score
 from helpers import show_plot
 
 # archive is loaded: 1,507 envelopes, indexed by envelope number.
-X = archive          # scale first (the test tray's lesson)
+X = archive          # the features KMeans compares
 
 inertias = []        # k = 1 to 10
 silhouettes = []     # k = 2 to 10
@@ -163,7 +162,7 @@ k = 6
 
 **Hints:**
 
-1. Scale the archive as on the tray: `X = StandardScaler().fit_transform(archive)`. In the loop, append `km.inertia_` to `inertias`.
+1. Scale the archive as on the tray: `X = StandardScaler().fit_transform(archive)`. In the loop, append `km.inertia_` to `inertias`. The curator's whiteboard says how she reads the two curves.
 2. The silhouette needs at least two clusters: `if k > 1: silhouettes.append(silhouette_score(X, km.labels_))`. Plot it like the inertia, with `index=range(2, 11)`.
 3. Inertia: the elbow is where the steep fall flattens out. Silhouette: the highest point. Both point to the same k; store it.
 
@@ -175,11 +174,12 @@ k = 6
 
 **Task:**
 
-> The seed bank has always sorted with this machine, and its drawers never quite matched the curator's cards. It runs KMeans too, but its service sheet says how it starts.
+> The seed bank has always sorted with this machine, and its drawers never quite matched the curator's cards. It runs KMeans too. Why are its drawers wrong?
 >
 > 1. Run KMeans on the scaled archive the way the old machine does, as `old`. Pass the starting centres with `init=`: one row per cluster, scaled like the archive.
-> 2. Run it the modern way as `best`: six clusters, k-means++ starts and `n_init=10`.
-> 3. Compare `old.inertia_` with `best.inertia_`, and how many envelopes land in each drawer. What went wrong?
+> 2. Run it the modern way as `best`: the same number of clusters, k-means++ starts and `n_init=10`.
+> 3. Count the envelopes in each of the old machine's drawers, and store how many land in the fullest one as `biggest`.
+> 4. Compare `old.inertia_` with `best.inertia_`. Are the old machine's clusters as good as the modern ones? Store `as_good` (`True` or `False`).
 
 <details><summary>Starter code</summary>
 
@@ -191,12 +191,12 @@ from sklearn.cluster import KMeans
 scaler = StandardScaler()
 X = scaler.fit_transform(archive)
 
-start = None   # the six start envelopes from the service sheet, scaled
+start = None   # the old machine's start envelopes, scaled
 old = None     # KMeans as the old machine runs it
 best = None    # KMeans with k-means++ and n_init=10
 
-# print(old.inertia_, best.inertia_)
-# print(np.bincount(old.labels_))
+biggest = None # envelopes in the old machine's fullest drawer
+as_good = None # True or False
 ```
 
 </details>
@@ -215,10 +215,12 @@ old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)
 best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)
 print(round(old.inertia_, 1), round(best.inertia_, 1))
 print("old drawers:", np.bincount(old.labels_))
+biggest = np.bincount(old.labels_).max()
+as_good = bool(old.inertia_ <= best.inertia_ * 1.01)
 print("best drawers:", np.bincount(best.labels_))
 ```
 
-**Checked result** (`_sorter_check(old, best)`):
+**Checked result** (`_sorter_check(old, best, biggest, as_good)`):
 
 ```json
 "explained"
@@ -232,9 +234,9 @@ print("best drawers:", np.bincount(best.labels_))
 
 **Hints:**
 
-1. The service sheet lists six envelope numbers. `archive.loc[[2, 3, 4, 8, 1, 7]]` picks those rows by envelope number, and `scaler.transform(...)` scales them like the rest.
+1. The old sorter's service sheet says how it starts: it lists six envelope numbers. `archive.loc[[2, 3, 4, 8, 1, 7]]` picks those rows by envelope number, and `scaler.transform(...)` scales them like the rest.
 2. `old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)`. With fixed start points nothing in the run is random.
-3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. Compare the inertias; `np.bincount(old.labels_)` counts the envelopes in each drawer.
+3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. `np.bincount(old.labels_)` counts the envelopes in each drawer, so `biggest = np.bincount(old.labels_).max()`. The old inertia is about three times the best, so `as_good = False`.
 
 ### 4. The card index
 
@@ -248,10 +250,10 @@ print("best drawers:", np.bincount(best.labels_))
 
 **Task:**
 
-> The clusters are there, but which is which? KMeans numbers its clusters in no particular order, and the numbers can change from one fit to the next. The farmers order by the **catalogue numbers** on the curator's species cards.
+> The clusters are there, but which is which? KMeans numbers its clusters in no particular order, and the numbers can change from one fit to the next. The farmers order by **catalogue number**.
 >
 > 1. Fit `KMeans` on the scaled archive with as many clusters as there are species, as `km`, and keep its `scaler`.
-> 2. Turn the cluster centres back into millimetres, milligrams and brightness with `scaler.inverse_transform`, and compare them with the species cards.
+> 2. Turn the cluster centres back into millimetres, milligrams and brightness with `scaler.inverse_transform`, and find out which species each centre is.
 > 3. Store the result as `catalogue`: a dict from each cluster number to its catalogue number, like `{0: 3, 1: 5, ...}`.
 
 <details><summary>Starter code</summary>
@@ -270,7 +272,7 @@ centres = pd.DataFrame(km.cluster_centers_, columns=archive.columns)   # still s
 centres["envelopes"] = np.bincount(km.labels_)
 print(centres.round(2))
 
-catalogue = {}   # cluster number -> catalogue number on the species cards
+catalogue = {}   # cluster number -> catalogue number
 ```
 
 </details>
@@ -316,7 +318,7 @@ print(catalogue)
 
 **Hints:**
 
-1. Set `n_clusters` to the number of species the terminal found. The centres in `km.cluster_centers_` are in scaled units, which mean nothing on the cards.
+1. Set `n_clusters` to the number of species the terminal found. The centres in `km.cluster_centers_` are in scaled units, which mean nothing on the curator's species cards next to the card index.
 2. `scaler.inverse_transform(km.cluster_centers_)` turns them back into mm, mg and brightness. Put them in a DataFrame with the archive's columns, then find each centre's card.
 3. Pick for each centre the card with the closest length, width, weight and brightness: a centre of about 15 mm and 600 mg is the field bean, catalogue 4. Then write `catalogue = {0: ..., 1: ..., ...}` with your own cluster numbers.
 
@@ -328,11 +330,11 @@ print(catalogue)
 
 **Task:**
 
-> The flood didn't only wash labels off; it washed things in. KMeans puts every envelope into some cluster, but a seed can be nearest to the rye without being rye.
+> The flood didn't only wash labels off; it washed things in. KMeans puts every envelope into some cluster, but a seed can be nearest to the rye without being rye. Which envelopes hold foreign seeds?
 >
 > 1. Fit `KMeans` on the scaled archive, with one cluster per species.
 > 2. `km.transform(X)` gives each envelope's distance to every centre. Work out each envelope's distance to its **nearest** centre.
-> 3. Apply the inspection rule and store the envelope numbers of the foreign seeds as the list `foreign`.
+> 3. Store the envelope numbers of the foreign seeds as the list `foreign`.
 
 <details><summary>Starter code</summary>
 
@@ -384,8 +386,8 @@ print(archive.loc[foreign])
 
 **Hints:**
 
-1. `km.transform(X)` has one row per envelope and one column per centre. The nearest centre is the smallest number in each row: `.min(axis=1)`.
-2. The histogram shows a big heap of small distances and a few far out. The inspection rule on the noticeboard gives the limit.
+1. `km.transform(X)` has one row per envelope and one column per centre. The nearest centre is the smallest number in each row: `.min(axis=1)`. The plant health inspection's notice on the noticeboard says when a seed counts as foreign.
+2. The histogram shows a big heap of small distances and a few far out.
 3. `foreign = archive.index[distance > 2].tolist()`: the index holds the envelope numbers, not the row positions.
 
 ### 6. The cold store (Final lock)
@@ -403,8 +405,7 @@ print(archive.loc[foreign])
 > Behind the door wait the cooperative's six order slips, loaded as `orders`, one per field. Every farm sent last year's sample seed with its order, and the machine measured each one: the same four columns as the archive. Sow each field with its species, by catalogue number.
 >
 > 1. Assign each sample to a species with the archive's scaler and KMeans model.
-> 2. The field map says what to do with a sample that isn't one of ours.
-> 3. Store `fields`: six catalogue numbers, field 1 first.
+> 2. Store `fields`: six catalogue numbers, field 1 first.
 
 <details><summary>Starter code</summary>
 
@@ -416,7 +417,7 @@ from sklearn.cluster import KMeans
 
 print(orders)   # one sample seed per field, measured like the archive
 
-# The archive's scaler and KMeans model, and your catalogue from the card index:
+# The archive's scaler and KMeans model, and the catalogue for this model:
 scaler = None
 km = None
 catalogue = {}
@@ -462,7 +463,7 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 **Hints:**
 
-1. Fit the scaler and the KMeans model on the archive, as before. New samples are only scaled, with `scaler.transform(orders)`: never fit the scaler on them.
+1. Fit the scaler and the KMeans model on the archive, as before. New samples are only scaled, with `scaler.transform(orders)`: never fit the scaler on them. The cooperative's field map says what to do with a sample that isn't one of ours.
 2. `km.transform(scaler.transform(orders))` gives each sample's distance to every centre: the smallest one is its cluster (`argmin`), and its size says whether to trust it.
 3. For each field: if the nearest distance is above 2, enter 0; otherwise `catalogue[nearest cluster]`. Cluster numbers belong to one fit, so build `catalogue` for this `km` (the card index's code with the same `random_state` gives the same numbers).
 
@@ -510,7 +511,6 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 > Clusters: 6
 > Start centres: envelopes 2, 3, 4, 8, 1, 7 (in this order)
 > Restarts: none, saves time! (n_init = 1)
-> Scaling: standard, like the archive
 >
 > Last service: 2009
 
@@ -526,9 +526,9 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 *Used by: 6. The cold store*
 
-> Six fields, numbered 1 to 6 as on the order slips. Each field is sown with the catalogue number of its sample's species.
+> Six fields, numbered 1 to 6 as on the order slips.
 >
-> A sample that is foreign to the collection (inspection rule 4) gets no seed: that field stays fallow. Write **0** for it.
+> A sample that is foreign to the collection gets no seed: that field stays fallow. Write **0** for it.
 
 ## Handbook in the room: 📖 The seed bank's clustering binder
 

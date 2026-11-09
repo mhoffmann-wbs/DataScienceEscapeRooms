@@ -17,12 +17,12 @@ flowchart LR
 
   subgraph p1["Open from the start"]
     rule["1 · The rule of thumb<br/>simple regression, 2D X"]
-    estimates["2 · Last year's estimates<br/>MAE, RMSE, R², mean baseline"]
-    tail["3 · The long tail<br/>log target, percent per unit"]
+    estimates["2 · Last year's estimates<br/>MAE, RMSE, R², mean baseline, verdict good"]
+    tail["3 · The long tail<br/>log target, percent per unit, verdict log_better"]
   end
 
   subgraph p2["Needs an earlier result or code"]
-    movement["4 · The movement 🔒<br/>one-hot, omitted-variable bias"]
+    movement["4 · The movement 🔒<br/>one-hot, omitted-variable bias: 14 % vs 37 %"]
     forgery["5 · The suspicious lot 🔒<br/>log residuals"]
   end
 
@@ -42,7 +42,7 @@ flowchart LR
   histogram -.->|"🔎 long tail; buyers pay a share more"| tail
   houserule -->|"🔎 test_size 0.2, random_state 6"| tail
   movementcard -.->|"🔎 quartz cheap; papers mostly with automatics"| movement
-  newspaper -.->|"🔎 price made no sense for its features"| forgery
+  newspaper -.->|"🔎 a cheap quartz watch; price made no sense for its features"| forgery
   insurerletter -.->|"🔎 within 10 %; forgeries excluded"| catalogue
   workshopnote -.->|"🔎 young and antique dearer: a U in age"| catalogue
 
@@ -96,7 +96,15 @@ flowchart LR
 
 ## Findings
 
-- **Many soft clues.** Six of eight clues only tell the story or repeat the task: the graph paper (the task names price against grade), the histogram (the task asks for the log), the movement card, the newspaper, the insurer's letter (the grader prints the 10 % and accepts estimates with the forgery kept) and the watchmaker's note (the residual plot shows the U). The movement card and the watchmaker's note carry the room's two ideas (confounding, the U in age) in plain words, so they stay.
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **No task names its clues any more.** The estimates' task no longer says the cheapest appraiser is "the one in Ilse's memo", the long tail's no longer mentions the note under the chart or "the house rule", the movement's no longer mentions the card in the display case, the suspicious lot's no longer opens with the newspaper, and the catalogue's no longer says "the watchmaker's note says why". The starters' "see the house rule" and "the target: see the long tail" are gone, and no check message points to the house rule, the long tail, the movement station or the insurer's 10 % any more. Where to look is now in each puzzle's first hint.
+- **Every clue once.** The rule of thumb's task no longer retells the intro (31 years, the dead laptop) or describes the graph paper; the long tail's no longer describes the histogram; the house rule lost "judge it in euros", which the task says; the newspaper no longer repeats the task's re-examination of every watch.
+- **Every station has a goal and ends in a check.** Each task opens with its question. The estimates end in the verdict `good` (`True`), the long tail in `log_better` (`True`), and the movement's unchecked "compare it with a model that leaves the movement out" is now `without_percent` (37 %), checked.
+
+Earlier findings:
+
+- **Many soft clues.** Six of eight clues only tell the story or repeat the task: the graph paper (the task names price against grade), the histogram (the task asks for the log), the movement card, the newspaper, the insurer's letter (the grader accepts estimates with the forgery kept) and the watchmaker's note (the residual plot shows the U). The movement card and the watchmaker's note carry the room's two ideas (confounding, the U in age) in plain words, so they stay.
 - **The long tail has no code to hand on.** Its 16 % opens nothing; it matters only as the lesson stations 4 and 5 build on. A team that splits up badly may reach those two without it, and the hints there point back to it.
 - **The final's starter gives a lot away.** It already fits the log target on one-hot features; the station's own work is age², the column order and the back-transform. It sits behind the locks of 4 and 5, so a team only sees it after doing both.
 - **The house rule matters at one station only.** Unlike Pier 9's audit rule, only the long tail's grader enforces a split; stations 4–6 fit on all sales.

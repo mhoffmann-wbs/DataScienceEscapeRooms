@@ -1370,7 +1370,7 @@ def _percent(v):
     return None if v is None else (v * 100 if abs(v) < 1 else v)
 
 
-def _estimates_check(mae, rmse, r2, baseline_mae):
+def _estimates_check(mae, rmse, r2, baseline_mae, good):
     '''Last year's estimates: the appraiser's MAE, RMSE and R², and the MAE of always guessing the mean.'''
     from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
     h, e = last_sale["hammer"], last_sale["estimate"]
@@ -1395,10 +1395,14 @@ def _estimates_check(mae, rmse, r2, baseline_mae):
             problems.append("r2 isn't r2_score of the hammer prices and the estimates. / r2 ist nicht r2_score der Zuschlagspreise und der Schätzungen.")
     if not near(got["base"], true["base"]):
         problems.append("baseline_mae isn't the MAE of guessing last autumn's mean hammer price for every lot. / baseline_mae ist nicht der MAE, wenn man für jedes Los den mittleren Zuschlagspreis des letzten Herbsts rät.")
+    if not isinstance(good, (bool, np.bool_)):
+        problems.append("good should be True or False. / good soll True oder False sein.")
+    elif not good:
+        problems.append("good is off: who misses by less, Albers or the cheapest appraiser in town? / good stimmt nicht: Wer liegt weniger daneben, Albers oder der billigste Schätzer der Stadt?")
     return _problems_or(problems, "appraised")
 
 
-def _tail_check(mae_linear, mae_log, percent):
+def _tail_check(mae_linear, mae_log, percent, log_better):
     '''The long tail: test MAE in euros of a model on euros and of one on log euros, and the percent per condition grade.'''
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import mean_absolute_error
@@ -1413,7 +1417,7 @@ def _tail_check(mae_linear, mae_log, percent):
     coef = log_model.coef_[_NUMERIC.index("condition")]
     problems = []
     if abs(a - ref_a) > 1:
-        problems.append("mae_linear doesn't match a LinearRegression on the price, scored on the test part of the house's split. Split as the house rule says. / mae_linear passt nicht zu einer LinearRegression auf den Preis, bewertet auf dem Testteil des Splits des Hauses. Teilt, wie es die Hausregel sagt.")
+        problems.append("mae_linear doesn't match a LinearRegression on the price, scored on the test part of the house's split. Check the split's arguments. / mae_linear passt nicht zu einer LinearRegression auf den Preis, bewertet auf dem Testteil des Splits des Hauses. Prüft die Argumente des Splits.")
     if abs(b - ref_b) > 1:
         if b < 5:
             problems.append("mae_log is measured in log euros. Turn the predictions back into euros with np.exp before comparing them with the prices. / mae_log ist in Log-Euro gemessen. Wandelt die Vorhersagen mit np.exp in Euro zurück, bevor ihr sie mit den Preisen vergleicht.")
@@ -1424,16 +1428,20 @@ def _tail_check(mae_linear, mae_log, percent):
             problems.append("percent is the coefficient times 100. In a log model the coefficient is a change in log price: np.exp(coef) - 1 is the share it multiplies the price by. / percent ist der Koeffizient mal 100. In einem Log-Modell ist der Koeffizient eine Änderung des Log-Preises: np.exp(coef) - 1 ist der Anteil, um den er den Preis vervielfacht.")
         else:
             problems.append("percent isn't how much one condition grade adds to the price in the log model, in percent. / percent ist nicht, wie viel ein Zustandsgrad im Log-Modell zum Preis hinzufügt, in Prozent.")
+    if not isinstance(log_better, (bool, np.bool_)):
+        problems.append("log_better should be True or False. / log_better soll True oder False sein.")
+    elif not log_better:
+        problems.append("log_better is off: which model misses the test lots by less? / log_better stimmt nicht: Welches Modell liegt bei den Testlosen weniger daneben?")
     return _problems_or(problems, "tamed")
 
 
-def _movement_check(box_percent):
+def _movement_check(box_percent, without_percent):
     '''The movement: the premium of box and papers, in percent, from the log model with the movement one-hot encoded.'''
     p = _number(box_percent)
     if p is None:
         return _problems_or(["box_percent must be a number. / box_percent muss eine Zahl sein."], "")
     if abs(p) > 100:
-        return _problems_or(["That looks like euros. Fit on the log of the price, as at the long tail, and turn the coefficient into a percentage. / Das sieht nach Euro aus. Trainiert auf dem Log des Preises, wie beim langen Schwanz, und macht aus dem Koeffizienten einen Prozentwert."], "")
+        return _problems_or(["That looks like euros. Fit on the log of the price, and turn the coefficient into a percentage. / Das sieht nach Euro aus. Trainiert auf dem Log des Preises und macht aus dem Koeffizienten einen Prozentwert."], "")
     p = _percent(p)
     problems = []
     if abs(p - np.float64(36.63)) < 1:
@@ -1442,6 +1450,9 @@ def _movement_check(box_percent):
         problems.append("That is the coefficient times 100. np.exp(coef) - 1 turns a log coefficient into a share of the price. / Das ist der Koeffizient mal 100. np.exp(coef) - 1 macht aus einem Log-Koeffizienten einen Anteil am Preis.")
     elif abs(p - np.float64(14.18)) > 0.5:
         problems.append("box_percent isn't the premium of box and papers in the log model on all sales with every column, the movement one-hot encoded. / box_percent ist nicht der Aufschlag für Box und Papiere im Log-Modell auf allen Verkäufen mit jeder Spalte, das Uhrwerk one-hot-kodiert.")
+    w = _percent(without_percent)
+    if w is None or abs(w - np.float64(36.63)) > 0.5:
+        problems.append("without_percent isn't what box and papers add in the same log model with the movement left out. / without_percent ist nicht, was Box und Papiere im selben Log-Modell ohne das Uhrwerk hinzufügen.")
     return _problems_or(problems, "wound")
 
 
@@ -1479,13 +1490,13 @@ def _catalogue_check(estimates):
         return "printed"
     if np.all(got < 20):
         return _problems_or(["These look like log prices. np.exp turns them back into euros. / Das sehen aus wie Log-Preise. np.exp macht wieder Euro daraus."], "")
-    problems = [f"The insurer refuses lots {', '.join(map(str, bad))}: more than 10 % away from its valuation. / Der Versicherer lehnt die Lose {', '.join(map(str, bad))} ab: mehr als 10 % von seiner Bewertung entfernt."]
+    problems = [f"The insurer refuses lots {', '.join(map(str, bad))}: too far from its valuation. / Der Versicherer lehnt die Lose {', '.join(map(str, bad))} ab: zu weit von seiner Bewertung entfernt."]
     # Name the likely mistake when the estimates sit close to what it would print.
     closest = min(_WRONG, key=lambda k: np.median(np.abs(got / np.array(_WRONG[k]) - 1)))
     if np.median(np.abs(got / np.array(_WRONG[closest]) - 1)) < 0.08:
         problems.append({
-            "euros": "Your model works in euros. Prices grow in shares, as at the long tail: fit on np.log(price) and np.exp the predictions. / Euer Modell rechnet in Euro. Preise wachsen in Anteilen, wie beim langen Schwanz: Trainiert auf np.log(price) und nehmt np.exp der Vorhersagen.",
+            "euros": "Your model works in euros. Prices grow in shares: fit on np.log(price) and np.exp the predictions. / Euer Modell rechnet in Euro. Preise wachsen in Anteilen: Trainiert auf np.log(price) und nehmt np.exp der Vorhersagen.",
             "age": "Your young and antique lots are off. Plot the residuals against age: a straight line can't bend. Add age squared, e.g. with PolynomialFeatures(2). / Eure jungen und antiken Lose liegen daneben. Zeichnet die Residuen gegen das Alter: Eine Gerade kann sich nicht biegen. Nehmt das Alter zum Quadrat dazu, z. B. mit PolynomialFeatures(2).",
-            "movement": "Your model ignores the movement: the quartz lots come out far too dear. One-hot encode it, as at the movement station. / Euer Modell ignoriert das Uhrwerk: Die Quarz-Lose kommen viel zu teuer heraus. Kodiert es one-hot, wie an der Uhrwerk-Station.",
+            "movement": "Your model ignores the movement: the quartz lots come out far too dear. One-hot encode it. / Euer Modell ignoriert das Uhrwerk: Die Quarz-Lose kommen viel zu teuer heraus. Kodiert es one-hot.",
         }[closest])
     return _problems_or(problems, "")

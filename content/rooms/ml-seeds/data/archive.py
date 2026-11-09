@@ -1558,6 +1558,7 @@ _RAW_INERTIAS = [59426310, 14263130, 5460131, 2924402, 1977240, 1203594, 968851,
 _SILHOUETTES = [0.6288, 0.5068, 0.5796, 0.6792, 0.7686, 0.7086, 0.7117, 0.7135, 0.7088]
 _OLD_START = [2, 3, 4, 8, 1, 7]
 _OLD_INERTIA = 713.42
+_OLD_BIGGEST = 556
 _FOREIGN = [45, 203, 783, 801, 1081, 1282, 1480]
 _ANSWER = [5, 6, 0, 2, 3, 1]
 
@@ -1599,7 +1600,7 @@ def _card_check(km, scaler, catalogue):
     if problem:
         return _problems_or([problem], "")
     if len(km.cluster_centers_) != 6:
-        return _problems_or([f"km has {len(km.cluster_centers_)} clusters; the elbow says how many species there are. / km hat {len(km.cluster_centers_)} Cluster; der Ellbogen sagt, wie viele Arten es gibt."], "")
+        return _problems_or([f"km has {len(km.cluster_centers_)} clusters, not one per species. / km hat {len(km.cluster_centers_)} Cluster, nicht einen pro Art."], "")
     if not hasattr(scaler, "transform"):
         return _problems_or(["scaler must be the StandardScaler fitted on the archive. / scaler muss der auf dem Archiv trainierte StandardScaler sein."], "")
     try:
@@ -1613,22 +1614,32 @@ def _card_check(km, scaler, catalogue):
     else:
         wrong = sum(cat.get(int(l)) != c for l, c in zip(labels, _CATALOGUE))
         if wrong:
-            problems.append(f"{wrong} of the six clusters have the wrong catalogue number. Turn the centres back into millimetres and milligrams and compare them with the cards. / {wrong} der sechs Cluster haben die falsche Katalognummer. Rechnet die Zentren in Millimeter und Milligramm zurück und vergleicht sie mit den Karten.")
+            problems.append(f"{wrong} of the six clusters have the wrong catalogue number. Turn the centres back into millimetres and milligrams and match each to its species. / {wrong} der sechs Cluster haben die falsche Katalognummer. Rechnet die Zentren in Millimeter und Milligramm zurück und ordnet jedes seiner Art zu.")
     return _problems_or(problems, "matched")
 
 
-def _sorter_check(old, best):
-    '''The old sorter's check: its run from the service sheet's start, and a run that finds the best clusters.'''
+def _sorter_check(old, best, biggest, as_good):
+    '''The old sorter's check: its run from the service sheet's start, a run that finds the best clusters, the old run's biggest drawer and the verdict.'''
     problems = [p for p in (_model(old, "old"), _model(best, "best")) if p]
     if problems:
         return _problems_or(problems, "")
     if abs(best.inertia_ - _INERTIAS[5]) > 0.01 * _INERTIAS[5]:
-        problems.append("best should be KMeans with six clusters on the scaled archive, started several times (n_init=10). / best soll KMeans mit sechs Clustern auf dem skalierten Archiv sein, mehrmals gestartet (n_init=10).")
+        problems.append("best should be KMeans on the scaled archive with as many clusters as old, started several times (n_init=10). / best soll KMeans auf dem skalierten Archiv mit so vielen Clustern wie old sein, mehrmals gestartet (n_init=10).")
     if abs(old.inertia_ - _OLD_INERTIA) > 0.01 * _OLD_INERTIA:
         if abs(old.inertia_ - _INERTIAS[5]) < 0.01 * _INERTIAS[5]:
-            problems.append("old found the best clusters, so it didn't run like the old sorter. Start it from the six envelopes on the service sheet, once. / old hat die besten Cluster gefunden, ist also nicht wie die alte Sortiermaschine gelaufen. Startet es einmal von den sechs Umschlägen auf dem Wartungsblatt.")
+            problems.append("old found the best clusters, so it didn't run like the old sorter. Start it once, from the old machine's six start envelopes. / old hat die besten Cluster gefunden, ist also nicht wie die alte Sortiermaschine gelaufen. Startet es einmal von den sechs Startumschlägen der alten Maschine.")
         else:
-            problems.append("old doesn't match the old sorter: init= the six envelopes from the service sheet (scaled, in that order), n_init=1. / old passt nicht zur alten Sortiermaschine: init= die sechs Umschläge vom Wartungsblatt (skaliert, in dieser Reihenfolge), n_init=1.")
+            problems.append("old doesn't match the old sorter: init= its six start envelopes (scaled, in that order), n_init=1. / old passt nicht zur alten Sortiermaschine: init= ihre sechs Startumschläge (skaliert, in dieser Reihenfolge), n_init=1.")
+    try:
+        big_ok = float(biggest) == _OLD_BIGGEST
+    except (TypeError, ValueError):
+        big_ok = False
+    if not big_ok:
+        problems.append("biggest isn't the number of envelopes in old's fullest drawer. / biggest ist nicht die Zahl der Umschläge in der vollsten Schublade von old.")
+    if not isinstance(as_good, (bool, np.bool_)):
+        problems.append("as_good should be True or False. / as_good soll True oder False sein.")
+    elif as_good:
+        problems.append("as_good is off: compare old.inertia_ with best.inertia_. / as_good stimmt nicht: Vergleicht old.inertia_ mit best.inertia_.")
     return _problems_or(problems, "explained")
 
 
@@ -1645,7 +1656,7 @@ def _foreign_check(foreign):
         elif got and min(got) == 0:
             problems.append("Envelope numbers start at 1: use the archive's index, not row positions. / Umschlagnummern beginnen bei 1: Nehmt den Index des Archivs, nicht die Zeilenpositionen.")
         else:
-            problems.append(f"foreign has {len(got)} envelopes, and they aren't exactly the ones beyond the inspection rule's limit. / foreign hat {len(got)} Umschläge, und es sind nicht genau die jenseits der Grenze aus der Prüfregel.")
+            problems.append(f"foreign has {len(got)} envelopes, and they aren't exactly the ones beyond the limit. / foreign hat {len(got)} Umschläge, und es sind nicht genau die jenseits der Grenze.")
     return _problems_or(problems, "quarantined")
 
 
@@ -1664,7 +1675,7 @@ def _sowing_check(fields):
             problems.append(f"Field {stranger}'s sample is far from every species. KMeans puts every seed in some cluster, even a weed: check the distance before you trust a label. / Die Probe von Feld {stranger} liegt weit weg von jeder Art. KMeans steckt jeden Samen in irgendeinen Cluster, auch Unkraut: Prüft den Abstand, bevor ihr einem Label traut.")
         wrong = [str(i + 1) for i, (a, b) in enumerate(zip(got, _ANSWER)) if a != b and b != 0]
         if wrong and sorted(got) == list(range(6)):
-            problems.append("These look like cluster numbers. The farmers order by catalogue number (the species cards). / Das sehen nach Clusternummern aus. Die Bauern bestellen nach Katalognummer (die Artenkarten).")
+            problems.append("These look like cluster numbers. The farmers order by catalogue number. / Das sehen nach Clusternummern aus. Die Bauern bestellen nach Katalognummer.")
         elif wrong:
             problems.append(f"Wrong species for field(s) {', '.join(wrong)}. / Falsche Art für Feld(er) {', '.join(wrong)}.")
     return _problems_or(problems, "sown")
