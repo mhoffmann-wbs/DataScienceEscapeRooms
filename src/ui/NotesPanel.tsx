@@ -1,6 +1,6 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState, type FormEvent, type TextareaHTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NOTE_MAX_LENGTH, pinState, type Notebook, type NoteView } from '../net/notebook';
+import { NOTE_MAX_LENGTH, PINNED_NOTE_MAX_LENGTH, pinState, type Notebook, type NoteView } from '../net/notebook';
 import { useEmitterValue } from './useStore';
 
 const COLLAPSED_KEY = 'dser.notes.collapsed';
@@ -76,7 +76,7 @@ export function NotesPanel({ notebook }: { notebook: Notebook }) {
   const [dragging, setDragging] = useState<string | null>(null);
 
   const [adding, setAdding] = useState(false);
-  const addInput = useRef<HTMLInputElement>(null);
+  const addInput = useRef<HTMLTextAreaElement>(null);
 
   // Enter adds the note (if any) and returns to walking, like the chat.
   const add = (e: FormEvent) => {
@@ -189,16 +189,19 @@ export function NotesPanel({ notebook }: { notebook: Notebook }) {
             </section>
           )}
           <form className="notes-add" onSubmit={add}>
-            <input
+            <NoteInput
               ref={addInput}
               value={draft}
               maxLength={NOTE_MAX_LENGTH}
               placeholder={t('notes.add')}
               aria-label={t('notes.add')}
-              onChange={(e) => setDraft(e.target.value)}
+              onText={setDraft}
               onFocus={() => setAdding(true)}
               onBlur={() => setAdding(false)}
-              onKeyDown={(e) => e.key === 'Escape' && cancel()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') add(e);
+                if (e.key === 'Escape') cancel();
+              }}
             />
             {(adding || draft) && (
               <>
@@ -222,20 +225,41 @@ export function NotesPanel({ notebook }: { notebook: Notebook }) {
 function EditNote({ note, onDone }: { note: NoteView; onDone: (text: string | null) => void }) {
   const [text, setText] = useState(note.text);
   return (
-    <input
+    <NoteInput
       className="note-edit"
       autoFocus
       value={text}
-      maxLength={NOTE_MAX_LENGTH}
-      onChange={(e) => setText(e.target.value)}
+      maxLength={Math.max(NOTE_MAX_LENGTH, note.text.length)}
+      onText={setText}
       onBlur={() => onDone(text)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onDone(text);
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onDone(text);
+        }
         if (e.key === 'Escape') onDone(null);
       }}
     />
   );
 }
+
+type NoteInputProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange'> & { value: string; onText: (text: string) => void };
+
+/**
+ * A one-line note field that wraps and grows over more rows as the text gets longer.
+ * Notes stay one line of text: line breaks (pasted ones too) become spaces, and Enter is left to `onKeyDown`.
+ */
+const NoteInput = forwardRef<HTMLTextAreaElement, NoteInputProps>(function NoteInput({ value, onText, ...props }, ref) {
+  const area = useRef<HTMLTextAreaElement>(null);
+  useImperativeHandle(ref, () => area.current!);
+  useLayoutEffect(() => {
+    const el = area.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+  return <textarea ref={area} rows={1} value={value} onChange={(e) => onText(e.target.value.replace(/\r?\n/g, ' '))} {...props} />;
+});
 
 /** Turns manifest text (paragraphs, `code`, **bold**) into one plain line for a note. */
 export function plainNote(title: string, text: string): string {
@@ -245,7 +269,7 @@ export function plainNote(title: string, text: string): string {
     .map((l) => l.trim())
     .filter(Boolean)
     .join(' · ');
-  return `${title}: ${body}`.slice(0, NOTE_MAX_LENGTH);
+  return `${title}: ${body}`.slice(0, PINNED_NOTE_MAX_LENGTH);
 }
 
 /**

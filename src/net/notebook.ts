@@ -6,13 +6,16 @@ import type { NetRoom } from './transport';
 // last-write-wins register (newest timestamp, ties broken by peer id), so merging is
 // commutative, associative and idempotent, and peers exchange full states like RunSync.
 
+/** Limit for notes players type. */
 export const NOTE_MAX_LENGTH = 300;
+/** Limit for clues and reveals pinned from the room, which can be longer. */
+export const PINNED_NOTE_MAX_LENGTH = 2000;
 export const MAX_NOTES = 150;
 
 const register = <T extends z.ZodType>(value: T) => z.object({ v: value, t: z.number().finite(), by: z.string().max(64) });
 
 const noteSchema = z.object({
-  text: register(z.string().max(NOTE_MAX_LENGTH)),
+  text: register(z.string().max(PINNED_NOTE_MAX_LENGTH)),
   crossed: register(z.boolean()),
   /**
    * Deleted notes stay as tombstones, so a delete can't be undone by an older copy. They keep
@@ -146,7 +149,7 @@ export class Notebook {
 
   /** Adds a note at the end. Returns false if it is empty or the notebook is full. */
   add(text: string, source?: string): boolean {
-    const clean = text.trim().slice(0, NOTE_MAX_LENGTH);
+    const clean = text.trim().slice(0, source ? PINNED_NOTE_MAX_LENGTH : NOTE_MAX_LENGTH);
     if (!clean || Object.keys(this.current).length >= MAX_NOTES) return false;
     const last = this.view.at(-1);
     const pos = last ? this.current[last.id]!.pos.v + 1 : 0;
@@ -171,7 +174,7 @@ export class Notebook {
   }
 
   edit(id: string, text: string): void {
-    const clean = text.trim().slice(0, NOTE_MAX_LENGTH);
+    const clean = text.trim().slice(0, this.current[id]?.source ? PINNED_NOTE_MAX_LENGTH : NOTE_MAX_LENGTH);
     if (clean) this.change(id, { text: this.reg(clean) });
     else this.remove(id);
   }

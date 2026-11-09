@@ -120,6 +120,15 @@ describe('Notebook', () => {
     expect(ada.list()[0]!.text).toHaveLength(300);
   });
 
+  it('pinned clues may be longer than typed notes, also after an edit', () => {
+    const { ada } = pair();
+    ada.pin('x'.repeat(1000), 'clue:poster');
+    const id = ada.list()[0]!.id;
+    expect(ada.list()[0]!.text).toHaveLength(1000);
+    ada.edit(id, 'y'.repeat(1000));
+    expect(ada.list()[0]!.text).toHaveLength(1000);
+  });
+
   it('a late joiner receives the notes', () => {
     const hub = new MemoryHub();
     const ada = new Notebook(createMemoryTransport(hub, 'ada').join('s'), {}, 'ada');

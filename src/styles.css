@@ -1054,6 +1054,16 @@ code {
   font-size: 13px;
 }
 
+/* Note fields grow with their text (NoteInput sets the height). */
+.note-edit,
+.notes-add textarea {
+  box-sizing: border-box;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  line-height: 1.35;
+}
+
 .note-actions {
   display: flex;
   gap: 1px;
@@ -1126,7 +1136,7 @@ code {
   gap: 4px;
 }
 
-.notes-add input {
+.notes-add textarea {
   box-sizing: border-box;
   flex: 1;
   min-width: 0;
@@ -1134,6 +1144,7 @@ code {
 }
 
 .notes-add button {
+  align-self: flex-start;
   padding: 0 6px;
 }
 

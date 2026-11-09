@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NOTE_MAX_LENGTH } from '../net/notebook';
+import { PINNED_NOTE_MAX_LENGTH } from '../net/notebook';
 import { plainNote } from './NotesPanel';
 
 describe('plainNote', () => {
@@ -8,6 +8,6 @@ describe('plainNote', () => {
   });
 
   it('fits into a note', () => {
-    expect(plainNote('T', 'x'.repeat(1000))).toHaveLength(NOTE_MAX_LENGTH);
+    expect(plainNote('T', 'x'.repeat(5000))).toHaveLength(PINNED_NOTE_MAX_LENGTH);
   });
 });
