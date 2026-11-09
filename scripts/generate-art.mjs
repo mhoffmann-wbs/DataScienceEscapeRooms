@@ -3881,6 +3881,365 @@ function onWall(index, src, wall, seed = 3) {
 // --- end ml-customs ---
 
 // --- ml-auction restyle (tiles 688-719) ---
+// Going Once: the auction house Vossberg & Daughters at night. A marble foyer with the exit, Albers's
+// study, a gallery of display cases under tall windows, the parquet saleroom with its rostrum on a
+// dais and rows of bidders' chairs under chandeliers, and the workshop and print room behind it.
+{
+  const B = blockOf('ml-auction');
+  const DAMASK = [58, 34, 44];
+  const GILT = [222, 182, 82];
+  const NIGHT = [24, 32, 58];
+  const MOONLIGHT = [190, 210, 255];
+  const VELVET = [150, 34, 44];
+  /** The saleroom's wall face: wine-red damask with a gilt pattern, a gilt rail and mahogany panelling below. */
+  const damaskWall = (g) => {
+    g.rect(0, 0, T, T, DAMASK);
+    g.noise(0, 0, T, 19, 0.06, B);
+    for (let y = 4; y < 18; y += 8)
+      for (let x = (y / 8) % 2 < 1 ? 4 : 0; x < T; x += 8) {
+        g.set(x + 2, y, sh(DAMASK, 1.5));
+        g.rect(x + 1, y + 1, 3, 1, sh(DAMASK, 1.4));
+        g.set(x + 2, y + 2, sh(DAMASK, 1.5));
+        g.set(x + 2, y + 3, sh(DAMASK, 1.25));
+      }
+    g.rect(0, 0, T, 2, sh(DAMASK, 0.6));
+    g.rect(0, 18, T, 2, GILT);
+    g.rect(0, 18, T, 1, sh(GILT, 1.25));
+    g.rect(0, 20, T, 12, MAHOGANY);
+    g.noise(0, 20, T, 12, 0.08, B + 1);
+    g.rect(3, 22, 26, 7, sh(MAHOGANY, 0.85));
+    g.rect(3, 22, 26, 1, sh(MAHOGANY, 0.7));
+    g.rect(3, 28, 26, 1, sh(MAHOGANY, 1.2));
+    g.rect(0, T - 1, T, 1, sh(MAHOGANY, 0.6));
+  };
+  // B+0 damask wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, damaskWall);
+  drawTile(B + 1, turned(damaskWall, 'ccw'));
+  drawTile(B + 2, turned(damaskWall, 'cw'));
+  // B+3 herringbone parquet in honey oak
+  drawTile(B + 3, (g) => {
+    const oak = [176, 124, 76];
+    g.rect(0, 0, T, T, oak);
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const local = x % 8;
+        const odd = Math.floor(x / 8) % 2;
+        const k = odd ? y + local : y - local + 64;
+        const plank = Math.floor(k / 6);
+        if (k % 6 === 0 || local === 0) g.set(x, y, sh(oak, 0.7));
+        else if ((plank + odd) % 3 === 0) g.set(x, y, sh(oak, 0.9));
+        else if ((plank + odd) % 3 === 1) g.set(x, y, sh(oak, 1.06));
+      }
+    g.noise(0, 0, T, T, 0.08, B + 3);
+  });
+  // B+4 the top of the auctioneer's dais (decor): polished boards with a velvet border at the back
+  drawTile(B + 4, (g) => {
+    const top = [128, 70, 44];
+    g.rect(0, 0, T, T, top);
+    for (let y = 0; y < T; y += 8) g.rect(0, y, T, 1, sh(top, 0.8));
+    g.noise(0, 0, T, T, 0.08, B + 4);
+    g.rect(0, 4, T, 1, alpha(sh(top, 1.4), 120));
+  });
+  // B+5 a crystal chandelier (above the avatars): gilt arms, candle bulbs, drops and a ring of light
+  drawTile(B + 5, (g) => {
+    for (let j = 0; j < 10; j++) g.ellipse(16, 14, 16 - j * 1.3, 12 - j, [255, 230, 170, 14]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 6, GILT);
+    o.ellipse(16, 13, 11, 4, sh(GILT, 0.85));
+    o.ellipse(16, 12, 9, 2.5, GILT);
+    o.ellipse(16, 16, 4, 4, [232, 240, 255]);
+    for (const x of [6, 11, 16, 21, 26]) {
+      o.rect(x - 1, 6, 2, 5, [252, 248, 236]);
+      o.ellipse(x, 5, 1.5, 2, [255, 230, 140]);
+    }
+    for (const x of [8, 13, 19, 24]) o.rect(x, 16, 1, 4, [210, 226, 255]);
+    o.outline();
+    g.paste(o);
+    for (const x of [6, 16, 26]) g.set(x, 4, [255, 255, 230]);
+  });
+  // B+6 a tall window in the damask wall: the night sky, the moon and the roofs of the old town
+  drawTile(B + 6, (g) => {
+    damaskWall(g);
+    const o = canvas(T, T);
+    o.box(5, 1, 22, 28, GILT, 1.2, 0.7);
+    o.rect(7, 3, 18, 24, NIGHT);
+    for (let j = 0; j < 24; j++) o.rect(7, 3 + j, 18, 1, [40, 52, 90, Math.round(j * 6)]);
+    o.ellipse(20, 8, 2.5, 2.5, [240, 240, 220]);
+    o.rect(7, 19, 18, 8, [16, 18, 30]);
+    o.rect(9, 16, 4, 3, [16, 18, 30]);
+    o.rect(17, 17, 5, 2, [16, 18, 30]);
+    for (const [x, y] of [[9, 21], [14, 23], [20, 21], [11, 6], [8, 10]]) o.set(x, y, [255, 220, 120]);
+    o.rect(15, 3, 2, 24, GILT);
+    o.rect(7, 13, 18, 1, GILT);
+    o.outline();
+    g.paste(o);
+  });
+  // B+7 moonlight falling through a window onto the floor (decor)
+  drawTile(B + 7, (g) => {
+    for (let y = 0; y < T; y++) {
+      const a = Math.round(110 - y * 2.4);
+      if (a <= 0) continue;
+      g.rect(6 + Math.round(y * 0.2), y, 8, 1, alpha(MOONLIGHT, a));
+      g.rect(17 + Math.round(y * 0.2), y, 8, 1, alpha(MOONLIGHT, a));
+    }
+  });
+  /** A painting in a heavy gilt frame, hung on the damask; `scene` paints the canvas area. */
+  const painting = (index, scene) =>
+    drawTile(index, (g) => {
+      damaskWall(g);
+      const o = canvas(T, T);
+      o.box(4, 2, 24, 19, GILT, 1.25, 0.7);
+      o.rect(6, 4, 20, 15, [0, 0, 0]);
+      scene(o);
+      o.outline();
+      g.paste(o);
+      g.rect(9, 22, 14, 1, [0, 0, 0, 60]);
+    });
+  // B+8 a landscape at dusk, B+9 the founder, old Vossberg, in 1896, B+10 a still life with fruit
+  painting(B + 8, (o) => {
+    o.rect(6, 4, 20, 8, [214, 150, 110]);
+    o.rect(6, 8, 20, 3, [230, 180, 120]);
+    o.rect(6, 11, 20, 8, [70, 96, 70]);
+    o.ellipse(12, 12, 6, 2, [60, 80, 58]);
+    o.ellipse(21, 14, 5, 3, [50, 70, 50]);
+    o.rect(6, 16, 20, 3, [90, 110, 120]);
+  });
+  painting(B + 9, (o) => {
+    o.rect(6, 4, 20, 15, [60, 44, 36]);
+    o.ellipse(16, 10, 4, 4.5, [222, 186, 160]);
+    o.rect(13, 5, 7, 2, [200, 200, 196]);
+    o.rect(13, 12, 7, 2, [210, 210, 206]);
+    o.rect(10, 14, 12, 5, [30, 30, 36]);
+    o.rect(15, 14, 2, 3, [240, 240, 236]);
+    o.rect(18, 8, 1, 1, [40, 30, 30]);
+    o.rect(14, 8, 1, 1, [40, 30, 30]);
+  });
+  painting(B + 10, (o) => {
+    o.rect(6, 4, 20, 15, [40, 36, 44]);
+    o.rect(6, 15, 20, 4, [110, 70, 46]);
+    o.ellipse(12, 13, 3.5, 3, [200, 50, 40]);
+    o.ellipse(17, 12, 3, 3, [230, 180, 60]);
+    o.ellipse(21, 14, 2.5, 2, [110, 150, 60]);
+    o.rect(14, 6, 3, 7, [110, 140, 170]);
+  });
+  // B+11 Albers's graph paper, B+12 the noticeboard with Ilse's memo, B+13 the price histogram, B+14 the house rule, on the damask
+  onWall(B + 11, 202, damaskWall, 202);
+  onWall(B + 12, 9, damaskWall);
+  onWall(B + 13, 203, damaskWall, 203);
+  onWall(B + 14, 24, damaskWall);
+  solid(B, B + 1, B + 2, B + 6, B + 8, B + 9, B + 10);
+  // B+15 a lot on an easel: a small gilt-framed seascape on a wooden stand
+  drawTile(B + 15, (g, { obj, shadow }) => {
+    shadow(16, 29, 10, 2);
+    obj((o) => {
+      o.rect(9, 6, 2, 23, WOOD);
+      o.rect(21, 6, 2, 23, WOOD);
+      o.rect(15, 2, 2, 20, sh(WOOD, 0.8));
+      o.box(6, 4, 20, 15, GILT, 1.25, 0.7);
+      o.rect(8, 6, 16, 6, [120, 160, 200]);
+      o.rect(8, 12, 16, 5, [40, 80, 120]);
+      o.rect(13, 9, 4, 3, [240, 240, 236]);
+      o.box(7, 19, 18, 2, sh(WOOD, 1.1));
+    });
+  });
+  // B+16 the front edge of the dais (decor): a step of polished wood with a gilt nosing
+  drawTile(B + 16, (g) => {
+    const top = [128, 70, 44];
+    g.rect(0, 0, T, 18, top);
+    g.noise(0, 0, T, 18, 0.08, B + 16);
+    g.rect(0, 8, T, 1, sh(top, 0.8));
+    g.rect(0, 17, T, 2, GILT);
+    g.rect(0, 19, T, 8, sh(top, 0.65));
+    g.rect(0, 27, T, 3, [0, 0, 0, 70]);
+  });
+  // B+17 the lot board on its stand: "LOT" over a big number, for the bidders at the back
+  drawTile(B + 17, (g, { obj, shadow }) => {
+    shadow(16, 29, 8, 2);
+    obj((o) => {
+      o.rect(15, 18, 2, 10, sh(GILT, 0.8));
+      o.box(10, 27, 12, 2, sh(GILT, 0.8));
+      o.box(5, 2, 22, 17, [30, 30, 36], 1.4);
+      o.rect(7, 4, 18, 1, GILT);
+      const D = { L: ['100', '100', '100', '100', '111'], O: ['111', '101', '101', '101', '111'], T: ['111', '010', '010', '010', '010'], 4: ['101', '101', '111', '001', '001'], 7: ['111', '001', '010', '010', '010'] };
+      [...'LOT'].forEach((ch, i) => D[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.set(10 + i * 4 + x, 6 + y, [240, 236, 222]))));
+      [...'47'].forEach((ch, i) => D[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.rect(11 + i * 6 + x * 2, 12 + y, 2, 1, GILT))));
+    });
+  });
+  // B+18 a bidder's chair seen from behind, facing the rostrum (a seat, not solid)
+  drawTile(B + 18, (g, { obj, shadow }) => {
+    shadow(16, 28, 10, 2);
+    obj((o) => {
+      o.rect(8, 22, 2, 7, sh(GILT, 0.8));
+      o.rect(22, 22, 2, 7, sh(GILT, 0.8));
+      o.box(7, 17, 18, 6, VELVET, 1.2, 0.7);
+      o.box(8, 4, 16, 14, sh(GILT, 0.9), 1.2, 0.7);
+      o.rect(10, 6, 12, 10, VELVET);
+      o.rect(10, 6, 12, 1, sh(VELVET, 1.3));
+    });
+  });
+  // B+19, B+20 the telephone bank: a long table with three old phones and lot sheets, for bidders who call in
+  drawPiece([[B + 19, B + 20]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(1, 13, 62, 10, MAHOGANY, 1.3, 0.7);
+      o.rect(1, 15, 62, 1, sh(MAHOGANY, 0.8));
+      for (const x of [4, 57]) o.rect(x, 23, 3, 7, sh(MAHOGANY, 0.7));
+      for (const x of [6, 26, 46]) {
+        o.box(x, 6, 12, 7, [30, 30, 34], 1.4);
+        o.box(x + 1, 3, 10, 3, [44, 44, 50], 1.4);
+        o.ellipse(x + 6, 9, 2, 2, [200, 196, 180]);
+        o.box(x + 13, 8, 6, 5, [246, 244, 236], 1, 0.85);
+      }
+    });
+  });
+  // B+21 tonight's star lot: a watch under a glass dome on a marble pedestal
+  drawTile(B + 21, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      o.box(9, 14, 14, 15, [232, 228, 222], 1.1, 0.8);
+      o.box(7, 12, 18, 3, [210, 206, 200], 1.15);
+      o.box(7, 27, 18, 2, [210, 206, 200]);
+      o.ellipse(16, 7, 7, 6, [200, 226, 240, 170]);
+      o.rect(9, 7, 14, 5, [200, 226, 240, 170]);
+      o.rect(10, 10, 12, 2, VELVET);
+      watch(o, 16, 8);
+      o.rect(11, 3, 2, 4, [255, 255, 255, 220]);
+    });
+  });
+  // B+22 a coat stand with a hat and an umbrella
+  drawTile(B + 22, (g, { obj, shadow }) => {
+    shadow(16, 29, 7, 2);
+    obj((o) => {
+      o.rect(15, 4, 2, 24, MAHOGANY);
+      o.rect(11, 27, 10, 2, MAHOGANY);
+      o.rect(10, 6, 12, 2, MAHOGANY);
+      o.box(9, 7, 7, 13, [70, 60, 70], 1.25);
+      o.ellipse(16, 4, 6, 2, [40, 40, 44]);
+      o.ellipse(16, 3, 3.5, 2, [40, 40, 44]);
+      o.rect(20, 10, 2, 16, [30, 50, 80]);
+    });
+  });
+  // B+23 a potted palm in a brass urn
+  drawTile(B + 23, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      for (const [dx, dy] of [[-12, -2], [-9, -9], [0, -12], [9, -9], [12, -2], [-6, 2], [6, 2]]) {
+        for (let k = 0; k < 10; k++) o.rect(Math.round(16 + (dx * k) / 10), Math.round(14 + (dy * k) / 10), 2, 2, k % 3 ? [60, 130, 70] : [90, 160, 90]);
+      }
+      o.box(10, 18, 12, 11, BRASS, 1.25, 0.7);
+      o.rect(9, 18, 14, 2, sh(BRASS, 1.2));
+    });
+  });
+  // B+24 the coffee table with the evening paper spread on it
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 28, 13, 3);
+    obj((o) => {
+      o.ellipse(16, 17, 14, 7, MAHOGANY);
+      o.ellipse(16, 16, 13, 6, sh(MAHOGANY, 1.25));
+      o.rect(6, 22, 2, 6, sh(MAHOGANY, 0.7));
+      o.rect(24, 22, 2, 6, sh(MAHOGANY, 0.7));
+      o.box(8, 11, 14, 9, [236, 232, 220], 1, 0.85);
+      o.rect(9, 12, 12, 2, [40, 40, 44]);
+      for (let y = 15; y < 19; y += 2) o.rect(9, y, 5, 1, [140, 140, 150]);
+      o.rect(15, 15, 5, 3, [150, 150, 160]);
+      o.box(22, 12, 4, 4, [246, 244, 236]);
+      o.rect(23, 13, 2, 1, [110, 70, 40]);
+    });
+  });
+  // B+25 the strongroom door in the damask wall: a round steel door with bolts and a brass wheel
+  drawTile(B + 25, (g) => {
+    damaskWall(g);
+    const o = canvas(T, T);
+    o.ellipse(16, 15, 13, 13, [150, 156, 166]);
+    o.ellipse(16, 15, 10, 10, [176, 182, 192]);
+    for (let a = 0; a < 8; a++) o.ellipse(16 + Math.cos((a * Math.PI) / 4) * 11.5, 15 + Math.sin((a * Math.PI) / 4) * 11.5, 1, 1, [90, 96, 106]);
+    o.ellipse(16, 15, 4, 4, BRASS);
+    o.ellipse(16, 15, 2, 2, sh(BRASS, 0.7));
+    o.rect(9, 14, 14, 2, BRASS);
+    o.rect(15, 8, 2, 14, BRASS);
+    o.outline();
+    g.paste(o);
+  });
+  // B+26 a packing crate full of straw, waiting for a lot
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      o.box(3, 10, 26, 19, [176, 136, 84], 1.2, 0.75);
+      for (const y of [16, 22]) o.rect(3, y, 26, 1, sh([176, 136, 84], 0.75));
+      o.rect(3, 10, 3, 19, sh([176, 136, 84], 0.85));
+      o.rect(26, 10, 3, 19, sh([176, 136, 84], 0.85));
+      const r = rng(B + 26);
+      for (let i = 0; i < 26; i++) o.rect(5 + Math.floor(r() * 21), 6 + Math.floor(r() * 5), 3, 1, [226, 200, 110]);
+      o.rect(10, 18, 12, 3, [60, 50, 40]);
+    });
+  });
+  // B+27 black and white marble, laid on the diagonal
+  drawTile(B + 27, (g) => {
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) g.set(x, y, (Math.floor(x / 16) + Math.floor(y / 16)) % 2 ? [112, 106, 114] : [230, 226, 220]);
+    g.noise(0, 0, T, T, 0.06, B + 27);
+    const r = rng(B + 270);
+    for (let i = 0; i < 3; i++) {
+      let x = Math.floor(r() * T);
+      for (let y = 0; y < T; y++) {
+        if (r() < 0.4) x += r() < 0.5 ? -1 : 1;
+        if (r() < 0.5) g.set(((x % T) + T) % T, y, [176, 172, 168, 160]);
+      }
+    }
+    for (const v of [0, 16]) {
+      g.rect(0, v, T, 1, [120, 116, 120]);
+      g.rect(v, 0, 1, T, [120, 116, 120]);
+    }
+  });
+  // B+28, B+29 Albers's partners' desk: green leather top, a banker's lamp, a loupe, catalogues
+  drawPiece([[B + 28, B + 29]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    for (let j = 0; j < 8; j++) g.ellipse(14, 14, 14 - j, 6 - j * 0.6, [255, 230, 160, 14]);
+    obj((o) => {
+      o.box(1, 12, 62, 12, MAHOGANY, 1.3, 0.7);
+      o.rect(3, 13, 58, 5, BAIZE);
+      o.rect(1, 18, 62, 1, sh(MAHOGANY, 0.8));
+      for (const x of [3, 20, 39, 56]) o.box(x, 20, 6, 3, sh(MAHOGANY, 1.1));
+      for (const x of [3, 57]) o.rect(x, 24, 4, 6, sh(MAHOGANY, 0.7));
+      o.rect(13, 6, 2, 8, BRASS);
+      o.box(7, 3, 14, 5, [40, 120, 80], 1.3, 0.7);
+      o.box(30, 7, 12, 8, [246, 244, 236], 1, 0.85);
+      o.box(43, 9, 10, 6, [60, 80, 140], 1.2);
+      o.ellipse(26, 13, 2.5, 2.5, [60, 60, 66]);
+      o.ellipse(26, 13, 1.5, 1.5, [200, 226, 240]);
+    });
+  });
+  // B+30 the ledger table: big leather-bound sale ledgers, one open at last autumn's sale
+  drawTile(B + 30, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      deskBase(o, MAHOGANY);
+      o.box(3, 4, 20, 10, [246, 240, 220], 1, 0.85);
+      o.rect(12, 4, 2, 10, [200, 190, 170]);
+      for (let y = 6; y < 13; y += 2) {
+        o.rect(5, y, 6, 1, [130, 130, 145]);
+        o.rect(15, y, 6, 1, [130, 130, 145]);
+      }
+      o.box(24, 3, 6, 11, [110, 40, 36], 1.25);
+      o.rect(24, 6, 6, 1, GILT);
+    });
+  });
+  // B+31 a brass sconce with two candle bulbs on the damask, glowing warm
+  drawTile(B + 31, (g) => {
+    damaskWall(g);
+    for (let j = 0; j < 10; j++) g.ellipse(16, 10, 14 - j * 1.2, 10 - j, [255, 220, 150, 16]);
+    const o = canvas(T, T);
+    o.box(14, 12, 4, 7, BRASS, 1.3);
+    o.rect(9, 12, 14, 2, BRASS);
+    for (const x of [9, 21]) {
+      o.rect(x, 7, 2, 5, [252, 248, 236]);
+      o.ellipse(x + 1, 6, 1.5, 2, [255, 220, 120]);
+    }
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 15, B + 17, B + 19, B + 20, B + 21, B + 22, B + 23, B + 24, B + 25, B + 26, B + 28, B + 29, B + 30, B + 31);
+}
 // --- end ml-auction ---
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
