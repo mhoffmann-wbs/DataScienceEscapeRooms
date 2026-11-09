@@ -3656,6 +3656,334 @@ function onWall(index, src, wall, seed = 3) {
 // --- end sql-hotel ---
 
 // --- sql-cinema restyle (tiles 272-303) ---
+// The Last Show: Kino Lumen after the last show. The dark Studio (hall 2) with its screen, stage and
+// rows of red seats, the art-deco foyer with the box office, the snack bar and the usher's post at the
+// Studio door, and the staff room behind the box office with Edith's office door.
+{
+  const B = blockOf('sql-cinema');
+  const DADO = [70, 36, 34];
+  const SEAT = [176, 36, 52];
+  const TEAL = [28, 70, 78];
+  const SCREEN_LIGHT = [236, 236, 246];
+  /** The cinema's wall face: pleated red velvet above a gold art-deco band and a dark wood dado. */
+  const cinemaWall = (g) => {
+    g.rect(0, 0, T, T, VELVET);
+    for (let x = 0; x < T; x++) {
+      const f = 0.82 + 0.3 * Math.abs(Math.sin((x / 8) * Math.PI));
+      g.rect(x, 2, 1, 16, sh(VELVET, f));
+    }
+    g.noise(0, 2, T, 16, 0.05, B);
+    g.rect(0, 0, T, 2, sh(VELVET, 0.55));
+    g.rect(0, 18, T, 3, GOLD);
+    g.rect(0, 18, T, 1, sh(GOLD, 1.25));
+    g.rect(0, 20, T, 1, sh(GOLD, 0.7));
+    // little stepped deco fans on the band
+    for (const x of [8, 24]) {
+      g.rect(x - 1, 17, 3, 1, GOLD);
+      g.set(x, 16, GOLD);
+    }
+    g.rect(0, 21, T, 11, DADO);
+    g.noise(0, 21, T, 11, 0.08, B + 50);
+    for (let x = 0; x < T; x += 8) g.rect(x, 22, 1, 9, sh(DADO, 0.75));
+    g.rect(0, T - 2, T, 2, sh(DADO, 0.6));
+  };
+  // B+0 cinema wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, cinemaWall);
+  drawTile(B + 1, turned(cinemaWall, 'ccw'));
+  drawTile(B + 2, turned(cinemaWall, 'cw'));
+  solid(B, B + 1, B + 2);
+  // B+3 Studio floor: a near-black carpet with a scatter of coloured confetti, the classic cinema pattern
+  drawTile(B + 3, (g) => {
+    const base = [38, 32, 48];
+    g.rect(0, 0, T, T, base);
+    g.noise(0, 0, T, T, 0.12, B + 3);
+    const r = rng(B + 3);
+    const cols = [[200, 60, 90], [70, 150, 200], [230, 190, 80], [120, 90, 190]];
+    for (let i = 0; i < 14; i++) {
+      const x = Math.floor(r() * 30);
+      const y = Math.floor(r() * 31);
+      const c = alpha(cols[i % 4], 150);
+      if (r() < 0.5) g.rect(x, y, 3, 1, c);
+      else g.rect(x, y, 1, 2, c);
+    }
+  });
+  // B+4 foyer floor: a deep teal carpet with gold art-deco fans in a half-drop repeat
+  drawTile(B + 4, (g) => {
+    g.rect(0, 0, T, T, TEAL);
+    g.noise(0, 0, T, T, 0.08, B + 4);
+    const fan = (cx, cy) => {
+      for (let a = 0; a < 5; a++) {
+        const ang = Math.PI + (a / 4) * Math.PI;
+        for (let d = 2; d < 7; d++) g.set(Math.round(cx + Math.cos(ang) * d), Math.round(cy + Math.sin(ang) * d), alpha(GOLD, 80));
+      }
+      for (let x = -7; x <= 7; x++) g.set(cx + x, cy, alpha(GOLD, 100));
+      g.rect(cx - 1, cy - 2, 3, 2, alpha(sh(GOLD, 1.2), 150));
+    };
+    fan(8, 12);
+    fan(24, 28);
+    fan(-8, 28);
+    fan(40, 28);
+    for (const [x, y] of [[24, 6], [8, 22]]) g.set(x, y, alpha(GOLD, 90));
+  });
+  // B+5..B+8 the Studio screen on the wall: a glowing white screen between drawn-back red curtains
+  drawPiece([[B + 5, B + 6, B + 7, B + 8]], (g, { obj }) => {
+    for (let i = 0; i < 4; i++) {
+      const w = canvas(T, T);
+      cinemaWall(w);
+      g.paste(w, i * T, 0);
+    }
+    obj((o) => {
+      o.box(10, 1, 108, 24, [30, 28, 34], 1.3);
+      o.rect(13, 3, 102, 20, SCREEN_LIGHT);
+      for (let j = 0; j < 20; j++) o.rect(13, 3 + j, 102, 1, alpha([170, 190, 230], Math.round(j * 4)));
+      // a frozen frame of the last film: a moon over hills
+      o.ellipse(84, 9, 4, 4, [255, 250, 220]);
+      for (let x = 13; x < 115; x++) {
+        const h = Math.round(4 + 2.5 * Math.sin(x / 9) + 1.5 * Math.sin(x / 4));
+        o.rect(x, 23 - h, 1, h, [150, 160, 190]);
+      }
+    });
+    obj((o) => {
+      // curtains, gathered at the sides
+      for (const [x, dir] of [[0, 1], [128, -1]]) {
+        for (let j = 0; j < 30; j++) {
+          const w = Math.round(14 - Math.abs(j - 18) * 0.35);
+          o.rect(dir > 0 ? x : x - w, j, w, 1, VELVET);
+        }
+        for (let k = 3; k < 13; k += 3) o.rect(dir > 0 ? x + k : x - k - 1, 0, 1, 28, sh(VELVET, 0.7));
+        o.rect(dir > 0 ? x : x - 14, 17, 14, 2, GOLD);
+      }
+      o.rect(0, 0, 128, 2, sh(VELVET, 0.8));
+    });
+  });
+  solid(B + 5, B + 6, B + 7, B + 8);
+  // B+9 the stage below the screen: a black wooden lip with a row of warm footlights
+  drawTile(B + 9, (g, { obj }) => {
+    obj((o) => {
+      o.rect(0, 0, T, 18, [52, 40, 40]);
+      for (let y = 2; y < 18; y += 5) o.rect(0, y, T, 1, [40, 30, 30]);
+      o.rect(0, 18, T, 3, GOLD);
+      o.rect(0, 21, T, 6, [30, 24, 26]);
+    }, false);
+    for (const x of [4, 12, 20, 28]) {
+      g.ellipse(x, 19, 4, 3, [255, 220, 140, 80]);
+      g.rect(x - 1, 19, 3, 2, [255, 236, 170]);
+    }
+    g.rect(0, 27, T, 2, [0, 0, 0, 70]);
+  });
+  solid(B + 9);
+  /** Cinema seats in a row, seen from behind as the audience faces the screen: `ends` adds armrests at the row's ends. */
+  const seatRow = (left, right) => (g) => {
+    g.rect(0, 26, T, 3, [0, 0, 0, 60]);
+    const o = canvas(T, T);
+    for (const x of [1, 17]) {
+      o.box(x + 1, 6, 13, 8, sh(SEAT, 0.85), 1.25);
+      o.box(x, 12, 15, 13, SEAT, 1.2);
+      o.rect(x + 2, 15, 11, 1, sh(SEAT, 0.75));
+      o.rect(x + 7, 25, 2, 3, [40, 36, 40]);
+    }
+    if (left) o.box(0, 9, 3, 17, [60, 46, 46], 1.3);
+    if (right) o.box(29, 9, 3, 17, [60, 46, 46], 1.3);
+    o.outline();
+    g.paste(o);
+  };
+  // B+10 seat row, left end; B+11 middle; B+12 right end (seats: walkable)
+  drawTile(B + 10, seatRow(true, false));
+  drawTile(B + 11, seatRow(false, false));
+  drawTile(B + 12, seatRow(false, true));
+  // B+13 art-deco wall light on the cinema wall: a gold shell throwing light up the velvet
+  drawTile(B + 13, (g) => {
+    cinemaWall(g);
+    for (let j = 0; j < 14; j++) g.rect(Math.round(16 - (4 + j)), 14 - j, 8 + 2 * j, 1, [255, 214, 140, Math.round(130 - j * 9)]);
+    const o = canvas(T, T);
+    for (let j = 0; j < 7; j++) o.rect(16 - (7 - j), 9 + j, 2 * (7 - j), 1, j % 2 ? sh(GOLD, 0.85) : GOLD);
+    o.rect(10, 9, 12, 1, [255, 244, 200]);
+    o.rect(15, 16, 2, 3, sh(GOLD, 0.7));
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 13);
+  // B+14 aisle lights (decor): two small amber lamps set in the floor at the ends of a seat row
+  drawTile(B + 14, (g) => {
+    for (const y of [9, 25]) {
+      g.ellipse(16, y, 7, 3, [255, 190, 90, 50]);
+      g.rect(14, y - 1, 5, 2, [255, 210, 120]);
+      g.rect(14, y + 1, 5, 1, [120, 80, 40]);
+    }
+  });
+  // B+15, B+16 projector beam (above the avatars): a pale cone of light with dust in it, left and right half
+  drawPiece([[B + 15, B + 16]], (g) => {
+    const r = rng(B + 15);
+    for (let x = 0; x < 64; x++) {
+      const d = Math.abs(x - 31.5) / 32;
+      const a = Math.round(70 * (1 - d * d));
+      g.rect(x, 0, 1, T, [210, 220, 255, a]);
+    }
+    for (let i = 0; i < 16; i++) g.set(8 + Math.floor(r() * 48), Math.floor(r() * T), [255, 255, 255, 170]);
+  });
+  // B+17..B+20 the box office: a booth with two glass windows over the counter, till 1 and till 2,
+  // a cash tray, ticket rolls and a lit TICKETS sign
+  drawPiece([[B + 17, B + 18, B + 19, B + 20]], (g, { obj, shadow }) => {
+    shadow(64, 30, 63, 2);
+    obj((o) => {
+      o.box(0, 13, 128, 17, [110, 30, 40], 1.2);
+      o.rect(0, 13, 128, 3, GOLD);
+      for (let x = 4; x < 124; x += 15) o.box(x, 19, 11, 8, sh(VELVET, 0.85), 1.15);
+      o.rect(0, 28, 128, 2, [60, 20, 26]);
+    });
+    obj((o) => {
+      // glass front with a frame and speaking holes
+      o.rect(2, 0, 124, 2, [60, 30, 30]);
+      for (const x of [2, 42, 84, 124]) o.rect(x, 0, 2, 14, GOLD);
+      for (const x of [4, 86]) {
+        o.rect(x, 2, 38, 11, alpha([180, 220, 236], 120));
+        o.rect(x + 2, 3, 2, 8, alpha([255, 255, 255], 150));
+        o.ellipse(x + 19, 10, 3, 1.5, [40, 40, 50]);
+      }
+      // TICKETS sign in the middle
+      o.box(46, 1, 36, 8, [30, 20, 30], 1.4);
+      for (let i = 0; i < 7; i++) o.rect(50 + i * 4, 3, 2, 4, [255, 214, 120]);
+      // till 1 (left) and till 2 (right), each with a ticket printer
+      for (const x of [14, 96]) {
+        o.box(x, 7, 14, 7, [52, 56, 70], 1.3);
+        o.rect(x + 2, 8, 9, 2, [120, 230, 160]);
+        o.box(x + 15, 9, 8, 5, [214, 216, 222], 1.1);
+        o.rect(x + 16, 5, 6, 5, [252, 236, 170]);
+        o.rect(x + 16, 7, 6, 1, [200, 150, 80]);
+      }
+      // cash tray and ticket rolls
+      o.box(52, 10, 14, 4, [60, 60, 70], 1.2);
+      o.rect(54, 11, 4, 2, [140, 190, 120]);
+      o.rect(59, 11, 5, 2, [200, 180, 120]);
+      o.ellipse(72, 11, 3, 2.5, [252, 236, 170]);
+      o.ellipse(72, 11, 1, 1, [200, 150, 80]);
+    });
+  });
+  solid(B + 17, B + 18, B + 19, B + 20);
+  // B+21..B+23 snack bar: the popcorn machine, the snack till with cups and a menu, and the end with a
+  // glass sweets display and Tobias's note taped to it
+  drawPiece([[B + 21, B + 22, B + 23]], (g, { obj, shadow }) => {
+    shadow(48, 30, 47, 2);
+    obj((o) => {
+      o.box(0, 14, 96, 16, [110, 30, 40], 1.2);
+      o.rect(0, 14, 96, 2, GOLD);
+      for (let x = 4; x < 92; x += 15) o.box(x, 19, 11, 8, sh(VELVET, 0.85), 1.15);
+      o.rect(0, 28, 96, 2, [60, 20, 26]);
+    });
+    obj((o) => {
+      // popcorn machine
+      o.box(5, 0, 22, 4, [214, 46, 46], 1.25);
+      o.rect(5, 3, 22, 1, GOLD);
+      o.box(6, 4, 20, 11, [200, 220, 230], 1.1);
+      const r = rng(B + 21);
+      for (let i = 0; i < 50; i++) o.set(7 + Math.floor(r() * 18), 8 + Math.floor(r() * 6), r() < 0.5 ? [255, 246, 214] : [246, 214, 120]);
+      o.rect(7, 5, 2, 9, alpha([255, 255, 255], 90));
+      // snack till with a signed-in badge reader, cups
+      o.box(38, 6, 15, 9, [52, 56, 70], 1.3);
+      o.rect(40, 7, 10, 3, [120, 230, 160]);
+      o.rect(40, 11, 10, 2, [206, 210, 220]);
+      o.box(53, 9, 4, 5, [240, 200, 60], 1.2);
+      for (const x of [33, 58]) {
+        o.box(x, 7, 5, 8, [250, 250, 250]);
+        o.rect(x, 10, 5, 2, [214, 46, 46]);
+        o.rect(x + 2, 4, 1, 3, [240, 200, 60]);
+      }
+      // sweets display and the note
+      o.box(66, 3, 26, 12, [190, 220, 230], 1.1);
+      for (let i = 0; i < 4; i++) o.ellipse(71 + i * 6, 10, 2.5, 3, [[230, 80, 120], [250, 200, 60], [100, 200, 120], [120, 140, 230]][i]);
+      o.rect(67, 4, 2, 10, alpha([255, 255, 255], 120));
+      o.box(80, 1, 11, 9, [255, 236, 140], 1.05, 0.85);
+      for (let y = 3; y < 9; y += 2) o.rect(82, y, 7, 1, [130, 110, 80]);
+      o.rect(84, 0, 3, 2, alpha([220, 220, 230], 200));
+    });
+  });
+  solid(B + 21, B + 22, B + 23);
+  // B+24 menu board over the snack bar: a lit black board with prices in white and a red popcorn box
+  drawTile(B + 24, (g) => {
+    cinemaWall(g);
+    const o = canvas(T, T);
+    o.box(2, 3, 28, 18, [24, 22, 28], 1.4);
+    for (let j = 0; j < 4; j++) {
+      o.rect(5, 6 + j * 3, 11 - ((j * 3) % 5), 1, [240, 240, 236]);
+      o.rect(19, 6 + j * 3, 3, 1, [255, 214, 120]);
+    }
+    o.box(23, 5, 5, 8, [250, 250, 250]);
+    o.rect(23, 7, 5, 1, [214, 46, 46]);
+    o.rect(23, 10, 5, 1, [214, 46, 46]);
+    o.ellipse(25.5, 4.5, 3, 2, [255, 244, 210]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+25 soda fountain on the back counter: a steel dispenser with three coloured taps
+  drawTile(B + 25, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(1, 14, 30, 15, [80, 36, 40], 1.2);
+      o.box(5, 1, 22, 15, [180, 186, 196], 1.2);
+      o.rect(7, 3, 18, 5, [40, 120, 200]);
+      o.rect(9, 4, 10, 1, [250, 250, 250]);
+      for (let i = 0; i < 3; i++) {
+        o.rect(8 + i * 6, 9, 4, 3, [[214, 46, 46], [250, 200, 60], [60, 170, 90]][i]);
+        o.rect(9 + i * 6, 12, 2, 2, [90, 96, 108]);
+      }
+      o.rect(5, 15, 22, 1, [120, 124, 134]);
+    });
+  });
+  // B+26 an old 35 mm projector on a plinth in the foyer: two big reels, a lens and a brass plaque
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(5, 22, 22, 8, [60, 46, 46], 1.25);
+      o.rect(12, 25, 8, 2, GOLD);
+      o.box(7, 12, 18, 10, [44, 50, 60], 1.3);
+      o.box(22, 14, 6, 5, [70, 76, 90], 1.3);
+      o.ellipse(28, 16.5, 2, 2, [200, 220, 240]);
+      for (const [cx, cy] of [[10, 6], [21, 7]]) {
+        o.ellipse(cx, cy, 6, 6, [150, 158, 172]);
+        o.ellipse(cx, cy, 4.5, 4.5, [60, 64, 76]);
+        o.ellipse(cx, cy, 1.5, 1.5, [190, 196, 206]);
+        for (let a = 0; a < 3; a++) o.set(Math.round(cx + Math.cos(a * 2.1) * 3), Math.round(cy + Math.sin(a * 2.1) * 3), [150, 158, 172]);
+      }
+      o.rect(13, 11, 6, 1, [30, 30, 36]);
+    });
+  });
+  // B+27 film standee: a cardboard cut-out of a hero in a trench coat holding the title card
+  drawTile(B + 27, (g, { obj, shadow }) => {
+    shadow(16, 30, 11, 2);
+    obj((o) => {
+      o.rect(8, 27, 16, 3, [150, 120, 90]);
+      o.ellipse(16, 5, 4, 4.5, [232, 196, 160]);
+      o.rect(12, 1, 8, 3, [50, 40, 36]);
+      o.rect(10, 0, 12, 2, [50, 40, 36]);
+      o.box(10, 9, 12, 17, [176, 150, 110], 1.2);
+      o.rect(15, 9, 2, 17, sh([176, 150, 110], 0.8));
+      o.box(4, 14, 24, 8, [36, 40, 86], 1.3);
+      o.rect(6, 16, 20, 2, [240, 220, 140]);
+      o.rect(8, 19, 16, 1, [200, 120, 110]);
+    });
+  });
+  // B+28 film poster, B+29 Ben's clipboard and B+31 a padded hall door, hung on the cinema wall
+  onWall(B + 28, 96, cinemaWall, 96);
+  onWall(B + 29, 26, cinemaWall);
+  onWall(B + 31, 102, cinemaWall, 102);
+  // B+30 the fire marshal's notice: a white sign with a red border, a flame and a "max." people count
+  drawTile(B + 30, (g) => {
+    cinemaWall(g);
+    const o = canvas(T, T);
+    o.box(6, 3, 20, 22, [246, 244, 236], 1, 0.88);
+    o.rect(6, 3, 20, 2, [214, 40, 40]);
+    o.rect(6, 23, 20, 2, [214, 40, 40]);
+    o.ellipse(11, 12, 3, 4, [240, 120, 40]);
+    o.ellipse(11, 13, 1.5, 2.2, [255, 220, 100]);
+    o.rect(16, 9, 8, 1, [60, 60, 70]);
+    o.rect(16, 12, 6, 1, [60, 60, 70]);
+    o.rect(9, 18, 14, 1, [60, 60, 70]);
+    o.rect(9, 20, 10, 1, [60, 60, 70]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 24, B + 25, B + 26, B + 27, B + 30);
+}
 // --- end sql-cinema ---
 
 // --- sql-train restyle (tiles 304-335) ---
