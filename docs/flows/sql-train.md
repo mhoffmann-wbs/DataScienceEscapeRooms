@@ -95,11 +95,12 @@ All six stations load the same `train.sql`, so the room has one data node; the e
 
 ## Where things are
 
-- The driver's log (544, 384) stands right next to the radio (576, 320), the one hard clue that stands close.
-- The door sign (192, 288) is about 260 px from the door panel (448, 320), across the service area.
-- The conductor's note (128, 128) is about 290 px from the handheld (416, 128) on the dining car counter.
-- The attendant's report on compartment 34's door (544, 224) is about 220 px from the card reader server (352, 320).
-- The route map (128, 32) is in the top wall of the dining car, about 310 px from the speed recorder.
+The room is three carriages side by side, joined by gangways over the track: the service car at the bottom (where the team boards, with the exit, the speed recorder, door panel, card reader server and radio), the dining car in the middle (counter with the handheld and the till, booths), reached by a gangway at its left end, and the sleeping car at the top (compartment 34), reached by a gangway at the dining car's right end.
+
+- The driver's log (704, 544) lies on the desk next to the radio (672, 544).
+- The door sign (416, 512) hangs on the wall right above the door panel (384, 544), and the route map (256, 512) beside the speed recorder (224, 544).
+- The conductor's note (160, 320) is on the dining-car counter next to the handheld (128, 320).
+- The attendant's report on compartment 34's door (576, 32) is two carriages away from the card reader server (512, 544): through both gangways, the longest walk in the room.
 
 ## Findings
 

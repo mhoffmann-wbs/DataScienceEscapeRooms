@@ -3987,6 +3987,379 @@ function onWall(index, src, wall, seed = 3) {
 // --- end sql-cinema ---
 
 // --- sql-train restyle (tiles 304-335) ---
+// Night Train: EN 471 "Aurora", three carriages rolling through the night, seen side by side and
+// joined by gangways over the track: the sleeping car with compartment 34, the dining car and the
+// service car with the onboard computers, where the team boards.
+{
+  const B = blockOf('sql-train');
+  const TEAK = [150, 96, 58];
+  const CREAM = [226, 214, 186];
+  const BALLAST = [58, 58, 66];
+  const RAIL = [150, 156, 168];
+  const PLUSH = [44, 70, 120];
+  const BOOTH = [150, 40, 50];
+  const PLATE = [120, 126, 138];
+  /** The carriage's wall face: cream panels over teak veneer, the red waist band and a dark kick plate. */
+  const carWall = (g) => {
+    g.rect(0, 0, T, T, CREAM);
+    g.noise(0, 0, T, T, 0.04, B);
+    g.rect(0, 0, T, 2, sh(CREAM, 0.6));
+    g.rect(0, 2, T, 1, sh(CREAM, 1.08));
+    g.rect(0, 10, T, 12, TEAK);
+    g.noise(0, 10, T, 12, 0.08, B + 40);
+    for (let y = 12; y < 22; y += 3) g.rect(0, y, T, 1, alpha(sh(TEAK, 0.82), 140));
+    g.rect(0, 10, T, 1, sh(TEAK, 1.3));
+    g.rect(0, 22, T, 2, TRAIN_PANEL);
+    g.rect(0, 24, T, 8, [64, 52, 50]);
+    g.rect(0, 24, T, 1, sh([64, 52, 50], 1.3));
+    g.rect(0, T - 1, T, 1, [40, 32, 32]);
+  };
+  // B+0 carriage wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, carWall);
+  drawTile(B + 1, turned(carWall, 'ccw'));
+  drawTile(B + 2, turned(carWall, 'cw'));
+  solid(B, B + 1, B + 2);
+  // B+3 sleeping-car corridor floor: a navy carpet runner with an orange stripe pattern
+  drawTile(B + 3, (g) => {
+    g.rect(0, 0, T, T, PLUSH);
+    g.noise(0, 0, T, T, 0.09, B + 3);
+    for (const y of [3, 28]) g.rect(0, y, T, 1, [220, 140, 60]);
+    for (let x = 0; x < T; x += 8) {
+      g.rect(x + 2, 14, 4, 1, [220, 140, 60, 170]);
+      g.rect(x + 3, 13, 2, 3, [220, 140, 60, 170]);
+    }
+  });
+  // B+4 dining-car floor: cream and wine linoleum squares, laid diagonally
+  drawTile(B + 4, (g) => {
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const d = Math.floor((x + y) / 8) + Math.floor((x - y + 64) / 8);
+        g.set(x, y, d % 2 ? [204, 190, 166] : [160, 112, 100]);
+      }
+    g.noise(0, 0, T, T, 0.06, B + 4);
+  });
+  // B+5 the track rushing past between the cars: ballast, sleepers and two rails with motion streaks
+  drawTile(B + 5, (g) => {
+    g.rect(0, 0, T, T, BALLAST);
+    g.noise(0, 0, T, T, 0.3, B + 5);
+    for (const x of [4, 20]) g.rect(x, 4, 7, 24, [70, 56, 46]);
+    for (const y of [8, 22]) {
+      g.rect(0, y, T, 3, RAIL);
+      g.rect(0, y, T, 1, sh(RAIL, 1.3));
+      g.rect(0, y + 3, T, 1, [30, 30, 36]);
+    }
+    const r = rng(B + 5);
+    for (let i = 0; i < 6; i++) g.rect(Math.floor(r() * 24), Math.floor(r() * T), 6 + Math.floor(r() * 6), 1, [200, 210, 230, 50]);
+    g.rect(0, 0, T, 2, [20, 20, 26, 160]);
+    g.rect(0, T - 2, T, 2, [20, 20, 26, 160]);
+  });
+  solid(B + 5);
+  /** One half of a gangway: a checker-plate floor with the black rubber bellows folding along its outer side. */
+  const gangway = (g) => {
+    g.rect(0, 0, T, T, PLATE);
+    for (let y = 1; y < T; y += 4) for (let x = (y % 8 === 1 ? 2 : 0) + 10; x < T; x += 4) g.rect(x, y, 2, 1, sh(PLATE, 1.25));
+    g.noise(10, 0, 22, T, 0.06, B + 6);
+    for (let x = 0; x < 10; x++) g.rect(x, 0, 1, T, x % 3 === 2 ? [20, 20, 24] : [46, 46, 54]);
+    g.rect(10, 0, 1, T, [20, 20, 24]);
+  };
+  // B+6, B+7 gangway, left and right half (walkable)
+  drawTile(B + 6, gangway);
+  drawTile(B + 7, (g) => {
+    const c = canvas(T, T);
+    gangway(c);
+    g.paste(c, 0, 0, true);
+  });
+  /** A gangway half where it passes through a carriage's wall face: the open sliding door's steel frame. */
+  const gangwayDoor = (g) => {
+    gangway(g);
+    const wall = canvas(T, T);
+    carWall(wall);
+    for (let y = 0; y < T; y++) for (let x = 0; x < 6; x++) g.set(x, y, wall.get(x, y));
+    g.rect(6, 0, 4, T, [170, 176, 188]);
+    g.rect(6, 0, 1, T, [210, 216, 226]);
+    g.rect(0, 0, T, 4, [170, 176, 188]);
+    g.rect(0, 0, T, 1, [80, 84, 94]);
+    g.rect(0, 4, T, 3, [0, 0, 0, 70]);
+  };
+  // B+8, B+9 gangway door in a carriage wall, left and right half (walkable)
+  drawTile(B + 8, gangwayDoor);
+  drawTile(B + 9, (g) => {
+    const c = canvas(T, T);
+    gangwayDoor(c);
+    g.paste(c, 0, 0, true);
+  });
+  // B+10 window at night: stars, a moon and dark hills; B+11 compartment door, hung on the carriage wall
+  drawTile(B + 10, (g) => {
+    carWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 18, [196, 200, 208], 1.15);
+    o.rect(5, 5, 22, 14, NIGHT);
+    for (let j = 0; j < 14; j++) o.rect(5, 5 + j, 22, 1, alpha([60, 70, 120], j * 8));
+    for (const [x, y] of [[7, 7], [12, 6], [19, 9], [25, 6], [9, 11]]) o.set(x, y, [230, 230, 250]);
+    o.ellipse(21, 8, 2.5, 2.5, [244, 236, 196]);
+    o.ellipse(22, 7, 2, 2, NIGHT);
+    for (let x = 5; x < 27; x++) {
+      const h = Math.round(3 + 2 * Math.sin(x / 3) + (x > 14 ? 2 : 0));
+      o.rect(x, 19 - h, 1, h, [24, 36, 44]);
+    }
+    o.rect(5, 5, 22, 1, alpha([255, 255, 255], 60));
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 10);
+  onWall(B + 11, 89, carWall, 89);
+  // B+12 compartment 34's door, the attendant's report pinned to it and the door ajar
+  drawTile(B + 12, (g) => {
+    g.paste(tileCanvas(B + 11));
+    g.rect(6, 2, 3, 28, [20, 18, 24]);
+    const o = canvas(T, T);
+    paper(o, 13, 6, 10, 12, [255, 250, 230]);
+    o.rect(17, 5, 2, 2, [214, 50, 46]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 12);
+  // B+13..B+16 the dining-car counter: a coffee machine, the conductor's handheld with his note
+  // under it, a tray of glasses, and the till with a card terminal
+  drawPiece([[B + 13, B + 14, B + 15, B + 16]], (g, { obj, shadow }) => {
+    shadow(64, 30, 63, 2);
+    obj((o) => {
+      o.box(0, 13, 128, 4, [214, 218, 224], 1.1);
+      o.box(1, 17, 126, 12, TEAK, 1.15);
+      for (let x = 4; x < 124; x += 16) o.rect(x, 19, 12, 7, sh(TEAK, 0.85));
+      o.rect(1, 27, 126, 2, [64, 52, 50]);
+    });
+    obj((o) => {
+      // coffee machine
+      o.box(6, 0, 20, 15, [60, 62, 70], 1.3);
+      o.rect(9, 3, 14, 3, [200, 60, 50]);
+      o.rect(12, 8, 2, 4, [170, 176, 188]);
+      o.rect(18, 8, 2, 4, [170, 176, 188]);
+      o.box(11, 11, 4, 3, [250, 250, 250]);
+      // the handheld on its note, with the lanyard
+      o.box(40, 2, 11, 12, [52, 56, 66], 1.4);
+      o.rect(42, 4, 7, 5, [140, 210, 240]);
+      o.rect(43, 6, 4, 1, [40, 80, 110]);
+      o.rect(42, 10, 7, 2, [214, 60, 56]);
+      for (let x = 52; x < 60; x++) o.set(x, 8 + Math.round(Math.sin(x * 0.9) * 2), [40, 100, 200]);
+      // his note, tucked under the lanyard on the next tile
+      paper(o, 58, 5, 11, 10, [255, 236, 140]);
+      o.rect(62, 4, 3, 2, alpha([220, 220, 230], 200));
+      // glasses on a tray
+      o.box(72, 10, 18, 4, [170, 176, 188], 1.2);
+      for (const x of [74, 79, 84]) {
+        o.rect(x, 5, 4, 5, alpha([220, 236, 240], 220));
+        o.rect(x + 1, 7, 2, 2, [200, 120, 60]);
+      }
+      // till and card terminal
+      o.box(100, 3, 16, 11, [52, 56, 70], 1.3);
+      o.rect(102, 5, 12, 3, [120, 230, 160]);
+      for (let i = 0; i < 3; i++) o.rect(102 + i * 4, 10, 3, 2, [206, 210, 220]);
+      o.box(118, 7, 6, 7, [36, 36, 40], 1.3);
+      o.rect(119, 8, 4, 2, [140, 210, 240]);
+    });
+  });
+  solid(B + 13, B + 14, B + 15, B + 16);
+  /** A dining booth's bench facing right: a tall red backrest on the left, the seat beside it. */
+  const booth = (g) => {
+    g.ellipse(16, 29, 12, 2, [0, 0, 0, 60]);
+    const o = canvas(T, T);
+    o.box(12, 8, 16, 18, BOOTH, 1.2);
+    o.rect(14, 11, 12, 1, sh(BOOTH, 0.8));
+    o.box(4, 2, 9, 26, sh(BOOTH, 0.8), 1.3);
+    o.rect(5, 3, 7, 1, [222, 182, 82]);
+    o.rect(6, 28, 3, 2, [60, 40, 30]);
+    o.rect(23, 26, 3, 3, [60, 40, 30]);
+    o.outline();
+    g.paste(o);
+  };
+  // B+17 booth bench facing right, B+18 facing left (seats: walkable)
+  drawTile(B + 17, booth);
+  drawTile(B + 18, (g) => {
+    const c = canvas(T, T);
+    booth(c);
+    g.paste(c, 0, 0, true);
+  });
+  // B+19 dining table with a newspaper next to the lamp
+  drawTile(B + 19, (g) => {
+    g.paste(tileCanvas(90));
+    const o = canvas(T, T);
+    o.box(4, 13, 11, 9, [238, 234, 222], 1, 0.85);
+    o.rect(5, 14, 9, 2, [50, 50, 60]);
+    for (let y = 17; y < 21; y += 2) o.rect(5, y, 8, 1, [150, 150, 160]);
+    o.outline([120, 110, 100]);
+    g.paste(o);
+  });
+  solid(B + 19);
+  // B+20 card reader server: a slim grey cabinet with a column of reader lights and a card slot
+  drawTile(B + 20, (g, { obj, shadow }) => {
+    shadow(16, 30, 12, 2);
+    obj((o) => {
+      o.box(5, 0, 22, 30, [126, 132, 144], 1.2);
+      o.rect(7, 3, 18, 8, [30, 40, 50]);
+      for (let j = 0; j < 3; j++) o.rect(9, 5 + j * 2, 8 - j * 2, 1, [140, 210, 240]);
+      for (let j = 0; j < 6; j++) {
+        o.set(9, 14 + j * 2, j === 3 ? [240, 70, 60] : [90, 220, 110]);
+        o.rect(11, 14 + j * 2, 7, 1, [90, 96, 108]);
+      }
+      o.box(20, 14, 4, 10, [60, 64, 74], 1.3);
+      o.rect(21, 15, 2, 4, [244, 204, 72]);
+    });
+  });
+  // B+21 the sign by the door panel, on the carriage wall: yellow, with a door pictogram and a key
+  drawTile(B + 21, (g) => {
+    carWall(g);
+    const o = canvas(T, T);
+    o.box(5, 3, 22, 18, [244, 204, 60], 1.1);
+    o.rect(7, 5, 18, 3, [30, 30, 36]);
+    o.box(8, 10, 7, 9, [80, 84, 94], 1.2);
+    o.rect(13, 14, 1, 2, [244, 204, 60]);
+    o.rect(17, 12, 6, 3, [30, 30, 36]);
+    o.rect(19, 15, 2, 3, [30, 30, 36]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+22 the route map on the carriage wall: a white strip with the line, its stations and a red "you are here"
+  drawTile(B + 22, (g) => {
+    carWall(g);
+    const o = canvas(T, T);
+    o.box(2, 4, 28, 15, [246, 244, 236], 1, 0.88);
+    o.rect(4, 11, 24, 2, [40, 80, 160]);
+    for (const x of [5, 11, 16, 22, 27]) {
+      o.ellipse(x, 11.5, 2, 2, [250, 250, 250]);
+      o.ellipse(x, 11.5, 1, 1, [40, 80, 160]);
+      o.rect(x - 1, 15, 3, 1, [120, 120, 130]);
+    }
+    o.rect(18, 6, 2, 4, [214, 50, 46]);
+    o.rect(4, 6, 8, 1, [60, 60, 70]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+23 the driver's log: a grey desk with the open logbook, a pen and the driver's cap
+  drawTile(B + 23, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      trainDesk(o);
+      o.box(3, 7, 17, 11, [40, 60, 110], 1.2);
+      o.rect(4, 8, 7, 9, [250, 246, 230]);
+      o.rect(12, 8, 7, 9, [250, 246, 230]);
+      for (let y = 10; y < 16; y += 2) {
+        o.rect(5, y, 5, 1, [130, 130, 145]);
+        o.rect(13, y, 4, 1, [130, 130, 145]);
+      }
+      o.ellipse(25, 12, 5, 3.5, [40, 50, 80]);
+      o.rect(21, 13, 9, 2, [30, 30, 40]);
+      o.rect(23, 10, 4, 1, [222, 182, 82]);
+    });
+  });
+  // B+24 luggage rack (above the avatars): a brass rack under the ceiling with a suitcase and a bag
+  drawTile(B + 24, (g) => {
+    const o = canvas(T, T);
+    o.rect(0, 4, T, 2, [212, 170, 80]);
+    o.rect(0, 12, T, 2, [212, 170, 80]);
+    for (let x = 2; x < T; x += 5) o.rect(x, 5, 1, 8, [180, 140, 60]);
+    o.box(4, 0, 14, 10, [110, 70, 44], 1.25);
+    o.rect(9, 0, 4, 1, [60, 40, 30]);
+    o.box(20, 3, 10, 8, [60, 90, 70], 1.25);
+    o.outline();
+    g.paste(o);
+    g.rect(0, 15, T, 3, [0, 0, 0, 40]);
+  });
+  // B+25 ceiling light (above the avatars): a frosted dome in a brass ring, with a warm glow
+  drawTile(B + 25, (g) => {
+    for (let j = 0; j < 7; j++) g.ellipse(16, 16, 15 - j, 12 - j, [255, 226, 160, 16]);
+    const o = canvas(T, T);
+    o.ellipse(16, 16, 8, 5, [212, 170, 80]);
+    o.ellipse(16, 15, 6, 3.5, [255, 248, 220]);
+    o.ellipse(15, 14, 2.5, 1.2, [255, 255, 255]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+26 the attendant's samovar on a little cabinet, with glasses in metal holders
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 30, 12, 2);
+    obj((o) => {
+      o.box(3, 16, 26, 13, TEAK, 1.2);
+      o.rect(5, 19, 22, 1, sh(TEAK, 0.75));
+      o.ellipse(13, 10, 7, 7, [212, 170, 80]);
+      o.ellipse(11, 8, 2.5, 3, sh([212, 170, 80], 1.3));
+      o.box(10, 1, 6, 3, [180, 140, 60], 1.2);
+      o.rect(19, 10, 4, 2, [180, 140, 60]);
+      for (const x of [22, 26]) {
+        o.box(x - 1, 9, 4, 6, [170, 176, 188], 1.2);
+        o.rect(x, 10, 2, 3, [170, 90, 40]);
+      }
+    });
+  });
+  // B+27 the emergency brake on the carriage wall: a red handle in a glass-fronted box, its seal broken
+  drawTile(B + 27, (g) => {
+    carWall(g);
+    const o = canvas(T, T);
+    o.box(8, 4, 16, 16, [214, 46, 46], 1.2);
+    o.rect(10, 6, 12, 12, [240, 236, 228]);
+    o.rect(12, 9, 8, 3, [214, 46, 46]);
+    o.rect(15, 12, 2, 4, [80, 84, 94]);
+    o.rect(10, 6, 4, 1, alpha([255, 255, 255], 200));
+    o.outline();
+    g.paste(o);
+    g.rect(22, 18, 2, 4, [214, 46, 46]);
+    g.set(24, 21, [214, 46, 46]);
+  });
+  // B+28 mail sacks and parcels in the service car
+  drawTile(B + 28, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      o.ellipse(10, 20, 8, 9, [196, 176, 130]);
+      o.rect(8, 9, 4, 3, [140, 110, 70]);
+      o.rect(6, 18, 8, 1, [150, 130, 90]);
+      o.box(15, 13, 14, 15, KRAFT, 1.2);
+      o.rect(21, 13, 2, 15, [200, 180, 140]);
+      o.box(17, 6, 10, 8, sh(KRAFT, 1.08), 1.2);
+      o.rect(18, 9, 5, 2, [250, 250, 250]);
+    });
+  });
+  // B+29 an outside door in the carriage wall: a narrow door with a drop window and a square-key lock
+  drawTile(B + 29, (g) => {
+    carWall(g);
+    const o = canvas(T, T);
+    o.box(6, 1, 20, 31, [176, 60, 56], 1.2);
+    o.rect(9, 4, 14, 10, NIGHT);
+    for (const [x, y] of [[11, 6], [18, 8], [14, 11]]) o.set(x, y, [230, 230, 250]);
+    o.rect(9, 4, 14, 1, alpha([255, 255, 255], 80));
+    o.rect(20, 18, 3, 6, [200, 204, 214]);
+    o.rect(10, 20, 3, 3, [60, 64, 74]);
+    o.rect(11, 21, 1, 1, [244, 204, 72]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 20, B + 21, B + 22, B + 23, B + 26, B + 27, B + 28, B + 29);
+  // B+30 rainwater and wet leaves blown in under the outside door (decor)
+  drawTile(B + 30, (g) => {
+    g.ellipse(16, 12, 13, 7, [90, 120, 160, 110]);
+    g.ellipse(13, 10, 7, 3, [160, 190, 230, 120]);
+    for (const [x, y, c] of [[8, 6, [176, 110, 50]], [22, 16, [150, 120, 40]], [18, 4, [190, 90, 40]]]) {
+      g.ellipse(x, y, 2.5, 1.5, c);
+      g.set(x + 2, y, sh(c, 0.6));
+    }
+    for (const [x, y] of [[10, 22], [20, 26]]) g.ellipse(x, y, 3, 1.5, [90, 120, 160, 90]);
+  });
+  // B+31 dining-car window: the night window with red curtains drawn to the sides
+  drawTile(B + 31, (g) => {
+    g.paste(tileCanvas(B + 10));
+    const o = canvas(T, T);
+    for (const [x, dir] of [[1, 1], [31, -1]]) {
+      for (let j = 0; j < 22; j++) {
+        const w = Math.round(6 - Math.abs(j - 13) * 0.25);
+        o.rect(dir > 0 ? x : x - w, 1 + j, w, 1, BOOTH);
+      }
+      o.rect(dir > 0 ? x + 2 : x - 3, 1, 1, 21, sh(BOOTH, 0.7));
+    }
+    o.rect(0, 0, T, 2, [212, 170, 80]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 31);
+}
 // --- end sql-train ---
 
 // --- pandas-market restyle (tiles 336-367) ---
