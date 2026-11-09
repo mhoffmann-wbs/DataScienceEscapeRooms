@@ -33,7 +33,7 @@
 
 **Aufgabe:**
 
-> Ein Wagen voller zurückgegebener Bücher steht bei den Regalen, seine Bremse bleibt fest, bis die Bücher in Margaretes Einräumreihenfolge liegen. Ihr Zettel am Wagen sagt, wie sie es haben will.
+> Ein Wagen voller zurückgegebener Bücher steht bei den Regalen, seine Bremse bleibt fest, bis die Bücher in Margaretes Einräumreihenfolge liegen.
 >
 > Die Bücher sind als `returns` geladen, eine Liste von Dictionaries mit `"title"` und `"shelf"`. Speichere die Titel in Einräumreihenfolge in `cart`, einer Liste von Strings.
 
@@ -69,7 +69,7 @@ print(cart)
 
 **Hinweise:**
 
-1. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“.
+1. Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“.
 2. Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem zweiten Schlüssel (Titel, `reverse=True`), dann nach dem ersten (Regal).
 3. `by_title = sorted(returns, key=lambda b: b["title"], reverse=True)`, dann `sorted(by_title, key=lambda b: b["shelf"])`, dann die Titel herausziehen.
 
@@ -83,7 +83,7 @@ print(cart)
 
 > Auf dem Packtisch wartet ein Stapel Bücher darauf, in den Keller zu kommen, daneben ein Stapel leerer Archivkartons. Der Kelleraufzug nimmt nur vollständige Anweisungen: welche Bücher in welchen Karton kommen.
 >
-> Die Signaturen sind als `book_ids` geladen. Packe sie so, wie es auf dem Kartonetikett steht, und speichere die Kartons in `boxes`, einer Liste mit einem Tupel oder einer Liste von Signaturen pro Karton.
+> Die Signaturen sind als `book_ids` geladen. Packe sie in Kartons und speichere die Kartons in `boxes`, einer Liste mit einem Tupel oder einer Liste von Signaturen pro Karton.
 
 <details><summary>Startcode</summary>
 
@@ -117,7 +117,7 @@ print(len(boxes), boxes[-1])
 
 **Hinweise:**
 
-1. Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe.
+1. Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe.
 2. `itertools.batched(iterable, n)` liefert Tupel mit `n` Elementen; das letzte darf kürzer sein. Es gibt einen Iterator zurück, also pack es in `list(...)`. Und das Etikett will zuerst die Reihenfolge der Signaturen.
 3. `from itertools import batched` und `boxes = list(batched(sorted(book_ids), 7))`
 
@@ -131,13 +131,13 @@ print(len(boxes), boxes[-1])
 
 > Das Mahngebühren-Buch ging nie auf: Margaretes Gebührenskript lag immer ein paar Cent daneben. Eine Bleistiftnotiz am Rand: „Warum mein Skript falsch ist, steht unter `round()` bei den eingebauten Funktionen. Folgt der Doku von dort aus.“
 >
-> Das Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechne jede Gebühr so, wie es die Gebührenordnung sagt, und speichere die Summe in `total`.
+> Das Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechne jede Gebühr auf den Cent genau und speichere die Summe in `total`.
 
 <details><summary>Startcode</summary>
 
 ```python
 # Margaretes Gebührenskript. ledger ist geladen: Paare (Titel, Tage überfällig).
-RATE = 0.0  # Euro pro Tag: siehe Gebührenordnung
+RATE = 0.0  # Euro pro Tag
 
 total = 0
 for title, days in ledger:
@@ -174,7 +174,7 @@ print(total)
 
 **Hinweise:**
 
-1. Unter `round()` sagt die Doku zwei Dinge: Gleichstände werden zur geraden Zahl gerundet, und ein Float wie `2.675` lässt sich nicht exakt speichern. Der Hinweis dort nennt das Modul für exaktes Rechnen mit Dezimalzahlen.
+1. Die Gebührenordnung der Bibliothek nennt den Satz und wie gerundet wird. Unter `round()` sagt die Doku zwei Dinge: Gleichstände werden zur geraden Zahl gerundet, und ein Float wie `2.675` lässt sich nicht exakt speichern. Der Hinweis dort nennt das Modul für exaktes Rechnen mit Dezimalzahlen.
 2. Auf der Seite zu `decimal`: Zahlen aus Strings bauen, `Decimal("0.045")`, nicht aus Floats; jede Gebühr mit `.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)` runden.
 3. `from decimal import Decimal, ROUND_HALF_UP`, dann in der Schleife `fee = (days * Decimal("0.045")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)`.
 
@@ -185,9 +185,9 @@ print(total)
 
 **Aufgabe:**
 
-> Das Terminal im Lesesaal ist uralt. Sein Startbildschirm zeigt `Python 3.8.10`. Margarete wollte ihre Skripte darauf laufen lassen und hat die Liste der Funktionen, die sie benutzen, daneben gepinnt.
+> Das Terminal im Lesesaal ist uralt. Sein Startbildschirm zeigt `Python 3.8.10`. Margarete wollte ihre Skripte darauf laufen lassen.
 >
-> Das Terminal fragt nach seinem Admin-Code: für jede Funktion auf ihrer Liste, die es in Python 3.8 noch nicht gibt, die Unterversion der Python-Version, die sie eingeführt hat, in der Reihenfolge der Liste, ohne Leerzeichen. (Eine Funktion aus Python 3.11 ergäbe `11`.)
+> Das Terminal fragt nach seinem Admin-Code: für jede Funktion, die ihre Skripte benutzen und die es in Python 3.8 noch nicht gibt, die Unterversion der Python-Version, die sie eingeführt hat, in der Reihenfolge ihrer Liste, ohne Leerzeichen. (Eine Funktion aus Python 3.11 ergäbe `11`.)
 
 **Antwort:** `91012`
 
@@ -197,7 +197,7 @@ print(total)
 
 **Hinweise:**
 
-1. Schlag jede Funktion nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“.
+1. Margarete hat die Liste der Funktionen neben das Terminal gepinnt. Schlag jede nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“.
 2. Funktionen aus 3.8 oder früher laufen auf dem Terminal. Zwei der fünf auf der Liste tun das.
 3. `str.removeprefix` 3.9, `math.dist` 3.8, `itertools.pairwise` 3.10, `statistics.fmean` 3.8, `itertools.batched` 3.12.
 
@@ -215,7 +215,7 @@ print(total)
 
 > Die Stempelmaschine druckt in jedes Buch einen Rückgabestempel. Ihr Fach ist voll, aber Margaretes Stempelskript druckt um Neujahr herum Unsinn.
 >
-> Die Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariere das Skript, sodass `stamps` einen Stempel pro Buch enthält, im Format aus der Anleitung der Maschine.
+> Die Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariere das Skript, sodass `stamps` für jedes Buch den richtigen Rückgabestempel enthält.
 
 <details><summary>Startcode</summary>
 
@@ -256,7 +256,7 @@ print(stamps)
 
 **Hinweise:**
 
-1. Auf der Seite zu `datetime` hat der Abschnitt „strftime() and strptime() Format Codes“ eine Tabelle mit Codes. Drei davon erwähnen ISO 8601.
+1. Die Anleitung der Maschine nennt das Stempelformat. Auf der Seite zu `datetime` hat der Abschnitt „strftime() and strptime() Format Codes“ eine Tabelle mit Codes. Drei davon erwähnen ISO 8601.
 2. `%V` ist die ISO-Woche, `%u` der ISO-Wochentag (Montag ist 1). Die Doku sagt, dass sich die ISO-Direktiven für Jahr und Woche nicht mit `%Y` und `%W` austauschen lassen: Um Neujahr herum ist das ISO-Jahr `%G`.
 3. `day.strftime("%G-W%V-%u")`
 

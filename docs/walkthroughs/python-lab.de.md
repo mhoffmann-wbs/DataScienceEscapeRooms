@@ -32,7 +32,7 @@
 
 > Idas Computer verlangt ein Passwort. Neben der Tastatur liegt ihr Login-Hilfsskript, das in der Nacht des Lockdowns abgestürzt ist.
 >
-> Füllt die fehlenden Werte mit Dingen aus, die ihr im Labor findet, repariert das Skript und speichert das Passwort in `password`.
+> Findet Idas Passwort heraus: Füllt die fehlenden Werte aus, repariert das Skript und speichert das Passwort in `password`.
 
 <details><summary>Startcode</summary>
 
@@ -89,9 +89,9 @@ print("Logging in with:", password)
 
 > Der Inkubator hat die ganze Nacht Temperaturen aufgezeichnet, ein Wert pro Stunde, beginnend bei Stunde 0. Das Protokoll ist als Liste `temps` geladen.
 >
-> Die Bedienungsanleitung des Inkubators liegt irgendwo im Labor. Ermittelt damit drei Dinge:
+> Findet heraus, wie die Nacht für den Inkubator verlaufen ist, in drei Werten:
 >
-> `missing`: wie viele Werte fehlen (der Sensor ist ausgefallen)
+> `missing`: wie viele Werte fehlen
 >
 > `alarms`: wie viele Werte außerhalb des sicheren Bereichs lagen
 >
@@ -162,7 +162,7 @@ print(missing, alarms, first_alarm)
 from helpers import unshift
 
 # Probiert: print(unshift("d", 3))
-KEY = 0  # der Schlüssel ist irgendwo im Labor
+KEY = 0  # nicht der echte Schlüssel
 
 
 def decode(line):
@@ -226,7 +226,7 @@ for line in notes["en"]:
 
 **Aufgabe:**
 
-> Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Wie Ida den Code gewählt hat, steht nirgends am Gefrierschrank. Auf einem Etikett an der Tür steht:
+> Der Gefrierschrank ist mit einem Zahlenschloss gesichert; findet seinen Code. Auf einem Etikett an der Tür steht:
 >
 > `SAMPLES INSIDE: M-04 · M-09 · M-1▒`
 >
@@ -261,7 +261,7 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 **Hinweise:**
 
-1. Der Code steht nicht am Gefrierschrank. Ida erklärt ihn in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht.
+1. Wie Ida den Code gewählt hat, steht nicht am Gefrierschrank. Sie erklärt es in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht.
 2. `catalog["M-04"]["spores"]` schlägt einen Wert nach. Um die verschmierte Probe zu finden, geht mit `for sample_id, info in catalog.items():` durch den Katalog und prüft `sample_id.startswith("M-1")` und `info["glows"]`.
 3. Die verschmierte Probe ist M-13. Der Code ist die Summe der Sporenzahlen von M-04, M-09 und M-13.
 
@@ -281,7 +281,7 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 ```python
 # Neustart der Lüftung. co2 ist schon geladen, z. B. {"north": "1250", ...}
-HIGH = 0     # TODO: Schwellenwerte vom Luftqualitäts-Poster übernehmen
+HIGH = 0     # TODO: die echten Schwellenwerte
 MEDIUM = 0
 
 speeds = {}
@@ -357,7 +357,7 @@ print("Total:", total)
 >
 > `QUARANTINE OVERRIDE: _ _ _ _`
 >
-> Ida hat den Code nie an einem einzigen Ort aufbewahrt.
+> Gebt den Override-Code ein, um die Tür zu öffnen.
 
 **Antwort:** `6348`
 

@@ -32,7 +32,7 @@
 
 > Ida's computer is asking for a password. Next to the keyboard sits her login helper script, which crashed the night of the lockdown.
 >
-> Fill in the missing values from things you find in the lab, fix the script and store the password in `password`.
+> Work out Ida's password: fill in the missing values, fix the script and store the password in `password`.
 
 <details><summary>Starter code</summary>
 
@@ -89,9 +89,9 @@ print("Logging in with:", password)
 
 > The incubator kept logging temperatures all night, one reading per hour, starting at hour 0. The log is loaded as the list `temps`.
 >
-> The incubator manual is somewhere in the lab. Use it to work out three things:
+> Find out how the night went for the incubator, as three values:
 >
-> `missing`: how many readings are missing (the sensor dropped out)
+> `missing`: how many readings are missing
 >
 > `alarms`: how many readings were outside the safe range
 >
@@ -162,7 +162,7 @@ print(missing, alarms, first_alarm)
 from helpers import unshift
 
 # Try: print(unshift("d", 3))
-KEY = 0  # the key is somewhere in the lab
+KEY = 0  # not the real key
 
 
 def decode(line):
@@ -226,7 +226,7 @@ for line in notes["en"]:
 
 **Task:**
 
-> The freezer is locked with a number padlock. How Ida set its code is not written anywhere on the freezer. A label on its door reads:
+> The freezer is locked with a number padlock; find its code. A label on its door reads:
 >
 > `SAMPLES INSIDE: M-04 · M-09 · M-1▒`
 >
@@ -261,7 +261,7 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 **Hints:**
 
-1. The padlock code is not on the freezer. Ida explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.
+1. How Ida set the padlock code is not on the freezer. She explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.
 2. `catalog["M-04"]["spores"]` looks up one value. To find the smudged sample, loop with `for sample_id, info in catalog.items():` and check `sample_id.startswith("M-1")` and `info["glows"]`.
 3. The smudged sample is M-13. The code is the sum of the spore counts of M-04, M-09 and M-13.
 
@@ -281,7 +281,7 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 ```python
 # Ventilation restart. co2 is already loaded, e.g. {"north": "1250", ...}
-HIGH = 0     # TODO: copy the thresholds from the air-quality poster
+HIGH = 0     # TODO: the real thresholds
 MEDIUM = 0
 
 speeds = {}
@@ -357,7 +357,7 @@ print("Total:", total)
 >
 > `QUARANTINE OVERRIDE: _ _ _ _`
 >
-> Ida never kept the whole code in one place.
+> Enter the override code to open the door.
 
 **Answer:** `6348`
 

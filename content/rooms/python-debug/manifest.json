@@ -220,8 +220,8 @@
         "de": "Sensorzentrale der Schleuse"
       },
       "text": {
-        "en": "Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock. Finn made its script \"crash-proof\". Now it never crashes, and it never finds a single reading.\n\nFix it so that `readings` holds every valid air temperature from the log as a float, and `average` their mean.",
-        "de": "Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse. Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.\n\nRepariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält und `average` ihren Mittelwert."
+        "en": "Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock: may the door open? Finn made its script \"crash-proof\". Now it never crashes, and it never finds a single reading.\n\nFix it so that `readings` holds every valid air temperature from the log as a float, `average` their mean, and `door_opens` (`True` or `False`) whether the inner door may open.",
+        "de": "Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse: Darf die Tür aufgehen? Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.\n\nRepariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält, `average` ihren Mittelwert und `door_opens` (`True` oder `False`), ob sich die innere Tür öffnen darf."
       },
       "workspace": "python",
       "data": "airlock.py",
@@ -231,8 +231,8 @@
       },
       "check": {
         "type": "python",
-        "expr": "[len(readings), round(average, 2)]",
-        "hash": "86691653b8c5003ba317f53f3fc186974741fe611f8570405a6b3131234d621e"
+        "expr": "[len(readings), round(average, 2), door_opens]",
+        "hash": "d534327ff6dbacd90ce1057b060d720bbbbf91f430c0c7682cd9d5065da114c2"
       },
       "practises": {
         "en": "Why `except: pass` hides bugs: taking it out to see the real error, then fixing it: `split()` with the right separator, decimal commas, leaving out missing readings instead of counting them as 0.",
@@ -256,12 +256,12 @@
           "de": "Das `try` mit `except: pass` verschluckt jeden Fehler, also seht ihr nicht, was schiefgeht. Nehmt es heraus (oder gebt den Fehler im `except` aus), lasst das Skript laufen und lest den echten Fehler."
         },
         {
-          "en": "Three things go wrong: the lines are split at the wrong character, some readings have a decimal comma (`23,8`), and the manual says what `--` means.",
-          "de": "Drei Dinge gehen schief: Die Zeilen werden am falschen Zeichen getrennt, manche Messungen haben ein Dezimalkomma (`23,8`), und das Handbuch sagt, was `--` bedeutet."
+          "en": "Three things go wrong: the lines are split at the wrong character, some readings have a decimal comma (`23,8`), and the manual says what `--` means. The manual also says when the door may open.",
+          "de": "Drei Dinge gehen schief: Die Zeilen werden am falschen Zeichen getrennt, manche Messungen haben ein Dezimalkomma (`23,8`), und das Handbuch sagt, was `--` bedeutet. Es sagt auch, wann sich die Tür öffnen darf."
         },
         {
-          "en": "`time, sensor, value = line.split(\";\")`, skip a reading whose value is `\"--\"`, and `readings.append(float(value.replace(\",\", \".\")))`.",
-          "de": "`time, sensor, value = line.split(\";\")`, eine Messung mit dem Wert `\"--\"` überspringen, und `readings.append(float(value.replace(\",\", \".\")))`."
+          "en": "`time, sensor, value = line.split(\";\")`, skip a reading whose value is `\"--\"`, and `readings.append(float(value.replace(\",\", \".\")))`, then `door_opens = 22 <= average <= 28`.",
+          "de": "`time, sensor, value = line.split(\";\")`, eine Messung mit dem Wert `\"--\"` überspringen, und `readings.append(float(value.replace(\",\", \".\")))`, dann `door_opens = 22 <= average <= 28`."
         }
       ],
       "reveal": {
@@ -276,8 +276,8 @@
         "de": "Schleusentür"
       },
       "text": {
-        "en": "The inner airlock door. Its keypad wants four digits: the numbers the systems show after a restart.",
-        "de": "Die innere Schleusentür. Ihr Tastenfeld will vier Ziffern: die Zahlen, die die Systeme nach einem Neustart anzeigen."
+        "en": "The inner airlock door. Its keypad wants four digits.",
+        "de": "Die innere Schleusentür. Ihr Tastenfeld will vier Ziffern."
       },
       "workspace": "none",
       "check": {
@@ -334,8 +334,8 @@
         "de": "Whiteboard: Fütterung"
       },
       "text": {
-        "en": "NECTAR per butterfly per day\nblue morpho 0.8 ml\nowl butterfly 1.2 ml\npostman 0.5 ml\nzebra longwing 0.4 ml\n\nNEW since Monday: **glasswing, 0.3 ml**. Not in the feeding script yet!",
-        "de": "NEKTAR pro Schmetterling und Tag\nblue morpho (Himmelsfalter) 0,8 ml\nowl butterfly (Bananenfalter) 1,2 ml\npostman (Postbote) 0,5 ml\nzebra longwing (Zebrafalter) 0,4 ml\n\nNEU seit Montag: **glasswing (Glasflügler), 0,3 ml**. Noch nicht im Futterskript!"
+        "en": "NECTAR per butterfly per day\n\nNEW since Monday: **glasswing, 0.3 ml**. Not in the feeding script yet!",
+        "de": "NEKTAR pro Schmetterling und Tag\n\nNEU seit Montag: **glasswing (Glasflügler), 0,3 ml**. Noch nicht im Futterskript!"
       }
     },
     {
@@ -345,8 +345,8 @@
         "de": "Notiz neben dem Schlupfkasten"
       },
       "text": {
-        "en": "The tests at the end of the hatchery script say what the functions must do, worked out by hand on four test chrysalises. They all passed before Finn touched the code.\n\nIf a test fails, fix the function, not the test. — O. B.",
-        "de": "Die Tests am Ende des Schlupf-Skripts sagen, was die Funktionen tun müssen, von Hand an vier Testpuppen nachgerechnet. Bevor Finn den Code angefasst hat, liefen sie alle durch.\n\nWenn ein Test fehlschlägt, repariert die Funktion, nicht den Test. — O. B."
+        "en": "The tests at the end of the hatchery script say what the functions must do, worked out by hand on four test chrysalises.\n\nIf a test fails, fix the function, not the test. — O. B.",
+        "de": "Die Tests am Ende des Schlupf-Skripts sagen, was die Funktionen tun müssen, von Hand an vier Testpuppen nachgerechnet.\n\nWenn ein Test fehlschlägt, repariert die Funktion, nicht den Test. — O. B."
       }
     },
     {
@@ -356,8 +356,8 @@
         "de": "Strichliste der Freiwilligen"
       },
       "text": {
-        "en": "Evening count, yesterday: **47 butterflies** in total. ✔\n\nToday's hatchings and losses are logged in the tablet. It works out the rest and orders every species that has none left from the breeder.",
-        "de": "Abendzählung gestern: insgesamt **47 Schmetterlinge**. ✔\n\nDie heutigen Schlüpfe und Verluste stehen im Protokoll auf dem Tablet. Es rechnet den Rest aus und bestellt bei der Zucht jede Art, von der keiner mehr da ist."
+        "en": "Evening count, yesterday: **47 butterflies** in total. ✔",
+        "de": "Abendzählung gestern: insgesamt **47 Schmetterlinge**. ✔"
       }
     },
     {
@@ -378,8 +378,8 @@
         "de": "Klemmbrett neben der Schleuse"
       },
       "text": {
-        "en": "RESTART CHECKLIST (airlock override)\n\nAfter a restart every system shows a number. Type them into the airlock keypad in this order:\n1. air (sensor hub)\n2. nectar (feeding station)\n3. chrysalises (emergence cabinet)\n4. count (census tablet)\n\nThe climate controller comes first: without its PIN, the sensor hub stays locked. — O. B.",
-        "de": "NEUSTART-CHECKLISTE (Schleusen-Override)\n\nNach einem Neustart zeigt jedes System eine Zahl. Tippt sie in dieser Reihenfolge ins Tastenfeld der Schleuse:\n1. Luft (Sensorzentrale)\n2. Nektar (Futterstation)\n3. Puppen (Schlupfkasten)\n4. Zählung (Zähl-Tablet)\n\nDie Klimasteuerung kommt zuerst: Ohne ihre PIN bleibt die Sensorzentrale gesperrt. — O. B."
+        "en": "RESTART CHECKLIST (airlock override)\n\nType the restart numbers into the airlock keypad in this order:\n1. air (sensor hub)\n2. nectar (feeding station)\n3. chrysalises (emergence cabinet)\n4. count (census tablet)\n\n— O. B.",
+        "de": "NEUSTART-CHECKLISTE (Schleusen-Override)\n\nTippt die Neustart-Zahlen in dieser Reihenfolge ins Tastenfeld der Schleuse:\n1. Luft (Sensorzentrale)\n2. Nektar (Futterstation)\n3. Puppen (Schlupfkasten)\n4. Zählung (Zähl-Tablet)\n\n— O. B."
       }
     }
   ],

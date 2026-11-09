@@ -30,7 +30,7 @@ flowchart LR
   end
 
   subgraph p2["Needs a code"]
-    sensors["5 · Airlock sensor hub 🔒<br/>except: pass hides the bug"]
+    sensors["5 · Airlock sensor hub 🔒<br/>except: pass hides the bug, verdict door_opens"]
   end
 
   subgraph p3["Final lock"]
@@ -50,7 +50,7 @@ flowchart LR
   nectarboard -->|"🔎 glasswing 0.3 ml"| feeding
   cabinetnote -.->|"🔎 fix the function, not the test"| hatchery
   tallysheet -.->|"🔎 yesterday: 47 butterflies"| census
-  sensormanual -->|"🔎 ; separates fields,<br/>-- = offline, leave out"| sensors
+  sensormanual -->|"🔎 ; separates fields, -- = offline, leave out;<br/>door opens at 22–28 °C"| sensors
   checklist -->|"🔎 order: air, nectar,<br/>chrysalises, count"| airlock
 
   climate ==>|"🔒 PIN 7942, printed by the script"| sensors
@@ -94,7 +94,7 @@ flowchart LR
 ## Hand-offs
 
 - Between stations: 1 (the PIN), plus 4 digits into the airlock.
-- From clues: 6 clues, 3 hard (whiteboard, sensor manual, checklist) and 3 soft (Finn's note, the cabinet note, the tally sheet).
+- From clues: 6 clues, 3 hard (whiteboard, sensor manual, checklist) and 3 soft (Finn's note, the cabinet note, the tally sheet). The sensor manual's door range (22–28 °C) is now checked through `door_opens`.
 - From the scripts themselves: most of the knowledge comes from the error messages and tests, which is the point of the room.
 
 ## Where things are
@@ -103,6 +103,14 @@ flowchart LR
 - Players arrive in the airlock (top centre) with the door, keypad, checklist and handbook. West of it is Ole's tech room with the climate panel and the sensor hub; a strip curtain leads south into the tropical hall: the feeding corner in the north-east, the emergence cabinet on the west side, the lily pond in the middle and the volunteers' desk with the census tablet in the south-east.
 
 ## Findings
+
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **The sensor hub ends in a verdict:** the task asks whether the inner door may open, and the check now verifies `door_opens` (`True`) next to the readings and the mean. The manual's 22–28 °C rule used to be read only in the reveal; a team that counts `--` as 0 °C gets a mean of 16.7 °C and `False`.
+- **Every clue says its thing once.** The feeding whiteboard no longer repeats the four nectar values from the starter's `NECTAR` (only the new glasswing); the tally sheet no longer repeats the census task (only "47 yesterday"); the cabinet note no longer repeats the starter's "they all passed before"; the checklist no longer repeats the intro ("every system shows a number") or the climate task (its PIN opens the sensor hub).
+- **The airlock door's task no longer repeats the intro** about restart numbers.
+
+Still open (from the first review):
 
 - **Three clues are soft.** Finn's note explains the `KeyError: 'cloud_forest'`, but the message alone is enough. The tally sheet (47 yesterday) confirms the census bug, but all-zero changes already give it away. The cabinet note only says to trust the tests. That's partly on purpose: in a debugging room, Python's own messages are the main clue.
 - **Clues sit next to their stations,** so there's little walking and talking between lanes. A link could be: the census tablet's `events` come from the hatchery's results, or the feeding station's species list comes from the census.

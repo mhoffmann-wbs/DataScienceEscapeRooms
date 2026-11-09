@@ -32,8 +32,8 @@
         "de": "Idas Terminal"
       },
       "text": {
-        "en": "Ida's computer is asking for a password. Next to the keyboard sits her login helper script, which crashed the night of the lockdown.\n\nFill in the missing values from things you find in the lab, fix the script and store the password in `password`.",
-        "de": "Idas Computer verlangt ein Passwort. Neben der Tastatur liegt ihr Login-Hilfsskript, das in der Nacht des Lockdowns abgestürzt ist.\n\nFüllt die fehlenden Werte mit Dingen aus, die ihr im Labor findet, repariert das Skript und speichert das Passwort in `password`."
+        "en": "Ida's computer is asking for a password. Next to the keyboard sits her login helper script, which crashed the night of the lockdown.\n\nWork out Ida's password: fill in the missing values, fix the script and store the password in `password`.",
+        "de": "Idas Computer verlangt ein Passwort. Neben der Tastatur liegt ihr Login-Hilfsskript, das in der Nacht des Lockdowns abgestürzt ist.\n\nFindet Idas Passwort heraus: Füllt die fehlenden Werte aus, repariert das Skript und speichert das Passwort in `password`."
       },
       "workspace": "python",
       "starter": {
@@ -79,8 +79,8 @@
         "de": "Der Inkubator"
       },
       "text": {
-        "en": "The incubator kept logging temperatures all night, one reading per hour, starting at hour 0. The log is loaded as the list `temps`.\n\nThe incubator manual is somewhere in the lab. Use it to work out three things:\n\n`missing`: how many readings are missing (the sensor dropped out)\n\n`alarms`: how many readings were outside the safe range\n\n`first_alarm`: the hour of the first alarm",
-        "de": "Der Inkubator hat die ganze Nacht Temperaturen aufgezeichnet, ein Wert pro Stunde, beginnend bei Stunde 0. Das Protokoll ist als Liste `temps` geladen.\n\nDie Bedienungsanleitung des Inkubators liegt irgendwo im Labor. Ermittelt damit drei Dinge:\n\n`missing`: wie viele Werte fehlen (der Sensor ist ausgefallen)\n\n`alarms`: wie viele Werte außerhalb des sicheren Bereichs lagen\n\n`first_alarm`: die Stunde des ersten Alarms"
+        "en": "The incubator kept logging temperatures all night, one reading per hour, starting at hour 0. The log is loaded as the list `temps`.\n\nFind out how the night went for the incubator, as three values:\n\n`missing`: how many readings are missing\n\n`alarms`: how many readings were outside the safe range\n\n`first_alarm`: the hour of the first alarm",
+        "de": "Der Inkubator hat die ganze Nacht Temperaturen aufgezeichnet, ein Wert pro Stunde, beginnend bei Stunde 0. Das Protokoll ist als Liste `temps` geladen.\n\nFindet heraus, wie die Nacht für den Inkubator verlaufen ist, in drei Werten:\n\n`missing`: wie viele Werte fehlen\n\n`alarms`: wie viele Werte außerhalb des sicheren Bereichs lagen\n\n`first_alarm`: die Stunde des ersten Alarms"
       },
       "workspace": "python",
       "data": "incubator.py",
@@ -132,8 +132,8 @@
       "workspace": "python",
       "data": "notebook.py",
       "starter": {
-        "en": "from helpers import unshift\n\n# Try: print(unshift(\"d\", 3))\nKEY = 0  # the key is somewhere in the lab\n\n\ndef decode(line):\n    result = \"\"\n    # your code here\n    return result\n\n\nfor line in notes[\"en\"]:\n    print(decode(line))\n",
-        "de": "from helpers import unshift\n\n# Probiert: print(unshift(\"d\", 3))\nKEY = 0  # der Schlüssel ist irgendwo im Labor\n\n\ndef decode(line):\n    result = \"\"\n    # euer Code hier\n    return result\n\n\nfor line in notes[\"de\"]:\n    print(decode(line))\n"
+        "en": "from helpers import unshift\n\n# Try: print(unshift(\"d\", 3))\nKEY = 0  # not the real key\n\n\ndef decode(line):\n    result = \"\"\n    # your code here\n    return result\n\n\nfor line in notes[\"en\"]:\n    print(decode(line))\n",
+        "de": "from helpers import unshift\n\n# Probiert: print(unshift(\"d\", 3))\nKEY = 0  # nicht der echte Schlüssel\n\n\ndef decode(line):\n    result = \"\"\n    # euer Code hier\n    return result\n\n\nfor line in notes[\"de\"]:\n    print(decode(line))\n"
       },
       "check": {
         "type": "python",
@@ -173,8 +173,8 @@
         "de": "Der Probengefrierschrank"
       },
       "text": {
-        "en": "The freezer is locked with a number padlock. How Ida set its code is not written anywhere on the freezer. A label on its door reads:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nThe last number is smudged. Underneath, in Ida's handwriting: \"the only M-1… sample that glows\".\n\nIda's specimen catalogue is loaded as the dictionary `catalog`.",
-        "de": "Der Gefrierschrank ist mit einem Zahlenschloss gesichert. Wie Ida den Code gewählt hat, steht nirgends am Gefrierschrank. Auf einem Etikett an der Tür steht:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nDie letzte Nummer ist verschmiert. Darunter steht in Idas Handschrift: \"die einzige M-1…-Probe, die leuchtet\".\n\nIdas Probenkatalog ist als Dictionary `catalog` geladen."
+        "en": "The freezer is locked with a number padlock; find its code. A label on its door reads:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nThe last number is smudged. Underneath, in Ida's handwriting: \"the only M-1… sample that glows\".\n\nIda's specimen catalogue is loaded as the dictionary `catalog`.",
+        "de": "Der Gefrierschrank ist mit einem Zahlenschloss gesichert; findet seinen Code. Auf einem Etikett an der Tür steht:\n\n`SAMPLES INSIDE: M-04 · M-09 · M-1▒`\n\nDie letzte Nummer ist verschmiert. Darunter steht in Idas Handschrift: \"die einzige M-1…-Probe, die leuchtet\".\n\nIdas Probenkatalog ist als Dictionary `catalog` geladen."
       },
       "workspace": "python",
       "data": "catalog.py",
@@ -200,8 +200,8 @@
       },
       "hints": [
         {
-          "en": "The padlock code is not on the freezer. Ida explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.",
-          "de": "Der Code steht nicht am Gefrierschrank. Ida erklärt ihn in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht."
+          "en": "How Ida set the padlock code is not on the freezer. She explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.",
+          "de": "Wie Ida den Code gewählt hat, steht nicht am Gefrierschrank. Sie erklärt es in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht."
         },
         {
           "en": "`catalog[\"M-04\"][\"spores\"]` looks up one value. To find the smudged sample, loop with `for sample_id, info in catalog.items():` and check `sample_id.startswith(\"M-1\")` and `info[\"glows\"]`.",
@@ -226,8 +226,8 @@
       "workspace": "python",
       "data": "ventilation.py",
       "starter": {
-        "en": "# Ventilation restart. co2 is already loaded, e.g. {\"north\": \"1250\", ...}\nHIGH = 0     # TODO: copy the thresholds from the air-quality poster\nMEDIUM = 0\n\nspeeds = {}\nfor vent in co2\n    level = co2[vent]\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n    speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total = speed\n\nprint(\"Fan speeds:\", speeds)\nprint(\"Total:\", total)\n",
-        "de": "# Neustart der Lüftung. co2 ist schon geladen, z. B. {\"north\": \"1250\", ...}\nHIGH = 0     # TODO: Schwellenwerte vom Luftqualitäts-Poster übernehmen\nMEDIUM = 0\n\nspeeds = {}\nfor vent in co2\n    level = co2[vent]\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n    speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total = speed\n\nprint(\"Lüfterstufen:\", speeds)\nprint(\"Summe:\", total)\n"
+        "en": "# Ventilation restart. co2 is already loaded, e.g. {\"north\": \"1250\", ...}\nHIGH = 0     # TODO: the real thresholds\nMEDIUM = 0\n\nspeeds = {}\nfor vent in co2\n    level = co2[vent]\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n    speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total = speed\n\nprint(\"Fan speeds:\", speeds)\nprint(\"Total:\", total)\n",
+        "de": "# Neustart der Lüftung. co2 ist schon geladen, z. B. {\"north\": \"1250\", ...}\nHIGH = 0     # TODO: die echten Schwellenwerte\nMEDIUM = 0\n\nspeeds = {}\nfor vent in co2\n    level = co2[vent]\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n    speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total = speed\n\nprint(\"Lüfterstufen:\", speeds)\nprint(\"Summe:\", total)\n"
       },
       "check": {
         "type": "python",
@@ -267,8 +267,8 @@
         "de": "Das Tastenfeld am Ausgang"
       },
       "text": {
-        "en": "A heavy keypad next to the sealed door. The display reads:\n\n`QUARANTINE OVERRIDE: _ _ _ _`\n\nIda never kept the whole code in one place.",
-        "de": "Ein schweres Tastenfeld neben der versiegelten Tür. Auf dem Display steht:\n\n`QUARANTINE OVERRIDE: _ _ _ _`\n\nIda hat den Code nie an einem einzigen Ort aufbewahrt."
+        "en": "A heavy keypad next to the sealed door. The display reads:\n\n`QUARANTINE OVERRIDE: _ _ _ _`\n\nEnter the override code to open the door.",
+        "de": "Ein schweres Tastenfeld neben der versiegelten Tür. Auf dem Display steht:\n\n`QUARANTINE OVERRIDE: _ _ _ _`\n\nGebt den Override-Code ein, um die Tür zu öffnen."
       },
       "check": {
         "type": "answer",

@@ -429,9 +429,9 @@ print("Order from the breeder:", order)
 
 **Aufgabe:**
 
-> Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse. Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.
+> Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse: Darf die Tür aufgehen? Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.
 >
-> Repariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält und `average` ihren Mittelwert.
+> Repariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält, `average` ihren Mittelwert und `door_opens` (`True` oder `False`), ob sich die innere Tür öffnen darf.
 
 <details><summary>Startcode</summary>
 
@@ -466,12 +466,14 @@ for line in log:
 average = sum(readings) / len(readings)
 print("Valid readings:", len(readings))
 print("Average temperature:", round(average, 2))
+door_opens = 22 <= average <= 28
+print("Door opens:", door_opens)
 ```
 
-**Geprüftes Ergebnis** (`[len(readings), round(average, 2)]`):
+**Geprüftes Ergebnis** (`[len(readings), round(average, 2), door_opens]`):
 
 ```json
-[7, 23.84]
+[7, 23.84, true]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -481,8 +483,8 @@ print("Average temperature:", round(average, 2))
 **Hinweise:**
 
 1. Das `try` mit `except: pass` verschluckt jeden Fehler, also seht ihr nicht, was schiefgeht. Nehmt es heraus (oder gebt den Fehler im `except` aus), lasst das Skript laufen und lest den echten Fehler.
-2. Drei Dinge gehen schief: Die Zeilen werden am falschen Zeichen getrennt, manche Messungen haben ein Dezimalkomma (`23,8`), und das Handbuch sagt, was `--` bedeutet.
-3. `time, sensor, value = line.split(";")`, eine Messung mit dem Wert `"--"` überspringen, und `readings.append(float(value.replace(",", ".")))`.
+2. Drei Dinge gehen schief: Die Zeilen werden am falschen Zeichen getrennt, manche Messungen haben ein Dezimalkomma (`23,8`), und das Handbuch sagt, was `--` bedeutet. Es sagt auch, wann sich die Tür öffnen darf.
+3. `time, sensor, value = line.split(";")`, eine Messung mit dem Wert `"--"` überspringen, und `readings.append(float(value.replace(",", ".")))`, dann `door_opens = 22 <= average <= 28`.
 
 ### 6. Schleusentür (Abschluss-Schloss)
 
@@ -491,7 +493,7 @@ print("Average temperature:", round(average, 2))
 
 **Aufgabe:**
 
-> Die innere Schleusentür. Ihr Tastenfeld will vier Ziffern: die Zahlen, die die Systeme nach einem Neustart anzeigen.
+> Die innere Schleusentür. Ihr Tastenfeld will vier Ziffern.
 
 **Antwort:** `7683`
 
@@ -521,10 +523,6 @@ print("Average temperature:", round(average, 2))
 *Gebraucht von: 2. Futterstation*
 
 > NEKTAR pro Schmetterling und Tag
-> blue morpho (Himmelsfalter) 0,8 ml
-> owl butterfly (Bananenfalter) 1,2 ml
-> postman (Postbote) 0,5 ml
-> zebra longwing (Zebrafalter) 0,4 ml
 >
 > NEU seit Montag: **glasswing (Glasflügler), 0,3 ml**. Noch nicht im Futterskript!
 
@@ -532,7 +530,7 @@ print("Average temperature:", round(average, 2))
 
 *Gebraucht von: 3. Schlupfkasten*
 
-> Die Tests am Ende des Schlupf-Skripts sagen, was die Funktionen tun müssen, von Hand an vier Testpuppen nachgerechnet. Bevor Finn den Code angefasst hat, liefen sie alle durch.
+> Die Tests am Ende des Schlupf-Skripts sagen, was die Funktionen tun müssen, von Hand an vier Testpuppen nachgerechnet.
 >
 > Wenn ein Test fehlschlägt, repariert die Funktion, nicht den Test. — O. B.
 
@@ -541,8 +539,6 @@ print("Average temperature:", round(average, 2))
 *Gebraucht von: 4. Zähl-Tablet*
 
 > Abendzählung gestern: insgesamt **47 Schmetterlinge**. ✔
->
-> Die heutigen Schlüpfe und Verluste stehen im Protokoll auf dem Tablet. Es rechnet den Rest aus und bestellt bei der Zucht jede Art, von der keiner mehr da ist.
 
 ### 🔎 Handbuch der Sensorzentrale, Seite 3
 
@@ -560,13 +556,13 @@ print("Average temperature:", round(average, 2))
 
 > NEUSTART-CHECKLISTE (Schleusen-Override)
 >
-> Nach einem Neustart zeigt jedes System eine Zahl. Tippt sie in dieser Reihenfolge ins Tastenfeld der Schleuse:
+> Tippt die Neustart-Zahlen in dieser Reihenfolge ins Tastenfeld der Schleuse:
 > 1. Luft (Sensorzentrale)
 > 2. Nektar (Futterstation)
 > 3. Puppen (Schlupfkasten)
 > 4. Zählung (Zähl-Tablet)
 >
-> Die Klimasteuerung kommt zuerst: Ohne ihre PIN bleibt die Sensorzentrale gesperrt. — O. B.
+> — O. B.
 
 ## Handbuch im Raum: 📖 Debugging-Leitfaden
 

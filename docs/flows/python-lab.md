@@ -38,7 +38,7 @@ flowchart LR
 
   photo -->|"🔎 cat = Pixel (2017 is a decoy)"| terminal
   diploma -->|"🔎 doctorate 2019"| terminal
-  manual -->|"🔎 safe range 20.0–26.0 °C, limits safe"| incubator
+  manual -->|"🔎 safe range 20.0–26.0 °C, limits safe;<br/>None = sensor dropped out"| incubator
   microscope -->|"🔎 KEY = 7"| notebook
   poster -->|"🔎 HIGH = 1000, MEDIUM = 600"| ventilation
   whiteboard -->|"🔎 ● incubator, ▲ notebook,<br/>◆ freezer, ■ vents"| exit
@@ -77,7 +77,7 @@ The shelf of jars is flavour only and has no edge.
 
 - **Start:** all 5 stations open at once (terminal, incubator, notebook, freezer, ventilation). Enough for a team of 5; a team of 2–4 takes two each.
 - **Second wave:** none mechanically. The freezer is open, and its catalogue work (finding the smudged sample M-13) can start right away, but the padlock rule is only in the notebook's decrypted notes, so the freezer team has to wait for or ask the notebook team.
-- **Final:** the keypad is open from the start (no `requires`) and needs four digits, the terminal's shape order and the whiteboard's shape key.
+- **Final:** the keypad is open from the start (no `requires`) and needs four digits, the terminal's shape order and the whiteboard's shape key. The intro is the only place that says the digits are spread over the equipment.
 
 ## Chains
 
@@ -99,7 +99,14 @@ The shelf of jars is flavour only and has no edge.
 
 ## Findings
 
-Fixed (this round):
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **No task or starter names its clues any more.** The terminal's task no longer says the values are "things you find in the lab", the incubator's no longer says the manual is somewhere in the lab, the notebook's starter no longer says the key is in the lab, the freezer's task no longer says its rule isn't on the freezer, and the ventilation starter no longer says to copy the thresholds from the poster. Where to look is in each puzzle's first hint (the freezer's hint 1 now carries "how Ida set the code is not on the freezer").
+- **"None = the sensor dropped out" lives only on the manual.** The incubator's task and the data file's comment no longer repeat it, so the manual is fully needed.
+- **The keypad no longer repeats the intro** ("Ida never kept the whole code in one place"); it now says what to do: enter the override code.
+- **Every station's task now opens with its goal** (work out the password, find out how the night went, find the padlock's code). All stations already ended in a checked variable or code.
+
+Fixed (the first review):
 
 - **The whiteboard is now hard.** The reveals show bare digits, the terminal's draft gives the order as neutral shapes (● ▲ ◆ ■), and only the whiteboard maps shapes to stations (listed out of order, so it doesn't give the order away). Before, thematic symbols (☀ ❄ 🌀 🍄) in the reveals made it guessable.
 - **"One digit from each station" is gone.** The whiteboard says "4 digits, one per shape", and the keypad's first hint names the four digit stations and says the terminal gives the order.
@@ -109,6 +116,5 @@ Fixed (this round):
 Left as they are:
 
 - **The microscope's KEY = 7 is brute-forceable** (26 values, and the notes read as plain text at the right one). Fine at beginner level; it is also a nice "try all keys" moment.
-- **The manual is only half needed:** "None means the sensor dropped out" is also in the data file's comment and the task. The safe range and "limits still safe" are the hard part, which is enough to make the clue needed.
 - **Partial-code guessing:** a team with three digits and the order can try 10 values for the fourth (e.g. skip the freezer). Accepted: wrong attempts are counted in the debrief.
 - **The shelf of jars is flavour only**, as intended; no station uses it.

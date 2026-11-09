@@ -33,7 +33,7 @@
 
 **Task:**
 
-> A cart full of returned books stands by the shelves, its brake locked until the books are in Margarete's shelving order. Her note on the cart says how she wants them.
+> A cart full of returned books stands by the shelves, its brake locked until the books are in Margarete's shelving order.
 >
 > The books are loaded as `returns`, a list of dictionaries with `"title"` and `"shelf"`. Store the titles in shelving order in `cart`, a list of strings.
 
@@ -69,7 +69,7 @@ print(cart)
 
 **Hints:**
 
-1. The HOWTOs are linked from the docs' start page and from the handbook. In "Sorting Techniques", read the section "Sort Stability and Complex Sorts".
+1. Margarete's note on the cart gives the shelving order. The HOWTOs are linked from the docs' start page and from the handbook. In "Sorting Techniques", read the section "Sort Stability and Complex Sorts".
 2. Sorts are stable: records with the same key keep their order. So sort by the secondary key first (title, `reverse=True`), then by the primary key (shelf).
 3. `by_title = sorted(returns, key=lambda b: b["title"], reverse=True)`, then `sorted(by_title, key=lambda b: b["shelf"])`, then take the titles.
 
@@ -83,7 +83,7 @@ print(cart)
 
 > A pile of books waits on the packing table to go down to the cellar, next to a stack of empty archive boxes. The cellar lift only takes full instructions: which books go into which box.
 >
-> The call numbers are loaded as `book_ids`. Pack them as the box label says and store the boxes in `boxes`, a list with one tuple or list of call numbers per box.
+> The call numbers are loaded as `book_ids`. Pack them into boxes and store the boxes in `boxes`, a list with one tuple or list of call numbers per box.
 
 <details><summary>Starter code</summary>
 
@@ -117,7 +117,7 @@ print(len(boxes), boxes[-1])
 
 **Hints:**
 
-1. Open `itertools` from the module index. The tables at the top of its page list every function with a one-line description; one of them makes groups of a fixed size.
+1. The label on the archive boxes says how to pack them. Open `itertools` from the module index. The tables at the top of its page list every function with a one-line description; one of them makes groups of a fixed size.
 2. `itertools.batched(iterable, n)` gives tuples of `n` items; the last one may be shorter. It returns an iterator, so wrap it in `list(...)`. And the label wants call-number order first.
 3. `from itertools import batched` and `boxes = list(batched(sorted(book_ids), 7))`
 
@@ -131,13 +131,13 @@ print(len(boxes), boxes[-1])
 
 > The late-fees ledger never balanced: Margarete's fee script always came out a few cents off. A pencil note in the margin: "Why my script is wrong is written under `round()` in the built-in functions. Follow the docs from there."
 >
-> The ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee as the fee rules say and store the sum in `total`.
+> The ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee to the cent and store the sum in `total`.
 
 <details><summary>Starter code</summary>
 
 ```python
 # Margarete's fee script. ledger is loaded: (title, days overdue) pairs.
-RATE = 0.0  # euros per day: see the fee rules
+RATE = 0.0  # euros per day
 
 total = 0
 for title, days in ledger:
@@ -174,7 +174,7 @@ print(total)
 
 **Hints:**
 
-1. Under `round()` the docs say two things: ties are rounded toward the even choice, and a float like `2.675` can't be stored exactly. The note there names the module for exact decimal arithmetic.
+1. The library's fee rules give the rate and how to round. Under `round()` the docs say two things: ties are rounded toward the even choice, and a float like `2.675` can't be stored exactly. The note there names the module for exact decimal arithmetic.
 2. On the `decimal` page: build numbers from strings, `Decimal("0.045")`, not from floats; round each fee with `.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)`.
 3. `from decimal import Decimal, ROUND_HALF_UP`, then in the loop `fee = (days * Decimal("0.045")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)`.
 
@@ -185,9 +185,9 @@ print(total)
 
 **Task:**
 
-> The reading-room terminal is ancient. Its boot screen says `Python 3.8.10`. Margarete wanted to run her scripts on it, and pinned the list of functions they use next to it.
+> The reading-room terminal is ancient. Its boot screen says `Python 3.8.10`. Margarete wanted to run her scripts on it.
 >
-> The terminal asks for its admin code: for every function on her list that doesn't exist yet in Python 3.8, the minor version of the Python release that added it, in the order of the list, with no spaces. (A function added in Python 3.11 would give `11`.)
+> The terminal asks for its admin code: for every function her scripts use that doesn't exist yet in Python 3.8, the minor version of the Python release that added it, in the order she listed them, with no spaces. (A function added in Python 3.11 would give `11`.)
 
 **Answer:** `91012`
 
@@ -197,7 +197,7 @@ print(total)
 
 **Hints:**
 
-1. Look each function up (the general index or the search finds it). At the end of its entry there is a note such as "Added in version 3.x".
+1. Margarete pinned the list of functions next to the terminal. Look each one up (the general index or the search finds it). At the end of its entry there is a note such as "Added in version 3.x".
 2. Functions added in 3.8 or earlier run on the terminal. Two of the five on the list do.
 3. `str.removeprefix` 3.9, `math.dist` 3.8, `itertools.pairwise` 3.10, `statistics.fmean` 3.8, `itertools.batched` 3.12.
 
@@ -215,7 +215,7 @@ print(total)
 
 > The stamp machine prints a return stamp into every book. Its tray is full, but Margarete's stamp script prints nonsense around New Year.
 >
-> The return dates are loaded as `returned`, ISO date strings. Fix the script so that `stamps` holds one stamp per book, in the format on the machine's instructions.
+> The return dates are loaded as `returned`, ISO date strings. Fix the script so that `stamps` holds the correct return stamp for every book.
 
 <details><summary>Starter code</summary>
 
@@ -256,7 +256,7 @@ print(stamps)
 
 **Hints:**
 
-1. On the `datetime` page, the section "strftime() and strptime() Format Codes" has a table of codes. Three of them mention ISO 8601.
+1. The machine's instructions give the stamp format. On the `datetime` page, the section "strftime() and strptime() Format Codes" has a table of codes. Three of them mention ISO 8601.
 2. `%V` is the ISO week, `%u` the ISO weekday (Monday is 1). The docs say the ISO year and week directives are not interchangeable with `%Y` and `%W`: around New Year the ISO year is `%G`.
 3. `day.strftime("%G-W%V-%u")`
 

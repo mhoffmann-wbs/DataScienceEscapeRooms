@@ -429,9 +429,9 @@ print("Order from the breeder:", order)
 
 **Task:**
 
-> Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock. Finn made its script "crash-proof". Now it never crashes, and it never finds a single reading.
+> Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock: may the door open? Finn made its script "crash-proof". Now it never crashes, and it never finds a single reading.
 >
-> Fix it so that `readings` holds every valid air temperature from the log as a float, and `average` their mean.
+> Fix it so that `readings` holds every valid air temperature from the log as a float, `average` their mean, and `door_opens` (`True` or `False`) whether the inner door may open.
 
 <details><summary>Starter code</summary>
 
@@ -466,12 +466,14 @@ for line in log:
 average = sum(readings) / len(readings)
 print("Valid readings:", len(readings))
 print("Average temperature:", round(average, 2))
+door_opens = 22 <= average <= 28
+print("Door opens:", door_opens)
 ```
 
-**Checked result** (`[len(readings), round(average, 2)]`):
+**Checked result** (`[len(readings), round(average, 2), door_opens]`):
 
 ```json
-[7, 23.84]
+[7, 23.84, true]
 ```
 
 **Reveals when solved:**
@@ -481,8 +483,8 @@ print("Average temperature:", round(average, 2))
 **Hints:**
 
 1. The `try` with `except: pass` swallows every error, so you can't see what goes wrong. Take it out (or print the error in the `except`), run, and read the real error.
-2. Three things go wrong: the lines are split at the wrong character, some readings have a decimal comma (`23,8`), and the manual says what `--` means.
-3. `time, sensor, value = line.split(";")`, skip a reading whose value is `"--"`, and `readings.append(float(value.replace(",", ".")))`.
+2. Three things go wrong: the lines are split at the wrong character, some readings have a decimal comma (`23,8`), and the manual says what `--` means. The manual also says when the door may open.
+3. `time, sensor, value = line.split(";")`, skip a reading whose value is `"--"`, and `readings.append(float(value.replace(",", ".")))`, then `door_opens = 22 <= average <= 28`.
 
 ### 6. Airlock door (Final lock)
 
@@ -491,7 +493,7 @@ print("Average temperature:", round(average, 2))
 
 **Task:**
 
-> The inner airlock door. Its keypad wants four digits: the numbers the systems show after a restart.
+> The inner airlock door. Its keypad wants four digits.
 
 **Answer:** `7683`
 
@@ -521,10 +523,6 @@ print("Average temperature:", round(average, 2))
 *Used by: 2. Feeding station*
 
 > NECTAR per butterfly per day
-> blue morpho 0.8 ml
-> owl butterfly 1.2 ml
-> postman 0.5 ml
-> zebra longwing 0.4 ml
 >
 > NEW since Monday: **glasswing, 0.3 ml**. Not in the feeding script yet!
 
@@ -532,7 +530,7 @@ print("Average temperature:", round(average, 2))
 
 *Used by: 3. Emergence cabinet*
 
-> The tests at the end of the hatchery script say what the functions must do, worked out by hand on four test chrysalises. They all passed before Finn touched the code.
+> The tests at the end of the hatchery script say what the functions must do, worked out by hand on four test chrysalises.
 >
 > If a test fails, fix the function, not the test. — O. B.
 
@@ -541,8 +539,6 @@ print("Average temperature:", round(average, 2))
 *Used by: 4. Census tablet*
 
 > Evening count, yesterday: **47 butterflies** in total. ✔
->
-> Today's hatchings and losses are logged in the tablet. It works out the rest and orders every species that has none left from the breeder.
 
 ### 🔎 Sensor hub manual, page 3
 
@@ -560,13 +556,13 @@ print("Average temperature:", round(average, 2))
 
 > RESTART CHECKLIST (airlock override)
 >
-> After a restart every system shows a number. Type them into the airlock keypad in this order:
+> Type the restart numbers into the airlock keypad in this order:
 > 1. air (sensor hub)
 > 2. nectar (feeding station)
 > 3. chrysalises (emergence cabinet)
 > 4. count (census tablet)
 >
-> The climate controller comes first: without its PIN, the sensor hub stays locked. — O. B.
+> — O. B.
 
 ## Handbook in the room: 📖 Debugging guide
 
