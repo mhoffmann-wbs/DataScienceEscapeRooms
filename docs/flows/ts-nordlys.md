@@ -91,12 +91,12 @@ The room has no `requires` any more. The supply terminal is the `final` Python c
 
 ## Where things are
 
-Tiles are 32 px; the map is 22 × 15 tiles.
+Tiles are 32 px; the map is 30 × 20 tiles: a boot room at the airlock (west), an ops corridor across the middle, three rooms north of it (generator room, mess, chief's office) and three south (lab, instrument room, supply depot).
 
 - Next to their station (1 tile): the logbook page, the chief's notebook, the gauge panel.
-- A short walk: the technician's note stands about 6 tiles from the freezer (north-west of it), the echo manual about 7 tiles from the echo chamber (north-east).
-- Across the room: the order form hangs on the north wall, about 10 tiles from the supply terminal in the south-east.
-- The stations that trade results are spread out: logbook (west) → gauge (north), gauge → echo chamber (south centre), chief (north-east) and echo → supply (south-east), so the hand-offs need walking and talking.
+- In the same room: the technician's note hangs on the lab wall about 5 tiles east of the freezer, the echo manual on the instrument room wall about 5 tiles east of the echo sounder.
+- A walk away: the order form hangs on the ops corridor wall, about 12 tiles from the supply terminal in the supply depot (south-east).
+- The logbook and the gauge share the generator room (north-west); the other hand-offs cross the station: gauge → echo chamber (instrument room, south centre), chief (office, north-east) and echo → supply (depot, south-east), so they need walking and talking.
 
 ## Findings
 

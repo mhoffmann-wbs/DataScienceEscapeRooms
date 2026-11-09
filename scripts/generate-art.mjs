@@ -3512,6 +3512,390 @@ function onWall(index, src, wall, seed = 3) {
 // --- end pandas-market ---
 
 // --- ts-nordlys restyle (tiles 368-399) ---
+// Station Nordlys: a polar research station in safe mode, the heating off and frost creeping in.
+// Insulated white wall panels with an orange band, a boot room at the airlock, a generator room with
+// the fuel tank and the stationarity gauge, the mess under the aurora window, the chief's office,
+// the ops corridor, the cold lab, the echo sounder's instrument room and the supply depot.
+{
+  const B = blockOf('ts-nordlys');
+  const PANEL = [212, 220, 228];
+  const BAND = [226, 112, 46];
+  const SKIRT = [70, 78, 92];
+  const ICE = [214, 238, 250];
+  const STEEL = [150, 160, 174];
+  const RUBBER = [72, 78, 88];
+  const GREEN = [110, 240, 170];
+  /** The station's wall face: insulated white panels with rivets, an orange band and a grey skirting. */
+  const stationWall = (g) => {
+    g.rect(0, 0, T, T, PANEL);
+    g.noise(0, 0, T, T, 0.04, B);
+    g.rect(0, 0, T, 2, sh(PANEL, 0.62));
+    g.rect(0, 2, T, 1, sh(PANEL, 1.08));
+    for (const x of [0, 16]) { g.rect(x, 3, 1, T - 9, sh(PANEL, 0.84)); g.rect(x + 1, 3, 1, T - 9, sh(PANEL, 1.06)); }
+    for (const [x, y] of [[4, 5], [12, 5], [20, 5], [28, 5]]) g.set(x, y, sh(PANEL, 0.7));
+    g.rect(0, 15, T, 4, BAND);
+    g.rect(0, 15, T, 1, sh(BAND, 1.25));
+    g.rect(0, 18, T, 1, sh(BAND, 0.75));
+    g.rect(0, T - 6, T, 6, SKIRT);
+    g.rect(0, T - 6, T, 1, sh(SKIRT, 1.4));
+    g.rect(0, T - 1, T, 1, sh(SKIRT, 0.7));
+  };
+  /** Frost in the corners of a window pane (x, y, w, h). */
+  const frost = (o, x, y, w, h) => {
+    for (let j = 0; j < 5; j++) {
+      o.rect(x, y + j, 5 - j, 1, alpha(ICE, 230));
+      o.rect(x + w - 5 + j, y + h - 1 - j, 5 - j, 1, alpha(ICE, 230));
+      o.rect(x + w - 5 + j, y + j, 5 - j, 1, alpha(ICE, 160));
+    }
+  };
+  // B+0 station wall, B+1 / B+2 the same in a left and a right wall
+  drawTile(B, stationWall);
+  drawTile(B + 1, turned(stationWall, 'ccw'));
+  drawTile(B + 2, turned(stationWall, 'cw'));
+  // B+3 a frosted window full of northern lights, with a sine wave drawn in the frost
+  drawTile(B + 3, (g) => {
+    stationWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 21, [96, 104, 120], 1.2);
+    o.rect(5, 5, 22, 17, [14, 20, 44]);
+    for (let x = 5; x < 27; x++) {
+      const y1 = 10 + Math.round(3 * Math.sin(x / 3));
+      for (let j = 0; j < 7; j++) o.set(x, y1 + j, alpha([90, 240, 150], 200 - j * 26));
+      const y2 = 7 + Math.round(2 * Math.sin(x / 4 + 1));
+      for (let j = 0; j < 4; j++) o.set(x, y2 + j, alpha([190, 110, 240], 150 - j * 30));
+    }
+    for (const [x, y] of [[7, 6], [22, 7], [12, 19], [25, 18]]) o.set(x, y, [255, 255, 255]);
+    o.rect(5, 19, 22, 3, [226, 236, 246]);
+    frost(o, 5, 5, 22, 17);
+    for (let x = 8; x < 24; x++) o.set(x, 15 + Math.round(2 * Math.sin((x - 8) / 2.5)), [250, 252, 255]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+4 a frosted window onto the polar night: stars, a snowdrift against the glass
+  drawTile(B + 4, (g) => {
+    stationWall(g);
+    const o = canvas(T, T);
+    o.box(3, 3, 26, 21, [96, 104, 120], 1.2);
+    o.rect(5, 5, 22, 17, [18, 26, 54]);
+    for (let j = 0; j < 17; j++) o.rect(5, 5 + j, 22, 1, alpha([60, 90, 150], j * 6));
+    for (const [x, y] of [[8, 7], [14, 9], [20, 6], [24, 11], [11, 12], [18, 13]]) o.set(x, y, [240, 246, 255]);
+    o.ellipse(22, 8, 2, 2, [240, 240, 220]);
+    for (let x = 5; x < 27; x++) o.rect(x, 17 + Math.round(2 * Math.sin(x / 3)), 1, 22 - 17 - Math.round(2 * Math.sin(x / 3)), [236, 244, 250]);
+    o.rect(15, 5, 2, 17, [96, 104, 120]);
+    frost(o, 5, 5, 22, 17);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B, B + 1, B + 2, B + 3, B + 4);
+  // B+5 the corridor floor: grey anti-slip vinyl with a raised diamond pattern
+  drawTile(B + 5, (g) => {
+    const base = [124, 132, 144];
+    g.rect(0, 0, T, T, base);
+    g.noise(0, 0, T, T, 0.06, B + 5);
+    for (let y = 2; y < T; y += 8) for (let x = (y / 8) % 2 < 1 ? 2 : 6; x < T; x += 8) {
+      g.rect(x + 1, y, 1, 3, sh(base, 1.18));
+      g.rect(x, y + 1, 3, 1, sh(base, 1.18));
+      g.set(x + 2, y + 2, sh(base, 0.8));
+    }
+    g.rect(0, 0, T, 1, sh(base, 0.82));
+  });
+  // B+6 the boot room floor: ribbed black rubber matting
+  drawTile(B + 6, (g) => {
+    g.rect(0, 0, T, T, RUBBER);
+    for (let y = 1; y < T; y += 4) { g.rect(0, y, T, 2, sh(RUBBER, 1.25)); g.rect(0, y + 2, T, 1, sh(RUBBER, 0.75)); }
+    g.noise(0, 0, T, T, 0.08, B + 6);
+  });
+  // B+7 snow and slush trodden in from the airlock (decor)
+  drawTile(B + 7, (g) => {
+    const r = rng(B + 7);
+    for (let i = 0; i < 7; i++) g.ellipse(3 + r() * 26, 3 + r() * 26, 2 + r() * 3, 1.5 + r() * 2, [236, 244, 250, 200]);
+    const boot = (x, y) => { g.ellipse(x, y, 3, 4.5, [190, 210, 226, 210]); g.ellipse(x, y + 7, 2.5, 2, [190, 210, 226, 210]); };
+    boot(10, 8);
+    boot(21, 17);
+    for (const [x, y] of [[4, 22], [27, 6], [15, 28]]) g.set(x, y, [255, 255, 255]);
+  });
+  // B+8 frost creeping across the cold floor (decor)
+  drawTile(B + 8, (g) => {
+    const r = rng(B + 8);
+    for (let i = 0; i < 6; i++) {
+      let x = r() * T, y = r() * T;
+      for (let k = 0; k < 14; k++) {
+        g.set(x, y, [230, 244, 255, 190]);
+        x += r() < 0.5 ? 1 : -1;
+        y += r() < 0.6 ? 1 : 0;
+      }
+    }
+    g.ellipse(9, 9, 8, 6, [220, 238, 252, 70]);
+    g.ellipse(23, 22, 7, 5, [220, 238, 252, 60]);
+  });
+  // B+9 a bundle of cables across the floor (decor), joining left and right edges
+  drawTile(B + 9, (g) => {
+    for (const [dy, col] of [[0, [40, 44, 52]], [3, [200, 60, 50]], [6, [50, 90, 170]]]) for (let x = 0; x < T; x++) {
+      const y = 14 + dy + Math.round(2 * Math.sin((x / T) * Math.PI * 2 + dy));
+      g.rect(x, y, 1, 2, col);
+      g.set(x, y, sh(col, 1.4));
+    }
+  });
+  // B+10 the instrument room floor: dark blue acoustic tiles
+  drawTile(B + 10, (g) => {
+    const base = [52, 66, 96];
+    g.rect(0, 0, T, T, base);
+    for (const o of [0, 16]) { g.rect(0, o, T, 1, sh(base, 0.7)); g.rect(o, 0, 1, T, sh(base, 0.7)); }
+    for (let y = 3; y < T; y += 4) for (let x = 3; x < T; x += 4) if (x % 16 && y % 16) g.set(x, y, sh(base, 0.78));
+    g.noise(0, 0, T, T, 0.06, B + 10);
+  });
+  // B+11..B+14 the station's fuel tank (2 x 2): a red cylinder on a cradle, a level window, frost
+  drawPiece([[B + 11, B + 12], [B + 13, B + 14]], (g, { obj, shadow }) => {
+    shadow(32, 58, 30, 5);
+    obj((o) => {
+      o.box(6, 48, 52, 8, STEEL, 1.2);
+      const red = [196, 52, 44];
+      o.rect(3, 8, 58, 40, red);
+      for (let x = 3; x < 61; x++) {
+        const f = 0.72 + 0.5 * Math.sin(((x - 3) / 58) * Math.PI);
+        o.rect(x, 8, 1, 40, sh(red, Math.min(1.25, f)));
+      }
+      o.ellipse(32, 8, 29, 5, sh(red, 1.2));
+      o.ellipse(32, 8, 24, 3.5, sh(red, 1.05));
+      for (const y of [16, 38]) o.rect(3, y, 58, 2, sh(STEEL, 0.85));
+      o.box(44, 18, 6, 20, [40, 40, 46]);
+      o.rect(45, 33, 4, 4, [240, 190, 60]);
+      o.box(12, 22, 22, 10, [246, 244, 236], 1, 0.85);
+      o.rect(14, 24, 18, 2, [40, 40, 46]);
+      o.rect(14, 28, 10, 1, [120, 120, 130]);
+      o.box(28, 0, 8, 6, STEEL, 1.2);
+    });
+    for (const [x, y, w] of [[5, 10, 10], [50, 12, 8], [8, 44, 12], [40, 42, 9]]) g.rect(x, y, w, 1, alpha(ICE, 220));
+  });
+  solid(B + 11, B + 12, B + 13, B + 14);
+  // B+15/B+16 the diesel generator (2 x 1): a grey housing, a dead control panel, a frosted exhaust
+  drawPiece([[B + 15, B + 16]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(2, 6, 60, 22, [104, 118, 104], 1.2);
+      for (let x = 6; x < 34; x += 4) o.rect(x, 10, 2, 14, sh([104, 118, 104], 0.7));
+      o.box(38, 9, 20, 13, [40, 44, 52]);
+      o.rect(40, 11, 8, 3, [60, 30, 30]);
+      o.ellipse(52, 13, 2, 2, [200, 50, 40]);
+      for (let i = 0; i < 3; i++) o.ellipse(42 + i * 5, 18, 1.5, 1.5, [180, 186, 196]);
+      o.box(10, 0, 6, 7, STEEL);
+      o.box(2, 26, 60, 3, [60, 64, 72]);
+    });
+    g.rect(10, 1, 6, 1, alpha(ICE, 230));
+    g.rect(4, 7, 30, 1, alpha(ICE, 200));
+  });
+  solid(B + 15, B + 16);
+  // B+17 the stationarity gauge on the wall: a dial from red to green, the needle stuck in the red
+  drawTile(B + 17, (g) => {
+    stationWall(g);
+    const o = canvas(T, T);
+    o.box(4, 2, 24, 24, [60, 66, 78], 1.25);
+    o.ellipse(16, 15, 10, 10, [240, 240, 232]);
+    for (let a = 0; a <= 20; a++) {
+      const t = Math.PI * (1 + a / 20);
+      const col = a < 13 ? [220, 60, 50] : [60, 190, 90];
+      for (const rr of [7, 8]) o.set(16 + Math.cos(t) * rr, 15 + Math.sin(t) * rr, col);
+    }
+    for (let k = 0; k < 7; k++) o.set(16 - k * 0.85, 15 - k * 0.45, [30, 30, 36]);
+    o.ellipse(16, 15, 1.5, 1.5, [30, 30, 36]);
+    o.rect(9, 20, 14, 3, [30, 34, 40]);
+    o.rect(10, 21, 7, 1, [255, 120, 90]);
+    o.rect(19, 21, 2, 1, [60, 70, 60]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+18 the gauge's instruction plate: an engraved steel plate with three numbered steps
+  drawTile(B + 18, (g) => {
+    stationWall(g);
+    const o = canvas(T, T);
+    o.box(5, 4, 22, 21, [196, 200, 208], 1.15);
+    for (let i = 0; i < 3; i++) {
+      o.ellipse(9, 9 + i * 6, 2, 2, [52, 110, 190]);
+      o.rect(13, 8 + i * 6, 11 - i * 2, 1, [60, 64, 76]);
+      o.rect(13, 10 + i * 6, 8, 1, [120, 124, 136]);
+    }
+    for (const [x, y] of [[6, 5], [25, 5], [6, 23], [25, 23]]) o.set(x, y, [110, 116, 128]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 17, B + 18);
+  // B+19 a locker with a red parka hanging in the open door
+  drawTile(B + 19, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(3, 0, 26, 30, [88, 112, 140], 1.15);
+      o.rect(5, 2, 10, 26, [36, 40, 50]);
+      o.rect(17, 2, 10, 26, sh([88, 112, 140], 0.9));
+      for (let y = 4; y < 10; y += 2) o.rect(19, y, 6, 1, sh([88, 112, 140], 0.7));
+      o.rect(18, 15, 2, 4, [210, 214, 222]);
+      o.box(6, 5, 8, 15, [214, 64, 48], 1.2);
+      o.rect(6, 5, 8, 2, [240, 236, 226]);
+      o.rect(9, 7, 1, 13, sh([214, 64, 48], 0.7));
+      o.box(6, 23, 4, 5, [60, 48, 40]);
+      o.box(10, 23, 4, 5, [60, 48, 40]);
+    });
+  });
+  // B+20 a boot bench (a seat, not solid): a slatted bench with a pair of snow boots below
+  drawTile(B + 20, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      o.rect(3, 16, 2, 12, [70, 74, 84]);
+      o.rect(27, 16, 2, 12, [70, 74, 84]);
+      o.box(1, 11, 30, 6, [168, 124, 82], 1.25);
+      o.rect(1, 13, 30, 1, sh([168, 124, 82], 0.75));
+      o.box(9, 21, 6, 7, [70, 54, 44]);
+      o.box(17, 22, 6, 6, [70, 54, 44]);
+      o.rect(9, 21, 6, 2, [230, 236, 240]);
+      o.rect(17, 22, 6, 2, [230, 236, 240]);
+    });
+  });
+  // B+21 a dead radiator on the wall, hung with icicles
+  drawTile(B + 21, (g) => {
+    stationWall(g);
+    const o = canvas(T, T);
+    o.box(4, 8, 24, 16, [206, 210, 216], 1.15);
+    for (let x = 7; x < 26; x += 4) o.rect(x, 9, 1, 14, sh([206, 210, 216], 0.75));
+    o.rect(4, 8, 24, 1, alpha(ICE, 255));
+    o.box(22, 4, 3, 4, [120, 126, 136]);
+    o.outline();
+    g.paste(o);
+    for (const [x, len] of [[6, 5], [11, 3], [15, 6], [20, 4], [25, 5]]) for (let j = 0; j < len; j++) g.rect(x, 24 + j, j < len - 2 ? 2 : 1, 1, [220, 240, 252]);
+  });
+  solid(B + 19, B + 21);
+  // B+22 the echo sounder: a console with a round sonar screen and two rows of echo bars
+  drawTile(B + 22, (g, { obj, shadow }) => {
+    shadow(16, 30, 14, 2);
+    obj((o) => {
+      o.box(1, 14, 30, 15, [60, 70, 90], 1.2);
+      o.box(2, 0, 28, 15, [44, 52, 68], 1.2);
+      o.ellipse(10, 8, 6, 6, [10, 30, 24]);
+      for (const rr of [2, 4, 6]) for (let a = 0; a < 24; a++) { const t = (a / 24) * Math.PI * 2; o.set(10 + Math.cos(t) * rr, 8 + Math.sin(t) * rr, alpha(GREEN, 120)); }
+      for (let k = 0; k < 6; k++) o.set(10 + k * 0.8, 8 - k * 0.6, GREEN);
+      o.rect(18, 2, 10, 11, [10, 30, 24]);
+      for (let i = 0; i < 5; i++) { o.rect(19 + i * 2, 7 - Math.max(0, 4 - i), 1, 1 + Math.max(0, 4 - i), GREEN); o.rect(19 + i * 2, 10, 1, i === 1 ? 2 : 1, [140, 200, 255]); }
+      o.rect(18, 7, 10, 1, alpha([255, 255, 255], 70));
+      for (let i = 0; i < 5; i++) o.ellipse(6 + i * 5, 20, 1.5, 1.5, [[220, 60, 50], [240, 190, 60], [180, 186, 196], [180, 186, 196], [60, 190, 90]][i]);
+      o.rect(4, 24, 24, 2, [36, 40, 50]);
+    });
+  });
+  // B+23 the sample freezer: a tall white lab freezer, frosted, with a two-digit keypad
+  drawTile(B + 23, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(4, 0, 24, 30, [232, 236, 240], 1.05);
+      o.rect(4, 14, 24, 1, [170, 176, 186]);
+      o.rect(24, 4, 2, 8, [150, 156, 166]);
+      o.rect(24, 17, 2, 8, [150, 156, 166]);
+      o.box(7, 3, 12, 9, [50, 56, 66]);
+      o.rect(8, 4, 10, 3, [130, 220, 170]);
+      o.rect(9, 5, 2, 1, [20, 60, 40]);
+      o.rect(13, 5, 2, 1, [20, 60, 40]);
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) o.set(9 + c * 2, 8 + r * 2, [210, 214, 222]);
+      o.rect(4, 0, 24, 2, ICE);
+      for (const [x, y] of [[6, 18], [20, 22], [10, 26], [16, 19]]) o.rect(x, y, 3, 1, alpha(ICE, 255));
+      o.box(8, 18, 9, 5, [52, 110, 190]);
+    });
+  });
+  // B+24 the supply terminal: a rugged console with a fuel order on screen and a PIN pad
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 30, 13, 2);
+    obj((o) => {
+      o.box(3, 12, 26, 17, [214, 110, 46], 1.2);
+      o.box(5, 1, 22, 13, [52, 58, 70], 1.2);
+      o.rect(7, 3, 18, 9, [16, 30, 44]);
+      o.rect(8, 4, 9, 1, [120, 200, 255]);
+      o.rect(8, 6, 14, 1, [120, 200, 255]);
+      o.rect(8, 8, 6, 1, [240, 190, 60]);
+      o.rect(19, 8, 5, 3, [200, 60, 50]);
+      o.box(9, 16, 14, 8, [60, 66, 78]);
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) o.set(11 + c * 3, 18 + r * 2, [220, 224, 230]);
+      o.rect(5, 26, 22, 1, [40, 40, 46]);
+    });
+  });
+  solid(B + 22, B + 23, B + 24);
+  // B+25 a caged work lamp (above the avatars), glowing warm against the cold
+  drawTile(B + 25, (g) => {
+    for (let j = 0; j < 16; j++) g.rect(Math.round(16 - (4 + j)), 10 + j, 8 + 2 * j, 1, [255, 230, 170, Math.round(56 - j * 3.4)]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 4, [50, 54, 60]);
+    o.box(11, 3, 10, 3, [60, 64, 72]);
+    o.ellipse(16, 9, 5, 4, [255, 236, 170]);
+    o.ellipse(16, 8, 2.5, 2, [255, 252, 230]);
+    for (const x of [12, 16, 20]) o.rect(x, 5, 1, 8, [60, 64, 72]);
+    o.rect(11, 12, 10, 1, [60, 64, 72]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+26 insulated pipes under the ceiling (above the avatars), frosted, seamless left to right
+  drawTile(B + 26, (g) => {
+    const o = canvas(T, T);
+    o.rect(0, 4, T, 6, [200, 204, 212]);
+    o.rect(0, 4, T, 1, [236, 240, 246]);
+    o.rect(0, 9, T, 1, [150, 156, 166]);
+    o.rect(0, 12, T, 4, [196, 72, 52]);
+    o.rect(0, 12, T, 1, [236, 120, 96]);
+    o.rect(0, 15, T, 1, [140, 44, 36]);
+    o.rect(6, 3, 3, 14, [80, 86, 98]);
+    o.rect(24, 3, 3, 14, [80, 86, 98]);
+    g.paste(o);
+    for (const [x, w] of [[1, 4], [12, 7], [28, 3]]) g.rect(x, 4, w, 1, [255, 255, 255]);
+    for (const [x, len] of [[3, 4], [14, 3], [20, 5], [30, 3]]) for (let j = 0; j < len; j++) g.set(x, 16 + j, [220, 240, 252, 230]);
+    g.rect(0, 17, T, 2, [0, 0, 0, 40]);
+  });
+  // B+27 skis, poles and snowshoes on a wall rack
+  drawTile(B + 27, (g) => {
+    stationWall(g);
+    const o = canvas(T, T);
+    o.box(2, 5, 28, 3, [120, 86, 54]);
+    for (const [x, col] of [[5, [220, 60, 50]], [9, [220, 60, 50]], [21, [52, 110, 190]], [25, [52, 110, 190]]]) {
+      o.box(x, 2, 3, 23, col, 1.3);
+      o.rect(x, 2, 3, 2, sh(col, 1.4));
+    }
+    o.rect(14, 4, 1, 22, [60, 64, 72]);
+    o.rect(17, 4, 1, 22, [60, 64, 72]);
+    o.ellipse(14.5, 22, 2, 1, [60, 64, 72]);
+    o.ellipse(17.5, 22, 2, 1, [60, 64, 72]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 27);
+  // B+28 a clipboard and B+29 a pinboard, hung on the station wall
+  onWall(B + 28, 26, stationWall);
+  onWall(B + 29, 9, stationWall);
+  // B+30 the engineer's desk with the frost-damaged fuel logbook open on it
+  drawTile(B + 30, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      deskBase(o, [120, 128, 140]);
+      o.box(5, 4, 20, 12, [40, 70, 110]);
+      o.box(6, 5, 9, 10, [246, 244, 232], 1, 0.88);
+      o.box(15, 5, 9, 10, [246, 244, 232], 1, 0.88);
+      for (let y = 7; y < 14; y += 2) { o.rect(7, y, 6, 1, [90, 94, 110]); o.rect(16, y, 6, 1, [90, 94, 110]); }
+      o.rect(17, 9, 5, 3, alpha(ICE, 255));
+      o.rect(8, 11, 4, 2, alpha(ICE, 255));
+      o.box(26, 6, 4, 8, [70, 74, 84]);
+      o.rect(27, 4, 2, 2, [240, 190, 60]);
+    });
+  });
+  // B+31 the safe-mode panel on the wall: a red warning light and a frozen thermometer
+  drawTile(B + 31, (g) => {
+    stationWall(g);
+    for (let j = 0; j < 8; j++) g.ellipse(10, 9, 8 - j, 7 - j, [255, 60, 50, 22]);
+    const o = canvas(T, T);
+    o.box(4, 4, 24, 20, [60, 66, 78], 1.25);
+    o.ellipse(10, 9, 3, 3, [230, 50, 40]);
+    o.set(9, 8, [255, 200, 190]);
+    o.rect(6, 15, 9, 6, [20, 24, 30]);
+    o.rect(7, 17, 7, 1, [255, 90, 70]);
+    o.rect(7, 19, 4, 1, [255, 90, 70]);
+    o.box(20, 6, 4, 16, [240, 244, 248]);
+    o.rect(21, 18, 2, 3, [52, 110, 190]);
+    o.ellipse(22, 20, 2, 2, [52, 110, 190]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 30, B + 31);
+}
 // --- end ts-nordlys ---
 
 // --- ts-festival restyle (tiles 400-431) ---
