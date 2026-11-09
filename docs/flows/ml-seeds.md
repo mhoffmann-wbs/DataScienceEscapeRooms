@@ -93,8 +93,9 @@ flowchart LR
 
 ## Where things are
 
-- Next to their station: the tray tags (tray), the service sheet (old sorter), the species cards (card index), the whiteboard (above the terminal).
-- Away from their station: the inspection notice hangs on the north wall, while the microscope stands in the middle row; the cold store is at the east end of the north wall, beside the jar shelf, with the field map and the notice to the west of the exit and the species cards by the card index in the south-west. The microscope and the final each need a walk.
+- The room: a lift landing with the exit and the handbook in the middle of the north wall; the curator's office to the west (terminal under the whiteboard, card index and species cards); the sorting hall below it (old sorter under its service sheet, the tray and its tags); the flooded archive in the south-east among the salt pillars; the sealed cold store in the north-east, with its door, the inspection notice and the field map on its south wall.
+- Next to their station: the tray tags (tray), the service sheet (old sorter), the species cards (card index), the whiteboard (above the terminal), the inspection notice and the field map (beside the cold store door).
+- Away from their station: the inspection notice also feeds the microscope, which stands on a ledge at the end of the archive's boardwalk; the species cards are in the office, across the landing from the cold store. The microscope and the final each need a walk.
 
 ## Findings
 

@@ -90,8 +90,9 @@ flowchart LR
 
 ## Where things are
 
-- Next to their station: Albers's graph paper on the wall above his desk, Ilse's memo on the noticeboard above the ledger table, the histogram above the long tail's terminal with the house rule two tiles to the right, the card beside the display case, the insurer's fax beside the press.
-- Away from their station: the evening paper lies on the coffee table three tiles south-west of the watchmaker's bench; the watchmaker's note is taped to the case clock in the middle of the room, four rows above the press in the south.
+- The room: a marble foyer with the exit, the handbook and the coffee table in the middle of the north wall; Albers's study to the west, the gallery of display cases under the tall windows to the east; south of them the parquet saleroom (rostrum on its dais, bidders' chairs, telephone bank, lots on easels) and, behind it in the south-east, the workshop and print room.
+- Next to their station: Albers's graph paper on the wall above his desk, Ilse's memo on the noticeboard above the ledger table, the histogram on the saleroom wall above the long tail's terminal with the house rule two tiles to the right, the card beside the display case under the window, the insurer's fax beside the press, the watchmaker's note on the case clock next to the watchmaker's bench.
+- Away from their station: the evening paper lies on the coffee table in the foyer, across the saleroom from the workshop where the suspicious lot is examined.
 
 ## Findings
 

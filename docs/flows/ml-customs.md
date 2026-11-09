@@ -90,8 +90,9 @@ flowchart LR
 
 ## Where things are
 
-- Next to their station: Hanne's card (rule card desk), Jonas's note (terminal), the crane schedule (console). The poster hangs on the north wall right above the dashboard desk.
-- Away from their station: the audit rule hangs on the north wall by the exit, while the overgrown tree's cabinet stands in the south-west and the terminal in the north-east of the office; the chief's order lies on a desk in the middle row, three tiles below the odds board on the north wall. The container hall with the console is in the south-east.
+- The room: the night office in the middle of the north wall (exit, handbook, night desk, Jonas's terminal), Hanne's wood-floored records room to its west, and through a barrier to the east the container yard and the quay along the water, where the MV Kestrel lies alongside.
+- Next to their station: Hanne's card (pinned on the wall above her desk), Jonas's note (terminal), the crane schedule (console). The poster hangs on the north wall right above the dashboard desk.
+- Away from their station: the audit rule hangs on the north wall by the exit, while the overgrown tree's filing cabinet stands in Hanne's records room next door; the chief's order lies on a desk three tiles below the odds board. The crane console is out on the quay at the foot of the container yard, a walk from the office.
 
 ## Findings
 

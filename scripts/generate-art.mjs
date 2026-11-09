@@ -7224,12 +7224,1040 @@ function onWall(index, src, wall, seed = 3) {
 // --- end nn-tablets ---
 
 // --- ml-seeds restyle (tiles 624-655) ---
+// The Seed Bank: a seed bank 80 m down in an old salt mine, flooded on level -2. A lift landing with
+// the exit and a mine cart on its rails, the curator's plastered office, the sorting hall, the
+// flooded archive among rock pillars with a burst pipe and a boardwalk, and the sealed cold store.
+{
+  const B = blockOf('ml-seeds');
+  const ROCK = [204, 170, 160];
+  const ROCK_BANDS = [ROCK, [226, 204, 192], [182, 148, 142], [212, 186, 178], [164, 140, 144]];
+  const TIMBER = [124, 86, 52];
+  const WATER = [70, 112, 140];
+  const RIPPLE = [150, 192, 214];
+  const IRON = [96, 92, 96];
+  const BURLAP = [176, 146, 98];
+  /** The mine's wall face: banded rock salt in rose, cream and grey, damp and dark at the foot. */
+  const saltWall = (g) => {
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const t = y + 2.2 * Math.sin((2 * Math.PI * x) / 16) + 1.2 * Math.sin((2 * Math.PI * x) / 32 + 1);
+        g.set(x, y, ROCK_BANDS[((Math.floor(t / 4) % 5) + 5) % 5]);
+      }
+    g.noise(0, 0, T, T, 0.1, B);
+    const r = rng(B + 100);
+    for (let i = 0; i < 9; i++) g.set(Math.floor(r() * T), 3 + Math.floor(r() * 20), [250, 244, 240]);
+    g.rect(0, 0, T, 2, sh(ROCK, 0.6));
+    g.rect(0, T - 5, T, 5, [118, 98, 100]);
+    g.noise(0, T - 5, T, 5, 0.15, B + 1);
+    g.rect(0, T - 5, T, 1, [146, 124, 124]);
+    g.rect(0, T - 1, T, 1, [86, 70, 74]);
+  };
+  // B+0 salt wall front
+  drawTile(B, saltWall);
+  // B+1 salt wall with a timber mine set: a crossbeam along the top and a post with iron straps
+  drawTile(B + 1, (g) => {
+    saltWall(g);
+    const o = canvas(T, T);
+    o.box(0, 2, T, 6, TIMBER, 1.25, 0.7);
+    o.box(11, 7, 10, 20, TIMBER, 1.2, 0.7);
+    o.rect(14, 9, 1, 16, sh(TIMBER, 0.8));
+    for (const y of [10, 21]) o.rect(11, y, 10, 2, IRON);
+    o.noise(0, 2, T, 25, 0.12, B + 2);
+    o.outline();
+    g.paste(o);
+  });
+  // B+2, B+3 the salt wall in a left and a right wall
+  drawTile(B + 2, turned(saltWall, 'ccw'));
+  drawTile(B + 3, turned(saltWall, 'cw'));
+  // B+4 wet salt floor: the rock floor darkened by the flood, with glossy streaks
+  drawTile(B + 4, (g) => {
+    const wet = [150, 132, 136];
+    g.rect(0, 0, T, T, wet);
+    g.noise(0, 0, T, T, 0.12, B + 4);
+    const r = rng(B + 4);
+    for (let i = 0; i < 4; i++) {
+      const x = Math.floor(r() * 26);
+      const y = Math.floor(r() * 30);
+      g.rect(x, y, 4 + Math.floor(r() * 5), 1, [196, 206, 216, 150]);
+    }
+    for (let i = 0; i < 3; i++) {
+      let x = Math.floor(r() * T);
+      for (let y = 0; y < T; y++) {
+        if (r() < 0.3) x += r() < 0.5 ? -1 : 1;
+        if (r() < 0.7) g.set(((x % T) + T) % T, y, sh(wet, 0.82));
+      }
+    }
+  });
+  // B+5 boardwalk: planks laid across, gaps showing the water below, a nail at each end
+  drawTile(B + 5, (g) => {
+    g.rect(0, 0, T, T, sh(WATER, 0.6));
+    for (let y = 0; y < T; y += 8) {
+      const c = sh(TIMBER, 1.15 + ((y / 8) % 2) * 0.1);
+      g.rect(0, y + 1, T, 6, c);
+      g.rect(0, y + 1, T, 1, sh(c, 1.2));
+      g.rect(0, y + 6, T, 1, sh(c, 0.75));
+      for (const x of [3, 28]) g.set(x, y + 3, [70, 66, 70]);
+    }
+    g.noise(0, 0, T, T, 0.12, B + 5);
+  });
+  /** Flood water: a few ripples on a flat colour. */
+  const water = (g, base, seed) => {
+    g.rect(0, 0, T, T, base);
+    g.noise(0, 0, T, T, 0.06, seed);
+    const r = rng(seed);
+    for (let i = 0; i < 6; i++) {
+      const x = Math.floor(r() * 26);
+      const y = 2 + Math.floor(r() * 28);
+      g.rect(x, y, 5, 1, alpha(RIPPLE, 170));
+      g.rect(x + 1, y - 1, 3, 1, alpha(RIPPLE, 90));
+    }
+  };
+  // B+6 shallow flood water over the salt floor (walkable), B+7 deep water (solid)
+  drawTile(B + 6, (g) => {
+    water(g, [112, 140, 156], B + 6);
+    const r = rng(B + 60);
+    for (let i = 0; i < 10; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [172, 160, 160]);
+  });
+  drawTile(B + 7, (g) => water(g, WATER, B + 7));
+  // B+8 mine-cart rails running down the room (decor): two steel rails on timber sleepers
+  drawTile(B + 8, (g) => {
+    for (let y = 2; y < T; y += 8) {
+      g.rect(4, y, 24, 4, alpha(sh(TIMBER, 0.85), 235));
+      g.rect(4, y, 24, 1, alpha(sh(TIMBER, 1.15), 235));
+      g.rect(4, y + 4, 24, 1, [0, 0, 0, 60]);
+    }
+    for (const x of [8, 22]) {
+      g.rect(x, 0, 3, T, [120, 122, 130]);
+      g.rect(x, 0, 1, T, [196, 200, 208]);
+      g.rect(x + 2, 0, 1, T, [70, 70, 78]);
+    }
+  });
+  // B+9 mine cart on the rails, loaded with sacks of seed
+  drawTile(B + 9, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      for (const x of [6, 22]) o.ellipse(x + 2, 26, 3.5, 3.5, [52, 50, 56]);
+      for (const [x, y] of [[9, 9], [16, 7], [22, 10]]) {
+        o.ellipse(x, y, 6, 5, BURLAP);
+        o.ellipse(x - 1, y - 2, 3, 1.5, sh(BURLAP, 1.2));
+        o.rect(x - 1, y - 5, 2, 2, sh(BURLAP, 0.7));
+      }
+      o.box(2, 12, 28, 13, [150, 84, 56], 1.2, 0.7);
+      o.rect(2, 12, 28, 2, sh(IRON, 1.2));
+      for (const x of [3, 15, 27]) o.rect(x, 14, 2, 10, sh([150, 84, 56], 0.75));
+      o.rect(5, 18, 22, 1, sh([150, 84, 56], 0.8));
+      o.rect(12, 16, 8, 3, [236, 228, 210]);
+      o.rect(13, 17, 6, 1, [150, 84, 56]);
+    });
+  });
+  // B+10 the burst pipe: a pipe down the salt wall, split open, spraying water
+  drawTile(B + 10, (g) => {
+    saltWall(g);
+    for (let y = 4; y < T; y++) g.rect(10, y, 12, 1, [70, 90, 110, 70]);
+    const o = canvas(T, T);
+    o.box(13, 0, 6, 14, [150, 156, 166], 1.25, 0.75);
+    o.box(13, 19, 6, 13, [150, 156, 166], 1.25, 0.75);
+    o.box(11, 3, 10, 3, [120, 124, 134]);
+    o.rect(13, 14, 2, 3, [150, 156, 166]);
+    o.rect(17, 15, 2, 4, [150, 156, 166]);
+    o.outline();
+    g.paste(o);
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i - 4) * 0.36;
+      for (let d = 2; d < 14; d++) g.set(16 + Math.cos(a) * d * 0.9, 16 - Math.sin(a) * d * 0.55 + (d * d) / 18, [200, 230, 250, 230 - d * 12]);
+    }
+    g.ellipse(16, 17, 3, 2, [240, 250, 255, 220]);
+  });
+  // B+11 water gushing across the floor from the pipe (decor)
+  drawTile(B + 11, (g) => {
+    for (let y = 0; y < T; y++) {
+      const cx = 16 + Math.round(2 * Math.sin(y / 5));
+      const w = 6 + Math.floor(y / 5);
+      g.rect(cx - w, y, 2 * w, 1, alpha(WATER, 200));
+      g.rect(cx - w + 2, y, 2, 1, alpha(RIPPLE, 200));
+      if (y % 4 === 0) g.rect(cx - 2, y, 4, 1, [230, 244, 255, 220]);
+    }
+  });
+  // B+12 archive shelving: a steel rack of seed envelopes, the bottom shelf stained by the water
+  drawTile(B + 12, (g, { obj, shadow }) => {
+    shadow(16, 30, 14, 2);
+    obj((o) => {
+      o.box(2, 0, 28, 30, [138, 146, 156], 1.15);
+      const r = rng(B + 12);
+      for (let s = 0; s < 3; s++) {
+        const y = 2 + s * 9;
+        o.rect(4, y, 24, 7, [62, 66, 76]);
+        for (let x = 5; x < 27; x += 3) {
+          const h = 4 + Math.floor(r() * 3);
+          const c = s === 2 ? sh(KRAFT, 0.72) : r() < 0.2 ? [236, 230, 214] : KRAFT;
+          o.rect(x, y + 7 - h, 2, h, c);
+          o.set(x, y + 7 - h, sh(c, 1.2));
+        }
+        o.rect(4, y + 7, 24, 2, [176, 184, 194]);
+      }
+      o.rect(3, 26, 26, 4, [70, 100, 120, 120]);
+    });
+  });
+  // B+13 a rack toppled into the deep water, envelopes spilling out of it (solid)
+  drawTile(B + 13, (g, { obj }) => {
+    water(g, WATER, B + 13);
+    g.ellipse(16, 18, 15, 11, alpha(RIPPLE, 60));
+    obj((o) => {
+      o.box(1, 9, 30, 13, [138, 146, 156], 1.15);
+      for (let x = 3; x < 29; x += 9) o.rect(x, 11, 7, 9, [62, 66, 76]);
+      for (let x = 4; x < 28; x += 3) o.rect(x, 13 + (x % 2), 2, 5, KRAFT);
+    });
+    for (const [x, y] of [[4, 25], [21, 26], [26, 5], [9, 4]]) {
+      const o = canvas(T, T);
+      o.box(x, y, 6, 4, sh(KRAFT, 1.1), 1.1, 0.8);
+      o.outline([60, 70, 80]);
+      g.paste(o);
+    }
+  });
+  // B+14 envelopes floating on the deep water, their labels washed off (solid)
+  drawTile(B + 14, (g) => {
+    water(g, WATER, B + 14);
+    for (const [x, y, c] of [[5, 6, KRAFT], [19, 12, [236, 230, 214]], [9, 22, KRAFT], [23, 25, sh(KRAFT, 0.85)]]) {
+      g.ellipse(x + 3, y + 2, 6, 4, alpha(RIPPLE, 90));
+      const o = canvas(T, T);
+      o.box(x, y, 7, 5, c, 1.1, 0.8);
+      o.rect(x + 1, y + 1, 5, 1, sh(c, 0.85));
+      o.outline([50, 66, 80]);
+      g.paste(o);
+    }
+  });
+  // B+15 sandbags: burlap sacks stacked two high against the water
+  drawTile(B + 15, (g, { obj, shadow }) => {
+    shadow(16, 29, 16, 2);
+    obj((o) => {
+      for (const [x, y] of [[0, 21], [11, 21], [22, 21], [-5, 12], [6, 12], [17, 12], [28, 12]]) {
+        o.box(x, y, 10, 8, BURLAP, 1.2, 0.75);
+        o.rect(x + 1, y + 3, 8, 1, sh(BURLAP, 0.85));
+        o.set(x + 1, y + 1, sh(BURLAP, 1.3));
+      }
+    });
+  });
+  // B+16 a portable pump, its hose running off into the water
+  drawTile(B + 16, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      o.box(4, 10, 20, 15, [214, 64, 48], 1.25, 0.7);
+      o.box(6, 6, 9, 5, [60, 60, 66], 1.3);
+      o.rect(17, 13, 5, 9, [60, 60, 66]);
+      for (let y = 14; y < 22; y += 2) o.rect(17, y, 5, 1, [100, 100, 108]);
+      o.rect(4, 25, 3, 3, [40, 40, 46]);
+      o.rect(21, 25, 3, 3, [40, 40, 46]);
+      o.box(24, 18, 7, 5, [36, 40, 44], 1.4);
+      o.rect(7, 15, 6, 2, [240, 220, 80]);
+    });
+  });
+  // B+17 a caged miner's lamp on the salt wall, warming the rock around it
+  drawTile(B + 17, (g) => {
+    saltWall(g);
+    for (let j = 0; j < 12; j++) g.ellipse(16, 13, 15 - j, 13 - j, [255, 200, 120, 12]);
+    const o = canvas(T, T);
+    o.rect(15, 3, 2, 4, IRON);
+    o.box(11, 6, 10, 3, IRON, 1.3);
+    o.ellipse(16, 14, 5, 6, [255, 220, 140]);
+    o.ellipse(15, 12, 2, 3, [255, 250, 220]);
+    for (const x of [12, 16, 20]) o.rect(x, 8, 1, 12, sh(IRON, 0.9));
+    o.rect(11, 14, 10, 1, sh(IRON, 0.9));
+    o.box(11, 19, 10, 3, IRON, 1.3);
+    o.outline();
+    g.paste(o);
+  });
+  // B+18 a bare bulb on its cable, in a wire guard, with a wide pool of light (above the avatars)
+  drawTile(B + 18, (g) => {
+    for (let j = 0; j < 10; j++) g.ellipse(16, 20, 15 - j * 1.2, 10 - j * 0.8, [255, 214, 130, 16]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 7, [40, 38, 42]);
+    o.box(13, 6, 6, 3, [60, 58, 62]);
+    o.ellipse(16, 12, 4, 4.5, [255, 236, 160]);
+    o.ellipse(15, 11, 1.5, 2, [255, 255, 240]);
+    o.rect(12, 12, 9, 1, [70, 70, 76]);
+    o.rect(16, 8, 1, 9, [70, 70, 76]);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B, B + 1, B + 2, B + 3, B + 7, B + 9, B + 10, B + 12, B + 13, B + 14, B + 15, B + 16, B + 17);
+  // B+19..B+21 the new sorting line: a seed hopper, a belt of envelopes under a camera arch, and a stacker
+  drawPiece([[B + 19, B + 20, B + 21]], (g, { obj, shadow }) => {
+    shadow(48, 29, 46, 3);
+    obj((o) => {
+      const body = [92, 112, 128];
+      o.box(2, 16, 92, 10, body, 1.2, 0.75);
+      o.rect(2, 16, 92, 2, ML_FRAME);
+      for (const x of [6, 46, 86]) o.rect(x, 26, 4, 4, sh(body, 0.7));
+      o.rect(20, 18, 54, 5, [44, 44, 50]);
+      for (let x = 22; x < 72; x += 9) {
+        o.box(x, 17, 6, 5, KRAFT, 1.15, 0.8);
+        o.rect(x + 1, 18, 4, 1, [246, 244, 236]);
+      }
+      for (let j = 0; j < 12; j++) o.rect(4 + j, 2 + j, 18 - 2 * j, 1, STEEL);
+      o.rect(12, 14, 3, 3, sh(STEEL, 0.8));
+      o.box(40, 2, 3, 15, STEEL, 1.2);
+      o.box(56, 2, 3, 15, STEEL, 1.2);
+      o.box(38, 1, 23, 5, [40, 44, 52], 1.3);
+      o.rect(48, 6, 3, 3, [40, 44, 52]);
+      o.ellipse(49.5, 9, 1.5, 1.5, [255, 80, 80]);
+      o.rect(41, 3, 6, 1, SCREEN);
+      o.box(76, 4, 16, 12, sh(body, 1.2), 1.15);
+      for (let i = 0; i < 3; i++) o.rect(78, 6 + i * 3, 12, 2, KRAFT);
+    });
+    seeds(g, 13, 4, 7, 1.5, B + 19);
+  });
+  // B+22 a cluster of salt crystals growing out of the floor
+  drawTile(B + 22, (g, { obj, shadow }) => {
+    shadow(16, 28, 12, 3);
+    obj((o) => {
+      for (const [x, y, s, c] of [[6, 14, 9, [236, 206, 206]], [16, 6, 11, [250, 232, 230]], [19, 16, 8, [222, 180, 186]], [11, 19, 7, [244, 222, 218]]]) {
+        o.box(x, y, s, s, c, 1.12, 0.8);
+        o.rect(x + 1, y + 1, Math.floor(s / 2), 1, [255, 255, 255]);
+        o.rect(x, y + s - 3, s, 1, sh(c, 0.9));
+      }
+    });
+  });
+  // B+23..B+26 a salt pillar left standing by the miners: a column of banded rock, numbered in paint
+  drawPiece([[B + 23, B + 24], [B + 25, B + 26]], (g, { obj, shadow }) => {
+    shadow(32, 60, 30, 4);
+    obj((o) => {
+      for (let y = 6; y < 58; y++)
+        for (let x = 3; x < 61; x++) {
+          const t = y + 2.5 * Math.sin(x / 5) + 1.5 * Math.sin(x / 11);
+          o.set(x, y, ROCK_BANDS[((Math.floor(t / 4) % 5) + 5) % 5]);
+        }
+      o.noise(3, 6, 58, 52, 0.12, B + 23);
+      o.rect(3, 0, 58, 8, sh(ROCK, 0.45));
+      o.noise(3, 0, 58, 8, 0.2, B + 24);
+      o.rect(3, 8, 58, 2, sh(ROCK, 0.7));
+      o.rect(3, 52, 58, 6, [118, 98, 100]);
+      o.rect(58, 8, 3, 46, sh(ROCK, 0.8));
+      o.rect(3, 8, 2, 46, sh(ROCK, 1.1));
+      o.box(18, 24, 28, 12, [236, 232, 220], 1.05, 0.85);
+      // "P 7" in red paint
+      o.rect(22, 27, 2, 7, [190, 40, 40]);
+      o.rect(24, 27, 4, 2, [190, 40, 40]);
+      o.rect(26, 29, 2, 1, [190, 40, 40]);
+      o.rect(24, 30, 3, 1, [190, 40, 40]);
+      o.rect(33, 27, 8, 2, [190, 40, 40]);
+      o.rect(38, 29, 2, 5, [190, 40, 40]);
+      const r = rng(B + 25);
+      for (let i = 0; i < 14; i++) o.set(5 + Math.floor(r() * 54), 12 + Math.floor(r() * 38), [252, 248, 244]);
+    });
+  });
+  solid(B + 19, B + 20, B + 21, B + 22, B + 23, B + 24, B + 25, B + 26);
+  // B+27 a drying line with salvaged envelopes pegged on it (above the avatars)
+  drawTile(B + 27, (g) => {
+    for (let x = 0; x < T; x++) g.set(x, 4 + Math.round(3 * Math.sin((Math.PI * x) / T)), [70, 60, 50]);
+    const o = canvas(T, T);
+    for (const [x, c] of [[3, KRAFT], [13, [236, 230, 214]], [23, sh(KRAFT, 1.08)]]) {
+      const y = 5 + Math.round(3 * Math.sin((Math.PI * (x + 3)) / T));
+      o.box(x, y + 1, 7, 9, c, 1.1, 0.8);
+      o.rect(x + 1, y + 3, 5, 1, sh(c, 0.85));
+      o.rect(x + 1, y + 8, 5, 1, [90, 120, 150, 140]);
+      o.rect(x + 3, y - 1, 1, 3, [200, 60, 50]);
+    }
+    o.outline();
+    g.paste(o);
+  });
+  // B+28 the cold store door, B+29 the field map, B+30 the inspection notice and B+31 the service sheet, on the salt wall
+  onWall(B + 28, 188, saltWall, 188);
+  onWall(B + 29, 190, saltWall, 190);
+  onWall(B + 30, 9, saltWall);
+  onWall(B + 31, 26, saltWall);
+}
 // --- end ml-seeds ---
 
 // --- ml-customs restyle (tiles 656-687) ---
+// Pier 9: the customs office on a harbour pier at night. Hanne's old records room and the night
+// office (plastered, the original wall props), then out through a barrier onto the quay: a
+// corrugated shed wall, a container yard under floodlights, a gantry crane on its rails, bollards
+// along the quay edge, and the MV Kestrel alongside.
+{
+  const B = blockOf('ml-customs');
+  const SHED = [86, 104, 124];
+  const RUST = [150, 86, 52];
+  const CONCRETE = [78, 84, 96];
+  const SEA = [18, 32, 54];
+  const MOON = [170, 190, 220];
+  const HULL = [36, 44, 62];
+  const DECK = [110, 60, 48];
+  const LAMP = [255, 236, 170];
+  const BLUE_BOX = [52, 96, 160];
+  const GREEN_BOX = [60, 124, 88];
+  /** The shed's wall face: corrugated steel sheeting with rust running down from the rivets. */
+  const shedWall = (g) => {
+    g.rect(0, 0, T, T, SHED);
+    for (let x = 0; x < T; x += 4) {
+      g.rect(x, 0, 1, T, sh(SHED, 1.18));
+      g.rect(x + 2, 0, 2, T, sh(SHED, 0.84));
+    }
+    g.noise(0, 0, T, T, 0.08, B);
+    g.rect(0, 0, T, 2, sh(SHED, 0.6));
+    for (const x of [5, 21]) {
+      g.set(x, 4, [210, 214, 220]);
+      for (let y = 5; y < 5 + (x % 7) + 8; y++) g.set(x + (y % 3 === 0 ? 1 : 0), y, alpha(RUST, 170));
+    }
+    g.rect(0, T - 4, T, 4, [56, 60, 70]);
+    g.rect(0, T - 4, T, 1, [236, 190, 40]);
+  };
+  // B+0 shed wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, shedWall);
+  drawTile(B + 1, turned(shedWall, 'ccw'));
+  drawTile(B + 2, turned(shedWall, 'cw'));
+  // B+3 quay concrete at night: dark slabs with joints, oil spots and the odd glint of wet
+  drawTile(B + 3, (g) => {
+    g.rect(0, 0, T, T, CONCRETE);
+    g.noise(0, 0, T, T, 0.1, B + 3);
+    g.rect(0, 0, T, 1, sh(CONCRETE, 0.78));
+    g.rect(0, 0, 1, T, sh(CONCRETE, 0.78));
+    g.rect(0, 16, T, 1, sh(CONCRETE, 0.86));
+    const r = rng(B + 3);
+    for (let i = 0; i < 2; i++) g.ellipse(4 + r() * 24, 4 + r() * 24, 2 + r() * 2, 1 + r(), [40, 42, 50, 120]);
+    for (let i = 0; i < 5; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [140, 150, 170]);
+  });
+  // B+4 a yellow lane line painted on the quay (decor)
+  drawTile(B + 4, (g) => {
+    g.rect(0, 13, T, 5, [226, 186, 48, 220]);
+    g.noise(0, 13, T, 5, 0.25, B + 4);
+    const r = rng(B + 4);
+    for (let i = 0; i < 10; i++) g.set(Math.floor(r() * T), 13 + Math.floor(r() * 5), [90, 92, 100, 200]);
+  });
+  /** The harbour at night: near-black water with long moonlit ripples. */
+  const sea = (g, seed) => {
+    g.rect(0, 0, T, T, SEA);
+    g.noise(0, 0, T, T, 0.12, seed);
+    const r = rng(seed);
+    for (let i = 0; i < 5; i++) {
+      const x = Math.floor(r() * 24);
+      const y = 2 + Math.floor(r() * 28);
+      g.rect(x, y, 6 + Math.floor(r() * 4), 1, alpha(MOON, 120));
+    }
+  };
+  // B+5 harbour water (solid)
+  drawTile(B + 5, (g) => sea(g, B + 5));
+  // B+6 quay edge: the concrete kerb, a black rubber fender and the water below
+  drawTile(B + 6, (g) => {
+    sea(g, B + 6);
+    g.rect(0, 0, T, 12, CONCRETE);
+    g.noise(0, 0, T, 12, 0.1, B + 60);
+    g.rect(0, 0, T, 3, [226, 186, 48]);
+    g.rect(0, 3, T, 1, sh([226, 186, 48], 0.6));
+    g.rect(0, 12, T, 6, sh(CONCRETE, 0.6));
+    const o = canvas(T, T);
+    o.box(9, 10, 14, 14, [34, 34, 38], 1.4);
+    o.rect(11, 13, 10, 1, [60, 60, 66]);
+    o.rect(11, 19, 10, 1, [60, 60, 66]);
+    o.outline();
+    g.paste(o);
+    g.rect(8, 25, 16, 1, alpha(MOON, 80));
+  });
+  // B+7 a bollard with a mooring line looped over it, running off towards the ship
+  drawTile(B + 7, (g, { obj, shadow }) => {
+    shadow(16, 26, 10, 3);
+    obj((o) => {
+      o.ellipse(16, 22, 8, 4, [40, 42, 48]);
+      o.rect(10, 12, 12, 10, [52, 54, 62]);
+      o.rect(10, 12, 3, 10, [76, 80, 90]);
+      o.ellipse(16, 12, 8, 4, [70, 74, 84]);
+      o.ellipse(16, 11, 6, 2.5, [96, 100, 110]);
+    });
+    for (let y = 16; y < T; y++) g.rect(15 + Math.round((y - 16) * 0.1), y, 3, 1, [196, 170, 120]);
+    for (let a = 0; a < 40; a++) {
+      const t = (a / 40) * Math.PI * 2;
+      g.set(16 + Math.cos(t) * 8.5, 16 + Math.sin(t) * 3, [196, 170, 120]);
+    }
+  });
+  // B+8 a puddle catching a floodlight (decor)
+  drawTile(B + 8, (g) => {
+    g.ellipse(16, 18, 13, 6, [30, 40, 60, 150]);
+    g.ellipse(13, 17, 6, 2, alpha(LAMP, 110));
+    g.ellipse(12, 17, 2, 1, alpha(LAMP, 200));
+    g.rect(20, 20, 5, 1, alpha(MOON, 120));
+  });
+  /** The ship's bulwark, seen over the water: a red-brown deck edge behind a white rail. */
+  const bulwark = (g, seed) => {
+    sea(g, seed);
+    g.rect(0, 8, T, 24, HULL);
+    g.noise(0, 8, T, 24, 0.08, seed + 1);
+    g.rect(0, 8, T, 2, sh(HULL, 1.5));
+    g.rect(0, 26, T, 6, DECK);
+    g.rect(0, 26, T, 1, sh(DECK, 1.25));
+    g.rect(0, 2, T, 2, [236, 236, 240]);
+    for (let x = 2; x < T; x += 8) g.rect(x, 2, 2, 8, [236, 236, 240]);
+  };
+  // B+9 the MV Kestrel's side, B+10 the same with her name
+  drawTile(B + 9, (g) => bulwark(g, B + 9));
+  drawTile(B + 10, (g) => {
+    bulwark(g, B + 10);
+    // KESTREL in 3 x 5 pixel letters
+    const L = { K: ['101', '110', '100', '110', '101'], E: ['111', '100', '110', '100', '111'], S: ['111', '100', '111', '001', '111'], T: ['111', '010', '010', '010', '010'], R: ['110', '101', '110', '101', '101'], L: ['100', '100', '100', '100', '111'] };
+    [...'KESTREL'].forEach((ch, i) => L[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && g.set(2 + i * 4 + x, 15 + y, [240, 240, 236]))));
+  });
+  // B+11 the ship's deck with a hatch cover, B+12 with a container lashed on it
+  drawTile(B + 11, (g) => {
+    g.rect(0, 0, T, T, DECK);
+    g.noise(0, 0, T, T, 0.1, B + 11);
+    g.box(3, 4, 26, 24, [64, 92, 84], 1.2, 0.7);
+    for (let x = 6; x < 28; x += 5) g.rect(x, 6, 1, 20, [52, 76, 70]);
+  });
+  drawTile(B + 12, (g) => {
+    g.rect(0, 0, T, T, DECK);
+    g.noise(0, 0, T, T, 0.1, B + 12);
+    const o = canvas(T, T);
+    o.box(1, 2, 30, 26, BLUE_BOX, 1.2, 0.7);
+    for (let x = 3; x < 30; x += 3) o.rect(x, 4, 1, 22, sh(BLUE_BOX, 0.82));
+    o.outline();
+    g.paste(o);
+    for (const x of [2, 28]) for (let y = 2; y < 28; y += 2) g.set(x + ((y / 2) % 2), y, [200, 200, 206]);
+  });
+  solid(B, B + 1, B + 2, B + 5, B + 6, B + 7, B + 9, B + 10, B + 11, B + 12);
+  /** A container seen from the long side, two tiles wide: ribbed steel, corner castings and a stencilled code. */
+  const longBox = (a, b, col, code) =>
+    drawPiece([[a, b]], (g, { obj, shadow }) => {
+      shadow(32, 30, 31, 2);
+      obj((o) => {
+        o.box(1, 4, 62, 25, col, 1.25, 0.7);
+        for (let x = 4; x < 61; x += 3) o.rect(x, 7, 1, 20, sh(col, 0.8));
+        for (const [x, y] of [[1, 4], [59, 4], [1, 25], [59, 25]]) o.rect(x, y, 4, 4, sh(col, 0.6));
+        o.rect(1, 4, 62, 1, sh(col, 1.4));
+        o.rect(8, 9, 14, 3, [240, 240, 236]);
+        o.rect(8, 13, 9, 2, [240, 240, 236]);
+        o.rect(44, 9, 2 + code, 2, [240, 240, 236]);
+      });
+    });
+  // B+13, B+14 a blue container; B+15, B+16 a green one
+  longBox(B + 13, B + 14, BLUE_BOX, 6);
+  longBox(B + 15, B + 16, GREEN_BOX, 9);
+  // B+17 a leg of the gantry crane on its bogie, yellow with hazard stripes
+  drawTile(B + 17, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 3);
+    obj((o) => {
+      o.box(3, 22, 26, 8, [60, 62, 70], 1.2);
+      for (const x of [7, 16, 25]) o.ellipse(x, 29, 2.5, 2, [30, 30, 34]);
+      o.box(10, 0, 12, 23, [226, 186, 48], 1.3, 0.7);
+      for (let y = 2; y < 22; y += 6) o.rect(10, y, 12, 2, [40, 40, 44]);
+      o.rect(13, 0, 1, 22, sh([226, 186, 48], 1.2));
+    });
+  });
+  // B+18 the crane's girder overhead (above the avatars): a yellow lattice beam resting on the legs below
+  drawTile(B + 18, (g) => {
+    g.rect(0, 14, T, 12, [0, 0, 0, 30]);
+    const o = canvas(T, T);
+    o.box(0, 8, T, 4, [226, 186, 48], 1.3, 0.7);
+    o.box(0, 26, T, 4, [226, 186, 48], 1.3, 0.7);
+    for (let x = 0; x < T; x += 14) {
+      for (let j = 0; j < 14; j++) o.rect(x + j, 12 + j, 2, 1, [196, 160, 40]);
+      o.rect(x, 12, 2, 14, [196, 160, 40]);
+    }
+    o.outline();
+    g.paste(o);
+  });
+  // B+19 the crane's spreader hanging on its cables below the girder, a red light on each corner (above the avatars)
+  drawTile(B + 19, (g) => {
+    for (let j = 0; j < 8; j++) g.ellipse(16, 26, 14 - j, 5 - j * 0.5, [255, 230, 160, 12]);
+    const o = canvas(T, T);
+    for (const x of [9, 22]) o.rect(x, 0, 1, 12, [40, 40, 44]);
+    o.box(6, 2, 20, 4, [80, 82, 90], 1.3);
+    o.box(1, 11, 30, 6, [226, 186, 48], 1.25, 0.7);
+    for (let x = 4; x < 28; x += 6) o.rect(x, 12, 3, 4, [40, 40, 44]);
+    o.outline();
+    g.paste(o);
+    g.set(2, 11, [255, 60, 50]);
+    g.set(29, 11, [255, 60, 50]);
+  });
+  // B+20 crane rails set into the quay (decor), running across the room
+  drawTile(B + 20, (g) => {
+    for (const y of [8, 22]) {
+      g.rect(0, y, T, 3, [120, 124, 134]);
+      g.rect(0, y, T, 1, [190, 196, 206]);
+      g.rect(0, y + 2, T, 1, [50, 52, 60]);
+    }
+  });
+  // B+21 a floodlight mast: a grey pole with a bank of lamps blazing at the top
+  drawTile(B + 21, (g, { obj, shadow }) => {
+    shadow(16, 29, 6, 2);
+    for (let j = 0; j < 8; j++) g.ellipse(16, 5, 14 - j, 6 - j * 0.5, alpha(LAMP, 14));
+    obj((o) => {
+      o.rect(14, 6, 4, 22, [120, 124, 134]);
+      o.rect(14, 6, 1, 22, [170, 176, 186]);
+      o.box(11, 26, 10, 3, [90, 94, 104]);
+      o.box(6, 1, 20, 6, [60, 62, 70], 1.3);
+      for (const x of [8, 13, 18, 23]) o.rect(x, 3, 3, 3, LAMP);
+    });
+  });
+  // B+22 the pool of a floodlight on the quay (decor)
+  drawTile(B + 22, (g) => {
+    for (let j = 0; j < 9; j++) g.ellipse(16, 16, 16 - j * 1.4, 14 - j * 1.3, alpha(LAMP, 12));
+  });
+  // B+23 the office floor: green-grey linoleum squares, scuffed by boots
+  drawTile(B + 23, (g) => {
+    const lino = [146, 160, 150];
+    g.rect(0, 0, T, T, lino);
+    g.rect(0, 0, 16, 16, sh(lino, 0.93));
+    g.rect(16, 16, 16, 16, sh(lino, 0.93));
+    g.noise(0, 0, T, T, 0.07, B + 23);
+    const r = rng(B + 23);
+    for (let i = 0; i < 18; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), sh(lino, 0.75));
+    g.rect(3, 22, 6, 1, sh(lino, 0.82));
+    g.rect(0, 0, T, 1, sh(lino, 0.85));
+    g.rect(0, 0, 1, T, sh(lino, 0.85));
+  });
+  // B+24 the barrier at the quay gate: a red and white boom raised upright on its post
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 29, 8, 2);
+    obj((o) => {
+      o.box(10, 16, 12, 13, [90, 94, 104], 1.2);
+      o.rect(12, 19, 8, 3, [236, 236, 240]);
+      o.ellipse(16, 25, 2, 2, [230, 60, 50]);
+      for (let y = 0; y < 17; y++) o.rect(14, y, 4, 1, Math.floor(y / 4) % 2 ? [236, 236, 240] : [210, 40, 40]);
+    });
+  });
+  // B+25 a pallet of crates under a tarp, strapped down
+  drawTile(B + 25, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      o.box(2, 24, 28, 5, WOOD, 1.25);
+      for (const x of [3, 14, 25]) o.rect(x, 26, 4, 3, sh(WOOD, 0.6));
+      o.box(3, 8, 26, 17, [70, 110, 150], 1.25, 0.7);
+      o.rect(3, 13, 26, 1, sh([70, 110, 150], 0.8));
+      for (const x of [9, 22]) o.rect(x, 8, 2, 17, [230, 160, 40]);
+    });
+  });
+  // B+26 the sniffer dog asleep in her basket
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 27, 14, 3);
+    obj((o) => {
+      o.ellipse(16, 20, 14, 8, [150, 104, 60]);
+      o.ellipse(16, 19, 11, 6, [200, 70, 64]);
+      o.ellipse(15, 18, 8, 4.5, [176, 120, 70]);
+      o.ellipse(21, 16, 4, 3.5, [176, 120, 70]);
+      o.ellipse(23, 15, 2, 3, [110, 70, 40]);
+      o.rect(22, 16, 2, 1, [40, 30, 26]);
+      o.ellipse(9, 20, 3, 1.5, [150, 100, 60]);
+    });
+  });
+  // B+27 an opened container, its doors swung wide, boxes and a toppled carton of cigarettes inside
+  drawTile(B + 27, (g, { obj, shadow }) => {
+    shadow(16, 30, 15, 2);
+    obj((o) => {
+      o.box(4, 3, 24, 26, [178, 64, 50], 1.2, 0.7);
+      o.rect(6, 5, 20, 23, [24, 20, 22]);
+      o.box(8, 16, 8, 7, KRAFT, 1.2, 0.8);
+      o.box(14, 19, 9, 8, KRAFT, 1.2, 0.8);
+      o.box(9, 23, 6, 4, [236, 236, 240], 1.1, 0.8);
+      o.rect(10, 24, 4, 1, [200, 40, 40]);
+      o.box(0, 4, 5, 25, sh([178, 64, 50], 0.85), 1.2, 0.7);
+      o.box(27, 4, 5, 25, sh([178, 64, 50], 0.85), 1.2, 0.7);
+    });
+  });
+  // B+28 a lifebuoy on the shed wall
+  drawTile(B + 28, (g) => {
+    shedWall(g);
+    const o = canvas(T, T);
+    o.ellipse(16, 13, 10, 10, [236, 96, 50]);
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) if ((x - 16) ** 2 + (y - 13) ** 2 < 25) o.px.set([0, 0, 0, 0], (y * T + x) * 4);
+    for (const [x, y, w, h] of [[14, 3, 4, 5], [14, 18, 4, 5], [6, 11, 5, 4], [21, 11, 5, 4]]) o.rect(x, y, w, h, [240, 240, 236]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+29 the pier sign on the shed wall: a big white 9 on blue, "PIER" above it
+  drawTile(B + 29, (g) => {
+    shedWall(g);
+    const o = canvas(T, T);
+    o.box(4, 3, 24, 22, [30, 70, 140], 1.25);
+    const P = { P: ['110', '101', '110', '100', '100'], I: ['111', '010', '010', '010', '111'], E: ['111', '100', '110', '100', '111'], R: ['110', '101', '110', '101', '101'] };
+    [...'PIER'].forEach((ch, i) => P[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.set(8 + i * 4 + x, 5 + y, [240, 240, 236]))));
+    const nine = ['0110', '1001', '1001', '0111', '0001', '0010', '1100'];
+    nine.forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.rect(12 + x * 2, 11 + y * 2, 2, 2, [255, 255, 255])));
+    o.outline();
+    g.paste(o);
+  });
+  // B+30 a roller shutter in the shed wall, pulled down for the night
+  drawTile(B + 30, (g) => {
+    shedWall(g);
+    const o = canvas(T, T);
+    o.rect(0, 3, T, 26, [120, 126, 136]);
+    for (let y = 5; y < 28; y += 3) o.rect(0, y, T, 1, [86, 90, 100]);
+    o.rect(0, 3, T, 2, [60, 62, 70]);
+    o.rect(0, 26, T, 3, [226, 186, 48]);
+    g.paste(o);
+  });
+  // B+31 a floodlight on the shed wall, throwing light down onto the quay
+  drawTile(B + 31, (g) => {
+    shedWall(g);
+    for (let j = 0; j < 12; j++) g.rect(Math.round(16 - (6 + j)), 12 + j, 12 + 2 * j, 1, alpha(LAMP, Math.round(100 - j * 7)));
+    const o = canvas(T, T);
+    o.rect(15, 3, 2, 4, [60, 62, 70]);
+    o.box(8, 6, 16, 6, [60, 62, 70], 1.3);
+    o.rect(9, 10, 14, 2, LAMP);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 13, B + 14, B + 15, B + 16, B + 17, B + 21, B + 24, B + 25, B + 26, B + 27, B + 28, B + 29, B + 30, B + 31);
+}
 // --- end ml-customs ---
 
 // --- ml-auction restyle (tiles 688-719) ---
+// Going Once: the auction house Vossberg & Daughters at night. A marble foyer with the exit, Albers's
+// study, a gallery of display cases under tall windows, the parquet saleroom with its rostrum on a
+// dais and rows of bidders' chairs under chandeliers, and the workshop and print room behind it.
+{
+  const B = blockOf('ml-auction');
+  const DAMASK = [58, 34, 44];
+  const GILT = [222, 182, 82];
+  const NIGHT = [24, 32, 58];
+  const MOONLIGHT = [190, 210, 255];
+  const VELVET = [150, 34, 44];
+  /** The saleroom's wall face: wine-red damask with a gilt pattern, a gilt rail and mahogany panelling below. */
+  const damaskWall = (g) => {
+    g.rect(0, 0, T, T, DAMASK);
+    g.noise(0, 0, T, 19, 0.06, B);
+    for (let y = 4; y < 18; y += 8)
+      for (let x = (y / 8) % 2 < 1 ? 4 : 0; x < T; x += 8) {
+        g.set(x + 2, y, sh(DAMASK, 1.5));
+        g.rect(x + 1, y + 1, 3, 1, sh(DAMASK, 1.4));
+        g.set(x + 2, y + 2, sh(DAMASK, 1.5));
+        g.set(x + 2, y + 3, sh(DAMASK, 1.25));
+      }
+    g.rect(0, 0, T, 2, sh(DAMASK, 0.6));
+    g.rect(0, 18, T, 2, GILT);
+    g.rect(0, 18, T, 1, sh(GILT, 1.25));
+    g.rect(0, 20, T, 12, MAHOGANY);
+    g.noise(0, 20, T, 12, 0.08, B + 1);
+    g.rect(3, 22, 26, 7, sh(MAHOGANY, 0.85));
+    g.rect(3, 22, 26, 1, sh(MAHOGANY, 0.7));
+    g.rect(3, 28, 26, 1, sh(MAHOGANY, 1.2));
+    g.rect(0, T - 1, T, 1, sh(MAHOGANY, 0.6));
+  };
+  // B+0 damask wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, damaskWall);
+  drawTile(B + 1, turned(damaskWall, 'ccw'));
+  drawTile(B + 2, turned(damaskWall, 'cw'));
+  // B+3 herringbone parquet in honey oak
+  drawTile(B + 3, (g) => {
+    const oak = [176, 124, 76];
+    g.rect(0, 0, T, T, oak);
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) {
+        const local = x % 8;
+        const odd = Math.floor(x / 8) % 2;
+        const k = odd ? y + local : y - local + 64;
+        const plank = Math.floor(k / 6);
+        if (k % 6 === 0 || local === 0) g.set(x, y, sh(oak, 0.7));
+        else if ((plank + odd) % 3 === 0) g.set(x, y, sh(oak, 0.9));
+        else if ((plank + odd) % 3 === 1) g.set(x, y, sh(oak, 1.06));
+      }
+    g.noise(0, 0, T, T, 0.08, B + 3);
+  });
+  // B+4 the top of the auctioneer's dais (decor): polished boards with a velvet border at the back
+  drawTile(B + 4, (g) => {
+    const top = [128, 70, 44];
+    g.rect(0, 0, T, T, top);
+    for (let y = 0; y < T; y += 8) g.rect(0, y, T, 1, sh(top, 0.8));
+    g.noise(0, 0, T, T, 0.08, B + 4);
+    g.rect(0, 4, T, 1, alpha(sh(top, 1.4), 120));
+  });
+  // B+5 a crystal chandelier (above the avatars): gilt arms, candle bulbs, drops and a ring of light
+  drawTile(B + 5, (g) => {
+    for (let j = 0; j < 10; j++) g.ellipse(16, 14, 16 - j * 1.3, 12 - j, [255, 230, 170, 14]);
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 6, GILT);
+    o.ellipse(16, 13, 11, 4, sh(GILT, 0.85));
+    o.ellipse(16, 12, 9, 2.5, GILT);
+    o.ellipse(16, 16, 4, 4, [232, 240, 255]);
+    for (const x of [6, 11, 16, 21, 26]) {
+      o.rect(x - 1, 6, 2, 5, [252, 248, 236]);
+      o.ellipse(x, 5, 1.5, 2, [255, 230, 140]);
+    }
+    for (const x of [8, 13, 19, 24]) o.rect(x, 16, 1, 4, [210, 226, 255]);
+    o.outline();
+    g.paste(o);
+    for (const x of [6, 16, 26]) g.set(x, 4, [255, 255, 230]);
+  });
+  // B+6 a tall window in the damask wall: the night sky, the moon and the roofs of the old town
+  drawTile(B + 6, (g) => {
+    damaskWall(g);
+    const o = canvas(T, T);
+    o.box(5, 1, 22, 28, GILT, 1.2, 0.7);
+    o.rect(7, 3, 18, 24, NIGHT);
+    for (let j = 0; j < 24; j++) o.rect(7, 3 + j, 18, 1, [40, 52, 90, Math.round(j * 6)]);
+    o.ellipse(20, 8, 2.5, 2.5, [240, 240, 220]);
+    o.rect(7, 19, 18, 8, [16, 18, 30]);
+    o.rect(9, 16, 4, 3, [16, 18, 30]);
+    o.rect(17, 17, 5, 2, [16, 18, 30]);
+    for (const [x, y] of [[9, 21], [14, 23], [20, 21], [11, 6], [8, 10]]) o.set(x, y, [255, 220, 120]);
+    o.rect(15, 3, 2, 24, GILT);
+    o.rect(7, 13, 18, 1, GILT);
+    o.outline();
+    g.paste(o);
+  });
+  // B+7 moonlight falling through a window onto the floor (decor)
+  drawTile(B + 7, (g) => {
+    for (let y = 0; y < T; y++) {
+      const a = Math.round(110 - y * 2.4);
+      if (a <= 0) continue;
+      g.rect(6 + Math.round(y * 0.2), y, 8, 1, alpha(MOONLIGHT, a));
+      g.rect(17 + Math.round(y * 0.2), y, 8, 1, alpha(MOONLIGHT, a));
+    }
+  });
+  /** A painting in a heavy gilt frame, hung on the damask; `scene` paints the canvas area. */
+  const painting = (index, scene) =>
+    drawTile(index, (g) => {
+      damaskWall(g);
+      const o = canvas(T, T);
+      o.box(4, 2, 24, 19, GILT, 1.25, 0.7);
+      o.rect(6, 4, 20, 15, [0, 0, 0]);
+      scene(o);
+      o.outline();
+      g.paste(o);
+      g.rect(9, 22, 14, 1, [0, 0, 0, 60]);
+    });
+  // B+8 a landscape at dusk, B+9 the founder, old Vossberg, in 1896, B+10 a still life with fruit
+  painting(B + 8, (o) => {
+    o.rect(6, 4, 20, 8, [214, 150, 110]);
+    o.rect(6, 8, 20, 3, [230, 180, 120]);
+    o.rect(6, 11, 20, 8, [70, 96, 70]);
+    o.ellipse(12, 12, 6, 2, [60, 80, 58]);
+    o.ellipse(21, 14, 5, 3, [50, 70, 50]);
+    o.rect(6, 16, 20, 3, [90, 110, 120]);
+  });
+  painting(B + 9, (o) => {
+    o.rect(6, 4, 20, 15, [60, 44, 36]);
+    o.ellipse(16, 10, 4, 4.5, [222, 186, 160]);
+    o.rect(13, 5, 7, 2, [200, 200, 196]);
+    o.rect(13, 12, 7, 2, [210, 210, 206]);
+    o.rect(10, 14, 12, 5, [30, 30, 36]);
+    o.rect(15, 14, 2, 3, [240, 240, 236]);
+    o.rect(18, 8, 1, 1, [40, 30, 30]);
+    o.rect(14, 8, 1, 1, [40, 30, 30]);
+  });
+  painting(B + 10, (o) => {
+    o.rect(6, 4, 20, 15, [40, 36, 44]);
+    o.rect(6, 15, 20, 4, [110, 70, 46]);
+    o.ellipse(12, 13, 3.5, 3, [200, 50, 40]);
+    o.ellipse(17, 12, 3, 3, [230, 180, 60]);
+    o.ellipse(21, 14, 2.5, 2, [110, 150, 60]);
+    o.rect(14, 6, 3, 7, [110, 140, 170]);
+  });
+  // B+11 Albers's graph paper, B+12 the noticeboard with Ilse's memo, B+13 the price histogram, B+14 the house rule, on the damask
+  onWall(B + 11, 202, damaskWall, 202);
+  onWall(B + 12, 9, damaskWall);
+  onWall(B + 13, 203, damaskWall, 203);
+  onWall(B + 14, 24, damaskWall);
+  solid(B, B + 1, B + 2, B + 6, B + 8, B + 9, B + 10);
+  // B+15 a lot on an easel: a small gilt-framed seascape on a wooden stand
+  drawTile(B + 15, (g, { obj, shadow }) => {
+    shadow(16, 29, 10, 2);
+    obj((o) => {
+      o.rect(9, 6, 2, 23, WOOD);
+      o.rect(21, 6, 2, 23, WOOD);
+      o.rect(15, 2, 2, 20, sh(WOOD, 0.8));
+      o.box(6, 4, 20, 15, GILT, 1.25, 0.7);
+      o.rect(8, 6, 16, 6, [120, 160, 200]);
+      o.rect(8, 12, 16, 5, [40, 80, 120]);
+      o.rect(13, 9, 4, 3, [240, 240, 236]);
+      o.box(7, 19, 18, 2, sh(WOOD, 1.1));
+    });
+  });
+  // B+16 the front edge of the dais (decor): a step of polished wood with a gilt nosing
+  drawTile(B + 16, (g) => {
+    const top = [128, 70, 44];
+    g.rect(0, 0, T, 18, top);
+    g.noise(0, 0, T, 18, 0.08, B + 16);
+    g.rect(0, 8, T, 1, sh(top, 0.8));
+    g.rect(0, 17, T, 2, GILT);
+    g.rect(0, 19, T, 8, sh(top, 0.65));
+    g.rect(0, 27, T, 3, [0, 0, 0, 70]);
+  });
+  // B+17 the lot board on its stand: "LOT" over a big number, for the bidders at the back
+  drawTile(B + 17, (g, { obj, shadow }) => {
+    shadow(16, 29, 8, 2);
+    obj((o) => {
+      o.rect(15, 18, 2, 10, sh(GILT, 0.8));
+      o.box(10, 27, 12, 2, sh(GILT, 0.8));
+      o.box(5, 2, 22, 17, [30, 30, 36], 1.4);
+      o.rect(7, 4, 18, 1, GILT);
+      const D = { L: ['100', '100', '100', '100', '111'], O: ['111', '101', '101', '101', '111'], T: ['111', '010', '010', '010', '010'], 4: ['101', '101', '111', '001', '001'], 7: ['111', '001', '010', '010', '010'] };
+      [...'LOT'].forEach((ch, i) => D[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.set(10 + i * 4 + x, 6 + y, [240, 236, 222]))));
+      [...'47'].forEach((ch, i) => D[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.rect(11 + i * 6 + x * 2, 12 + y, 2, 1, GILT))));
+    });
+  });
+  // B+18 a bidder's chair seen from behind, facing the rostrum (a seat, not solid)
+  drawTile(B + 18, (g, { obj, shadow }) => {
+    shadow(16, 28, 10, 2);
+    obj((o) => {
+      o.rect(8, 22, 2, 7, sh(GILT, 0.8));
+      o.rect(22, 22, 2, 7, sh(GILT, 0.8));
+      o.box(7, 17, 18, 6, VELVET, 1.2, 0.7);
+      o.box(8, 4, 16, 14, sh(GILT, 0.9), 1.2, 0.7);
+      o.rect(10, 6, 12, 10, VELVET);
+      o.rect(10, 6, 12, 1, sh(VELVET, 1.3));
+    });
+  });
+  // B+19, B+20 the telephone bank: a long table with three old phones and lot sheets, for bidders who call in
+  drawPiece([[B + 19, B + 20]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(1, 13, 62, 10, MAHOGANY, 1.3, 0.7);
+      o.rect(1, 15, 62, 1, sh(MAHOGANY, 0.8));
+      for (const x of [4, 57]) o.rect(x, 23, 3, 7, sh(MAHOGANY, 0.7));
+      for (const x of [6, 26, 46]) {
+        o.box(x, 6, 12, 7, [30, 30, 34], 1.4);
+        o.box(x + 1, 3, 10, 3, [44, 44, 50], 1.4);
+        o.ellipse(x + 6, 9, 2, 2, [200, 196, 180]);
+        o.box(x + 13, 8, 6, 5, [246, 244, 236], 1, 0.85);
+      }
+    });
+  });
+  // B+21 tonight's star lot: a watch under a glass dome on a marble pedestal
+  drawTile(B + 21, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      o.box(9, 14, 14, 15, [232, 228, 222], 1.1, 0.8);
+      o.box(7, 12, 18, 3, [210, 206, 200], 1.15);
+      o.box(7, 27, 18, 2, [210, 206, 200]);
+      o.ellipse(16, 7, 7, 6, [200, 226, 240, 170]);
+      o.rect(9, 7, 14, 5, [200, 226, 240, 170]);
+      o.rect(10, 10, 12, 2, VELVET);
+      watch(o, 16, 8);
+      o.rect(11, 3, 2, 4, [255, 255, 255, 220]);
+    });
+  });
+  // B+22 a coat stand with a hat and an umbrella
+  drawTile(B + 22, (g, { obj, shadow }) => {
+    shadow(16, 29, 7, 2);
+    obj((o) => {
+      o.rect(15, 4, 2, 24, MAHOGANY);
+      o.rect(11, 27, 10, 2, MAHOGANY);
+      o.rect(10, 6, 12, 2, MAHOGANY);
+      o.box(9, 7, 7, 13, [70, 60, 70], 1.25);
+      o.ellipse(16, 4, 6, 2, [40, 40, 44]);
+      o.ellipse(16, 3, 3.5, 2, [40, 40, 44]);
+      o.rect(20, 10, 2, 16, [30, 50, 80]);
+    });
+  });
+  // B+23 a potted palm in a brass urn
+  drawTile(B + 23, (g, { obj, shadow }) => {
+    shadow(16, 29, 9, 2);
+    obj((o) => {
+      for (const [dx, dy] of [[-12, -2], [-9, -9], [0, -12], [9, -9], [12, -2], [-6, 2], [6, 2]]) {
+        for (let k = 0; k < 10; k++) o.rect(Math.round(16 + (dx * k) / 10), Math.round(14 + (dy * k) / 10), 2, 2, k % 3 ? [60, 130, 70] : [90, 160, 90]);
+      }
+      o.box(10, 18, 12, 11, BRASS, 1.25, 0.7);
+      o.rect(9, 18, 14, 2, sh(BRASS, 1.2));
+    });
+  });
+  // B+24 the coffee table with the evening paper spread on it
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 28, 13, 3);
+    obj((o) => {
+      o.ellipse(16, 17, 14, 7, MAHOGANY);
+      o.ellipse(16, 16, 13, 6, sh(MAHOGANY, 1.25));
+      o.rect(6, 22, 2, 6, sh(MAHOGANY, 0.7));
+      o.rect(24, 22, 2, 6, sh(MAHOGANY, 0.7));
+      o.box(8, 11, 14, 9, [236, 232, 220], 1, 0.85);
+      o.rect(9, 12, 12, 2, [40, 40, 44]);
+      for (let y = 15; y < 19; y += 2) o.rect(9, y, 5, 1, [140, 140, 150]);
+      o.rect(15, 15, 5, 3, [150, 150, 160]);
+      o.box(22, 12, 4, 4, [246, 244, 236]);
+      o.rect(23, 13, 2, 1, [110, 70, 40]);
+    });
+  });
+  // B+25 the strongroom door in the damask wall: a round steel door with bolts and a brass wheel
+  drawTile(B + 25, (g) => {
+    damaskWall(g);
+    const o = canvas(T, T);
+    o.ellipse(16, 15, 13, 13, [150, 156, 166]);
+    o.ellipse(16, 15, 10, 10, [176, 182, 192]);
+    for (let a = 0; a < 8; a++) o.ellipse(16 + Math.cos((a * Math.PI) / 4) * 11.5, 15 + Math.sin((a * Math.PI) / 4) * 11.5, 1, 1, [90, 96, 106]);
+    o.ellipse(16, 15, 4, 4, BRASS);
+    o.ellipse(16, 15, 2, 2, sh(BRASS, 0.7));
+    o.rect(9, 14, 14, 2, BRASS);
+    o.rect(15, 8, 2, 14, BRASS);
+    o.outline();
+    g.paste(o);
+  });
+  // B+26 a packing crate full of straw, waiting for a lot
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    obj((o) => {
+      o.box(3, 10, 26, 19, [176, 136, 84], 1.2, 0.75);
+      for (const y of [16, 22]) o.rect(3, y, 26, 1, sh([176, 136, 84], 0.75));
+      o.rect(3, 10, 3, 19, sh([176, 136, 84], 0.85));
+      o.rect(26, 10, 3, 19, sh([176, 136, 84], 0.85));
+      const r = rng(B + 26);
+      for (let i = 0; i < 26; i++) o.rect(5 + Math.floor(r() * 21), 6 + Math.floor(r() * 5), 3, 1, [226, 200, 110]);
+      o.rect(10, 18, 12, 3, [60, 50, 40]);
+    });
+  });
+  // B+27 black and white marble, laid on the diagonal
+  drawTile(B + 27, (g) => {
+    for (let y = 0; y < T; y++)
+      for (let x = 0; x < T; x++) g.set(x, y, (Math.floor(x / 16) + Math.floor(y / 16)) % 2 ? [112, 106, 114] : [230, 226, 220]);
+    g.noise(0, 0, T, T, 0.06, B + 27);
+    const r = rng(B + 270);
+    for (let i = 0; i < 3; i++) {
+      let x = Math.floor(r() * T);
+      for (let y = 0; y < T; y++) {
+        if (r() < 0.4) x += r() < 0.5 ? -1 : 1;
+        if (r() < 0.5) g.set(((x % T) + T) % T, y, [176, 172, 168, 160]);
+      }
+    }
+    for (const v of [0, 16]) {
+      g.rect(0, v, T, 1, [120, 116, 120]);
+      g.rect(v, 0, 1, T, [120, 116, 120]);
+    }
+  });
+  // B+28, B+29 Albers's partners' desk: green leather top, a banker's lamp, a loupe, catalogues
+  drawPiece([[B + 28, B + 29]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    for (let j = 0; j < 8; j++) g.ellipse(14, 14, 14 - j, 6 - j * 0.6, [255, 230, 160, 14]);
+    obj((o) => {
+      o.box(1, 12, 62, 12, MAHOGANY, 1.3, 0.7);
+      o.rect(3, 13, 58, 5, BAIZE);
+      o.rect(1, 18, 62, 1, sh(MAHOGANY, 0.8));
+      for (const x of [3, 20, 39, 56]) o.box(x, 20, 6, 3, sh(MAHOGANY, 1.1));
+      for (const x of [3, 57]) o.rect(x, 24, 4, 6, sh(MAHOGANY, 0.7));
+      o.rect(13, 6, 2, 8, BRASS);
+      o.box(7, 3, 14, 5, [40, 120, 80], 1.3, 0.7);
+      o.box(30, 7, 12, 8, [246, 244, 236], 1, 0.85);
+      o.box(43, 9, 10, 6, [60, 80, 140], 1.2);
+      o.ellipse(26, 13, 2.5, 2.5, [60, 60, 66]);
+      o.ellipse(26, 13, 1.5, 1.5, [200, 226, 240]);
+    });
+  });
+  // B+30 the ledger table: big leather-bound sale ledgers, one open at last autumn's sale
+  drawTile(B + 30, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      deskBase(o, MAHOGANY);
+      o.box(3, 4, 20, 10, [246, 240, 220], 1, 0.85);
+      o.rect(12, 4, 2, 10, [200, 190, 170]);
+      for (let y = 6; y < 13; y += 2) {
+        o.rect(5, y, 6, 1, [130, 130, 145]);
+        o.rect(15, y, 6, 1, [130, 130, 145]);
+      }
+      o.box(24, 3, 6, 11, [110, 40, 36], 1.25);
+      o.rect(24, 6, 6, 1, GILT);
+    });
+  });
+  // B+31 a brass sconce with two candle bulbs on the damask, glowing warm
+  drawTile(B + 31, (g) => {
+    damaskWall(g);
+    for (let j = 0; j < 10; j++) g.ellipse(16, 10, 14 - j * 1.2, 10 - j, [255, 220, 150, 16]);
+    const o = canvas(T, T);
+    o.box(14, 12, 4, 7, BRASS, 1.3);
+    o.rect(9, 12, 14, 2, BRASS);
+    for (const x of [9, 21]) {
+      o.rect(x, 7, 2, 5, [252, 248, 236]);
+      o.ellipse(x + 1, 6, 1.5, 2, [255, 220, 120]);
+    }
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 15, B + 17, B + 19, B + 20, B + 21, B + 22, B + 23, B + 24, B + 25, B + 26, B + 28, B + 29, B + 30, B + 31);
+}
 // --- end ml-auction ---
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
