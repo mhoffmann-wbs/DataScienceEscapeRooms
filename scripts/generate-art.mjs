@@ -3551,6 +3551,333 @@ function onWall(index, src, wall, seed = 3) {
 // --- end ml-seeds ---
 
 // --- ml-customs restyle (tiles 656-687) ---
+// Pier 9: the customs office on a harbour pier at night. Hanne's old records room and the night
+// office (plastered, the original wall props), then out through a barrier onto the quay: a
+// corrugated shed wall, a container yard under floodlights, a gantry crane on its rails, bollards
+// along the quay edge, and the MV Kestrel alongside.
+{
+  const B = blockOf('ml-customs');
+  const SHED = [86, 104, 124];
+  const RUST = [150, 86, 52];
+  const CONCRETE = [78, 84, 96];
+  const SEA = [18, 32, 54];
+  const MOON = [170, 190, 220];
+  const HULL = [36, 44, 62];
+  const DECK = [110, 60, 48];
+  const LAMP = [255, 236, 170];
+  const BLUE_BOX = [52, 96, 160];
+  const GREEN_BOX = [60, 124, 88];
+  /** The shed's wall face: corrugated steel sheeting with rust running down from the rivets. */
+  const shedWall = (g) => {
+    g.rect(0, 0, T, T, SHED);
+    for (let x = 0; x < T; x += 4) {
+      g.rect(x, 0, 1, T, sh(SHED, 1.18));
+      g.rect(x + 2, 0, 2, T, sh(SHED, 0.84));
+    }
+    g.noise(0, 0, T, T, 0.08, B);
+    g.rect(0, 0, T, 2, sh(SHED, 0.6));
+    for (const x of [5, 21]) {
+      g.set(x, 4, [210, 214, 220]);
+      for (let y = 5; y < 5 + (x % 7) + 8; y++) g.set(x + (y % 3 === 0 ? 1 : 0), y, alpha(RUST, 170));
+    }
+    g.rect(0, T - 4, T, 4, [56, 60, 70]);
+    g.rect(0, T - 4, T, 1, [236, 190, 40]);
+  };
+  // B+0 shed wall front, B+1 in a left wall, B+2 in a right wall
+  drawTile(B, shedWall);
+  drawTile(B + 1, turned(shedWall, 'ccw'));
+  drawTile(B + 2, turned(shedWall, 'cw'));
+  // B+3 quay concrete at night: dark slabs with joints, oil spots and the odd glint of wet
+  drawTile(B + 3, (g) => {
+    g.rect(0, 0, T, T, CONCRETE);
+    g.noise(0, 0, T, T, 0.1, B + 3);
+    g.rect(0, 0, T, 1, sh(CONCRETE, 0.78));
+    g.rect(0, 0, 1, T, sh(CONCRETE, 0.78));
+    g.rect(0, 16, T, 1, sh(CONCRETE, 0.86));
+    const r = rng(B + 3);
+    for (let i = 0; i < 2; i++) g.ellipse(4 + r() * 24, 4 + r() * 24, 2 + r() * 2, 1 + r(), [40, 42, 50, 120]);
+    for (let i = 0; i < 5; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), [140, 150, 170]);
+  });
+  // B+4 a yellow lane line painted on the quay (decor)
+  drawTile(B + 4, (g) => {
+    g.rect(0, 13, T, 5, [226, 186, 48, 220]);
+    g.noise(0, 13, T, 5, 0.25, B + 4);
+    const r = rng(B + 4);
+    for (let i = 0; i < 10; i++) g.set(Math.floor(r() * T), 13 + Math.floor(r() * 5), [90, 92, 100, 200]);
+  });
+  /** The harbour at night: near-black water with long moonlit ripples. */
+  const sea = (g, seed) => {
+    g.rect(0, 0, T, T, SEA);
+    g.noise(0, 0, T, T, 0.12, seed);
+    const r = rng(seed);
+    for (let i = 0; i < 5; i++) {
+      const x = Math.floor(r() * 24);
+      const y = 2 + Math.floor(r() * 28);
+      g.rect(x, y, 6 + Math.floor(r() * 4), 1, alpha(MOON, 120));
+    }
+  };
+  // B+5 harbour water (solid)
+  drawTile(B + 5, (g) => sea(g, B + 5));
+  // B+6 quay edge: the concrete kerb, a black rubber fender and the water below
+  drawTile(B + 6, (g) => {
+    sea(g, B + 6);
+    g.rect(0, 0, T, 12, CONCRETE);
+    g.noise(0, 0, T, 12, 0.1, B + 60);
+    g.rect(0, 0, T, 3, [226, 186, 48]);
+    g.rect(0, 3, T, 1, sh([226, 186, 48], 0.6));
+    g.rect(0, 12, T, 6, sh(CONCRETE, 0.6));
+    const o = canvas(T, T);
+    o.box(9, 10, 14, 14, [34, 34, 38], 1.4);
+    o.rect(11, 13, 10, 1, [60, 60, 66]);
+    o.rect(11, 19, 10, 1, [60, 60, 66]);
+    o.outline();
+    g.paste(o);
+    g.rect(8, 25, 16, 1, alpha(MOON, 80));
+  });
+  // B+7 a bollard with a mooring line looped over it, running off towards the ship
+  drawTile(B + 7, (g, { obj, shadow }) => {
+    shadow(16, 26, 10, 3);
+    obj((o) => {
+      o.ellipse(16, 22, 8, 4, [40, 42, 48]);
+      o.rect(10, 12, 12, 10, [52, 54, 62]);
+      o.rect(10, 12, 3, 10, [76, 80, 90]);
+      o.ellipse(16, 12, 8, 4, [70, 74, 84]);
+      o.ellipse(16, 11, 6, 2.5, [96, 100, 110]);
+    });
+    for (let y = 16; y < T; y++) g.rect(15 + Math.round((y - 16) * 0.1), y, 3, 1, [196, 170, 120]);
+    for (let a = 0; a < 40; a++) {
+      const t = (a / 40) * Math.PI * 2;
+      g.set(16 + Math.cos(t) * 8.5, 16 + Math.sin(t) * 3, [196, 170, 120]);
+    }
+  });
+  // B+8 a puddle catching a floodlight (decor)
+  drawTile(B + 8, (g) => {
+    g.ellipse(16, 18, 13, 6, [30, 40, 60, 150]);
+    g.ellipse(13, 17, 6, 2, alpha(LAMP, 110));
+    g.ellipse(12, 17, 2, 1, alpha(LAMP, 200));
+    g.rect(20, 20, 5, 1, alpha(MOON, 120));
+  });
+  /** The ship's bulwark, seen over the water: a red-brown deck edge behind a white rail. */
+  const bulwark = (g, seed) => {
+    sea(g, seed);
+    g.rect(0, 8, T, 24, HULL);
+    g.noise(0, 8, T, 24, 0.08, seed + 1);
+    g.rect(0, 8, T, 2, sh(HULL, 1.5));
+    g.rect(0, 26, T, 6, DECK);
+    g.rect(0, 26, T, 1, sh(DECK, 1.25));
+    g.rect(0, 2, T, 2, [236, 236, 240]);
+    for (let x = 2; x < T; x += 8) g.rect(x, 2, 2, 8, [236, 236, 240]);
+  };
+  // B+9 the MV Kestrel's side, B+10 the same with her name
+  drawTile(B + 9, (g) => bulwark(g, B + 9));
+  drawTile(B + 10, (g) => {
+    bulwark(g, B + 10);
+    // KESTREL in 3 x 5 pixel letters
+    const L = { K: ['101', '110', '100', '110', '101'], E: ['111', '100', '110', '100', '111'], S: ['111', '100', '111', '001', '111'], T: ['111', '010', '010', '010', '010'], R: ['110', '101', '110', '101', '101'], L: ['100', '100', '100', '100', '111'] };
+    [...'KESTREL'].forEach((ch, i) => L[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && g.set(2 + i * 4 + x, 15 + y, [240, 240, 236]))));
+  });
+  // B+11 the ship's deck with a hatch cover, B+12 with a container lashed on it
+  drawTile(B + 11, (g) => {
+    g.rect(0, 0, T, T, DECK);
+    g.noise(0, 0, T, T, 0.1, B + 11);
+    g.box(3, 4, 26, 24, [64, 92, 84], 1.2, 0.7);
+    for (let x = 6; x < 28; x += 5) g.rect(x, 6, 1, 20, [52, 76, 70]);
+  });
+  drawTile(B + 12, (g) => {
+    g.rect(0, 0, T, T, DECK);
+    g.noise(0, 0, T, T, 0.1, B + 12);
+    const o = canvas(T, T);
+    o.box(1, 2, 30, 26, BLUE_BOX, 1.2, 0.7);
+    for (let x = 3; x < 30; x += 3) o.rect(x, 4, 1, 22, sh(BLUE_BOX, 0.82));
+    o.outline();
+    g.paste(o);
+    for (const x of [2, 28]) for (let y = 2; y < 28; y += 2) g.set(x + ((y / 2) % 2), y, [200, 200, 206]);
+  });
+  solid(B, B + 1, B + 2, B + 5, B + 6, B + 7, B + 9, B + 10, B + 11, B + 12);
+  /** A container seen from the long side, two tiles wide: ribbed steel, corner castings and a stencilled code. */
+  const longBox = (a, b, col, code) =>
+    drawPiece([[a, b]], (g, { obj, shadow }) => {
+      shadow(32, 30, 31, 2);
+      obj((o) => {
+        o.box(1, 4, 62, 25, col, 1.25, 0.7);
+        for (let x = 4; x < 61; x += 3) o.rect(x, 7, 1, 20, sh(col, 0.8));
+        for (const [x, y] of [[1, 4], [59, 4], [1, 25], [59, 25]]) o.rect(x, y, 4, 4, sh(col, 0.6));
+        o.rect(1, 4, 62, 1, sh(col, 1.4));
+        o.rect(8, 9, 14, 3, [240, 240, 236]);
+        o.rect(8, 13, 9, 2, [240, 240, 236]);
+        o.rect(44, 9, 2 + code, 2, [240, 240, 236]);
+      });
+    });
+  // B+13, B+14 a blue container; B+15, B+16 a green one
+  longBox(B + 13, B + 14, BLUE_BOX, 6);
+  longBox(B + 15, B + 16, GREEN_BOX, 9);
+  // B+17 a leg of the gantry crane on its bogie, yellow with hazard stripes
+  drawTile(B + 17, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 3);
+    obj((o) => {
+      o.box(3, 22, 26, 8, [60, 62, 70], 1.2);
+      for (const x of [7, 16, 25]) o.ellipse(x, 29, 2.5, 2, [30, 30, 34]);
+      o.box(10, 0, 12, 23, [226, 186, 48], 1.3, 0.7);
+      for (let y = 2; y < 22; y += 6) o.rect(10, y, 12, 2, [40, 40, 44]);
+      o.rect(13, 0, 1, 22, sh([226, 186, 48], 1.2));
+    });
+  });
+  // B+18 the crane's girder overhead (above the avatars): a yellow lattice beam resting on the legs below
+  drawTile(B + 18, (g) => {
+    g.rect(0, 14, T, 12, [0, 0, 0, 30]);
+    const o = canvas(T, T);
+    o.box(0, 8, T, 4, [226, 186, 48], 1.3, 0.7);
+    o.box(0, 26, T, 4, [226, 186, 48], 1.3, 0.7);
+    for (let x = 0; x < T; x += 14) {
+      for (let j = 0; j < 14; j++) o.rect(x + j, 12 + j, 2, 1, [196, 160, 40]);
+      o.rect(x, 12, 2, 14, [196, 160, 40]);
+    }
+    o.outline();
+    g.paste(o);
+  });
+  // B+19 the crane's spreader hanging on its cables below the girder, a red light on each corner (above the avatars)
+  drawTile(B + 19, (g) => {
+    for (let j = 0; j < 8; j++) g.ellipse(16, 26, 14 - j, 5 - j * 0.5, [255, 230, 160, 12]);
+    const o = canvas(T, T);
+    for (const x of [9, 22]) o.rect(x, 0, 1, 12, [40, 40, 44]);
+    o.box(6, 2, 20, 4, [80, 82, 90], 1.3);
+    o.box(1, 11, 30, 6, [226, 186, 48], 1.25, 0.7);
+    for (let x = 4; x < 28; x += 6) o.rect(x, 12, 3, 4, [40, 40, 44]);
+    o.outline();
+    g.paste(o);
+    g.set(2, 11, [255, 60, 50]);
+    g.set(29, 11, [255, 60, 50]);
+  });
+  // B+20 crane rails set into the quay (decor), running across the room
+  drawTile(B + 20, (g) => {
+    for (const y of [8, 22]) {
+      g.rect(0, y, T, 3, [120, 124, 134]);
+      g.rect(0, y, T, 1, [190, 196, 206]);
+      g.rect(0, y + 2, T, 1, [50, 52, 60]);
+    }
+  });
+  // B+21 a floodlight mast: a grey pole with a bank of lamps blazing at the top
+  drawTile(B + 21, (g, { obj, shadow }) => {
+    shadow(16, 29, 6, 2);
+    for (let j = 0; j < 8; j++) g.ellipse(16, 5, 14 - j, 6 - j * 0.5, alpha(LAMP, 14));
+    obj((o) => {
+      o.rect(14, 6, 4, 22, [120, 124, 134]);
+      o.rect(14, 6, 1, 22, [170, 176, 186]);
+      o.box(11, 26, 10, 3, [90, 94, 104]);
+      o.box(6, 1, 20, 6, [60, 62, 70], 1.3);
+      for (const x of [8, 13, 18, 23]) o.rect(x, 3, 3, 3, LAMP);
+    });
+  });
+  // B+22 the pool of a floodlight on the quay (decor)
+  drawTile(B + 22, (g) => {
+    for (let j = 0; j < 9; j++) g.ellipse(16, 16, 16 - j * 1.4, 14 - j * 1.3, alpha(LAMP, 12));
+  });
+  // B+23 the office floor: green-grey linoleum squares, scuffed by boots
+  drawTile(B + 23, (g) => {
+    const lino = [146, 160, 150];
+    g.rect(0, 0, T, T, lino);
+    g.rect(0, 0, 16, 16, sh(lino, 0.93));
+    g.rect(16, 16, 16, 16, sh(lino, 0.93));
+    g.noise(0, 0, T, T, 0.07, B + 23);
+    const r = rng(B + 23);
+    for (let i = 0; i < 18; i++) g.set(Math.floor(r() * T), Math.floor(r() * T), sh(lino, 0.75));
+    g.rect(3, 22, 6, 1, sh(lino, 0.82));
+    g.rect(0, 0, T, 1, sh(lino, 0.85));
+    g.rect(0, 0, 1, T, sh(lino, 0.85));
+  });
+  // B+24 the barrier at the quay gate: a red and white boom raised upright on its post
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 29, 8, 2);
+    obj((o) => {
+      o.box(10, 16, 12, 13, [90, 94, 104], 1.2);
+      o.rect(12, 19, 8, 3, [236, 236, 240]);
+      o.ellipse(16, 25, 2, 2, [230, 60, 50]);
+      for (let y = 0; y < 17; y++) o.rect(14, y, 4, 1, Math.floor(y / 4) % 2 ? [236, 236, 240] : [210, 40, 40]);
+    });
+  });
+  // B+25 a pallet of crates under a tarp, strapped down
+  drawTile(B + 25, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      o.box(2, 24, 28, 5, WOOD, 1.25);
+      for (const x of [3, 14, 25]) o.rect(x, 26, 4, 3, sh(WOOD, 0.6));
+      o.box(3, 8, 26, 17, [70, 110, 150], 1.25, 0.7);
+      o.rect(3, 13, 26, 1, sh([70, 110, 150], 0.8));
+      for (const x of [9, 22]) o.rect(x, 8, 2, 17, [230, 160, 40]);
+    });
+  });
+  // B+26 the sniffer dog asleep in her basket
+  drawTile(B + 26, (g, { obj, shadow }) => {
+    shadow(16, 27, 14, 3);
+    obj((o) => {
+      o.ellipse(16, 20, 14, 8, [150, 104, 60]);
+      o.ellipse(16, 19, 11, 6, [200, 70, 64]);
+      o.ellipse(15, 18, 8, 4.5, [176, 120, 70]);
+      o.ellipse(21, 16, 4, 3.5, [176, 120, 70]);
+      o.ellipse(23, 15, 2, 3, [110, 70, 40]);
+      o.rect(22, 16, 2, 1, [40, 30, 26]);
+      o.ellipse(9, 20, 3, 1.5, [150, 100, 60]);
+    });
+  });
+  // B+27 an opened container, its doors swung wide, boxes and a toppled carton of cigarettes inside
+  drawTile(B + 27, (g, { obj, shadow }) => {
+    shadow(16, 30, 15, 2);
+    obj((o) => {
+      o.box(4, 3, 24, 26, [178, 64, 50], 1.2, 0.7);
+      o.rect(6, 5, 20, 23, [24, 20, 22]);
+      o.box(8, 16, 8, 7, KRAFT, 1.2, 0.8);
+      o.box(14, 19, 9, 8, KRAFT, 1.2, 0.8);
+      o.box(9, 23, 6, 4, [236, 236, 240], 1.1, 0.8);
+      o.rect(10, 24, 4, 1, [200, 40, 40]);
+      o.box(0, 4, 5, 25, sh([178, 64, 50], 0.85), 1.2, 0.7);
+      o.box(27, 4, 5, 25, sh([178, 64, 50], 0.85), 1.2, 0.7);
+    });
+  });
+  // B+28 a lifebuoy on the shed wall
+  drawTile(B + 28, (g) => {
+    shedWall(g);
+    const o = canvas(T, T);
+    o.ellipse(16, 13, 10, 10, [236, 96, 50]);
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) if ((x - 16) ** 2 + (y - 13) ** 2 < 25) o.px.set([0, 0, 0, 0], (y * T + x) * 4);
+    for (const [x, y, w, h] of [[14, 3, 4, 5], [14, 18, 4, 5], [6, 11, 5, 4], [21, 11, 5, 4]]) o.rect(x, y, w, h, [240, 240, 236]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+29 the pier sign on the shed wall: a big white 9 on blue, "PIER" above it
+  drawTile(B + 29, (g) => {
+    shedWall(g);
+    const o = canvas(T, T);
+    o.box(4, 3, 24, 22, [30, 70, 140], 1.25);
+    const P = { P: ['110', '101', '110', '100', '100'], I: ['111', '010', '010', '010', '111'], E: ['111', '100', '110', '100', '111'], R: ['110', '101', '110', '101', '101'] };
+    [...'PIER'].forEach((ch, i) => P[ch].forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.set(8 + i * 4 + x, 5 + y, [240, 240, 236]))));
+    const nine = ['0110', '1001', '1001', '0111', '0001', '0010', '1100'];
+    nine.forEach((row, y) => [...row].forEach((c, x) => c === '1' && o.rect(12 + x * 2, 11 + y * 2, 2, 2, [255, 255, 255])));
+    o.outline();
+    g.paste(o);
+  });
+  // B+30 a roller shutter in the shed wall, pulled down for the night
+  drawTile(B + 30, (g) => {
+    shedWall(g);
+    const o = canvas(T, T);
+    o.rect(0, 3, T, 26, [120, 126, 136]);
+    for (let y = 5; y < 28; y += 3) o.rect(0, y, T, 1, [86, 90, 100]);
+    o.rect(0, 3, T, 2, [60, 62, 70]);
+    o.rect(0, 26, T, 3, [226, 186, 48]);
+    g.paste(o);
+  });
+  // B+31 a floodlight on the shed wall, throwing light down onto the quay
+  drawTile(B + 31, (g) => {
+    shedWall(g);
+    for (let j = 0; j < 12; j++) g.rect(Math.round(16 - (6 + j)), 12 + j, 12 + 2 * j, 1, alpha(LAMP, Math.round(100 - j * 7)));
+    const o = canvas(T, T);
+    o.rect(15, 3, 2, 4, [60, 62, 70]);
+    o.box(8, 6, 16, 6, [60, 62, 70], 1.3);
+    o.rect(9, 10, 14, 2, LAMP);
+    o.outline();
+    g.paste(o);
+  });
+  solid(B + 13, B + 14, B + 15, B + 16, B + 17, B + 21, B + 24, B + 25, B + 26, B + 27, B + 28, B + 29, B + 30, B + 31);
+}
 // --- end ml-customs ---
 
 // --- ml-auction restyle (tiles 688-719) ---
