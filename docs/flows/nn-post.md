@@ -101,9 +101,12 @@ The blueprint station has no data of its own (`blueprint.py` only holds its chec
 
 ## Where things are
 
-- Next to their station: the scanner's manual (2 tiles from the scanner), the archive label (3 tiles from Jonas's laptop).
-- On the north wall: the type plate (above Iris; needed at the scanner and at the blueprint table in the south row), the blueprint (above the backup terminal, 5 tiles from its table), Jonas's note (4 tiles from his laptop), the departure board (in the far west, 7 tiles from Iris).
-- Ferdinand's rules lie on his desk in the south row, 10 tiles from his cabinet in the east: the logbook team has to fetch them, and the final needs them again.
+The post office has three parts: the public counter hall by the exit (where the team arrives), Ferdinand's workshop next to it, and the sorting hall below both, where Iris stands.
+
+- Next to their station: the scanner's manual (on the wall beside the scanner, both by the exit), the archive label (on the archive cabinet, 3 tiles from Jonas's laptop), Jonas's note (on the wall right above his laptop).
+- On Iris herself: the type plate, beside her control panel; it is also needed at the scanner (in the counter hall) and at the blueprint table (in the workshop).
+- In the workshop: the blueprint drafts on the wall, 3 tiles from the blueprint table; the backup terminal in the corner by the door to the counter hall; Ferdinand's rules on his desk, 4 tiles from his cabinet. The final at Iris needs the rules again, a walk down into the sorting hall.
+- On the sorting hall's wall: the departure board, 6 tiles from Iris.
 
 ## Findings
 
