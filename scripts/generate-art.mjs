@@ -3179,6 +3179,336 @@ function onWall(index, src, wall, seed = 3) {
 // --- end sql-train ---
 
 // --- pandas-market restyle (tiles 336-367) ---
+// Market Day: Kleeberg's covered market hall. Red brick walls with tall arched windows, a stone-slab
+// entrance hall under the station clock, two rows of stalls under striped awnings with the fountain
+// in the north row, a loading corner, a café corner and Greta's office in the south-east.
+{
+  const B = blockOf('pandas-market');
+  const BRICK = [158, 78, 58];
+  const MORTAR = [190, 162, 140];
+  const CREAM = [228, 214, 184];
+  const IRON = [46, 78, 66];
+  const SLAB = [198, 190, 174];
+  const STONE = [176, 178, 186];
+  const WATER = [86, 158, 210];
+  const PLANK = [168, 118, 72];
+  /** The hall's wall face: red brick under a cream cornice, above a dark green plinth. */
+  const brickWall = (g) => {
+    g.rect(0, 0, T, T, BRICK);
+    for (let y = 5, r = 0; y < T - 6; y += 5, r++) {
+      g.rect(0, y, T, 1, MORTAR);
+      for (let x = r % 2 ? 2 : 10; x < T; x += 16) g.rect(x, y - 4, 1, 4, MORTAR);
+    }
+    g.noise(0, 0, T, T, 0.1, B);
+    g.rect(0, 0, T, 2, sh(BRICK, 0.55));
+    g.rect(0, 2, T, 3, CREAM);
+    g.rect(0, 2, T, 1, sh(CREAM, 1.1));
+    g.rect(0, 4, T, 1, sh(CREAM, 0.72));
+    g.rect(0, T - 6, T, 6, IRON);
+    g.rect(0, T - 6, T, 1, sh(IRON, 1.45));
+    g.rect(0, T - 1, T, 1, sh(IRON, 0.7));
+  };
+  // B+0 brick wall front, B+1 / B+2 the same in a left and a right wall
+  drawTile(B, brickWall);
+  drawTile(B + 1, turned(brickWall, 'ccw'));
+  drawTile(B + 2, turned(brickWall, 'cw'));
+  // B+3 a tall arched window in the brick wall, iron glazing bars and daylight
+  drawTile(B + 3, (g) => {
+    brickWall(g);
+    const o = canvas(T, T);
+    o.ellipse(16, 12, 10, 8, CREAM);
+    o.rect(6, 12, 20, 14, CREAM);
+    o.ellipse(16, 12.5, 8, 6.5, IRON);
+    o.rect(8, 12, 16, 13, IRON);
+    const glass = canvas(T, T);
+    glass.ellipse(16, 13, 7, 5.5, [180, 216, 236]);
+    glass.rect(9, 13, 14, 11, [180, 216, 236]);
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) {
+      const p = glass.get(x, y);
+      if (p[3]) o.set(x, y, sh(p, 1.12 - y * 0.012));
+    }
+    o.rect(15, 7, 2, 18, IRON);
+    o.rect(9, 17, 14, 1, IRON);
+    for (let i = 0; i < 4; i++) o.set(11 + i, 15 - i, [250, 252, 255]);
+    o.rect(6, 25, 20, 2, sh(CREAM, 0.9));
+    o.outline();
+    g.paste(o);
+  });
+  solid(B, B + 1, B + 2, B + 3);
+  // B+4 the entrance hall floor: big worn stone slabs
+  drawTile(B + 4, (g) => {
+    g.rect(0, 0, T, T, sh(SLAB, 0.78));
+    const r = rng(B + 4);
+    for (const [x, y, w, h] of [[0, 0, 15, 15], [16, 0, 16, 9], [16, 10, 16, 21], [0, 16, 15, 15]]) {
+      const s = sh(SLAB, 0.93 + r() * 0.12);
+      g.rect(x + 1, y + 1, w - 1, h - 1, s);
+      g.rect(x + 1, y + 1, w - 1, 1, sh(s, 1.08));
+    }
+    g.noise(0, 0, T, T, 0.07, B + 4);
+    for (const [x, y] of [[5, 6], [22, 4], [27, 20], [9, 24]]) g.set(x, y, sh(SLAB, 0.7));
+  });
+  // B+5 market litter (decor): straw, a cabbage leaf, a dropped cherry tomato
+  drawTile(B + 5, (g) => {
+    const r = rng(B + 5);
+    for (let i = 0; i < 14; i++) {
+      const x = 2 + Math.floor(r() * 26), y = 2 + Math.floor(r() * 26), len = 3 + Math.floor(r() * 4);
+      const col = r() < 0.5 ? [222, 190, 96] : [196, 160, 74];
+      for (let k = 0; k < len; k++) g.set(x + k, y + Math.floor(k * (r() < 0.5 ? 0.4 : -0.3)), col);
+    }
+    g.ellipse(20, 21, 5, 3.5, [110, 170, 80]);
+    g.ellipse(20, 21, 3, 2, [150, 206, 110]);
+    g.rect(16, 21, 7, 1, [190, 226, 160]);
+    g.ellipse(9, 12, 2, 2, [214, 48, 40]);
+    g.set(9, 11, [255, 140, 120]);
+    g.set(9, 10, [80, 150, 60]);
+  });
+  // B+6..B+9 the fountain (2 x 2): a round stone basin with coins, a pedestal bowl and a spout
+  drawPiece([[B + 6, B + 7], [B + 8, B + 9]], (g, { obj, shadow }) => {
+    shadow(32, 54, 31, 7);
+    obj((o) => {
+      o.ellipse(32, 42, 30, 17, sh(STONE, 0.82));
+      o.ellipse(32, 39, 30, 16, STONE);
+      o.ellipse(32, 38, 29, 14, sh(STONE, 1.15));
+      o.ellipse(32, 40, 25, 11.5, sh(WATER, 0.8));
+      o.ellipse(32, 41, 24, 10, WATER);
+      o.noise(4, 22, 56, 36, 0.08, B + 6);
+    });
+    // coins on the bottom and ripples
+    for (const [x, y] of [[16, 41], [21, 46], [43, 44], [47, 38], [26, 47], [40, 48]]) {
+      g.rect(x, y, 2, 1, [236, 200, 90]);
+      g.set(x, y + 1, [180, 140, 50]);
+    }
+    for (const [cx, cy, rx] of [[32, 42, 14], [32, 42, 20]]) for (let a = 0; a < 40; a++) {
+      const t = (a / 40) * Math.PI * 2;
+      if (a % 3) g.set(cx + Math.cos(t) * rx, cy + Math.sin(t) * rx * 0.42, [190, 228, 248, 160]);
+    }
+    obj((o) => {
+      o.box(28, 20, 8, 22, STONE, 1.2);
+      o.rect(29, 22, 2, 18, sh(STONE, 1.25));
+      o.ellipse(32, 21, 12, 5, sh(STONE, 0.85));
+      o.ellipse(32, 20, 12, 4.5, STONE);
+      o.ellipse(32, 20, 10, 3, sh(WATER, 0.9));
+      o.box(30, 10, 4, 10, STONE, 1.2);
+      o.ellipse(32, 10, 3.5, 2, sh(STONE, 1.2));
+    });
+    // the jet and the water falling from the bowl
+    g.rect(31, 1, 2, 9, [170, 220, 250, 220]);
+    g.rect(31, 1, 1, 7, [240, 250, 255, 220]);
+    for (const [x, y] of [[28, 4], [36, 3], [26, 8], [38, 7], [33, 0]]) g.set(x, y, [200, 236, 255]);
+    for (const x of [20, 21, 43, 44]) g.rect(x, 22, 1, 15, [170, 220, 250, 170]);
+    for (const x of [21, 43]) g.rect(x, 24, 1, 10, [240, 250, 255, 170]);
+    for (const [x, y] of [[18, 38], [23, 37], [41, 37], [46, 38]]) g.ellipse(x, y, 2, 1, [230, 246, 255, 200]);
+  });
+  solid(B + 6, B + 7, B + 8, B + 9);
+  /** A striped awning seen from above and the front: slanted cloth with a scalloped valance. */
+  const awning = (stripe) => (g, { obj }) =>
+    obj((o) => {
+      for (let x = 1; x < 63; x++) {
+        const col = Math.floor((x - 1) / 7) % 2 ? [246, 240, 226] : stripe;
+        for (let y = 3; y < 19; y++) o.set(x, y, sh(col, 0.8 + (y - 3) * 0.018));
+        for (let y = 19; y < 23; y++) o.set(x, y, col);
+      }
+      o.rect(1, 3, 62, 1, sh(stripe, 0.6));
+      for (let x = 1; x < 62; x += 7) {
+        const col = Math.floor((x - 1) / 7) % 2 ? [246, 240, 226] : stripe;
+        o.ellipse(x + 3.5, 23, 3.5, 3, col);
+      }
+      o.rect(1, 19, 62, 1, sh(stripe, 1.3));
+      o.rect(1, 22, 62, 1, alpha(sh(stripe, 0.7), 160));
+    });
+  // B+10/11 red, B+12/13 green, B+14/15 blue awning (above the avatars)
+  drawPiece([[B + 10, B + 11]], awning([200, 60, 52]));
+  drawPiece([[B + 12, B + 13]], awning([64, 146, 84]));
+  drawPiece([[B + 14, B + 15]], awning([62, 112, 186]));
+  /**
+   * One half of a stall counter: a wooden top with goods, plank front, a pole at the outer end.
+   * 'L' halves end on the left, 'R' halves on the right, so any L and R make a two-tile stall.
+   */
+  const counter = (side, goods) => (g, { obj, shadow }) => {
+    shadow(side === 'L' ? 18 : 14, 30, 16, 2);
+    obj((o) => {
+      const x0 = side === 'L' ? 1 : 0, w = side === 'L' ? T - 1 : T - 1;
+      o.box(x0, 12, w, 5, sh(PLANK, 1.2), 1.15, 0.85);
+      o.rect(x0, 17, w, 12, sh(PLANK, 0.82));
+      for (let x = x0 + 5; x < x0 + w; x += 6) o.rect(x, 17, 1, 12, sh(PLANK, 0.62));
+      o.rect(x0, 17, w, 1, sh(PLANK, 0.55));
+      o.rect(x0, 28, w, 1, sh(PLANK, 0.55));
+      const px = side === 'L' ? 1 : T - 3;
+      o.box(px, 0, 2, 30, WOOD_DARK, 1.3);
+      goods(o);
+    });
+  };
+  const jar = (o, x, y) => {
+    o.box(x, y + 2, 5, 6, [232, 156, 30], 1.25);
+    o.rect(x, y, 5, 2, [250, 246, 236]);
+    o.set(x + 1, y + 4, [255, 224, 140]);
+    o.rect(x + 1, y + 6, 3, 1, [250, 240, 200]);
+  };
+  const loaf = (o, x, y) => {
+    o.ellipse(x, y, 5, 3, [196, 132, 64]);
+    o.ellipse(x, y - 1, 4, 1.5, [222, 164, 92]);
+    for (let i = -2; i <= 2; i += 2) o.set(x + i, y - 1, [150, 96, 46]);
+  };
+  // B+16/17 vegetable stall: tomatoes, carrots, cabbages and potatoes
+  drawTile(B + 16, counter('L', (o) => {
+    crate(o, 4, 4, 13, [214, 52, 44]);
+    crate(o, 18, 4, 13, [236, 132, 40]);
+  }));
+  drawTile(B + 17, counter('R', (o) => {
+    for (const x of [6, 13]) { o.ellipse(x, 10, 4, 3.5, [110, 170, 80]); o.ellipse(x - 1, 9, 2, 1.5, [170, 216, 130]); }
+    crate(o, 18, 4, 10, [176, 136, 86]);
+  }));
+  // B+18/19 honey stall: jars, a honeycomb frame and a candle
+  drawTile(B + 18, counter('L', (o) => {
+    for (const x of [5, 11, 17, 23]) jar(o, x, 4);
+  }));
+  drawTile(B + 19, counter('R', (o) => {
+    o.box(3, 1, 13, 12, [150, 104, 60]);
+    o.rect(5, 3, 9, 8, [236, 176, 50]);
+    for (let y = 3; y < 11; y += 2) for (let x = 5 + (y % 4 ? 1 : 0); x < 14; x += 2) o.set(x, y, [200, 130, 30]);
+    jar(o, 18, 4);
+    o.box(25, 5, 3, 7, [246, 230, 170]);
+    o.set(26, 4, [255, 200, 80]);
+  }));
+  // B+20/21 bread and cheese stall
+  drawTile(B + 20, counter('L', (o) => {
+    o.box(4, 7, 26, 4, [214, 180, 120]);
+    loaf(o, 10, 7);
+    loaf(o, 22, 7);
+    o.ellipse(16, 5, 3, 2.5, [210, 150, 80]);
+  }));
+  drawTile(B + 21, counter('R', (o) => {
+    o.ellipse(9, 9, 7, 4, [236, 200, 90]);
+    o.rect(2, 9, 14, 3, [214, 176, 70]);
+    o.ellipse(9, 8, 6, 3, [248, 222, 120]);
+    o.box(18, 5, 8, 7, [240, 210, 100]);
+    for (const [x, y] of [[20, 7], [23, 9], [7, 7]]) o.set(x, y, [200, 160, 60]);
+  }));
+  // B+22 stall half with the card terminal: a card reader, a printed receipt and apples
+  drawTile(B + 22, counter('L', (o) => {
+    crate(o, 4, 4, 11, [200, 50, 50]);
+    o.box(18, 2, 9, 12, [54, 58, 70], 1.3);
+    o.rect(19, 3, 7, 4, [130, 220, 170]);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) o.set(20 + c * 2, 9 + r * 2, [210, 214, 222]);
+    o.box(27, 4, 4, 9, [250, 248, 238], 1, 0.85);
+    o.rect(28, 6, 2, 1, [140, 140, 150]);
+    o.rect(28, 8, 2, 1, [140, 140, 150]);
+  }));
+  // B+23 stall half with handwritten price tags stuck into the produce
+  drawTile(B + 23, counter('R', (o) => {
+    crate(o, 2, 5, 12, [236, 200, 70]);
+    crate(o, 15, 5, 12, [120, 176, 70]);
+    for (const [x, y, col] of [[4, 1, [250, 248, 238]], [16, 0, [255, 236, 140]], [23, 2, [250, 248, 238]]]) {
+      o.rect(x + 3, y + 5, 1, 4, WOOD_DARK);
+      o.box(x, y, 7, 5, col, 1, 0.85);
+      o.rect(x + 1, y + 2, 4, 1, [60, 60, 70]);
+    }
+  }));
+  solid(...range(B + 16, B + 23));
+  // B+24 bunting (above the avatars): a sagging string of coloured pennants, seamless left to right
+  drawTile(B + 24, (g) => {
+    const o = canvas(T, T);
+    const yAt = (x) => 3 + Math.round(5 * Math.sin((x / T) * Math.PI));
+    const cols = [[220, 60, 52], [240, 200, 60], [62, 112, 186], [70, 160, 90]];
+    for (let i = 0; i < 4; i++) {
+      const cx = 4 + i * 8, y = yAt(cx);
+      for (let j = 0; j < 9; j++) o.rect(cx - 3 + Math.floor(j / 3), y + 1 + j, Math.max(1, 7 - 2 * Math.floor(j / 3) * 1.15), 1, cols[i]);
+      o.rect(cx - 3, y + 1, 7, 1, sh(cols[i], 1.3));
+    }
+    o.outline();
+    g.paste(o);
+    for (let x = 0; x < T; x++) g.set(x, yAt(x), [70, 60, 50]);
+  });
+  // B+25 the hall clock (above the avatars), hanging on a rod, at two o'clock: envelope time
+  drawTile(B + 25, (g) => {
+    const o = canvas(T, T);
+    o.rect(15, 0, 2, 6, [50, 54, 60]);
+    o.box(11, 5, 10, 3, IRON);
+    o.ellipse(16, 17, 10, 10, IRON);
+    o.ellipse(16, 17, 8, 8, [250, 248, 236]);
+    for (let a = 0; a < 12; a++) {
+      const t = (a / 12) * Math.PI * 2;
+      o.set(16 + Math.sin(t) * 7, 17 - Math.cos(t) * 7, [60, 60, 66]);
+    }
+    o.rect(16, 11, 1, 6, [30, 30, 36]);
+    for (let k = 0; k < 5; k++) o.set(16 + k * 0.9, 17 - k * 0.5, [30, 30, 36]);
+    o.set(16, 17, [200, 50, 40]);
+    o.rect(9, 12, 2, 1, [255, 255, 255, 180]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+26 the market plan on the brick wall: two rows of six pitches with the fountain in the north row
+  drawTile(B + 26, (g) => {
+    brickWall(g);
+    const o = canvas(T, T);
+    o.box(3, 5, 26, 20, [246, 238, 214], 1, 0.86);
+    for (let i = 0; i < 6; i++) {
+      const x = 5 + i * 4 + (i >= 4 ? 2 : 0);
+      o.rect(x, 8, 3, 4, [[200, 60, 52], [64, 146, 84], [62, 112, 186]][i % 3]);
+      o.rect(x, 16, 3, 4, [[64, 146, 84], [62, 112, 186], [200, 60, 52]][i % 3]);
+    }
+    o.ellipse(22, 10, 1.5, 1.5, WATER);
+    o.rect(5, 13, 22, 2, [196, 190, 176]);
+    o.box(22, 21, 5, 3, [150, 104, 60]);
+    o.rect(5, 22, 6, 1, [90, 90, 100]);
+    o.outline();
+    g.paste(o);
+  });
+  // B+27 the market rules, a framed notice with a red seal, and B+28 the helper rota on a clipboard
+  drawTile(B + 27, (g) => {
+    brickWall(g);
+    const o = canvas(T, T);
+    o.box(5, 5, 22, 20, WOOD_DARK, 1.3);
+    paper(o, 7, 7, 18, 16);
+    o.rect(9, 8, 14, 1, [40, 40, 50]);
+    o.ellipse(22, 20, 2.5, 2.5, [200, 50, 40]);
+    o.outline();
+    g.paste(o);
+  });
+  onWall(B + 28, 26, brickWall);
+  solid(B + 26, B + 27);
+  // B+29 sack barrow loaded with potato sacks
+  drawTile(B + 29, (g, { obj, shadow }) => {
+    shadow(16, 29, 12, 2);
+    obj((o) => {
+      o.rect(6, 2, 2, 26, [70, 74, 84]);
+      o.rect(24, 2, 2, 26, [70, 74, 84]);
+      o.rect(6, 2, 20, 2, [70, 74, 84]);
+      o.box(5, 25, 22, 3, [90, 94, 104]);
+      const sack = [190, 160, 112];
+      o.ellipse(16, 20, 9, 6, sack);
+      o.ellipse(16, 11, 8, 6, sh(sack, 1.08));
+      o.rect(13, 5, 6, 2, sh(sack, 0.8));
+      o.rect(11, 18, 10, 1, sh(sack, 0.8));
+      o.ellipse(5, 27, 3, 3, [40, 40, 46]);
+      o.ellipse(27, 27, 3, 3, [40, 40, 46]);
+    });
+  });
+  solid(B + 29);
+  // B+30 a wet patch around the fountain (decor): darker stone, a puddle and splashes
+  drawTile(B + 30, (g) => {
+    g.ellipse(13, 14, 10, 5, [40, 60, 90, 70]);
+    g.ellipse(20, 18, 8, 4, [40, 60, 90, 70]);
+    g.ellipse(13, 14, 8, 3.5, [96, 168, 220, 150]);
+    g.ellipse(20, 18, 6, 2.5, [96, 168, 220, 150]);
+    g.rect(9, 13, 5, 1, [235, 248, 255, 220]);
+    g.rect(18, 17, 3, 1, [235, 248, 255, 220]);
+    for (const [x, y] of [[26, 8], [5, 24], [27, 25], [21, 5], [6, 6], [15, 26]]) {
+      g.rect(x, y, 2, 1, [110, 180, 230, 220]);
+      g.set(x, y, [235, 248, 255]);
+    }
+  });
+  // B+31 a plain wooden bench (a seat, not solid)
+  drawTile(B + 31, (g, { obj, shadow }) => {
+    shadow(16, 28, 14, 2);
+    obj((o) => {
+      o.rect(4, 18, 3, 10, WOOD_DARK);
+      o.rect(25, 18, 3, 10, WOOD_DARK);
+      o.box(1, 12, 30, 7, PLANK, 1.25);
+      o.rect(1, 15, 30, 1, sh(PLANK, 0.75));
+    });
+  });
+}
 // --- end pandas-market ---
 
 // --- ts-nordlys restyle (tiles 368-399) ---
