@@ -105,9 +105,11 @@ The room has no `requires` and no code locks; every station is open from the sta
 
 ## Where things are
 
-- Next to their station: the City Courier (tram counter), the planning notebook (planner), the stage order form (stage order), and, a few tiles away, the IT note (gate) and the event calendar (events desk).
-- Away from its station: the whiteboard hangs on the north wall near the tram counter, while the lighting desk and the stage order that need it stand in the middle and the south-east corner.
-- The event calendar also gives the stage order the 2026 dates, from the opposite corner.
+The map is 30 × 20 tiles: an office wing in the west (planning office, the gate hall with the exit and the turnstiles, the production office) and the festival meadow in the east (main stage, lighting desk, beer benches, food trucks, Line 7's tram stop at the east fence).
+
+- Next to their station: the City Courier (tram counter), the planning notebook (planner), the event calendar (events desk), the stage order form (stage order), and, three tiles away in the gate hall, the IT note (gate).
+- Away from its station: the whiteboard hangs on the planning office's north wall, while the lighting desk and the stage order that need it stand in the middle of the meadow and in the production office (south-west).
+- The event calendar also gives the stage order the 2026 dates, from the other end of the office wing.
 
 ## Findings
 
