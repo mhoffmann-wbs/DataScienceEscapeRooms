@@ -356,11 +356,27 @@ The plan's "degree 8 overfits" was dropped: raw powers of age beyond 3 make `Lin
 
 **Open:** prototype each room's data so the answers are robust (well-separated clusters, a clear optimum in every search, the same top four containers for any reasonable model); decide the door's place; check that the handbooks stay at each room's level (`ml-courier` and `ml-avalanche` don't re-explain `train_test_split`). Order of work: infrastructure (packages, `show_scatter`, door), then `ml-seeds`, `ml-customs`, `ml-auction` (all built), then the two advanced rooms.
 
-### 22. Room restyle: every room its own look, like the lobby (in progress)
+### 22. Room restyle: every room its own look, like the lobby ✅ (playtests pending)
 Each room gets its own layout, size and art instead of the shared 22 x 15 template with a half wall: separate areas that tell the story, themed walls and floors, decoration on the optional `decor` and `above` layers, and furniture that fills the space without blocking the way.
 - **Groundwork** ✅: solid tiles are declared in `scripts/generate-art.mjs` and written to `content/tilesets/tiles.json` (maps carry no tile properties any more; this fixed two lobby wall tiles players could walk into); optional `decor` and `above` tile layers; a block of 32 tiles per room from 208 on; `onWall` to re-hang wall props on a new wall face; a map test that every door, puzzle, clue and handbook can be walked to from the spawn.
 - **Quarantine** (`python-lab`) ✅: 28 x 18; the hazard-striped airlock with the exit as the hub, Ida's office, the dark grow room with glowing mushroom beds, her footprints to the open vent, the wet lab and the frosted cold room.
-- The other fifteen rooms: pending.
+- **All other rooms** ✅, each in its own block of tiles, with its "Where things are" in `docs/flows/` updated:
+  - `sql-hotel` 28 x 18: a marble lobby with pillars, chandeliers and snowy footprints on the runner, the back office, the bar and card room.
+  - `sql-cinema` 30 x 19: the Studio hall with screen, stage and seat rows under the projector beam, an art-deco foyer with the snack bar, the staff room behind the box office.
+  - `sql-train` 32 x 22: three carriages (sleeping, dining, service) stacked over the track and joined by gangways.
+  - `pandas-market` 26 x 21: a brick market hall with two rows of awninged stalls, the fountain between pitches 4 and 5, a café, a loading corner and Greta's office.
+  - `ts-nordlys` 30 x 20: boot room at the airlock, ops corridor, generator room, mess, chief's office, cold lab, instrument room and supply depot.
+  - `ts-festival` 30 x 20: an office wing with the gate hall, and the Lindenwiese meadow with the main stage, lantern strings, food trucks and the tram stop.
+  - `python-docs` 30 x 20: a parquet reading hall, carpeted stacks, Margarete's office, the packing room with the cellar stairs, the circulation desk.
+  - `python-debug` 30 x 21: a glass airlock, Ole's tech room and a tropical hall with gravel paths, a lily pond, palms and butterflies.
+  - `stats-fair` 32 x 20: a cobbled gate plaza, a sawdust midway under string lights, a carousel, a high striker and a food court.
+  - `stats-ab` 30 x 18: a marble foyer, the blind-tasting room, Ana's office and the packing hall with conveyors and a conche.
+  - `nn-post` 28 x 20: the counter hall, Ferdinand's workshop and the sorting hall with Iris under an overhead letter belt.
+  - `nn-tablets` 28 x 20: a stone vestibule, the gallery, Amara's office, the restoration lab and the crate store.
+  - `ml-seeds` 30 x 20: the lift landing with mine rails, the curator's office, the sorting hall and the flooded archive with a boardwalk; the cold store seen through its wall.
+  - `ml-customs` 30 x 21: the night office, Hanne's records room, the container yard and the quay with a gantry crane and the MV Kestrel alongside.
+  - `ml-auction` 30 x 20: a marble foyer, Albers's study, the gallery, the saleroom with the rostrum on a dais, and the workshop.
+- **To check in playtests:** walking distances changed with the layouts. In `stats-ab` the agenda now hangs in Ana's office, far from the console; in `sql-train` every clue stands next to its station, which may make the room easier.
 
 ## Known limits
 
