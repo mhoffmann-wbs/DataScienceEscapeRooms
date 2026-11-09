@@ -31,7 +31,7 @@
 
 **Aufgabe:**
 
-> Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Der Nachtwächter hat den Dieb in einen Flügel des 4. Stocks davonlaufen hören. Fangt dort an: Wer hat in der Nacht des Diebstahls in diesem Flügel geschlafen?
+> Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Wer hat in der Nacht des Diebstahls in dem Flügel geschlafen, in den der Dieb davongelaufen ist?
 >
 > Listet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer.
 
@@ -81,9 +81,9 @@ ORDER BY room;
 
 **Aufgabe:**
 
-> Jede Zimmertür mit Kartenschloss meldet sich bei diesem Server: welche Karte, welches Zimmer, wann, und ob die Tür aufging.
+> Jede Zimmertür mit Kartenschloss meldet sich bei diesem Server: welche Karte, welches Zimmer, wann, und ob die Tür aufging. Wer war an Zimmer 404, während Victor weg war?
 >
-> Zeigt `time`, `card_id` und `event` aller Ereignisse an Zimmer 404, während Victor weg war, die früheste zuerst.
+> Zeigt `time`, `card_id` und `event` aller Ereignisse an Zimmer 404 in dieser Zeit, die früheste zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -130,9 +130,9 @@ ORDER BY time;
 
 **Aufgabe:**
 
-> Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört.
+> Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört. Wem gehört die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, und wo war sie sonst noch?
 >
-> Nehmt die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat. Zeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst.
+> Zeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -180,9 +180,9 @@ ORDER BY d.time;
 
 **Aufgabe:**
 
-> Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Karte an, die mitten in der Nacht Zimmer 404 geöffnet hat.
+> Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Welche Zimmer hat die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, immer wieder geöffnet, seit sie verschwunden ist?
 >
-> Zählt für die Zeit, seit diese Karte verschwunden ist, wie oft sie jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst.
+> Zählt, wie oft sie in dieser Zeit jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -235,7 +235,7 @@ ORDER BY openings DESC;
 
 > Gäste und Personal unterschreiben jeden Beleg mit ihrer Schlüsselkarte: an der Bar, im Kartenzimmer, beim Zimmerservice, sogar an der Rezeption.
 >
-> Der Nachtwächter hat notiert, wann er oben eine Tür zufallen hörte. Wer hat in den zehn Minuten davor oder danach einen Beleg unterschrieben? Zeigt `time`, den Namen der Person und `place`, den frühesten zuerst.
+> Wer war woanders, als der Dieb oben davonlief? Zeigt `time`, den Namen der Person und `place` für jeden Beleg, der in den zehn Minuten vor oder nach diesem Moment unterschrieben wurde, den frühesten zuerst.
 
 <details><summary>Startcode</summary>
 

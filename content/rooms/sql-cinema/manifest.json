@@ -32,8 +32,8 @@
         "de": "Bens Strichliste"
       },
       "text": {
-        "en": "Ben Adeyemi, the usher, tears the stub off every ticket at the hall door and writes down how many people he let in: `tally` holds his count for every screening. `tickets` holds every ticket the tills sold.\n\nWhich screenings let in clearly more people than there are tickets in the system? Ben's note on the clipboard says how far you can trust his count. Show `starts`, `hall`, the number of tickets sold and Ben's count, earliest first.",
-        "de": "Ben Adeyemi, der Platzanweiser, reißt an der Saaltür von jedem Ticket den Abschnitt ab und notiert, wie viele Leute er eingelassen hat: `tally` enthält seine Zählung für jede Vorstellung. `tickets` enthält jedes Ticket, das die Kassen verkauft haben.\n\nBei welchen Vorstellungen kamen deutlich mehr Leute herein, als Tickets im System stehen? Bens Notiz auf dem Klemmbrett sagt, wie weit ihr seiner Zählung trauen könnt. Zeigt `starts`, `hall`, die Zahl der verkauften Tickets und Bens Zählung, die früheste zuerst."
+        "en": "Ben Adeyemi, the usher, tears the stub off every ticket at the hall door and writes down how many people he let in: `tally` holds his count for every screening. `tickets` holds every ticket the tills sold.\n\nWhich screenings let in clearly more people than there are tickets in the system? Show `starts`, `hall`, the number of tickets sold and Ben's count, earliest first.",
+        "de": "Ben Adeyemi, der Platzanweiser, reißt an der Saaltür von jedem Ticket den Abschnitt ab und notiert, wie viele Leute er eingelassen hat: `tally` enthält seine Zählung für jede Vorstellung. `tickets` enthält jedes Ticket, das die Kassen verkauft haben.\n\nBei welchen Vorstellungen kamen deutlich mehr Leute herein, als Tickets im System stehen? Zeigt `starts`, `hall`, die Zahl der verkauften Tickets und Bens Zählung, die früheste zuerst."
       },
       "workspace": "sql",
       "data": "cinema.sql",
@@ -59,8 +59,8 @@
       ],
       "hints": [
         {
-          "en": "Count the tickets per screening first: join `tally` and `tickets` on `screening_id` and `GROUP BY` the screening. A condition on `COUNT(…)` can't go into `WHERE`, which runs before the grouping. It goes into `HAVING`, which runs after it.",
-          "de": "Zählt zuerst die Tickets pro Vorstellung: Verbindet `tally` und `tickets` über `screening_id` und gruppiert mit `GROUP BY` nach der Vorstellung. Eine Bedingung auf `COUNT(…)` kann nicht in `WHERE` stehen, das vor dem Gruppieren läuft. Sie gehört in `HAVING`, das danach läuft."
+          "en": "Ben's clipboard by the Studio door says how far you can trust his count. Count the tickets per screening first: join `tally` and `tickets` on `screening_id` and `GROUP BY` the screening. A condition on `COUNT(…)` can't go into `WHERE`, which runs before the grouping. It goes into `HAVING`, which runs after it.",
+          "de": "Bens Klemmbrett an der Studiotür sagt, wie weit ihr seiner Zählung trauen könnt. Zählt zuerst die Tickets pro Vorstellung: Verbindet `tally` und `tickets` über `screening_id` und gruppiert mit `GROUP BY` nach der Vorstellung. Eine Bedingung auf `COUNT(…)` kann nicht in `WHERE` stehen, das vor dem Gruppieren läuft. Sie gehört in `HAVING`, das danach läuft."
         },
         {
           "en": "Ben can be up to two off either way, so a difference of 1 or 2 means nothing. Keep the groups where `y.admitted - COUNT(t.ticket_no) > 2`. Every column you show that isn't counted belongs in the `GROUP BY` too.",
@@ -124,8 +124,8 @@
         "de": "Der Zähler der Feuerwehr"
       },
       "text": {
-        "en": "After complaints about a crowded Studio, the fire marshal had a clicker installed at its door. Since Saturday 14 November the usher presses +1 for everyone who comes in and −1 for everyone who goes out. `clicks` holds every press from the late show that night.\n\nWhen did the Studio hold more people than it has seats? Show the `time` of each click and how many people were inside after it, only the moments over the number of seats, earliest first.",
-        "de": "Nach Beschwerden über ein überfülltes Studio hat die Feuerwehr an seiner Tür einen Zähler einbauen lassen. Seit Samstag, dem 14. November, drückt der Platzanweiser +1 für jeden, der hereinkommt, und −1 für jeden, der hinausgeht. `clicks` enthält jeden Druck aus der Spätvorstellung an diesem Abend.\n\nWann waren im Studio mehr Leute, als es Sitzplätze hat? Zeigt die Zeit (`time`) jedes Drucks und wie viele Leute danach drin waren, nur die Momente über der Zahl der Sitzplätze, den frühesten zuerst."
+        "en": "A clicker at the Studio door counts the audience: the usher presses +1 for everyone who comes in and −1 for everyone who goes out. `clicks` holds every press from the late show on Saturday 14 November.\n\nWhen was the Studio fuller than the fire department allows? Show the `time` of each click and how many people were inside after it, only the moments over the limit, earliest first.",
+        "de": "Ein Zähler an der Studiotür zählt das Publikum: Der Platzanweiser drückt +1 für jeden, der hereinkommt, und −1 für jeden, der hinausgeht. `clicks` enthält jeden Druck aus der Spätvorstellung am Samstag, dem 14. November.\n\nWann war das Studio voller, als die Feuerwehr erlaubt? Zeigt die Zeit (`time`) jedes Drucks und wie viele Leute danach drin waren, nur die Momente über der Grenze, den frühesten zuerst."
       },
       "workspace": "sql",
       "data": "cinema.sql",
@@ -151,8 +151,8 @@
       ],
       "hints": [
         {
-          "en": "How many people are inside at a moment is the sum of all clicks up to then: a running total. `SUM(delta) OVER (ORDER BY time)` adds up `delta` over every row up to the current one, and keeps all the rows.",
-          "de": "Wie viele Leute in einem Moment drin sind, ist die Summe aller Drücke bis dahin: eine laufende Summe. `SUM(delta) OVER (ORDER BY time)` addiert `delta` über alle Zeilen bis zur aktuellen und behält dabei alle Zeilen."
+          "en": "The fire marshal's notice by the Studio door says where the limit is. How many people are inside at a moment is the sum of all clicks up to then: a running total. `SUM(delta) OVER (ORDER BY time)` adds up `delta` over every row up to the current one, and keeps all the rows.",
+          "de": "Der Aushang der Feuerwehr an der Studiotür sagt, wo die Grenze liegt. Wie viele Leute in einem Moment drin sind, ist die Summe aller Drücke bis dahin: eine laufende Summe. `SUM(delta) OVER (ORDER BY time)` addiert `delta` über alle Zeilen bis zur aktuellen und behält dabei alle Zeilen."
         },
         {
           "en": "A window function can't go into `WHERE`. Compute it in a subquery first, `FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks)`, then filter that: `WHERE inside > (SELECT seats FROM halls WHERE hall = 2)`.",
@@ -342,8 +342,8 @@
         "de": "Der Aushang der Feuerwehr"
       },
       "text": {
-        "en": "KLEEBERG FIRE DEPARTMENT · NOTICE\n\nStudio (hall 2): never more people inside than there are seats. Standing in the aisles or on the steps is forbidden.\n\nFrom Saturday 14 November the usher counts everyone in and out with a clicker. The counts will be checked.",
-        "de": "FEUERWEHR KLEEBERG · AUSHANG\n\nStudio (Saal 2): Nie mehr Personen im Saal, als es Sitzplätze gibt. Stehen in den Gängen oder auf den Stufen ist verboten.\n\nAb Samstag, dem 14. November, zählt der Platzanweiser alle mit einem Zähler hinein und hinaus. Die Zählungen werden geprüft."
+        "en": "KLEEBERG FIRE DEPARTMENT · NOTICE\n\nStudio (hall 2): never more people inside than there are seats. Standing in the aisles or on the steps is forbidden.\n\nThe usher's counts will be checked.",
+        "de": "FEUERWEHR KLEEBERG · AUSHANG\n\nStudio (Saal 2): Nie mehr Personen im Saal, als es Sitzplätze gibt. Stehen in den Gängen oder auf den Stufen ist verboten.\n\nDie Zählungen des Platzanweisers werden geprüft."
       }
     },
     {

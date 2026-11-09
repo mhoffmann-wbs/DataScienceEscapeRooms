@@ -38,7 +38,7 @@ flowchart LR
   d_cinema -.->|"📄 all tables, to re-check"| office
 
   tallynote -->|"🔎 Ben is off by 2 at most"| tally
-  firenotice -.->|"🔎 no more people than seats"| clicker
+  firenotice -->|"🔎 limit = the Studio's seats"| clicker
   officenote -->|"🔎 code = most people in the Studio at once"| office
   edithnote -.->|"🔎 rota is a plan; snack till knows who was there"| office
   tobiasnote -.->|"🔎 Tobias: I was at the snack bar"| snacks
@@ -90,7 +90,7 @@ All six stations load the same `cinema.sql`, so the room has one data node; the 
 ## Hand-offs
 
 - Between stations: 7 edges, 6 hard (the dates twice, the lock code, till 2, the planned posts, the evening snack sellers) and 1 soft (57 missing tickets, which the printers confirm on their own).
-- From clues: 7 clue and intro edges from 6 clues and the intro, 2 of them hard (Ben's margin of 2, the office door code rule).
+- From clues: 7 clue and intro edges from 6 clues and the intro, 3 of them hard (Ben's margin of 2, the fire limit, the office door code rule).
 
 ## Where things are
 
@@ -103,6 +103,14 @@ The room is the cinema's ground floor: the dark Studio with its screen and seats
 - Tobias's note (128, 384) is taped to the end of the snack bar, beside the snack till (96, 384).
 
 ## Findings
+
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **The tally's task no longer points at Ben's clipboard;** the first hint now says where his margin is.
+- **The clicker's limit lives only on the fire notice.** The task asks when the Studio was "fuller than the fire department allows" instead of "more people than it has seats", so the notice is now a hard clue (the seat count itself is in `halls`); the first hint says where the limit is. The task and the notice no longer both explain the clicker: the notice keeps the rule, the task the data.
+- Nothing the checks compare changed; the starters only show `SELECT * … LIMIT 5`.
+
+Earlier findings:
 
 - **The hard clues stand next to their stations.** The walking comes from the results instead: the tally's dates go across the room to the rota and the snack bar, and the clicker's code across to the office. A playtest should show whether that is enough talking.
 - **The ticket printers need no clue:** the task text explains the two rolls. The station still matters, since it is the only one that says the cash went missing at till 2.

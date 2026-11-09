@@ -107,7 +107,13 @@ The room is a hotel ground floor: the marble lobby with the reception counter an
 
 ## Findings
 
-Fixed in this round (from the previous version of this page):
+Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+
+- **No task names its clues any more.** Reception's task no longer says the night guard heard the thief run into a wing of the 4th floor (it asks for "the wing the thief ran off into"), and the bar till's no longer says the night guard noted when a door closed (it asks who was somewhere else when the thief got away upstairs). Where to look stays in each puzzle's first hint.
+- **Every station says what it finds out**, in one sentence near the top: who came to room 404 while Victor was away (door-lock server), whose card it is and where else it went (encoder), which rooms it kept opening after it went missing (security PC), who was somewhere else (bar till).
+- Nothing the checks compare changed; the starters only show `SELECT * … LIMIT 5`.
+
+Fixed in the first review:
 
 - The key-card encoder's `requires` became `uses: ["door-log"]`: it now follows the card that opened 404 (M-02, from the door-lock reveal) through the night, with its holder, so it is no longer station 2 plus a `JOIN`.
 - The logbook no longer names M-02 ("my master card", plus a spare card), so the security PC needs the card from the door-lock server; its `requires` became `uses`.

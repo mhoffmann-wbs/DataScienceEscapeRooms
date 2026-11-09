@@ -33,7 +33,7 @@
 
 > Ben Adeyemi, the usher, tears the stub off every ticket at the hall door and writes down how many people he let in: `tally` holds his count for every screening. `tickets` holds every ticket the tills sold.
 >
-> Which screenings let in clearly more people than there are tickets in the system? Ben's note on the clipboard says how far you can trust his count. Show `starts`, `hall`, the number of tickets sold and Ben's count, earliest first.
+> Which screenings let in clearly more people than there are tickets in the system? Show `starts`, `hall`, the number of tickets sold and Ben's count, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -74,7 +74,7 @@ ORDER BY s.starts;
 
 **Hints:**
 
-1. Count the tickets per screening first: join `tally` and `tickets` on `screening_id` and `GROUP BY` the screening. A condition on `COUNT(…)` can't go into `WHERE`, which runs before the grouping. It goes into `HAVING`, which runs after it.
+1. Ben's clipboard by the Studio door says how far you can trust his count. Count the tickets per screening first: join `tally` and `tickets` on `screening_id` and `GROUP BY` the screening. A condition on `COUNT(…)` can't go into `WHERE`, which runs before the grouping. It goes into `HAVING`, which runs after it.
 2. Ben can be up to two off either way, so a difference of 1 or 2 means nothing. Keep the groups where `y.admitted - COUNT(t.ticket_no) > 2`. Every column you show that isn't counted belongs in the `GROUP BY` too.
 3. `SELECT s.starts, s.hall, COUNT(t.ticket_no) AS sold, y.admitted FROM screenings AS s JOIN tally AS y ON y.screening_id = s.screening_id LEFT JOIN tickets AS t ON t.screening_id = s.screening_id GROUP BY s.screening_id, s.starts, s.hall, y.admitted HAVING y.admitted - COUNT(t.ticket_no) > 2 ORDER BY s.starts;`
 
@@ -141,9 +141,9 @@ ORDER BY t.ticket_no;
 
 **Task:**
 
-> After complaints about a crowded Studio, the fire marshal had a clicker installed at its door. Since Saturday 14 November the usher presses +1 for everyone who comes in and −1 for everyone who goes out. `clicks` holds every press from the late show that night.
+> A clicker at the Studio door counts the audience: the usher presses +1 for everyone who comes in and −1 for everyone who goes out. `clicks` holds every press from the late show on Saturday 14 November.
 >
-> When did the Studio hold more people than it has seats? Show the `time` of each click and how many people were inside after it, only the moments over the number of seats, earliest first.
+> When was the Studio fuller than the fire department allows? Show the `time` of each click and how many people were inside after it, only the moments over the limit, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -180,7 +180,7 @@ ORDER BY time;
 
 **Hints:**
 
-1. How many people are inside at a moment is the sum of all clicks up to then: a running total. `SUM(delta) OVER (ORDER BY time)` adds up `delta` over every row up to the current one, and keeps all the rows.
+1. The fire marshal's notice by the Studio door says where the limit is. How many people are inside at a moment is the sum of all clicks up to then: a running total. `SUM(delta) OVER (ORDER BY time)` adds up `delta` over every row up to the current one, and keeps all the rows.
 2. A window function can't go into `WHERE`. Compute it in a subquery first, `FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks)`, then filter that: `WHERE inside > (SELECT seats FROM halls WHERE hall = 2)`.
 3. `SELECT time, inside FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks) WHERE inside > (SELECT seats FROM halls WHERE hall = 2) ORDER BY time;`
 
@@ -367,7 +367,7 @@ ORDER BY r.day;
 >
 > Studio (hall 2): never more people inside than there are seats. Standing in the aisles or on the steps is forbidden.
 >
-> From Saturday 14 November the usher counts everyone in and out with a clicker. The counts will be checked.
+> The usher's counts will be checked.
 
 ### 🔎 A note by the office door
 

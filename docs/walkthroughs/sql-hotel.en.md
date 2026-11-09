@@ -31,7 +31,7 @@
 
 **Task:**
 
-> The reception computer is connected to the hotel database. The night guard heard the thief run off into one wing of the 4th floor. Start there: who slept in that wing on the night of the theft?
+> The reception computer is connected to the hotel database. Who slept in the wing the thief ran off into, on the night of the theft?
 >
 > List the guest name and room of everyone staying in that wing that night, ordered by room.
 
@@ -81,9 +81,9 @@ ORDER BY room;
 
 **Task:**
 
-> Every key-card door in the hotel reports to this server: which card, which room, when, and whether the door opened.
+> Every key-card door in the hotel reports to this server: which card, which room, when, and whether the door opened. Who came to room 404 while Victor was away?
 >
-> Show `time`, `card_id` and `event` of every event at room 404 while Victor was away, earliest first.
+> Show `time`, `card_id` and `event` of every event at room 404 in that time, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -130,9 +130,9 @@ ORDER BY time;
 
 **Task:**
 
-> This machine writes the hotel's key cards, and it knows who every card belongs to.
+> This machine writes the hotel's key cards, and it knows who every card belongs to. Whose is the card that opened room 404 in the middle of the night, and where else did it go?
 >
-> Take the card that opened room 404 in the middle of the night. Show `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.
+> Show `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -180,9 +180,9 @@ ORDER BY d.time;
 
 **Task:**
 
-> The security PC can report on any single card. Look at the card that opened room 404 in the middle of the night.
+> The security PC can report on any single card. Which rooms did the card that opened room 404 in the middle of the night keep opening after it went missing?
 >
-> For the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.
+> Count how often it **opened** each room in that time. Show `room` and the count, the room with the most openings first.
 
 <details><summary>Starter code</summary>
 
@@ -235,7 +235,7 @@ ORDER BY openings DESC;
 
 > Guests and staff sign every receipt with their key card: at the bar, in the card room, for room service, even at reception.
 >
-> The night guard noted the moment he heard a door close upstairs. Who signed a receipt in the ten minutes before or after it? Show `time`, the name of whoever signed and `place`, earliest first.
+> Who was somewhere else when the thief got away upstairs? Show `time`, the name of whoever signed and `place` for every receipt signed in the ten minutes before or after that moment, earliest first.
 
 <details><summary>Starter code</summary>
 

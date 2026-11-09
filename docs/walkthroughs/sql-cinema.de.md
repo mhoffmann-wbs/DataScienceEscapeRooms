@@ -33,7 +33,7 @@
 
 > Ben Adeyemi, der Platzanweiser, reißt an der Saaltür von jedem Ticket den Abschnitt ab und notiert, wie viele Leute er eingelassen hat: `tally` enthält seine Zählung für jede Vorstellung. `tickets` enthält jedes Ticket, das die Kassen verkauft haben.
 >
-> Bei welchen Vorstellungen kamen deutlich mehr Leute herein, als Tickets im System stehen? Bens Notiz auf dem Klemmbrett sagt, wie weit ihr seiner Zählung trauen könnt. Zeigt `starts`, `hall`, die Zahl der verkauften Tickets und Bens Zählung, die früheste zuerst.
+> Bei welchen Vorstellungen kamen deutlich mehr Leute herein, als Tickets im System stehen? Zeigt `starts`, `hall`, die Zahl der verkauften Tickets und Bens Zählung, die früheste zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -74,7 +74,7 @@ ORDER BY s.starts;
 
 **Hinweise:**
 
-1. Zählt zuerst die Tickets pro Vorstellung: Verbindet `tally` und `tickets` über `screening_id` und gruppiert mit `GROUP BY` nach der Vorstellung. Eine Bedingung auf `COUNT(…)` kann nicht in `WHERE` stehen, das vor dem Gruppieren läuft. Sie gehört in `HAVING`, das danach läuft.
+1. Bens Klemmbrett an der Studiotür sagt, wie weit ihr seiner Zählung trauen könnt. Zählt zuerst die Tickets pro Vorstellung: Verbindet `tally` und `tickets` über `screening_id` und gruppiert mit `GROUP BY` nach der Vorstellung. Eine Bedingung auf `COUNT(…)` kann nicht in `WHERE` stehen, das vor dem Gruppieren läuft. Sie gehört in `HAVING`, das danach läuft.
 2. Ben kann sich um bis zu zwei in beide Richtungen verzählen, ein Unterschied von 1 oder 2 bedeutet also nichts. Behaltet die Gruppen mit `y.admitted - COUNT(t.ticket_no) > 2`. Jede Spalte, die ihr zeigt und die nicht gezählt wird, gehört auch ins `GROUP BY`.
 3. `SELECT s.starts, s.hall, COUNT(t.ticket_no) AS sold, y.admitted FROM screenings AS s JOIN tally AS y ON y.screening_id = s.screening_id LEFT JOIN tickets AS t ON t.screening_id = s.screening_id GROUP BY s.screening_id, s.starts, s.hall, y.admitted HAVING y.admitted - COUNT(t.ticket_no) > 2 ORDER BY s.starts;`
 
@@ -141,9 +141,9 @@ ORDER BY t.ticket_no;
 
 **Aufgabe:**
 
-> Nach Beschwerden über ein überfülltes Studio hat die Feuerwehr an seiner Tür einen Zähler einbauen lassen. Seit Samstag, dem 14. November, drückt der Platzanweiser +1 für jeden, der hereinkommt, und −1 für jeden, der hinausgeht. `clicks` enthält jeden Druck aus der Spätvorstellung an diesem Abend.
+> Ein Zähler an der Studiotür zählt das Publikum: Der Platzanweiser drückt +1 für jeden, der hereinkommt, und −1 für jeden, der hinausgeht. `clicks` enthält jeden Druck aus der Spätvorstellung am Samstag, dem 14. November.
 >
-> Wann waren im Studio mehr Leute, als es Sitzplätze hat? Zeigt die Zeit (`time`) jedes Drucks und wie viele Leute danach drin waren, nur die Momente über der Zahl der Sitzplätze, den frühesten zuerst.
+> Wann war das Studio voller, als die Feuerwehr erlaubt? Zeigt die Zeit (`time`) jedes Drucks und wie viele Leute danach drin waren, nur die Momente über der Grenze, den frühesten zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -180,7 +180,7 @@ ORDER BY time;
 
 **Hinweise:**
 
-1. Wie viele Leute in einem Moment drin sind, ist die Summe aller Drücke bis dahin: eine laufende Summe. `SUM(delta) OVER (ORDER BY time)` addiert `delta` über alle Zeilen bis zur aktuellen und behält dabei alle Zeilen.
+1. Der Aushang der Feuerwehr an der Studiotür sagt, wo die Grenze liegt. Wie viele Leute in einem Moment drin sind, ist die Summe aller Drücke bis dahin: eine laufende Summe. `SUM(delta) OVER (ORDER BY time)` addiert `delta` über alle Zeilen bis zur aktuellen und behält dabei alle Zeilen.
 2. Eine Fensterfunktion kann nicht in `WHERE` stehen. Berechnet sie zuerst in einer Unterabfrage, `FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks)`, und filtert dann diese: `WHERE inside > (SELECT seats FROM halls WHERE hall = 2)`.
 3. `SELECT time, inside FROM (SELECT time, SUM(delta) OVER (ORDER BY time) AS inside FROM clicks) WHERE inside > (SELECT seats FROM halls WHERE hall = 2) ORDER BY time;`
 
@@ -367,7 +367,7 @@ ORDER BY r.day;
 >
 > Studio (Saal 2): Nie mehr Personen im Saal, als es Sitzplätze gibt. Stehen in den Gängen oder auf den Stufen ist verboten.
 >
-> Ab Samstag, dem 14. November, zählt der Platzanweiser alle mit einem Zähler hinein und hinaus. Die Zählungen werden geprüft.
+> Die Zählungen des Platzanweisers werden geprüft.
 
 ### 🔎 Ein Zettel an der Bürotür
 

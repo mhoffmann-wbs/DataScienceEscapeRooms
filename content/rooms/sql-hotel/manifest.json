@@ -32,8 +32,8 @@
         "de": "Der Rezeptionscomputer"
       },
       "text": {
-        "en": "The reception computer is connected to the hotel database. The night guard heard the thief run off into one wing of the 4th floor. Start there: who slept in that wing on the night of the theft?\n\nList the guest name and room of everyone staying in that wing that night, ordered by room.",
-        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Der Nachtwächter hat den Dieb in einen Flügel des 4. Stocks davonlaufen hören. Fangt dort an: Wer hat in der Nacht des Diebstahls in diesem Flügel geschlafen?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer."
+        "en": "The reception computer is connected to the hotel database. Who slept in the wing the thief ran off into, on the night of the theft?\n\nList the guest name and room of everyone staying in that wing that night, ordered by room.",
+        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Wer hat in der Nacht des Diebstahls in dem Flügel geschlafen, in den der Dieb davongelaufen ist?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -81,8 +81,8 @@
         "de": "Der Türschloss-Server"
       },
       "text": {
-        "en": "Every key-card door in the hotel reports to this server: which card, which room, when, and whether the door opened.\n\nShow `time`, `card_id` and `event` of every event at room 404 while Victor was away, earliest first.",
-        "de": "Jede Zimmertür mit Kartenschloss meldet sich bei diesem Server: welche Karte, welches Zimmer, wann, und ob die Tür aufging.\n\nZeigt `time`, `card_id` und `event` aller Ereignisse an Zimmer 404, während Victor weg war, die früheste zuerst."
+        "en": "Every key-card door in the hotel reports to this server: which card, which room, when, and whether the door opened. Who came to room 404 while Victor was away?\n\nShow `time`, `card_id` and `event` of every event at room 404 in that time, earliest first.",
+        "de": "Jede Zimmertür mit Kartenschloss meldet sich bei diesem Server: welche Karte, welches Zimmer, wann, und ob die Tür aufging. Wer war an Zimmer 404, während Victor weg war?\n\nZeigt `time`, `card_id` und `event` aller Ereignisse an Zimmer 404 in dieser Zeit, die früheste zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -129,8 +129,8 @@
         "de": "Das Kartencodiergerät"
       },
       "text": {
-        "en": "This machine writes the hotel's key cards, and it knows who every card belongs to.\n\nTake the card that opened room 404 in the middle of the night. Show `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.",
-        "de": "Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört.\n\nNehmt die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat. Zeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst."
+        "en": "This machine writes the hotel's key cards, and it knows who every card belongs to. Whose is the card that opened room 404 in the middle of the night, and where else did it go?\n\nShow `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.",
+        "de": "Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört. Wem gehört die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, und wo war sie sonst noch?\n\nZeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -180,8 +180,8 @@
         "de": "Der Sicherheits-PC"
       },
       "text": {
-        "en": "The security PC can report on any single card. Look at the card that opened room 404 in the middle of the night.\n\nFor the time since that card went missing, count how often it **opened** each room. Show `room` and the count, the room with the most openings first.",
-        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Seht euch die Karte an, die mitten in der Nacht Zimmer 404 geöffnet hat.\n\nZählt für die Zeit, seit diese Karte verschwunden ist, wie oft sie jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
+        "en": "The security PC can report on any single card. Which rooms did the card that opened room 404 in the middle of the night keep opening after it went missing?\n\nCount how often it **opened** each room in that time. Show `room` and the count, the room with the most openings first.",
+        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Welche Zimmer hat die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, immer wieder geöffnet, seit sie verschwunden ist?\n\nZählt, wie oft sie in dieser Zeit jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -231,8 +231,8 @@
         "de": "Die Barkasse"
       },
       "text": {
-        "en": "Guests and staff sign every receipt with their key card: at the bar, in the card room, for room service, even at reception.\n\nThe night guard noted the moment he heard a door close upstairs. Who signed a receipt in the ten minutes before or after it? Show `time`, the name of whoever signed and `place`, earliest first.",
-        "de": "Gäste und Personal unterschreiben jeden Beleg mit ihrer Schlüsselkarte: an der Bar, im Kartenzimmer, beim Zimmerservice, sogar an der Rezeption.\n\nDer Nachtwächter hat notiert, wann er oben eine Tür zufallen hörte. Wer hat in den zehn Minuten davor oder danach einen Beleg unterschrieben? Zeigt `time`, den Namen der Person und `place`, den frühesten zuerst."
+        "en": "Guests and staff sign every receipt with their key card: at the bar, in the card room, for room service, even at reception.\n\nWho was somewhere else when the thief got away upstairs? Show `time`, the name of whoever signed and `place` for every receipt signed in the ten minutes before or after that moment, earliest first.",
+        "de": "Gäste und Personal unterschreiben jeden Beleg mit ihrer Schlüsselkarte: an der Bar, im Kartenzimmer, beim Zimmerservice, sogar an der Rezeption.\n\nWer war woanders, als der Dieb oben davonlief? Zeigt `time`, den Namen der Person und `place` für jeden Beleg, der in den zehn Minuten vor oder nach diesem Moment unterschrieben wurde, den frühesten zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",

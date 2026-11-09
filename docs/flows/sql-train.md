@@ -104,6 +104,14 @@ The room is three carriages side by side, joined by gangways over the track: the
 
 ## Findings
 
+Checked in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station), nothing to change:
+
+- **No task, starter or reveal points at a clue.** Where to look is only in the hints (the sign by the door panel, the door control panel's time, the conductor's handheld for the till).
+- **No value is stated twice.** The door rule is only on the sign, the gangway rule only in the attendant's report, the emergency brake only in the driver's log; the radio's lock text asks for "where the emergency brake stopped the train" without naming the kilometre.
+- **Every station asks one question near the top** (who was never scanned, every halt, which door events shouldn't have happened, whose card fell silent, who paid for the empty compartments) and ends in a query the check compares; the starters only show `SELECT * … LIMIT 5`.
+
+Earlier findings:
+
 - **The handheld and the till have no hard clue.** The handheld's rule ("never scanned = never boarded") is in the task text too; the till only needs the handheld's result. For an advanced room the SQL carries these stations, which seems right, but a playtest should show whether the conductor's note gets read at all.
 - **The attendant's report is soft:** it explains why a gangway tap means walking into the next car, which a team needs to read the card reader result, but the check passes without it.
 - **The trap in the final:** `C5-52` belongs to Paul Brenner's booking, so a team that skips the handheld or the till will likely answer "Paul Brenner". The handheld says he never boarded; the till names Ines Hartmann.
