@@ -73,7 +73,7 @@ def _gate_problems(df):
         clean = False
     if clean:
         return []
-    return ["df isn't the cleaned gate log yet: copy your df from the gate scanner log (a row for every day, the uncounted days empty). / df ist noch nicht das bereinigte Einlass-Log: Übernehmt euer df vom Einlass-Log (eine Zeile pro Tag, die nicht gezählten Tage leer)."]
+    return ["df isn't the cleaned gate log yet: a row for every day, the uncounted days empty. / df ist noch nicht das bereinigte Einlass-Log: eine Zeile pro Tag, die nicht gezählten Tage leer."]
 
 
 def _clean_df(df):
@@ -116,20 +116,20 @@ def _events_check(df, events, saturday_effect):
                 got[dates] = {(int(r.lower_window), int(r.upper_window)) for r in rows.itertuples()}
             for dates, window in want.items():
                 if dates not in got:
-                    problems.append("events doesn't list each event's dates from the calendar, 2021 to 2026, under one name. / events enthält nicht die Termine jedes Events aus dem Kalender, 2021 bis 2026, unter einem Namen.")
+                    problems.append("events doesn't list each event's dates, 2021 to 2026, under one name. / events enthält nicht die Termine jedes Events, 2021 bis 2026, unter einem Namen.")
                     break
                 if got[dates] != {window}:
-                    problems.append("An event's window doesn't cover the right days (see the calendar). / Das Fenster eines Events deckt nicht die richtigen Tage ab (siehe Kalender).")
+                    problems.append("An event's window doesn't cover the right days. / Das Fenster eines Events deckt nicht die richtigen Tage ab.")
                     break
             if len(got) != 2:
-                problems.append("events should hold exactly the two events from the calendar. / events sollte genau die zwei Events aus dem Kalender enthalten.")
+                problems.append("events should hold exactly the two events. / events sollte genau die zwei Events enthalten.")
     except AttributeError:
         problems.append("events must be a pandas DataFrame. / events muss ein pandas-DataFrame sein.")
     v = _number(saturday_effect)
     if v is None:
         problems.append("saturday_effect is not a number yet. / saturday_effect ist noch keine Zahl.")
     elif abs(v - 2.04) > 0.25:
-        problems.append("saturday_effect doesn't match: the opening weekend's column on Saturday 22 June 2024, from a model with the lighting desk's seasonality mode, fitted on all of df. / saturday_effect passt nicht: die Spalte des Eröffnungswochenendes am Samstag, 22. Juni 2024, aus einem Modell mit der Saisonalität vom Lichtpult, angepasst auf ganz df.")
+        problems.append("saturday_effect doesn't match: the opening weekend's column on Saturday 22 June 2024, from a model with the best-fitting seasonality mode, fitted on all of df. / saturday_effect passt nicht: die Spalte des Eröffnungswochenendes am Samstag, 22. Juni 2024, aus einem Modell mit der am besten passenden Saisonalität, angepasst auf ganz df.")
     return _verdict(problems)
 
 
@@ -146,9 +146,9 @@ def _order_check(df, best_baseline, mae_model, opening_2026):
     if total is None:
         problems.append("opening_2026 is not a number yet. / opening_2026 ist noch keine Zahl.")
     elif total < 0.62 * 19078:
-        problems.append("Order refused: far too few visitors for the opening weekend. Is it the figure the stage order form asks for? Does the model know that the 2026 opening weekend is coming? / Bestellung abgelehnt: viel zu wenige Besucher für das Eröffnungswochenende. Ist es die Zahl, nach der das Bestellformular fragt? Weiß das Modell, dass 2026 ein Eröffnungswochenende kommt?")
+        problems.append("Order refused: far too few visitors for the opening weekend. Does the model know that the 2026 opening weekend is coming? / Bestellung abgelehnt: viel zu wenige Besucher für das Eröffnungswochenende. Weiß das Modell, dass 2026 ein Eröffnungswochenende kommt?")
     elif abs(total - 19078) > 0.05 * 19078:
-        problems.append("Order refused: that forecast doesn't match a sound model. Check the settings from the tram counter, the lighting desk and the events desk. / Bestellung abgelehnt: Diese Prognose passt zu keinem stimmigen Modell. Prüft die Einstellungen vom Straßenbahnzähler, vom Lichtpult und vom Veranstaltungstisch.")
+        problems.append("Order refused: that forecast doesn't match a sound model. Check the model's changepoint, seasonality mode and events. / Bestellung abgelehnt: Diese Prognose passt zu keinem stimmigen Modell. Prüft Changepoint, Saisonalität und Events des Modells.")
     return _verdict(problems)
 """
 

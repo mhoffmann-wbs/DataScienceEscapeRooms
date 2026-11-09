@@ -31,7 +31,7 @@
 
 > Jede Prognose hier beginnt mit den Einlass-Scans: wie viele Besucher jeden Tag durch die Tore kamen. Aber das Log enthält Tage, die gar keine Besucher sind.
 >
-> Bringt das Log in das Format, das ein Prophet-artiges Modell erwartet: ein DataFrame `df` mit den Spalten `ds` (Datum) und `y` (Besucher), eine Zeile pro Tag. Jeder Tag, der nicht wirklich gezählt wurde, behält seine Zeile, muss aber leer sein, so wie es die IT-Notiz sagt. Alle anderen Tische gehen von eurem `df` aus.
+> Bringt das Log in das Format, das ein Prophet-artiges Modell erwartet: ein DataFrame `df` mit den Spalten `ds` (Datum) und `y` (Besucher), eine Zeile pro Tag. Jeder Tag, der nicht wirklich gezählt wurde, behält seine Zeile, muss aber leer sein.
 
 <details><summary>Startcode</summary>
 
@@ -69,11 +69,11 @@ show_plot(df.set_index("ds")["y"], title="Visitors per day")
 
 **Zeigt nach dem Lösen:**
 
-> Das Log ist sauber: 1734 Tage, davon 1714 gezählt. Die 14 Ausfalltage und 6 Testbuchungen bleiben leer; das Modell überspringt sie einfach. Alle anderen Tische gehen von diesem `df` aus, also nehmt euren Code mit.
+> Das Log ist sauber: 1734 Tage, davon 1714 gezählt. Die 14 Ausfalltage und 6 Testbuchungen bleiben leer; das Modell überspringt sie einfach.
 
 **Hinweise:**
 
-1. `scans.reset_index()` macht aus den Daten eine Spalte. Dann benennt ihr die zwei Spalten: `df.columns = ["ds", "y"]`.
+1. Tomasz von der IT hat eine Notiz zu den Tagen hinterlassen, die nicht gezählt wurden. `scans.reset_index()` macht aus den Daten eine Spalte. Dann benennt ihr die zwei Spalten: `df.columns = ["ds", "y"]`.
 2. Die IT-Notiz nennt zwei Arten falscher Tage: den Ausfall (als 0 erfasst) und die Testbuchungen (genau 9999). Nehmt keine Schwelle wie `y > 5000`: Echte Festivaltage sind genauso voll.
 3. `df.loc[df["y"] == 9999, "y"] = None`, und dasselbe für die Ausfalltage 4. bis 17. März 2024. Behaltet die Zeilen (die anderen Tische brauchen eine Zeile pro Tag), aber füllt keine Zahlen ein.
 
@@ -87,7 +87,7 @@ show_plot(df.set_index("ds")["y"], title="Visitors per day")
 
 > Die Verkehrsbetriebe zählen die Fahrgäste an der Haltestelle Festwiese, geladen als `tram` (schon mit `ds` und `y`). Ihr Diagramm zeigt einen Knick im Trend, und das Festivalgelände knickt vielleicht mit.
 >
-> Lasst das Modell zuerst seine Changepoints selbst setzen und findet das Datum, an dem sich die Steigung des Trends am stärksten ändert: `biggest_change`. Passt es dann neu an, mit dem Eröffnungstag der Linie (siehe Zeitung) als einzigem Changepoint, und lest am Trend des Modells ab, wie viele Fahrgäste pro Tag die Haltestelle im Jahr vor diesem Datum gewonnen hat (`growth_before`) und im Jahr danach (`growth_after`).
+> Lasst das Modell zuerst seine Changepoints selbst setzen und findet das Datum, an dem sich die Steigung des Trends am stärksten ändert: `biggest_change`. Passt es dann neu an, mit dem Eröffnungstag der Linie als einzigem Changepoint, und lest am Trend des Modells ab, wie viele Fahrgäste pro Tag die Haltestelle im Jahr vor diesem Datum gewonnen hat (`growth_before`) und im Jahr danach (`growth_after`).
 
 <details><summary>Startcode</summary>
 
@@ -138,11 +138,11 @@ show_plot(tram.set_index("ds")["y"], trend, labels=["passengers", "trend"])
 
 **Zeigt nach dem Lösen:**
 
-> Die Linie 7 wurde am **1. April 2023** eröffnet. Seitdem gewinnt die Haltestelle jedes Jahr etwa 580 Fahrgäste pro Tag dazu, vorher etwa 70. Der Trend des Festivalgeländes knickt am selben Tag: `changepoints=["2023-04-01"]`.
+> Seit die Straßenbahn fährt, gewinnt die Haltestelle jedes Jahr etwa 580 Fahrgäste pro Tag dazu, vorher etwa 70. Der Trend des Festivalgeländes knickt am selben Tag.
 
 **Hinweise:**
 
-1. `m.changepoints` und `m.params["delta"][0]` gehören paarweise zusammen. Packt sie in eine Series, `pd.Series(m.params["delta"][0], index=m.changepoints)`, und nehmt das Datum mit dem größten Betrag: `.abs().idxmax()`.
+1. Der Stadtkurier beim Straßenbahnzähler sagt, wann die Linie eröffnet wurde. `m.changepoints` und `m.params["delta"][0]` gehören paarweise zusammen. Packt sie in eine Series, `pd.Series(m.params["delta"][0], index=m.changepoints)`, und nehmt das Datum mit dem größten Betrag: `.abs().idxmax()`.
 2. Das zweite Modell ist `Prophet(changepoints=["2023-04-01"])` (ein Modell lässt sich nur einmal anpassen, also legt ein neues an). `predict(tram)` liefert eine Spalte `trend`; indiziert sie mit `ds`.
 3. `trend = m7.predict(tram).set_index("ds")["trend"]`, dann `growth_before = trend["2023-04-01"] - trend["2022-04-01"]` und `growth_after = trend["2024-04-01"] - trend["2023-04-01"]`.
 
@@ -154,16 +154,16 @@ show_plot(tram.set_index("ds")["y"], trend, labels=["passengers", "trend"])
 
 **Aufgabe:**
 
-> Bevor man einem Modell traut, muss es die einfachen Regeln schlagen, die schon benutzt werden. Testet sie so, wie es im Planungsheft steht: Training bis Ende Mai 2025, Test auf Juni bis September 2025.
+> Bevor man einem Modell traut, muss es die einfachen Regeln schlagen, die schon benutzt werden. Welche einfache Regel sagt den Sommer 2025 am besten voraus? Trainiert bis Ende Mai 2025 und testet auf Juni bis September 2025.
 >
-> Geht von eurem bereinigten `df` vom Einlass-Log aus. Prognostiziert die Testtage auf drei Arten, nur mit den Trainingsdaten, und berechnet jeweils den mittleren absoluten Fehler in Besuchern pro Tag: `mae_naive` (jeder Tag gleich dem letzten Trainingstag), `mae_last_week` (die letzte Trainingswoche, wiederholt) und `mae_last_year` (Martas Regel).
+> `scans` hat noch seine nicht gezählten Tage: Bereinigt sie zuerst zu `df`. Prognostiziert die Testtage auf drei Arten, nur mit den Trainingsdaten, und berechnet jeweils den mittleren absoluten Fehler in Besuchern pro Tag: `mae_naive` (jeder Tag gleich dem letzten Trainingstag), `mae_last_week` (die letzte Trainingswoche, wiederholt) und `mae_last_year` (Martas Regel).
 
 <details><summary>Startcode</summary>
 
 ```python
 from helpers import show_plot
 
-# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+# df: das bereinigte Einlass-Log (ds und y, eine Zeile pro Tag).
 df = None
 
 y = df.set_index("ds")["y"]
@@ -173,7 +173,7 @@ test = y["2025-06-01":]
 # Drei Prognosen für die Testtage, jeweils eine Series mit test.index:
 naive = None        # jeder Tag = der letzte Trainingstag
 last_week = None    # die letzten 7 Trainingstage, wiederholt
-last_year = None    # Martas Regel (siehe ihr Heft)
+last_year = None    # Martas Regel
 
 mae_naive = None    # mittlere absolute Fehler gegenüber test, in Besuchern pro Tag
 mae_last_week = None
@@ -212,11 +212,11 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 
 **Zeigt nach dem Lösen:**
 
-> Die letzte Woche zu wiederholen liegt im Sommer 2025 im Schnitt **422 Besucher pro Tag** daneben, Martas Regel (gleicher Tag im Vorjahr) 614, die naive Prognose 753. Jedes Modell muss 422 schlagen.
+> Die letzte Woche zu wiederholen liegt im Sommer 2025 im Schnitt **422 Besucher pro Tag** daneben, Martas Regel (gleicher Tag im Vorjahr) 614, die naive Prognose 753.
 
 **Hinweise:**
 
-1. `train.iloc[-1]` ist der letzte Trainingstag, `train.iloc[-7:]` die letzte Trainingswoche. Jede Prognose braucht die Testtage als Index: `pd.Series(..., index=test.index)`.
+1. `df` ist das Ergebnis vom Einlass-Log, und Martas Heft liegt am Planungstisch. `train.iloc[-1]` ist der letzte Trainingstag, `train.iloc[-7:]` die letzte Trainingswoche. Jede Prognose braucht die Testtage als Index: `pd.Series(..., index=test.index)`.
 2. Die Woche wiederholt ihr mit `np.tile(train.iloc[-7:].values, 18)[:len(test)]`. Marta schaut 364 Tage zurück (52 Wochen, gleicher Wochentag): `y.shift(364)` funktioniert, weil `df` noch eine Zeile für jeden Tag hat.
 3. `last_year = y.shift(364)["2025-06-01":]`. Der MAE ist `(prognose - test).abs().mean()`; pandas überspringt die leeren Testtage.
 
@@ -228,9 +228,9 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 
 **Aufgabe:**
 
-> Das Lichtpult hat drei Regler dafür, wie die Jahreszeiten auf die Besucher wirken: obendrauf addiert, multipliziert oder auf der Log-Skala. Seit die Straßenbahn fährt, schwanken die Sommerwochenenden viel stärker als früher.
+> Wie wirken die Jahreszeiten auf die Besucher? Das Lichtpult hat drei Regler dafür: obendrauf addiert, multipliziert oder auf der Log-Skala. Seit die Straßenbahn fährt, schwanken die Sommerwochenenden viel stärker als früher.
 >
-> Geht von eurem bereinigten `df` vom Einlass-Log aus. Passt drei Modelle auf die Trainingsdaten (bis Mai 2025) an und berechnet ihre mittleren absoluten Fehler auf Juni bis September 2025, in Besuchern: `mae_additive` (die Voreinstellung), `mae_multiplicative` (multiplikative Saisonalität) und `mae_log` (additiv, angepasst auf den Logarithmus der Besucher).
+> `scans` hat noch seine nicht gezählten Tage: Bereinigt sie zuerst zu `df`. Passt drei Modelle auf die Trainingsdaten (bis Mai 2025) an und berechnet ihre mittleren absoluten Fehler auf Juni bis September 2025, in Besuchern: `mae_additive` (die Voreinstellung), `mae_multiplicative` (multiplikative Saisonalität) und `mae_log` (additiv, angepasst auf den Logarithmus der Besucher).
 
 <details><summary>Startcode</summary>
 
@@ -238,7 +238,7 @@ show_plot(test, last_week, last_year, labels=["actual", "last week", "last year"
 from prophet import Prophet
 from helpers import show_plot
 
-# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+# df: das bereinigte Einlass-Log (ds und y, eine Zeile pro Tag).
 df = None
 train = df[df["ds"] <= "2025-05-31"]
 test = df[df["ds"] >= "2025-06-01"]   # Sommer 2025: Juni bis September
@@ -302,7 +302,7 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 
 **Hinweise:**
 
-1. Ein multiplikatives Modell ist `Prophet(seasonality_mode="multiplicative")`. Passt es auf `train` an und bewertet `predict(test)["yhat"]` mit `holdout_mae`, wie das additive.
+1. Startet mit dem `df` vom Einlass-Log; das Whiteboard nennt die Optionen des Modells. Ein multiplikatives Modell ist `Prophet(seasonality_mode="multiplicative")`. Passt es auf `train` an und bewertet `predict(test)["yhat"]` mit `holdout_mae`, wie das additive.
 2. Für das Log-Modell passt ihr ein normales `Prophet()` auf `train.assign(y=np.log(train["y"]))` an. Sein `yhat` ist in Log-Einheiten: Nehmt `np.exp`, bevor ihr mit echten Besuchern vergleicht.
 3. `mae_log = holdout_mae(np.exp(logged.predict(test)["yhat"]))`, wobei `logged` das auf die Log-Werte angepasste Modell ist.
 
@@ -316,7 +316,7 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 
 > Zwei Ereignisse durchbrechen jedes Muster: das Eröffnungswochenende des Sommerfestivals und die Laternennacht. Ein Prophet-artiges Modell lernt sie aus einer Feiertagstabelle.
 >
-> Baut `events` nach dem Veranstaltungskalender am Schwarzen Brett: eine Zeile pro Termin, mit den Spalten `holiday`, `ds`, `lower_window` und `upper_window`, einschließlich der Termine im nächsten Jahr. Passt damit ein Modell auf euer ganzes bereinigtes `df` vom Einlass-Log an, mit der Saisonalität, die am Lichtpult gewonnen hat, und speichert den Effekt des Eröffnungswochenendes am Samstag, 22. Juni 2024, in `saturday_effect` (so, wie das Modell ihn in der Spalte des Ereignisses angibt).
+> Baut `events`: eine Zeile pro Termin, mit den Spalten `holiday`, `ds`, `lower_window` und `upper_window`, einschließlich der Termine im nächsten Jahr. Passt damit ein Modell auf das ganze bereinigte Einlass-Log `df` an, mit der Saisonalität, die am besten zu den Besuchern passt, und speichert den Effekt des Eröffnungswochenendes am Samstag, 22. Juni 2024, in `saturday_effect` (so, wie das Modell ihn in der Spalte des Ereignisses angibt).
 
 <details><summary>Startcode</summary>
 
@@ -324,7 +324,7 @@ show_plot(test.set_index("ds")["y"], forecast.set_index("ds")["yhat"], labels=["
 from prophet import Prophet
 from helpers import show_plot
 
-# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+# df: das bereinigte Einlass-Log (ds und y, eine Zeile pro Tag).
 df = None
 
 # Eine Zeile pro Termin. Das Fenster sagt, welche Tage um ds zum Ereignis gehören:
@@ -336,7 +336,7 @@ events = pd.DataFrame({
     "upper_window": [],
 })
 
-m = Prophet(holidays=events)   # dazu die Saisonalität, die am Lichtpult gewonnen hat
+m = Prophet(holidays=events)   # dazu die am besten passende Saisonalität
 m.fit(df)
 forecast = m.predict(df).set_index("ds")
 print(forecast.columns.tolist())   # eine Spalte pro Feiertagsname
@@ -384,11 +384,11 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 
 **Zeigt nach dem Lösen:**
 
-> Am Eröffnungssamstag legt das Festival etwa **204 % des Trends** auf einen gewöhnlichen Sommersamstag drauf, die Laternennacht sogar noch mehr. Behaltet die Termine für 2026 in der Tabelle: Ein Modell erwartet nur die Ereignisse, von denen es weiß.
+> Am Eröffnungssamstag legt das Festival etwa **204 % des Trends** auf einen gewöhnlichen Sommersamstag drauf, die Laternennacht sogar noch mehr.
 
 **Hinweise:**
 
-1. Baut ein DataFrame pro Ereignis und verbindet sie mit `pd.concat([...], ignore_index=True)`. Das Eröffnungswochenende steht mit seinem Freitag im Kalender und dauert bis Sonntag: `lower_window=0`, `upper_window=2`.
+1. Der Veranstaltungskalender hängt am Schwarzen Brett, `df` kommt vom Einlass-Log und die Saisonalität vom Lichtpult. Baut ein DataFrame pro Ereignis und verbindet sie mit `pd.concat([...], ignore_index=True)`. Das Eröffnungswochenende steht mit seinem Freitag im Kalender und dauert bis Sonntag: `lower_window=0`, `upper_window=2`.
 2. Die Laternennacht zählt die Generalprobe am Vorabend mit: `lower_window=-1`, `upper_window=0`. Nehmt alle sechs Jahre beider Ereignisse, 2021 bis 2026.
 3. Der Gewinner vom Lichtpult: `Prophet(seasonality_mode="multiplicative", holidays=events)`. Mit dem Feiertagsnamen `"opening_weekend"`: `saturday_effect = forecast.loc["2024-06-22", "opening_weekend"]`. Es sollte etwa 2 herauskommen, also +200 % des Trends.
 
@@ -402,7 +402,7 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 
 > Die Bürotür öffnet sich, sobald die Bühnenbestellung für das Sommerfestival 2026 abgeschickt ist. Das Bestellsystem nimmt nur eine Prognose von einem Modell an, das die beste einfache Regel auf Sommer 2025 schlägt.
 >
-> Baut das vollständige Modell aus allem, was der Raum euch gezeigt hat, auf eurem bereinigten `df` vom Einlass-Log. Setzt `best_baseline` (den Fehler der besten einfachen Regel, aus Martas Faustregel), `mae_model` (den Fehler eures Modells auf Juni bis September 2025, trainiert bis Mai 2025) und `opening_2026` (die Zahl, nach der das Bestellformular fragt, aus einem Modell, das auf ganz `df` angepasst wurde). Das Bestellsystem sagt euch, was ihm nicht passt.
+> Baut das vollständige Modell aus allem, was der Raum euch gezeigt hat, auf dem bereinigten Einlass-Log `df`. Setzt `best_baseline` (den Fehler der besten einfachen Regel), `mae_model` (den Fehler eures Modells auf Juni bis September 2025, trainiert bis Mai 2025) und `opening_2026` (die Zahl für die Bühnenbestellung, aus einem Modell, das auf ganz `df` angepasst wurde). Das Bestellsystem sagt euch, was ihm nicht passt.
 
 <details><summary>Startcode</summary>
 
@@ -410,10 +410,10 @@ show_plot(forecast.loc["2024-05":"2024-09", "opening_weekend"], forecast.loc["20
 from prophet import Prophet
 from helpers import show_plot
 
-# df: das bereinigte Einlass-Log. Kopiert euren Code vom Einlass-Log hierher.
+# df: das bereinigte Einlass-Log (ds und y, eine Zeile pro Tag).
 df = None
 
-events = None          # die Feiertagstabelle vom Veranstaltungstisch
+events = None          # die Feiertagstabelle
 best_baseline = None   # der Fehler der besten einfachen Regel auf Juni bis September 2025, Besucher pro Tag
 
 train = df[df["ds"] <= "2025-05-31"]
@@ -428,7 +428,7 @@ def model():
 # 1. Das Modell auf Sommer 2025 prüfen: auf train anpassen, test prognostizieren, mittlerer absoluter Fehler in Besuchern.
 mae_model = None
 
-# 2. model() auf ganz df anpassen, weit genug vorausprognostizieren und ausrechnen, wonach das Bestellformular fragt.
+# 2. model() auf ganz df anpassen, weit genug vorausprognostizieren und die Zahl für die Bühnenbestellung ausrechnen.
 opening_2026 = None
 ```
 
@@ -483,7 +483,7 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 
 **Hinweise:**
 
-1. Jeder Hinweis eines Tisches fügt `model()` eine Einstellung hinzu: den Changepoint vom Straßenbahnzähler, die Saisonalität vom Lichtpult und `events` vom Veranstaltungstisch, inklusive der Termine 2026. `best_baseline` kommt aus Martas Faustregel, und das Bestellformular sagt, welche Tage ihr addiert.
+1. Jeder Hinweis eines Tisches fügt `model()` eine Einstellung hinzu: den Changepoint vom Straßenbahnzähler, die Saisonalität vom Lichtpult und `events` vom Veranstaltungstisch, inklusive der Termine 2026. `best_baseline` kommt aus Martas Faustregel, das Bestellformular neben dem Bestellsystem sagt, was ihr addiert, und der Veranstaltungskalender, welche Tage das sind.
 2. Ein Modell lässt sich nur einmal anpassen, also ruft `model()` zweimal auf: einmal für `train` (dann `predict(test)` und mit `test["y"]` vergleichen), einmal für ganz `df`. Für die Zukunft nehmt ihr `make_future_dataframe(periods=...)` vom Whiteboard: 270 Tage reichen über das Eröffnungswochenende 2026 hinaus.
 3. `model()` gibt `Prophet(seasonality_mode="multiplicative", holidays=events, changepoints=["2023-04-01"])` zurück, `best_baseline = 422`, und `opening_2026 = forecast.set_index("ds").loc["2026-06-19":"2026-06-21", "yhat"].sum()`, wobei `forecast` die Vorhersage des vollständigen Modells für diese Zukunft ist.
 
@@ -498,8 +498,6 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 > **4. bis 17. März 2024:** Nach dem Hochwasser waren die Scanner offline. Das System hat für diese Tage 0 eingetragen, aber gezählt wurde niemand.
 >
 > **Testbuchungen:** Am ersten Montag mancher Monate prüfe ich das System mit einer Buchung über genau **9999** Tickets. Das sind keine Besucher.
->
-> Ratet für diese Tage keine Zahlen. Lasst sie leer: Ein Prophet-artiges Modell überspringt Tage ohne Wert einfach.
 
 ### 🔎 Der Stadtkurier
 
@@ -519,7 +517,7 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 >
 > "Ich plane jeden Tag wie denselben Tag im Vorjahr: gleicher Wochentag, 52 Wochen zurück, also 364 Tage. Hat noch nie versagt."
 >
-> Auf der nächsten Seite, in einer anderen Handschrift: "Testet sie wie jedes Modell. Training bis Ende Mai 2025, Test auf Juni bis September 2025."
+> Auf der nächsten Seite, in einer anderen Handschrift: "Wirklich? Testet sie wie jedes Modell."
 
 ### 🔎 Das Whiteboard
 
@@ -553,9 +551,7 @@ show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["v
 
 > BÜHNENBESTELLUNG · Sommerfestival 2026
 >
-> Erwartete Besucher, Eröffnungswochenende, **Freitag, 19., bis Sonntag, 21. Juni 2026**: die Summe aller drei Tage, aus dem Prognosemodell des Büros.
->
-> Wird nur angenommen von einem Modell, das die beste einfache Regel auf Juni bis September 2025 schlägt.
+> Erwartete Besucher am **Eröffnungswochenende 2026**: die Summe aller seiner Tage.
 
 ## Handbuch im Raum: 📖 Handbuch des Prognosebüros
 

@@ -99,9 +99,18 @@ The map is 22 × 15 tiles.
 
 ## Findings
 
+Fixed in the second review (every clue once, no pointers to clues or other stations outside the hints, a clear goal per station):
+
+- **No task or starter names another station any more.** The ledger's task no longer says the cleaning comes from the price tags and the card terminal, and its starter only lists the columns to clean; the envelope table's task and starter no longer mention the cash ledger's code or `expected`. Hint 1 of each now says where that code comes from.
+- **No task names its clue.** The register's task no longer mentions the complaint (it says one stall is suspected of short-changing a customer), and its starter comment no longer says "the stall in the complaint". Hint 1 of the register, the price tags and the card terminal now says where the complaint, the market plan, the price board and the market rules are.
+- **The cash-only rule lives only in §5 of the market rules.** The intro no longer says "cash envelope", the ledger's task drops "Careful: not every sale goes into an envelope" (its goal, the sales that belong in the envelopes, stays), and the helper rota no longer repeats that each badge collects the cash envelopes. The price tags' task no longer repeats the price board's "written a different way at every stall".
+- **Left:** every station already ends in checked values, so no booleans were added; the report's lock note ("Code = the euros missing in total") is the lock's own text, not a pointer.
+
+Fixed (the first review):
+
 - **Fixed: all four `requires` are gone.** The ledger's starter no longer contains the cleaning (`uses` price tags and card terminal), the envelope table's starter no longer computes the expected cash (`uses` the ledger; the Series is now called `expected`), and the report sits behind a code lock whose code (145, the euros missing) is in the envelope table's reveal. The lock replaces both of the report's `requires`, including the one that guarded against guessing a name from the rota.
 - **Fixed: the middle is no longer single-file.** Ledger and envelope table are open from the start, so their own parts (filter + `groupby`; the `handover` × `stalls` merge) run beside the first three stations, and only the hand-over of code waits.
-- **Fixed: market rules → ledger is hard.** The task no longer says "keep only the cash sales" (only "not every sale goes into an envelope"), the variable is no longer `cash_by_stall`, and the card terminal's reveal no longer says that only cash went into the envelopes; §5 of the market rules is the source, and hint 1 points to it.
+- **Fixed: market rules → ledger is hard.** The task no longer says "keep only the cash sales", the variable is no longer `cash_by_stall`, and the card terminal's reveal no longer says that only cash went into the envelopes; §5 of the market rules is the source, and hint 1 points to it.
 - **Left: the price board is soft.** It describes spellings that `sales["price"].unique()` shows anyway. Giving it a hidden rule (cents, deposits) would add a conditional cleaning step to the easiest station; it stays as context.
 - **Left, deliberately: the register is a red herring.** Its answer S04 feeds nothing; the report's hints and the envelope table's reveal ("Imkerei Sommer's envelope matches to the cent") close the suspicion. It is no longer a mechanical gate on the report.
 - **Partly left: the final answer still comes from one station.** The envelope table hands over both the lock code and badge 7, but it can only be solved with the code of the ledger, price tags and card terminal, so four stations now feed the final through real hand-offs.

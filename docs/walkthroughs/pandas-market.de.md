@@ -4,7 +4,7 @@
 
 ## Geschichte
 
-> Samstag auf dem Kleeberger Bauernmarkt. Um 14:00 Uhr haben die Markthilfen die Bargeldumschläge aller Stände ins Marktbüro gebracht, und Greta, die Marktleiterin, hat nachgezählt. Es fehlt Geld. Sie hat die Markthalle abgeschlossen: Niemand geht, bevor die Zahlen stimmen.
+> Samstag auf dem Kleeberger Bauernmarkt. Um 14:00 Uhr haben die Markthilfen die Umschläge aller Stände ins Marktbüro gebracht, und Greta, die Marktleiterin, hat nachgezählt. Es fehlt Geld. Sie hat die Markthalle abgeschlossen: Niemand geht, bevor die Zahlen stimmen.
 >
 > Die Verkaufslisten der Stände liegen als CSV-Dateien auf dem Bürocomputer. Bereinigt sie mit pandas und findet heraus, wohin das Geld verschwunden ist. Dieser Raum lädt Python mit pandas: Das erste Rätsel, das ihr öffnet, braucht einen Moment.
 
@@ -35,7 +35,7 @@
 >
 > Wie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.
 >
-> Eine Besucherin hat eine wütende Beschwerde über einen Stand hinterlassen. Findet diesen Stand und speichert seine `stall_id` in `suspect`.
+> Ein Stand steht im Verdacht, eine Kundin um ihr Wechselgeld gebracht zu haben. Findet ihn und speichert seine `stall_id` in `suspect`.
 
 <details><summary>Startcode</summary>
 
@@ -46,7 +46,7 @@ stalls = pd.read_csv("stalls.csv")
 print(stalls.head())
 
 n_veg = None     # wie viele Stände verkaufen Gemüse?
-suspect = None   # stall_id des Stands aus der Beschwerde, z. B. "S01"
+suspect = None   # stall_id des verdächtigen Stands, z. B. "S01"
 ```
 
 </details>
@@ -78,8 +78,8 @@ print(n_veg, suspect)
 
 **Hinweise:**
 
-1. `stalls.columns` zeigt die Spaltennamen. `stalls[stalls["product"] == "vegetables"]` behält nur die passenden Zeilen, und `len(...)` zählt sie.
-2. Die Beschwerde liegt auf dem Tischchen am Brunnen. Zwei Stände verkaufen Honig; der Marktplan an der Wand sagt, welche Plätze neben dem Brunnen liegen.
+1. Am Tischchen beim Brunnen liegt eine Beschwerde, und an der Wand hängt der Marktplan. Für das Gemüse: `stalls[stalls["product"] == "vegetables"]` behält nur die passenden Zeilen, und `len(...)` zählt sie.
+2. Zwei Stände verkaufen Honig. Welcher von beiden hat einen Platz direkt neben dem Brunnen? Filtert nach `product` und schaut dann auf `pitch`.
 3. `stalls[stalls["product"] == "honey"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist `"S04"` verdächtig.
 
 ### 2. Preisschilder
@@ -90,7 +90,7 @@ print(n_veg, suspect)
 
 **Aufgabe:**
 
-> Alle Stände haben ihre Verkäufe in eine Liste getippt, `sales.csv`: eine Zeile pro Verkauf, mit der Menge `qty` und dem Stückpreis `price`. Aber `price` ist Text, und jeder Stand schreibt ihn anders, also kann pandas damit nicht rechnen.
+> Alle Stände haben ihre Verkäufe in eine Liste getippt, `sales.csv`: eine Zeile pro Verkauf, mit der Menge `qty` und dem Stückpreis `price`. Aber `price` ist Text, also kann pandas damit nicht rechnen.
 >
 > Macht aus `price` Zahlen, fügt eine Spalte `revenue` hinzu (Menge × Preis) und speichert den Gesamtumsatz des Tages, bar und Karte zusammen, in `total`.
 
@@ -135,8 +135,8 @@ print(round(total, 2))
 
 **Hinweise:**
 
-1. `sales["price"].unique()` zeigt alle Schreibweisen. Textspalten haben `.str`-Methoden, zum Beispiel `.str.replace("€", "")` und `.str.strip()`.
-2. Entfernt das Euro-Zeichen, macht aus dem Dezimalkomma einen Punkt, entfernt die Leerzeichen und wandelt dann mit `.astype(float)` um. Die Preistafel erklärt die Schreibweisen.
+1. Die Preistafel an der Wand zeigt, wie die Stände ihre Preise schreiben. `sales["price"].unique()` zeigt alle Schreibweisen. Textspalten haben `.str`-Methoden, zum Beispiel `.str.replace("€", "")` und `.str.strip()`.
+2. Entfernt das Euro-Zeichen, macht aus dem Dezimalkomma einen Punkt, entfernt die Leerzeichen und wandelt dann mit `.astype(float)` um.
 3. `sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)`, dann `sales["revenue"] = sales["qty"] * sales["price"]` und `total = sales["revenue"].sum()`.
 
 ### 3. Das Kartenterminal
@@ -194,8 +194,8 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 
 **Hinweise:**
 
-1. `sales["payment"].value_counts()` zeigt jede Schreibweise mit ihrer Anzahl. Es gibt 12 Stände, aber `sales["stall_id"].nunique()` sagt mehr: Gebt `sales["stall_id"].unique()` aus, um zu sehen, warum.
-2. `.str.strip()` entfernt Leerzeichen, `.str.lower()` und `.str.upper()` vereinheitlichen die Groß- und Kleinschreibung. Die Marktordnung erklärt, was `EC` bedeutet; `.replace({"ec": "card"})` benennt einen Wert um.
+1. Die Marktordnung an der Wand sagt, was als Kartenzahlung zählt. `sales["payment"].value_counts()` zeigt jede Schreibweise mit ihrer Anzahl. Es gibt 12 Stände, aber `sales["stall_id"].nunique()` sagt mehr: Gebt `sales["stall_id"].unique()` aus, um zu sehen, warum.
+2. `.str.strip()` entfernt Leerzeichen, `.str.lower()` und `.str.upper()` vereinheitlichen die Groß- und Kleinschreibung. `EC` ist eine Kartenzahlung; `.replace({"ec": "card"})` benennt einen Wert um.
 3. `sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})`, `sales["stall_id"] = sales["stall_id"].str.strip().str.upper()`, dann `n_cash = (sales["payment"] == "cash").sum()` und dasselbe für `"card"`.
 
 ### 4. Das Kassenbuch
@@ -206,9 +206,9 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 
 **Aufgabe:**
 
-> Greta will wissen, wie viel Geld jeder Stand um 14:00 Uhr in seinen Umschlag hätte stecken müssen. Vorsicht: Nicht jeder Verkauf landet in einem Umschlag.
+> Greta will wissen, wie viel Geld jeder Stand um 14:00 Uhr in seinen Umschlag hätte stecken müssen.
 >
-> `sales.csv` ist hier noch roh. Preise, Zahlungsarten und Stand-IDs werden an den Preisschildern und am Kartenterminal bereinigt: Holt euch diesen Code von eurem Team.
+> `sales.csv` ist hier noch roh: Preise, Zahlungsarten und Stand-IDs müssen bereinigt werden, bevor die Summen stimmen.
 >
 > Addiert `revenue` pro Stand mit `groupby` und behaltet dabei nur die Verkäufe, die in die Umschläge gehören. Speichert das Ergebnis in `expected` (eine Series mit einer Summe pro `stall_id`) und den Stand mit der größten Summe in `top_stall`.
 
@@ -219,7 +219,7 @@ import pandas as pd
 
 sales = pd.read_csv("sales.csv")
 
-# hierher gehört die Bereinigung von den Preisschildern und vom Kartenterminal:
+# bereinigt zuerst:
 # sales["price"], sales["revenue"], sales["payment"], sales["stall_id"]
 
 expected = None    # was in jeden Umschlag gehört, pro stall_id
@@ -269,22 +269,22 @@ print(top_stall)
 
 **Aufgabe:**
 
-> Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit den Summen `expected` aus dem Kassenbuch zu verbinden.
+> Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID; `stalls.csv` hat beides.
 >
-> Dieser Editor lädt nur die beiden Tabellen: Holt euch den Code vom Kassenbuch, um `expected` zu bekommen. Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`.
+> Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`.
 
 <details><summary>Startcode</summary>
 
 ```python
 import pandas as pd
 
-# hierher gehört der Code vom Kassenbuch (er liefert expected, eine Summe pro stall_id)
+# zuerst: was in jedem Umschlag sein müsste, eine Summe pro stall_id
 
 stalls = pd.read_csv("stalls.csv")
 handover = pd.read_csv("handover.csv")
 print(handover.head())
 
-# verbindet handover, stalls und expected und vergleicht dann
+# verbindet handover, stalls und das Soll jedes Umschlags und vergleicht dann
 
 badge = None     # Ausweisnummer mit dem größten Fehlbetrag
 missing = None   # dessen Fehlbetrag insgesamt, in Euro
@@ -330,7 +330,7 @@ print(badge, round(missing, 2))
 
 **Hinweise:**
 
-1. Ihr könnt ohne `expected` anfangen: `pd.merge(handover, stalls, on="stall")` ergänzt jeden Umschlag um die `stall_id`. Für `expected` fügt ihr den ganzen Code vom Kassenbuch (mit der Bereinigung) oben ein; `expected.reset_index(name="expected")` macht daraus eine Tabelle, die ihr `on="stall_id"` verbinden könnt.
+1. Was in jedem Umschlag sein müsste, ist `expected` vom Kassenbuch: Fügt dessen ganzen Code (mit der Bereinigung) oben ein. `pd.merge(handover, stalls, on="stall")` ergänzt jeden Umschlag um die `stall_id`, und `expected.reset_index(name="expected")` macht aus `expected` eine Tabelle, die ihr `on="stall_id"` verbinden könnt.
 2. Dann `df["short"] = df["expected"] - df["envelope_eur"]` und `df.groupby("badge")["short"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt.
 3. `by_badge = df.groupby("badge")["short"].sum()`, dann `badge = by_badge.idxmax()` und `missing = by_badge.max()`.
 
@@ -418,8 +418,6 @@ print(badge, round(missing, 2))
 > Ausweis 9: Ben Schuster
 >
 > Ausweis 12: Mia Roth
->
-> Jeder Ausweis holt um 14:00 Uhr die Bargeldumschläge seiner Stände ab.
 
 ## Handbuch im Raum: 📖 Der pandas-Ordner des Marktbüros
 

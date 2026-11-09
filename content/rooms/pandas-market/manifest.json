@@ -22,8 +22,8 @@
     }
   },
   "intro": {
-    "en": "Saturday at the Kleeberg farmers' market. At 14:00 the helpers carried every stall's cash envelope to the market office, and Greta, the market manager, counted them. The total is short. She has locked the market hall: nobody leaves until the numbers add up.\n\nThe stalls' sales sheets are on the office computer as CSV files. Clean them up with pandas and find out where the money went. This room loads Python with pandas: the first puzzle you open takes a moment.",
-    "de": "Samstag auf dem Kleeberger Bauernmarkt. Um 14:00 Uhr haben die Markthilfen die Bargeldumschläge aller Stände ins Marktbüro gebracht, und Greta, die Marktleiterin, hat nachgezählt. Es fehlt Geld. Sie hat die Markthalle abgeschlossen: Niemand geht, bevor die Zahlen stimmen.\n\nDie Verkaufslisten der Stände liegen als CSV-Dateien auf dem Bürocomputer. Bereinigt sie mit pandas und findet heraus, wohin das Geld verschwunden ist. Dieser Raum lädt Python mit pandas: Das erste Rätsel, das ihr öffnet, braucht einen Moment."
+    "en": "Saturday at the Kleeberg farmers' market. At 14:00 the helpers carried every stall's envelope to the market office, and Greta, the market manager, counted them. The total is short. She has locked the market hall: nobody leaves until the numbers add up.\n\nThe stalls' sales sheets are on the office computer as CSV files. Clean them up with pandas and find out where the money went. This room loads Python with pandas: the first puzzle you open takes a moment.",
+    "de": "Samstag auf dem Kleeberger Bauernmarkt. Um 14:00 Uhr haben die Markthilfen die Umschläge aller Stände ins Marktbüro gebracht, und Greta, die Marktleiterin, hat nachgezählt. Es fehlt Geld. Sie hat die Markthalle abgeschlossen: Niemand geht, bevor die Zahlen stimmen.\n\nDie Verkaufslisten der Stände liegen als CSV-Dateien auf dem Bürocomputer. Bereinigt sie mit pandas und findet heraus, wohin das Geld verschwunden ist. Dieser Raum lädt Python mit pandas: Das erste Rätsel, das ihr öffnet, braucht einen Moment."
   },
   "packages": [
     "pandas"
@@ -36,14 +36,14 @@
         "de": "Das Marktregister"
       },
       "text": {
-        "en": "Greta's register of today's stalls is in `stalls.csv`. Load it with pandas and have a look around.\n\nHow many stalls sell vegetables? Store the number in `n_veg`.\n\nA visitor left an angry complaint about one stall. Find that stall and store its `stall_id` in `suspect`.",
-        "de": "Gretas Register der heutigen Stände steht in `stalls.csv`. Ladet es mit pandas und schaut es euch an.\n\nWie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.\n\nEine Besucherin hat eine wütende Beschwerde über einen Stand hinterlassen. Findet diesen Stand und speichert seine `stall_id` in `suspect`."
+        "en": "Greta's register of today's stalls is in `stalls.csv`. Load it with pandas and have a look around.\n\nHow many stalls sell vegetables? Store the number in `n_veg`.\n\nOne stall is suspected of short-changing a customer. Find it and store its `stall_id` in `suspect`.",
+        "de": "Gretas Register der heutigen Stände steht in `stalls.csv`. Ladet es mit pandas und schaut es euch an.\n\nWie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.\n\nEin Stand steht im Verdacht, eine Kundin um ihr Wechselgeld gebracht zu haben. Findet ihn und speichert seine `stall_id` in `suspect`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # how many stalls sell vegetables?\nsuspect = None   # stall_id of the stall in the complaint, e.g. \"S01\"\n",
-        "de": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # wie viele Stände verkaufen Gemüse?\nsuspect = None   # stall_id des Stands aus der Beschwerde, z. B. \"S01\"\n"
+        "en": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # how many stalls sell vegetables?\nsuspect = None   # stall_id of the suspected stall, e.g. \"S01\"\n",
+        "de": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # wie viele Stände verkaufen Gemüse?\nsuspect = None   # stall_id des verdächtigen Stands, z. B. \"S01\"\n"
       },
       "check": {
         "type": "python",
@@ -60,12 +60,12 @@
       ],
       "hints": [
         {
-          "en": "`stalls.columns` lists the column names. `stalls[stalls[\"product\"] == \"vegetables\"]` keeps only the matching rows, and `len(...)` counts them.",
-          "de": "`stalls.columns` zeigt die Spaltennamen. `stalls[stalls[\"product\"] == \"vegetables\"]` behält nur die passenden Zeilen, und `len(...)` zählt sie."
+          "en": "A complaint lies on the little table by the fountain, and the market plan hangs on the wall. For the vegetables: `stalls[stalls[\"product\"] == \"vegetables\"]` keeps only the matching rows, and `len(...)` counts them.",
+          "de": "Am Tischchen beim Brunnen liegt eine Beschwerde, und an der Wand hängt der Marktplan. Für das Gemüse: `stalls[stalls[\"product\"] == \"vegetables\"]` behält nur die passenden Zeilen, und `len(...)` zählt sie."
         },
         {
-          "en": "The complaint is on the little table by the fountain. Two stalls sell honey; the market plan on the wall says which pitches are next to the fountain.",
-          "de": "Die Beschwerde liegt auf dem Tischchen am Brunnen. Zwei Stände verkaufen Honig; der Marktplan an der Wand sagt, welche Plätze neben dem Brunnen liegen."
+          "en": "Two stalls sell honey. Which of them has a pitch right next to the fountain? Filter by `product`, then look at `pitch`.",
+          "de": "Zwei Stände verkaufen Honig. Welcher von beiden hat einen Platz direkt neben dem Brunnen? Filtert nach `product` und schaut dann auf `pitch`."
         },
         {
           "en": "`stalls[stalls[\"product\"] == \"honey\"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the suspect is `\"S04\"`.",
@@ -84,8 +84,8 @@
         "de": "Preisschilder"
       },
       "text": {
-        "en": "All stalls typed their sales into one sheet, `sales.csv`: one row per sale, with the quantity `qty` and the unit `price`. But `price` is text, written a different way at every stall, so pandas can't calculate with it.\n\nTurn `price` into numbers, add a column `revenue` (quantity × price), and store the day's total sales, cash and card together, in `total`.",
-        "de": "Alle Stände haben ihre Verkäufe in eine Liste getippt, `sales.csv`: eine Zeile pro Verkauf, mit der Menge `qty` und dem Stückpreis `price`. Aber `price` ist Text, und jeder Stand schreibt ihn anders, also kann pandas damit nicht rechnen.\n\nMacht aus `price` Zahlen, fügt eine Spalte `revenue` hinzu (Menge × Preis) und speichert den Gesamtumsatz des Tages, bar und Karte zusammen, in `total`."
+        "en": "All stalls typed their sales into one sheet, `sales.csv`: one row per sale, with the quantity `qty` and the unit `price`. But `price` is text, so pandas can't calculate with it.\n\nTurn `price` into numbers, add a column `revenue` (quantity × price), and store the day's total sales, cash and card together, in `total`.",
+        "de": "Alle Stände haben ihre Verkäufe in eine Liste getippt, `sales.csv`: eine Zeile pro Verkauf, mit der Menge `qty` und dem Stückpreis `price`. Aber `price` ist Text, also kann pandas damit nicht rechnen.\n\nMacht aus `price` Zahlen, fügt eine Spalte `revenue` hinzu (Menge × Preis) und speichert den Gesamtumsatz des Tages, bar und Karte zusammen, in `total`."
       },
       "workspace": "python",
       "data": "market.py",
@@ -107,12 +107,12 @@
       ],
       "hints": [
         {
-          "en": "`sales[\"price\"].unique()` shows every spelling. Text columns have `.str` methods, such as `.str.replace(\"€\", \"\")` and `.str.strip()`.",
-          "de": "`sales[\"price\"].unique()` zeigt alle Schreibweisen. Textspalten haben `.str`-Methoden, zum Beispiel `.str.replace(\"€\", \"\")` und `.str.strip()`."
+          "en": "The price board on the wall shows how the stalls write their prices. `sales[\"price\"].unique()` shows every spelling. Text columns have `.str` methods, such as `.str.replace(\"€\", \"\")` and `.str.strip()`.",
+          "de": "Die Preistafel an der Wand zeigt, wie die Stände ihre Preise schreiben. `sales[\"price\"].unique()` zeigt alle Schreibweisen. Textspalten haben `.str`-Methoden, zum Beispiel `.str.replace(\"€\", \"\")` und `.str.strip()`."
         },
         {
-          "en": "Remove the euro sign, turn the decimal comma into a point, strip the spaces, then convert with `.astype(float)`. The price board explains the spellings.",
-          "de": "Entfernt das Euro-Zeichen, macht aus dem Dezimalkomma einen Punkt, entfernt die Leerzeichen und wandelt dann mit `.astype(float)` um. Die Preistafel erklärt die Schreibweisen."
+          "en": "Remove the euro sign, turn the decimal comma into a point, strip the spaces, then convert with `.astype(float)`.",
+          "de": "Entfernt das Euro-Zeichen, macht aus dem Dezimalkomma einen Punkt, entfernt die Leerzeichen und wandelt dann mit `.astype(float)` um."
         },
         {
           "en": "`sales[\"price\"] = sales[\"price\"].str.replace(\"€\", \"\").str.replace(\",\", \".\").str.strip().astype(float)`, then `sales[\"revenue\"] = sales[\"qty\"] * sales[\"price\"]` and `total = sales[\"revenue\"].sum()`.",
@@ -154,12 +154,12 @@
       ],
       "hints": [
         {
-          "en": "`sales[\"payment\"].value_counts()` lists every spelling with its count. There are 12 stalls, but `sales[\"stall_id\"].nunique()` says more: print `sales[\"stall_id\"].unique()` to see why.",
-          "de": "`sales[\"payment\"].value_counts()` zeigt jede Schreibweise mit ihrer Anzahl. Es gibt 12 Stände, aber `sales[\"stall_id\"].nunique()` sagt mehr: Gebt `sales[\"stall_id\"].unique()` aus, um zu sehen, warum."
+          "en": "The market rules on the wall say what counts as a card payment. `sales[\"payment\"].value_counts()` lists every spelling with its count. There are 12 stalls, but `sales[\"stall_id\"].nunique()` says more: print `sales[\"stall_id\"].unique()` to see why.",
+          "de": "Die Marktordnung an der Wand sagt, was als Kartenzahlung zählt. `sales[\"payment\"].value_counts()` zeigt jede Schreibweise mit ihrer Anzahl. Es gibt 12 Stände, aber `sales[\"stall_id\"].nunique()` sagt mehr: Gebt `sales[\"stall_id\"].unique()` aus, um zu sehen, warum."
         },
         {
-          "en": "`.str.strip()` removes spaces, `.str.lower()` and `.str.upper()` fix the case. The market rules explain what `EC` means; `.replace({\"ec\": \"card\"})` renames a value.",
-          "de": "`.str.strip()` entfernt Leerzeichen, `.str.lower()` und `.str.upper()` vereinheitlichen die Groß- und Kleinschreibung. Die Marktordnung erklärt, was `EC` bedeutet; `.replace({\"ec\": \"card\"})` benennt einen Wert um."
+          "en": "`.str.strip()` removes spaces, `.str.lower()` and `.str.upper()` fix the case. `EC` is a card payment; `.replace({\"ec\": \"card\"})` renames a value.",
+          "de": "`.str.strip()` entfernt Leerzeichen, `.str.lower()` und `.str.upper()` vereinheitlichen die Groß- und Kleinschreibung. `EC` ist eine Kartenzahlung; `.replace({\"ec\": \"card\"})` benennt einen Wert um."
         },
         {
           "en": "`sales[\"payment\"] = sales[\"payment\"].str.strip().str.lower().replace({\"ec\": \"card\"})`, `sales[\"stall_id\"] = sales[\"stall_id\"].str.strip().str.upper()`, then `n_cash = (sales[\"payment\"] == \"cash\").sum()` and the same for `\"card\"`.",
@@ -178,14 +178,14 @@
         "de": "Das Kassenbuch"
       },
       "text": {
-        "en": "Greta wants to know how much money each stall should have put in its envelope at 14:00. Careful: not every sale goes into an envelope.\n\n`sales.csv` is still raw here. Prices, payments and stall ids are cleaned at the price tags and the card terminal: get that code from your teammates.\n\nAdd up `revenue` per stall with `groupby`, keeping only the sales that belong in the envelopes. Store the result in `expected` (a Series with one total per `stall_id`), and the stall with the largest total in `top_stall`.",
-        "de": "Greta will wissen, wie viel Geld jeder Stand um 14:00 Uhr in seinen Umschlag hätte stecken müssen. Vorsicht: Nicht jeder Verkauf landet in einem Umschlag.\n\n`sales.csv` ist hier noch roh. Preise, Zahlungsarten und Stand-IDs werden an den Preisschildern und am Kartenterminal bereinigt: Holt euch diesen Code von eurem Team.\n\nAddiert `revenue` pro Stand mit `groupby` und behaltet dabei nur die Verkäufe, die in die Umschläge gehören. Speichert das Ergebnis in `expected` (eine Series mit einer Summe pro `stall_id`) und den Stand mit der größten Summe in `top_stall`."
+        "en": "Greta wants to know how much money each stall should have put in its envelope at 14:00.\n\n`sales.csv` is still raw here: prices, payments and stall ids need cleaning before anything adds up.\n\nAdd up `revenue` per stall with `groupby`, keeping only the sales that belong in the envelopes. Store the result in `expected` (a Series with one total per `stall_id`), and the stall with the largest total in `top_stall`.",
+        "de": "Greta will wissen, wie viel Geld jeder Stand um 14:00 Uhr in seinen Umschlag hätte stecken müssen.\n\n`sales.csv` ist hier noch roh: Preise, Zahlungsarten und Stand-IDs müssen bereinigt werden, bevor die Summen stimmen.\n\nAddiert `revenue` pro Stand mit `groupby` und behaltet dabei nur die Verkäufe, die in die Umschläge gehören. Speichert das Ergebnis in `expected` (eine Series mit einer Summe pro `stall_id`) und den Stand mit der größten Summe in `top_stall`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n\n# the cleaning from the price tags and the card terminal goes here:\n# sales[\"price\"], sales[\"revenue\"], sales[\"payment\"], sales[\"stall_id\"]\n\nexpected = None    # what belongs in each envelope, per stall_id\ntop_stall = None   # stall_id with the largest total\n",
-        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n\n# hierher gehört die Bereinigung von den Preisschildern und vom Kartenterminal:\n# sales[\"price\"], sales[\"revenue\"], sales[\"payment\"], sales[\"stall_id\"]\n\nexpected = None    # was in jeden Umschlag gehört, pro stall_id\ntop_stall = None   # stall_id mit der größten Summe\n"
+        "en": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n\n# clean these first:\n# sales[\"price\"], sales[\"revenue\"], sales[\"payment\"], sales[\"stall_id\"]\n\nexpected = None    # what belongs in each envelope, per stall_id\ntop_stall = None   # stall_id with the largest total\n",
+        "de": "import pandas as pd\n\nsales = pd.read_csv(\"sales.csv\")\n\n# bereinigt zuerst:\n# sales[\"price\"], sales[\"revenue\"], sales[\"payment\"], sales[\"stall_id\"]\n\nexpected = None    # was in jeden Umschlag gehört, pro stall_id\ntop_stall = None   # stall_id mit der größten Summe\n"
       },
       "check": {
         "type": "python",
@@ -229,14 +229,14 @@
         "de": "Der Umschlagtisch"
       },
       "text": {
-        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to the cash ledger's `expected` totals.\n\nThis editor only loads the two tables: bring the cash ledger's code to get `expected`. Merge the tables, work out how much each envelope is short (expected minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.",
-        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID, also braucht ihr `stalls.csv`, um sie mit den Summen `expected` aus dem Kassenbuch zu verbinden.\n\nDieser Editor lädt nur die beiden Tabellen: Holt euch den Code vom Kassenbuch, um `expected` zu bekommen. Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`."
+        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id; `stalls.csv` has both.\n\nMerge the tables, work out how much each envelope is short (what should be in it minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.",
+        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID; `stalls.csv` hat beides.\n\nVerbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\n# the cash ledger's code goes here (it gives you expected, one total per stall_id)\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and expected, then compare\n\nbadge = None     # badge number with the largest total shortfall\nmissing = None   # that badge's total shortfall in euros\n",
-        "de": "import pandas as pd\n\n# hierher gehört der Code vom Kassenbuch (er liefert expected, eine Summe pro stall_id)\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und expected und vergleicht dann\n\nbadge = None     # Ausweisnummer mit dem größten Fehlbetrag\nmissing = None   # dessen Fehlbetrag insgesamt, in Euro\n"
+        "en": "import pandas as pd\n\n# first: what should be in each envelope, one total per stall_id\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and what should be in each envelope, then compare\n\nbadge = None     # badge number with the largest total shortfall\nmissing = None   # that badge's total shortfall in euros\n",
+        "de": "import pandas as pd\n\n# zuerst: was in jedem Umschlag sein müsste, eine Summe pro stall_id\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und das Soll jedes Umschlags und vergleicht dann\n\nbadge = None     # Ausweisnummer mit dem größten Fehlbetrag\nmissing = None   # dessen Fehlbetrag insgesamt, in Euro\n"
       },
       "check": {
         "type": "python",
@@ -250,8 +250,8 @@
       "clues": [],
       "hints": [
         {
-          "en": "You can start without `expected`: `pd.merge(handover, stalls, on=\"stall\")` adds the `stall_id` to each envelope. For `expected`, paste the cash ledger's whole code (with its cleaning) at the top; `expected.reset_index(name=\"expected\")` turns it into a table you can merge `on=\"stall_id\"`.",
-          "de": "Ihr könnt ohne `expected` anfangen: `pd.merge(handover, stalls, on=\"stall\")` ergänzt jeden Umschlag um die `stall_id`. Für `expected` fügt ihr den ganzen Code vom Kassenbuch (mit der Bereinigung) oben ein; `expected.reset_index(name=\"expected\")` macht daraus eine Tabelle, die ihr `on=\"stall_id\"` verbinden könnt."
+          "en": "What should be in each envelope is the cash ledger's `expected`: paste its whole code (with the cleaning) at the top. `pd.merge(handover, stalls, on=\"stall\")` adds the `stall_id` to each envelope, and `expected.reset_index(name=\"expected\")` turns `expected` into a table you can merge `on=\"stall_id\"`.",
+          "de": "Was in jedem Umschlag sein müsste, ist `expected` vom Kassenbuch: Fügt dessen ganzen Code (mit der Bereinigung) oben ein. `pd.merge(handover, stalls, on=\"stall\")` ergänzt jeden Umschlag um die `stall_id`, und `expected.reset_index(name=\"expected\")` macht aus `expected` eine Tabelle, die ihr `on=\"stall_id\"` verbinden könnt."
         },
         {
           "en": "Then `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` and `df.groupby(\"badge\")[\"short\"].sum()`. A few cents either way are coins; look for the badge where it really adds up.",
@@ -371,8 +371,8 @@
         "de": "Helferplan"
       },
       "text": {
-        "en": "HELPERS · Saturday\n\nBadge 3: Greta Vogel (market manager)\n\nBadge 5: Jule Arslan\n\nBadge 7: Tobi Wendt\n\nBadge 9: Ben Schuster\n\nBadge 12: Mia Roth\n\nEach badge collects the cash envelopes of its stalls at 14:00.",
-        "de": "MARKTHILFEN · Samstag\n\nAusweis 3: Greta Vogel (Marktleitung)\n\nAusweis 5: Jule Arslan\n\nAusweis 7: Tobi Wendt\n\nAusweis 9: Ben Schuster\n\nAusweis 12: Mia Roth\n\nJeder Ausweis holt um 14:00 Uhr die Bargeldumschläge seiner Stände ab."
+        "en": "HELPERS · Saturday\n\nBadge 3: Greta Vogel (market manager)\n\nBadge 5: Jule Arslan\n\nBadge 7: Tobi Wendt\n\nBadge 9: Ben Schuster\n\nBadge 12: Mia Roth",
+        "de": "MARKTHILFEN · Samstag\n\nAusweis 3: Greta Vogel (Marktleitung)\n\nAusweis 5: Jule Arslan\n\nAusweis 7: Tobi Wendt\n\nAusweis 9: Ben Schuster\n\nAusweis 12: Mia Roth"
       }
     }
   ],

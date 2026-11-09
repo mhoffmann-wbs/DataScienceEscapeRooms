@@ -42,16 +42,17 @@ flowchart LR
   d_events --> events
   d_stages --> stages
 
-  itnote -->|"🔎 4–17 Mar 2024 = outage, 9999 = test booking;<br/>leave them empty"| gate
+  itnote -->|"🔎 4–17 Mar 2024 = outage, 9999 = test booking"| gate
   newspaper -->|"🔎 Line 7 opened 1 April 2023"| tram
   cheatsheet -.->|"🔎 forecast has a trend column"| tram
-  plannernotebook -->|"🔎 Marta: same day 364 days back;<br/>train to May 2025, test Jun–Sep"| planner
+  plannernotebook -->|"🔎 Marta: same day 364 days back"| planner
   cheatsheet -->|"🔎 seasonality_mode=multiplicative,<br/>or fit np.log y and take np.exp"| mode
   cheatsheet -.->|"🔎 components are shares of the trend"| events
   eventcalendar -->|"🔎 opening Fri–Sun: window 0..2;<br/>Lantern Night + eve: -1..0; 2021–2026"| events
   cheatsheet -->|"🔎 make_future_dataframe periods"| stages
-  eventcalendar -.->|"🔎 2026 opening Friday 19 June"| stages
-  orderform -->|"🔎 sum of Fri 19 – Sun 21 June 2026;<br/>must beat the best simple rule"| stages
+  eventcalendar -->|"🔎 2026 opening weekend = Fri 19 – Sun 21 June"| stages
+  newspaper -->|"🔎 opening day 1 April 2023,<br/>usually via the tram team"| stages
+  orderform -->|"🔎 sum of all days of the<br/>2026 opening weekend"| stages
   intro -.->|"📜 a forecast the order system trusts"| stages
 
   gate ==>|"📤 cleaned df: a row per day,<br/>0s and 9999s empty"| planner
@@ -60,7 +61,7 @@ flowchart LR
   gate ==>|"📤 cleaned df"| stages
   mode ==>|"📤 seasonality_mode = multiplicative"| events
 
-  tram ==>|"📤 changepoints = 2023-04-01"| stages
+  tram ==>|"📤 the festival trend bends<br/>on the line's opening day"| stages
   planner ==>|"📤 best baseline: 422 a day"| stages
   mode ==>|"📤 seasonality_mode = multiplicative"| stages
   events ==>|"📤 the events holidays table"| stages
@@ -101,7 +102,7 @@ The room has no `requires` and no code locks; every station is open from the sta
 ## Hand-offs
 
 - Between stations: 9 hard results. The cleaned `df` from the gate into 4 stations, the seasonality mode into the events desk, and into the stage order the changepoint, the 422 baseline, the mode and the `events` table.
-- From clues: 6 clues, all hard for at least one station (IT note → gate, City Courier → tram, planning notebook → planner, whiteboard → lighting desk and stage order, event calendar → events desk, stage order form → stage order). Soft extras: the whiteboard for the tram counter and the events desk, the event calendar for the stage order.
+- From clues: 6 clues, all hard for at least one station (IT note → gate, City Courier → tram and stage order, planning notebook → planner, whiteboard → lighting desk and stage order, event calendar → events desk and stage order, stage order form → stage order). Soft extras: the whiteboard for the tram counter and the events desk.
 
 ## Where things are
 
@@ -113,7 +114,14 @@ The map is 30 × 20 tiles: an office wing in the west (planning office, the gate
 
 ## Findings
 
-Fixed (this revision):
+Fixed in the second review (every clue once, no pointers to clues or other stations outside the hints, a clear goal per station):
+
+- **No task, starter or check message names a clue or another station.** Gone: "as the IT note says", "the other desks all start from your `df`", "(see the newspaper)", "the way the planning notebook says", "(see her notebook)", "from the event calendar on the noticeboard", "the mode that won at the lighting desk", "from the planner's rule", "the figure the stage order form asks for", "Copy your code from the gate scanner log here", and in the graders "copy your df from the gate scanner log", "(see the calendar)", "the lighting desk's seasonality mode", "Is it the figure the stage order form asks for?" and "Check the settings from the tram counter, the lighting desk and the events desk". Each station's hint 1 now says where to look.
+- **Each value lives once.** The test period (train to May 2025, test June–September 2025) is no longer on the planning notebook; it is task text. "Leave the uncounted days empty" is only in the gate's task (the IT note keeps the dates and 9999). "Must beat the best simple rule" is only in the stage order's task, not on the order form or in the planner's reveal ("Any model has to beat 422" is gone). The tram reveal no longer repeats Line 7's opening date or hands over `changepoints=["2023-04-01"]`; it says the festival trend bends on the same day, and the date stays on the City Courier. The order form no longer spells out 19–21 June; it asks for the whole 2026 opening weekend, which the event calendar dates. The events reveal no longer repeats "keep the 2026 dates".
+- **Goals up front:** the planner's rule asks "Which simple rule forecasts summer 2025 best?", the lighting desk "Which way do the seasons act on the crowd?". Every station already ended in checked values, so no booleans were added.
+- **Left:** the lighting desk's starter still fits and scores the additive model in full (`mae_additive`); it is the worked example of the Prophet-style API that the other two fits copy. A stricter version would leave it as `None`.
+
+Fixed (the first review):
 
 - The gate's `requires` are gone. The four later starters no longer contain the gate's cleaning code; they start from `df = None`, list `uses: ["gate"]`, and their graders reject any `df` that isn't the cleaned log. The gate's task, last hint and check now insist on keeping a row for every day (the planner's `shift(364)` needs it), and its reveal says to take the code along.
 - The stage order's `requires` on tram, lighting desk and events desk are now `uses`; its rejection texts name the stations to check instead of "multiplicative? the right changepoint?".

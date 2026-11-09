@@ -42,7 +42,7 @@ fuel = pd.Series([
 
 def _supply_check(chief_mae, holdout_mae, litres):
     """The supply terminal's check: the chief's error, the model's holdout error and the January 2026 order.
-    The model must be the echo chamber's airline model (holdout MAE about 269 l, January about 7220 l)."""
+    The model must be the station's airline model (holdout MAE about 269 l, January about 7220 l)."""
     def number(x):
         try:
             return float(x)
@@ -51,13 +51,13 @@ def _supply_check(chief_mae, holdout_mae, litres):
     chief_mae, holdout_mae, litres = number(chief_mae), number(holdout_mae), number(litres)
     problems = []
     if chief_mae is None or round(chief_mae) != 602:
-        problems.append("The terminal doesn't recognise mae_chief as the chief's error. Ask at the chief's desk. / Das Terminal erkennt mae_chief nicht als Fehler der Leiterin. Fragt am Schreibtisch der Leiterin nach.")
+        problems.append("The terminal doesn't recognise mae_chief as the chief's error. / Das Terminal erkennt mae_chief nicht als Fehler der Leiterin.")
     elif holdout_mae is None or holdout_mae >= chief_mae:
         problems.append("Order refused: that model doesn't beat the chief (mae_sarima). / Bestellung abgelehnt: Dieses Modell schlägt die Leiterin nicht (mae_sarima).")
     elif abs(holdout_mae - 269) > 10:
-        problems.append("Order refused: mae_sarima doesn't match the station's model (the echo chamber's winner on the repaired log) on the chief's test period. / Bestellung abgelehnt: mae_sarima passt nicht zum Modell der Station (dem Gewinner der Echokammer auf dem reparierten Logbuch) auf dem Testzeitraum der Leiterin.")
+        problems.append("Order refused: mae_sarima doesn't match the station's model on the repaired log, on the chief's test period. / Bestellung abgelehnt: mae_sarima passt nicht zum Modell der Station auf dem reparierten Logbuch, auf dem Testzeitraum der Leiterin.")
     if litres is None or abs(litres - 7220) > 15:
-        problems.append("Order refused: that January order doesn't match the station's model on the repaired log. Read the order form. / Bestellung abgelehnt: Diese Januar-Bestellung passt nicht zum Modell der Station auf dem reparierten Logbuch. Lest das Bestellformular.")
+        problems.append("Order refused: that January order doesn't match the station's model on the repaired log. / Bestellung abgelehnt: Diese Januar-Bestellung passt nicht zum Modell der Station auf dem reparierten Logbuch.")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

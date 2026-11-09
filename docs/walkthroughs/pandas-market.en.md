@@ -4,7 +4,7 @@
 
 ## Story
 
-> Saturday at the Kleeberg farmers' market. At 14:00 the helpers carried every stall's cash envelope to the market office, and Greta, the market manager, counted them. The total is short. She has locked the market hall: nobody leaves until the numbers add up.
+> Saturday at the Kleeberg farmers' market. At 14:00 the helpers carried every stall's envelope to the market office, and Greta, the market manager, counted them. The total is short. She has locked the market hall: nobody leaves until the numbers add up.
 >
 > The stalls' sales sheets are on the office computer as CSV files. Clean them up with pandas and find out where the money went. This room loads Python with pandas: the first puzzle you open takes a moment.
 
@@ -35,7 +35,7 @@
 >
 > How many stalls sell vegetables? Store the number in `n_veg`.
 >
-> A visitor left an angry complaint about one stall. Find that stall and store its `stall_id` in `suspect`.
+> One stall is suspected of short-changing a customer. Find it and store its `stall_id` in `suspect`.
 
 <details><summary>Starter code</summary>
 
@@ -46,7 +46,7 @@ stalls = pd.read_csv("stalls.csv")
 print(stalls.head())
 
 n_veg = None     # how many stalls sell vegetables?
-suspect = None   # stall_id of the stall in the complaint, e.g. "S01"
+suspect = None   # stall_id of the suspected stall, e.g. "S01"
 ```
 
 </details>
@@ -78,8 +78,8 @@ print(n_veg, suspect)
 
 **Hints:**
 
-1. `stalls.columns` lists the column names. `stalls[stalls["product"] == "vegetables"]` keeps only the matching rows, and `len(...)` counts them.
-2. The complaint is on the little table by the fountain. Two stalls sell honey; the market plan on the wall says which pitches are next to the fountain.
+1. A complaint lies on the little table by the fountain, and the market plan hangs on the wall. For the vegetables: `stalls[stalls["product"] == "vegetables"]` keeps only the matching rows, and `len(...)` counts them.
+2. Two stalls sell honey. Which of them has a pitch right next to the fountain? Filter by `product`, then look at `pitch`.
 3. `stalls[stalls["product"] == "honey"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the suspect is `"S04"`.
 
 ### 2. Price tags
@@ -90,7 +90,7 @@ print(n_veg, suspect)
 
 **Task:**
 
-> All stalls typed their sales into one sheet, `sales.csv`: one row per sale, with the quantity `qty` and the unit `price`. But `price` is text, written a different way at every stall, so pandas can't calculate with it.
+> All stalls typed their sales into one sheet, `sales.csv`: one row per sale, with the quantity `qty` and the unit `price`. But `price` is text, so pandas can't calculate with it.
 >
 > Turn `price` into numbers, add a column `revenue` (quantity × price), and store the day's total sales, cash and card together, in `total`.
 
@@ -135,8 +135,8 @@ print(round(total, 2))
 
 **Hints:**
 
-1. `sales["price"].unique()` shows every spelling. Text columns have `.str` methods, such as `.str.replace("€", "")` and `.str.strip()`.
-2. Remove the euro sign, turn the decimal comma into a point, strip the spaces, then convert with `.astype(float)`. The price board explains the spellings.
+1. The price board on the wall shows how the stalls write their prices. `sales["price"].unique()` shows every spelling. Text columns have `.str` methods, such as `.str.replace("€", "")` and `.str.strip()`.
+2. Remove the euro sign, turn the decimal comma into a point, strip the spaces, then convert with `.astype(float)`.
 3. `sales["price"] = sales["price"].str.replace("€", "").str.replace(",", ".").str.strip().astype(float)`, then `sales["revenue"] = sales["qty"] * sales["price"]` and `total = sales["revenue"].sum()`.
 
 ### 3. The card terminal
@@ -194,8 +194,8 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 
 **Hints:**
 
-1. `sales["payment"].value_counts()` lists every spelling with its count. There are 12 stalls, but `sales["stall_id"].nunique()` says more: print `sales["stall_id"].unique()` to see why.
-2. `.str.strip()` removes spaces, `.str.lower()` and `.str.upper()` fix the case. The market rules explain what `EC` means; `.replace({"ec": "card"})` renames a value.
+1. The market rules on the wall say what counts as a card payment. `sales["payment"].value_counts()` lists every spelling with its count. There are 12 stalls, but `sales["stall_id"].nunique()` says more: print `sales["stall_id"].unique()` to see why.
+2. `.str.strip()` removes spaces, `.str.lower()` and `.str.upper()` fix the case. `EC` is a card payment; `.replace({"ec": "card"})` renames a value.
 3. `sales["payment"] = sales["payment"].str.strip().str.lower().replace({"ec": "card"})`, `sales["stall_id"] = sales["stall_id"].str.strip().str.upper()`, then `n_cash = (sales["payment"] == "cash").sum()` and the same for `"card"`.
 
 ### 4. The cash ledger
@@ -206,9 +206,9 @@ print(n_cash, n_card, sales["stall_id"].nunique())
 
 **Task:**
 
-> Greta wants to know how much money each stall should have put in its envelope at 14:00. Careful: not every sale goes into an envelope.
+> Greta wants to know how much money each stall should have put in its envelope at 14:00.
 >
-> `sales.csv` is still raw here. Prices, payments and stall ids are cleaned at the price tags and the card terminal: get that code from your teammates.
+> `sales.csv` is still raw here: prices, payments and stall ids need cleaning before anything adds up.
 >
 > Add up `revenue` per stall with `groupby`, keeping only the sales that belong in the envelopes. Store the result in `expected` (a Series with one total per `stall_id`), and the stall with the largest total in `top_stall`.
 
@@ -219,7 +219,7 @@ import pandas as pd
 
 sales = pd.read_csv("sales.csv")
 
-# the cleaning from the price tags and the card terminal goes here:
+# clean these first:
 # sales["price"], sales["revenue"], sales["payment"], sales["stall_id"]
 
 expected = None    # what belongs in each envelope, per stall_id
@@ -269,22 +269,22 @@ print(top_stall)
 
 **Task:**
 
-> The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id, so you need `stalls.csv` to connect it to the cash ledger's `expected` totals.
+> The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id; `stalls.csv` has both.
 >
-> This editor only loads the two tables: bring the cash ledger's code to get `expected`. Merge the tables, work out how much each envelope is short (expected minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.
+> Merge the tables, work out how much each envelope is short (what should be in it minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.
 
 <details><summary>Starter code</summary>
 
 ```python
 import pandas as pd
 
-# the cash ledger's code goes here (it gives you expected, one total per stall_id)
+# first: what should be in each envelope, one total per stall_id
 
 stalls = pd.read_csv("stalls.csv")
 handover = pd.read_csv("handover.csv")
 print(handover.head())
 
-# connect handover, stalls and expected, then compare
+# connect handover, stalls and what should be in each envelope, then compare
 
 badge = None     # badge number with the largest total shortfall
 missing = None   # that badge's total shortfall in euros
@@ -330,7 +330,7 @@ print(badge, round(missing, 2))
 
 **Hints:**
 
-1. You can start without `expected`: `pd.merge(handover, stalls, on="stall")` adds the `stall_id` to each envelope. For `expected`, paste the cash ledger's whole code (with its cleaning) at the top; `expected.reset_index(name="expected")` turns it into a table you can merge `on="stall_id"`.
+1. What should be in each envelope is the cash ledger's `expected`: paste its whole code (with the cleaning) at the top. `pd.merge(handover, stalls, on="stall")` adds the `stall_id` to each envelope, and `expected.reset_index(name="expected")` turns `expected` into a table you can merge `on="stall_id"`.
 2. Then `df["short"] = df["expected"] - df["envelope_eur"]` and `df.groupby("badge")["short"].sum()`. A few cents either way are coins; look for the badge where it really adds up.
 3. `by_badge = df.groupby("badge")["short"].sum()`, then `badge = by_badge.idxmax()` and `missing = by_badge.max()`.
 
@@ -418,8 +418,6 @@ print(badge, round(missing, 2))
 > Badge 9: Ben Schuster
 >
 > Badge 12: Mia Roth
->
-> Each badge collects the cash envelopes of its stalls at 14:00.
 
 ## Handbook in the room: 📖 The market office's pandas binder
 

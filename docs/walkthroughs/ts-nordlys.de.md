@@ -31,7 +31,7 @@
 
 > Das Heizöl-Logbuch der Station ist die Grundlage jeder Prognose hier, aber der Zähler ist ein paarmal eingefroren und hat leere Monate hinterlassen.
 >
-> Findet heraus, wie viele Monate fehlen (`n_missing`), und füllt die Lücken so, wie es auf der Logbuchseite steht. Speichert das Ergebnis in `fuel_filled`. Kein Monat darf leer bleiben.
+> Findet heraus, wie viele Monate fehlen (`n_missing`), und füllt die Lücken. Speichert das Ergebnis in `fuel_filled`. Kein Monat darf leer bleiben.
 
 <details><summary>Startcode</summary>
 
@@ -43,7 +43,7 @@ print(fuel.head(12))
 show_plot(fuel, title="Heizöl pro Monat")
 
 n_missing = 0          # wie viele Monate haben keinen Messwert?
-fuel_filled = fuel     # die Reihe mit gefüllten Lücken (siehe Logbuchseite)
+fuel_filled = fuel     # die Reihe mit gefüllten Lücken
 ```
 
 </details>
@@ -68,13 +68,11 @@ show_plot(fuel, fuel_filled, labels=["with gaps", "filled"], title="Fuel per mon
 **Zeigt nach dem Lösen:**
 
 > Das Logbuch ist wieder vollständig: vier eingefrorene Monate mit `fuel.interpolate(method="time")` gefüllt, im Verhältnis zur Zeit zwischen den Messungen.
->
-> Jede Station, die mit dem Heizöl-Logbuch arbeitet, braucht es genau so repariert.
 
 **Hinweise:**
 
-1. `fuel.isna()` markiert die leeren Monate; `.sum()` zählt sie, und `fuel[fuel.isna()]` zeigt, welche es sind.
-2. pandas kann Lücken zwischen bekannten Werten füllen: `Series.interpolate`. Die Logbuchseite verlangt eine Füllung im Verhältnis zur Zeit, also `method="time"`.
+1. Eine lose Seite aus dem Logbuch sagt, wie Sigrid Lücken füllt. `fuel.isna()` markiert die leeren Monate; `.sum()` zählt sie, und `fuel[fuel.isna()]` zeigt, welche es sind.
+2. pandas kann Lücken zwischen bekannten Werten füllen: `Series.interpolate`. Eine Füllung im Verhältnis zur Zeit ist `method="time"`.
 3. `n_missing = int(fuel.isna().sum())` und `fuel_filled = fuel.interpolate(method="time")`.
 
 ### 2. Der driftende Gefriersensor
@@ -87,7 +85,7 @@ show_plot(fuel, fuel_filled, labels=["with gaps", "filled"], title="Fuel per mon
 
 > Der Probengefrierschrank ist mit einem zweistelligen Tastenfeld gesichert. Sein Temperaturprotokoll ist als `freezer` geladen.
 >
-> Der Code steckt darin, wie die Temperatur von Stunde zu Stunde schwankt: Die Notiz des Technikers erklärt, wie man ihn abliest. Gebt die zwei Ziffern ein.
+> Findet den Code: Er steckt darin, wie die Temperatur von Stunde zu Stunde schwankt. Gebt die zwei Ziffern ein.
 
 <details><summary>Startcode</summary>
 
@@ -97,10 +95,6 @@ from helpers import show_plot
 
 # freezer ist geladen: ein Temperaturwert pro Stunde.
 show_plot(freezer, title="Temperatur im Gefrierschrank")
-
-# 1. Entfernt die Drift des Sensors (siehe Notiz des Technikers).
-# 2. Passt ein AR(2)-Modell an das an, was übrig bleibt, zum Beispiel:
-#    sm.tsa.ARIMA(werte, order=(2, 0, 0), trend="n").fit().params
 ```
 
 </details>
@@ -127,7 +121,7 @@ print(f"{abs(round(ar1 * 10))}{abs(round(ar2 * 10))}")
 
 **Hinweise:**
 
-1. Plottet `freezer`: Die Kurve kriecht in einer Geraden nach oben. Diese Gerade ist der Sensor, nicht der Gefrierschrank. Passt sie mit `np.polyfit(stunden, freezer.values, 1)` an und zieht sie ab.
+1. Eine Notiz des Technikers im Labor erklärt den Sensor und den Code. Plottet `freezer`: Die Kurve kriecht in einer Geraden nach oben. Diese Gerade ist der Sensor, nicht der Gefrierschrank. Passt sie mit `np.polyfit(stunden, freezer.values, 1)` an und zieht sie ab.
 2. Differenziert keine gerade Drift: Das verzerrt die Schwankungen und ergibt den falschen Code. Passt `sm.tsa.ARIMA(residuen, order=(2, 0, 0), trend="n").fit()` auf die trendbereinigten Werte an und seht euch `.params` an.
 3. Die beiden AR-Koeffizienten sind etwa 0,59 und −0,29. Mal zehn, gerundet, ohne Vorzeichen: Der Code ist 63.
 
@@ -139,10 +133,10 @@ print(f"{abs(round(ar1 * 10))}{abs(round(ar2 * 10))}")
 
 **Aufgabe:**
 
-> Bevor man einem Modell traut, muss es die Faustregeln schlagen, die schon benutzt werden. Testet zwei davon auf dem Testzeitraum, den das Notizbuch der Leiterin nennt, und trainiert auf allem davor:
+> Bevor man einem Modell traut, muss es die Faustregeln schlagen, die schon benutzt werden. Wie weit liegen zwei davon daneben? Testet sie auf dem Testzeitraum der Leiterin und trainiert auf allem davor:
 >
 > `naive`: jeder Testmonat gleich dem letzten Trainingsmonat.
-> `seasonal_naive`: die Regel der Leiterin selbst, so wie sie sie in ihrem Notizbuch beschreibt.
+> `seasonal_naive`: die Regel der Leiterin selbst.
 >
 > Berechnet ihre mittleren absoluten Fehler in Litern als `mae_naive` und `mae_snaive`.
 
@@ -151,7 +145,7 @@ print(f"{abs(round(ar1 * 10))}{abs(round(ar2 * 10))}")
 ```python
 # fuel ist geladen: Liter pro Monat, 2010 bis 2025. Seine eingefrorenen Monate
 # liegen lange vor dem Testzeitraum und spielen hier keine Rolle.
-train = None   # alles vor dem Testzeitraum (siehe Notizbuch der Leiterin)
+train = None   # alles vor dem Testzeitraum
 test = None    # der Testzeitraum, z. B. fuel["2019-01":"2019-12"]
 
 # Prognostiziert den Testzeitraum auf zwei Arten, nur mit train:
@@ -188,8 +182,6 @@ show_plot(train["2021":], test, seasonal_naive, labels=["train", "test", "season
 **Zeigt nach dem Lösen:**
 
 > Die Faustregel der Leiterin (saisonal naiv) liegt im Schnitt **602 Liter** pro Monat daneben, die naive Prognose 1519.
->
-> Das Versorgungsterminal wird nach den 602 der Leiterin fragen, und nach einem Modell, das sie auf demselben Testzeitraum schlägt, 2024–2025.
 
 **Hinweise:**
 
@@ -205,9 +197,9 @@ show_plot(train["2021":], test, seasonal_naive, labels=["train", "test", "season
 
 **Aufgabe:**
 
-> SARIMA-Modelle müssen wissen, wie weit die Reihe von stationär entfernt ist. Die Anzeige an der Wand führt einen ADF-Test aus und wird erst unter p = 0,05 grün.
+> Welche Transformationen machen das Heizöl-Logbuch stationär? SARIMA-Modelle müssen das wissen. Die Anzeige an der Wand führt einen ADF-Test aus und wird erst unter p = 0,05 grün.
 >
-> Das Heizöl-Logbuch hat noch seine eingefrorenen Monate: Repariert sie genau so, wie es die Logbuch-Station tut. Transformiert die Reihe dann Schritt für Schritt, wie es die Anzeigetafel beschreibt, bis sie stationär ist. Speichert das Ergebnis in `stationary` (ohne die leeren Zeilen, die beim Differenzieren entstehen) und seinen ADF-p-Wert in `adf_p`.
+> Das Heizöl-Logbuch hat noch seine eingefrorenen Monate: Repariert sie zuerst. Transformiert die Reihe dann Schritt für Schritt, bis sie stationär ist. Speichert das Ergebnis in `stationary` (ohne die leeren Zeilen, die beim Differenzieren entstehen) und seinen ADF-p-Wert in `adf_p`.
 
 <details><summary>Startcode</summary>
 
@@ -215,10 +207,10 @@ show_plot(train["2021":], test, seasonal_naive, labels=["train", "test", "season
 from statsmodels.tsa.stattools import adfuller
 from helpers import show_plot
 
-fuel_filled = fuel   # hat noch die eingefrorenen Monate: repariert sie wie die Logbuch-Station
+fuel_filled = fuel   # hat noch die eingefrorenen Monate: repariert sie
 print("ADF-p-Wert, unverändert:", adfuller(fuel_filled.dropna())[1])
 
-stationary = fuel_filled   # Schritt für Schritt transformieren (siehe Anzeigetafel)
+stationary = fuel_filled   # Schritt für Schritt transformieren
 adf_p = adfuller(stationary.dropna())[1]
 print("ADF-p-Wert:", adf_p)
 show_plot(stationary, title="Was die Anzeige sieht")
@@ -247,11 +239,11 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 
 **Zeigt nach dem Lösen:**
 
-> Die Nadel schwingt ins Grüne: **log → diff(12) → diff(1)**. Für ein Modell auf der Log-Skala heißt das d = 1 und D = 1: Die Echokammer muss das wissen.
+> Die Nadel schwingt ins Grüne: **log → diff(12) → diff(1)**.
 
 **Hinweise:**
 
-1. Fragt das Logbuch-Team, wie es die Lücken gefüllt hat, und füllt sie genauso: Eine andere Füllung ergibt eine leicht andere Reihe, und die Anzeige nimmt sie nicht an. Plottet dann die Reihe: Die Winterspitzen wachsen mit der Station. Das verlangt zuerst `np.log`, vor jedem Differenzieren.
+1. Fragt das Logbuch-Team, wie es die Lücken gefüllt hat, und füllt sie genauso: Eine andere Füllung ergibt eine leicht andere Reihe, und die Anzeige nimmt sie nicht an. Die Anzeigetafel daneben sagt, welche Schritte ihr in welcher Reihenfolge probiert. Plottet die Reihe: Die Winterspitzen wachsen mit der Station. Das verlangt zuerst `np.log`, vor jedem Differenzieren.
 2. Entfernt dann das Jahresmuster mit `.diff(12)` und den restlichen Trend mit `.diff(1)`. Prüft den p-Wert nach jedem Schritt; ein Schritt allein reicht nicht.
 3. `fuel_filled = fuel.interpolate(method="time")`, `stationary = np.log(fuel_filled).diff(12).diff(1).dropna()` und `adf_p = adfuller(stationary)[1]`.
 
@@ -263,9 +255,9 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 
 **Aufgabe:**
 
-> Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF der Reihe, mit der die Anzeige grün wurde. Lest die Echos mit dem Handbuch an der Wand und lasst dann die Daten zwischen den Kandidaten des Echolots entscheiden, so wie es das Handbuch sagt.
+> Welches Kandidatenmodell des Echolots passt am besten zum Heizöl-Logbuch? Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF des stationären Heizöl-Logbuchs.
 >
-> Die Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, die die Anzeige gebraucht hat, passt jeden Kandidaten auf die logarithmierten Trainingsdaten (bis 2023) an und speichert die Ordnungen des Gewinners in `order` und `seasonal_order`.
+> Die Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, mit denen die Reihe stationär wurde, passt jeden Kandidaten auf die logarithmierten Trainingsdaten an und speichert die Ordnungen des Gewinners in `order` und `seasonal_order`.
 
 <details><summary>Startcode</summary>
 
@@ -273,9 +265,9 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 import statsmodels.api as sm
 from helpers import plot_acf, plot_pacf
 
-fuel_filled = fuel           # die eingefrorenen Monate reparieren wie die Logbuch-Station
+fuel_filled = fuel           # hat noch die eingefrorenen Monate: repariert sie
 log_fuel = np.log(fuel_filled)
-stationary = None            # die Reihe, mit der die Anzeige grün wurde
+stationary = None            # das stationär gemachte Heizöl-Logbuch
 plot_acf(stationary)
 plot_pacf(stationary)
 
@@ -288,8 +280,8 @@ candidates = [
     ((2, 0), (0, 1)),
     ((0, 1), (1, 0)),
 ]
-# d und D: die Differenzen, die die Anzeige gebraucht hat, im Modell. Passt jeden auf train an:
-#   sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12)).fit(disp=False)
+# d und D: die Differenzen, mit denen die Reihe stationär wurde, im Modell.
+# Passt jeden Kandidaten auf train an.
 order = None            # der Gewinner als (p, d, q)
 seasonal_order = None   # und als (P, D, Q, 12)
 ```
@@ -327,12 +319,12 @@ order, seasonal_order = best[1], best[2]
 
 **Zeigt nach dem Lösen:**
 
-> Die Echos legen sich: **(0,1,1)(0,1,1,12)**, das klassische Airline-Modell. Ein kurzes Echo bei Lag 1 und eines bei Lag 12, sonst nichts. Das Versorgungsterminal nimmt nur die Zahlen dieses Modells an.
+> Die Echos legen sich: **(0,1,1)(0,1,1,12)**, das klassische Airline-Modell. Ein kurzes Echo bei Lag 1 und eines bei Lag 12, sonst nichts.
 
 **Hinweise:**
 
-1. Holt euch zuerst das Ergebnis der Anzeige: Es sagt, wie die Reihe stationär wird und welche d und D das bedeutet. Dann hat die ACF zwei deutliche Ausschläge, bei Lag 1 und Lag 12, während die PACF ausklingt; einzelne Balken, die das gestrichelte Band gerade berühren, sind Rauschen. Laut Handbuch heißt das MA-Terme: q = 1 und Q = 1.
-2. Passt auf `train` an (die Log-Reihe), nicht auf `stationary`: Mit d = 1 und D = 1 differenziert das Modell selbst. Die letzte Zeile des Handbuchs sagt, wie die Daten entscheiden: Geht in einer Schleife durch `candidates`, lest `.fit(disp=False).aic` und behaltet den kleinsten.
+1. Die stationäre Reihe ist das Ergebnis der Anzeige, und das Echolot-Handbuch an der Wand sagt, wie man die Echos liest. Jede Differenz, die die Anzeige gebraucht hat, wird eine Differenzierungsordnung im Modell: `.diff(1)` ist d = 1, `.diff(12)` ist D = 1. Die ACF hat zwei deutliche Ausschläge, bei Lag 1 und Lag 12, während die PACF ausklingt; einzelne Balken, die das gestrichelte Band gerade berühren, sind Rauschen. Laut Handbuch heißt das MA-Terme: q = 1 und Q = 1.
+2. Passt auf `train` an (die Log-Reihe), nicht auf `stationary`: Mit d = 1 und D = 1 differenziert das Modell selbst. Die letzte Zeile des Handbuchs sagt, wie die Daten entscheiden: Geht in einer Schleife durch `candidates`, passt `sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12))` an, lest `.fit(disp=False).aic` und behaltet den kleinsten.
 3. `stationary = log_fuel.diff(12).diff(1).dropna()`; mit d = D = 1 hat den kleinsten AIC (etwa −635) `order = (0, 1, 1)` mit `seasonal_order = (0, 1, 1, 12)`.
 
 ### 6. Das Versorgungsterminal (Abschluss-Schloss)
@@ -349,16 +341,16 @@ order, seasonal_order = best[1], best[2]
 
 > Die Heizung läuft wieder, sobald die Station das Heizöl für Januar bestellt. Das Terminal nimmt nur eine Bestellung vom Modell der Station an, und nur, wenn dieses Modell die Leiterin auf ihrem eigenen Testzeitraum schlägt.
 >
-> Setzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026, so geschrieben, wie es das Bestellformular verlangt). Das Terminal sagt euch, was ihm nicht passt.
+> Setzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026). Das Terminal sagt euch, was ihm nicht passt.
 
 <details><summary>Startcode</summary>
 
 ```python
 import statsmodels.api as sm
 
-fuel_filled = fuel   # die eingefrorenen Monate reparieren wie die Logbuch-Station
+fuel_filled = fuel   # hat noch die eingefrorenen Monate: repariert sie
 log_fuel = np.log(fuel_filled)
-order, seasonal_order = None, None   # der Gewinner aus der Echokammer
+order, seasonal_order = None, None   # das Modell der Station
 
 mae_chief = None     # der Fehler der Leiterin auf ihrem Testzeitraum, in Litern
 
@@ -366,7 +358,7 @@ mae_chief = None     # der Fehler der Leiterin auf ihrem Testzeitraum, in Litern
 #    anpassen, diesen Zeitraum prognostizieren und den MAE gegen die echten Liter berechnen.
 mae_sarima = None
 
-# 2. Auf ganz log_fuel anpassen und Januar 2026 prognostizieren (siehe Bestellformular).
+# 2. Auf ganz log_fuel anpassen und Januar 2026 prognostizieren.
 jan_2026 = None
 ```
 
@@ -398,7 +390,7 @@ show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 
 **Hinweise:**
 
-1. Bringt drei Dinge mit: `mae_chief` und ihren Testzeitraum aus der Methode der Leiterin, dazu `order` und `seasonal_order` aus der Echokammer. Passt `sm.tsa.SARIMAX(log_fuel[:letzter_trainingsmonat], order=order, seasonal_order=seasonal_order).fit(disp=False)` an und prognostiziert mit `.forecast()` so viele Monate, wie der Testzeitraum hat.
+1. Sigrids Bestellformular sagt, wie die Bestellung geschrieben wird. Bringt drei Dinge mit: `mae_chief` und ihren Testzeitraum aus der Methode der Leiterin, dazu `order` und `seasonal_order` aus der Echokammer. Passt `sm.tsa.SARIMAX(log_fuel[:letzter_trainingsmonat], order=order, seasonal_order=seasonal_order).fit(disp=False)` an und prognostiziert mit `.forecast()` so viele Monate, wie der Testzeitraum hat.
 2. Das Modell prognostiziert Log-Liter; das Bestellformular will echte Liter, also nehmt `np.exp`, bevor ihr vergleicht oder bestellt. Für Januar 2026 passt dasselbe Modell auf ganz `log_fuel` an und nutzt `.forecast(1)`.
 3. `fuel_filled = fuel.interpolate(method="time")`, das Modell ist (0,1,1)(0,1,1,12), das Training endet 2023-12 und der Testzeitraum hat 24 Monate. `mae_chief = 602`, `mae_sarima` liegt bei etwa 269 Litern und `jan_2026` bei etwa 7220 Litern.
 
@@ -438,7 +430,7 @@ show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 
 *Gebraucht von: 4. Die Stationaritätsanzeige*
 
-> STATIONARITÄTSANZEIGE · ADF-Test, grün unter p = 0,05
+> STATIONARITÄTSANZEIGE
 >
 > 1. Wachsen die Ausschläge mit dem Niveau? Zuerst logarithmieren.
 >
@@ -466,9 +458,7 @@ show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 
 > HEIZÖLBESTELLUNG · Januar 2026
 >
-> Liter: die Prognose des Stationsmodells, zurück auf der ursprünglichen Skala (nicht in Log-Einheiten!).
->
-> Angenommen werden nur Bestellungen von einem Modell, das die Methode der Leiterin auf ihrem eigenen Testzeitraum schlägt. Gebt auch ihren Fehler an, damit das Terminal vergleichen kann.
+> Liter: die Prognose, zurück auf der ursprünglichen Skala (nicht in Log-Einheiten!).
 >
 > Das Terminal ist mit einer PIN gesperrt. Sigrid bewahrt die PIN irgendwo im Kalten auf.
 

@@ -41,13 +41,13 @@ flowchart LR
   chiefnotebook -->|"🔎 rule = same month last year;<br/>test on 2024–2025"| chief
   gaugepanel -->|"🔎 log, then diff 1 year, then diff 1 month"| gauge
   echomanual -.->|"🔎 ACF/PACF cut-offs;<br/>lower AIC wins"| echo
-  orderform -->|"🔎 litres, not log units;<br/>state the chief's error"| supply
+  orderform -->|"🔎 litres, not log units"| supply
   intro -.->|"📜 a model must beat the chief's rule of thumb"| supply
 
   logbook ==>|"📤 interpolate method=time"| gauge
   logbook -.->|"📤 interpolate method=time;<br/>the AIC winner is the same on the gappy log"| echo
   logbook ==>|"📤 interpolate method=time"| supply
-  gauge ==>|"📤 log → diff 12 → diff 1;<br/>d = 1, D = 1"| echo
+  gauge ==>|"📤 log → diff 12 → diff 1<br/>(echo team turns it into d = 1, D = 1)"| echo
   chief ==>|"📤 mae_chief 602;<br/>test period 2024–2025"| supply
   echo ==>|"📤 (0,1,1)(0,1,1,12)"| supply
   freezer ==>|"🔒 PIN 4711"| supply
@@ -100,18 +100,26 @@ Tiles are 32 px; the map is 30 × 20 tiles: a boot room at the airlock (west), a
 
 ## Findings
 
-Fixed in this pass (previously listed here):
+Fixed in the second review (every clue once, no pointers to clues or other stations outside the hints, a clear goal per station):
+
+- **No task, starter or check message names a clue or another station.** Gone: "the way the logbook page describes", "the technician's note explains how to read it", "named in the chief's notebook", "as the gauge panel describes", "repair them as the logbook station does", "the series that turned the gauge green", "the differencing the gauge needed", "the winner from the echo chamber", "as the order form asks", and the supply check's "Ask at the chief's desk", "the echo chamber's winner" and "Read the order form". Each station's hint 1 now says where to look.
+- **Reveals no longer route the team.** The logbook's "every station needs it repaired this way", the chief's "the supply terminal will ask for 602 … 2024–2025" (the test period now lives only in the notebook), and the echo chamber's "the supply terminal only accepts this model" are gone. The gauge's reveal no longer works out d = 1 and D = 1 for the echo chamber; the echo team derives them from log → diff(12) → diff(1) (hint 1 explains how).
+- **Each rule lives once.** "Green below p = 0.05" is only in the gauge's task (the panel no longer repeats it); "beat the chief on her test period and state her error" is only in the supply task (the order form keeps only "litres, not log units").
+- **The starters no longer solve part of the task.** The freezer's starter no longer says "remove the drift, fit an AR(2), `sm.tsa.ARIMA(..., order=(2, 0, 0))`" (that is the technician's note, plus the fit call in hint 2 and the handbook); the echo chamber's starter no longer contains the `SARIMAX` call (now in hint 2 and the handbook).
+- **Goals up front:** the chief's method asks "How far off are two of them?", the gauge "Which transformations make the fuel log stationary?", the echo chamber "Which of the candidate models fits best?". Every station already ended in a checked value or code, so no booleans were added.
+
+Fixed in the first review:
 
 - `requires` everywhere → gone. The gauge, echo and supply starters no longer contain `interpolate(method="time")` or the log/diff transform; the gauge's check fails with any other fill (linear changes the std, dropping gaps changes the length), the echo candidates come as (p, q)(P, Q) and need d = D = 1 from the gauge (with d = D = 0 the AIC picks (1,0,0)(1,0,0,12)), and the supply check rejects an unfilled or forward-filled log.
 - The echo chamber's result is now needed: the supply check accepts only the airline model; the next-best candidates miss by 25 l on January ((1,1,1)(0,1,1,12)) or 23 l on the MAE ((2,1,0)(0,1,1,12)).
 - Freezer → supply is a code lock (PIN 4711); the `pin` variable is gone.
 - The check's messages no longer state 602 or hint at the log scale; the team brings `mae_chief` from the chief's station.
-- Soft clues: the chief's notebook is now the only source of the rule and the test period (task, starter and supply text no longer give them); the order form is the only place that asks for litres instead of log units and for the chief's error.
+- Soft clues: the chief's notebook is now the only source of the rule and the test period (task, starter and supply text no longer give them); the order form is the only place that asks for litres instead of log units.
 - 5 stations open from the start instead of 2.
 
 Left as they are:
 
-- **The echo manual stays soft.** The task text points to it for the selection rule, but "lower AIC wins" is common knowledge and the ACF/PACF reading isn't checked. Checking the reading would add a task; not worth the time budget.
+- **The echo manual stays soft.** Hint 1 points to it, but "lower AIC wins" is common knowledge and the ACF/PACF reading isn't checked. Checking the reading would add a task; not worth the time budget.
 - **The frosted window feeds nothing.** The season length 12 would be its natural value, but every student knows monthly data repeats every 12 months, so it couldn't be a hard clue.
 - **Small leaks of the test period:** the echo starter trains on `log_fuel[:"2023-12"]`, so a team reading the echo chamber's code can guess the chief's test period without the notebook. The echo chamber needs a fixed training window for its AIC comparison.
 - **The order form's "litres, not log" is partly common sense**: the supply starter asks for the MAE "against the real litres", which already implies `np.exp`.
