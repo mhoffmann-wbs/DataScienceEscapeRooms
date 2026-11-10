@@ -106,8 +106,8 @@ _TRAY_SPECIES = np.array([int(c) for c in {digits(tray_y)}])
 _TRAY_TAGS = {tags!r}
 
 
-def _tray_check(labels):
-    \'\'\'The tray's check: three groups, each holding exactly one species.\'\'\'
+def _tray_check(labels, X):
+    \'\'\'The tray's check: three groups, each holding exactly one species, and X the tray's four columns, scaled.\'\'\'
     a = _labels(labels, len(tray))
     if a is None:
         return _problems_or(["labels needs one group per envelope on the tray (200). / labels braucht eine Gruppe pro Umschlag auf dem Tablett (200)."], "")
@@ -124,6 +124,16 @@ def _tray_check(labels):
                 problems.append("Envelopes with the same tag ended up in different groups. / Umschläge mit demselben Etikett sind in verschiedenen Gruppen gelandet.")
             if mixed:
                 problems.append("Envelopes with different tags share a group. Look at the numbers: which column decides the distances? / Umschläge mit verschiedenen Etiketten teilen sich eine Gruppe. Schaut auf die Zahlen: Welche Spalte bestimmt die Abstände?")
+    try:
+        x = np.asarray(X, dtype=float)
+    except (TypeError, ValueError):
+        x = None
+    if x is None or x.shape != tray.shape:
+        problems.append("X must be all four columns of the tray, one row per envelope: the features KMeans compares. / X muss alle vier Spalten des Tabletts enthalten, eine Zeile pro Umschlag: die Merkmale, die KMeans vergleicht.")
+    elif not (np.allclose(x.mean(axis=0), 0, atol=0.05) and np.allclose(x.std(axis=0), 1, atol=0.05)):
+        problems.append("X isn't scaled: its columns still have very different ranges. Every column needs mean 0 and standard deviation 1. / X ist nicht skaliert: Die Spalten haben noch sehr verschiedene Bereiche. Jede Spalte braucht Mittelwert 0 und Standardabweichung 1.")
+    elif any(abs(np.corrcoef(x[:, j], tray.values[:, j])[0, 1]) < 0.999 for j in range(4)):
+        problems.append("X should be the tray's columns, scaled, in their order. / X soll die Spalten des Tabletts sein, skaliert, in ihrer Reihenfolge.")
     return _problems_or(problems, "sorted")
 ''')
 
@@ -221,6 +231,10 @@ def _elbow_check(inertias, silhouettes, k):
         problems.append("The inertia for k = 6 is higher than it can be: one run of KMeans got stuck. Let it start several times (n_init=10). / Die Inertia für k = 6 ist höher als möglich: Ein Durchlauf von KMeans ist hängen geblieben. Lasst es mehrmals starten (n_init=10).")
     elif abs(sil[4] - _SILHOUETTES[4]) > 0.01:
         problems.append("The silhouette for k = 6 is off: compute it on the scaled archive with the labels of that k. / Die Silhouette für k = 6 stimmt nicht: Berechnet sie auf dem skalierten Archiv mit den Labels dieses k.")
+    elif any(abs(a - b) > 0.02 for a, b in zip(sil[:5], _SILHOUETTES[:5])) or any(abs(a - b) > 0.25 for a, b in zip(sil[5:], _SILHOUETTES[5:])):
+        problems.append("The silhouettes don't match the scaled archive: one value per k from 2 to 10, each from that k's own labels. / Die Silhouetten passen nicht zum skalierten Archiv: ein Wert pro k von 2 bis 10, jeder aus den Labels seines k.")
+    elif any(not 0.9 * b <= a <= 1.25 * b for a, b in zip(ins[6:], _INERTIAS[6:])):
+        problems.append("The inertias for k = 7 to 10 don't match the scaled archive: fit KMeans for every k, not only the first few. / Die Inertias für k = 7 bis 10 passen nicht zum skalierten Archiv: Trainiert KMeans für jedes k, nicht nur für die ersten.")
     elif k != 6:
         problems.append("k is not the number of clusters both the elbow and the silhouette point to. / k ist nicht die Clusterzahl, auf die Ellbogen und Silhouette beide zeigen.")
     return _problems_or(problems, "six")
@@ -250,8 +264,8 @@ def _card_check(km, scaler, catalogue):
     return _problems_or(problems, "matched")
 
 
-def _sorter_check(old, best, biggest, as_good):
-    \'\'\'The old sorter's check: its run from the service sheet's start, a run that finds the best clusters, the old run's biggest drawer and the verdict.\'\'\'
+def _sorter_check(old, best, biggest, ratio):
+    \'\'\'The old sorter's check: its run from the service sheet's start, a run that finds the best clusters, the old run's biggest drawer and how much worse it is.\'\'\'
     problems = [p for p in (_model(old, "old"), _model(best, "best")) if p]
     if problems:
         return _problems_or(problems, "")
@@ -268,10 +282,12 @@ def _sorter_check(old, best, biggest, as_good):
         big_ok = False
     if not big_ok:
         problems.append("biggest isn't the number of envelopes in old's fullest drawer. / biggest ist nicht die Zahl der Umschläge in der vollsten Schublade von old.")
-    if not isinstance(as_good, (bool, np.bool_)):
-        problems.append("as_good should be True or False. / as_good soll True oder False sein.")
-    elif as_good:
-        problems.append("as_good is off: compare old.inertia_ with best.inertia_. / as_good stimmt nicht: Vergleicht old.inertia_ mit best.inertia_.")
+    try:
+        ratio_ok = abs(float(ratio) - old.inertia_ / best.inertia_) <= 0.15
+    except (TypeError, ValueError):
+        ratio_ok = False
+    if not ratio_ok:
+        problems.append("ratio isn't old.inertia_ divided by best.inertia_ (how many times larger the old machine's inertia is), rounded to one decimal. / ratio ist nicht old.inertia_ geteilt durch best.inertia_ (um das Wievielfache die Inertia der alten Maschine größer ist), auf eine Nachkommastelle gerundet.")
     return _problems_or(problems, "explained")
 
 
@@ -292,13 +308,26 @@ def _foreign_check(foreign):
     return _problems_or(problems, "quarantined")
 
 
-def _sowing_check(fields):
-    \'\'\'The final check: the catalogue number for each field, 0 for a seed that is no species of ours.\'\'\'
+def _sowing_check(scaler, km, catalogue, fields):
+    \'\'\'The final check: the archive's scaler, model and catalogue, and for each field the catalogue number they give its sample, 0 for a seed that is no species of ours.\'\'\'
+    problem = _model(km, "km")
+    if problem:
+        return _problems_or([problem], "")
+    problems = []
+    if len(km.cluster_centers_) != 6:
+        problems.append(f"km has {{len(km.cluster_centers_)}} clusters, not one per species. / km hat {{len(km.cluster_centers_)}} Cluster, nicht einen pro Art.")
+    elif not (hasattr(scaler, "mean_") and np.allclose(scaler.mean_, archive.values.mean(axis=0), rtol=1e-6) and np.allclose(scaler.scale_, archive.values.std(axis=0), rtol=1e-6)):
+        problems.append("scaler must be the StandardScaler fitted on the archive, not on the orders. / scaler muss der auf dem Archiv trainierte StandardScaler sein, nicht ein auf den Bestellungen trainierter.")
+    elif abs(km.inertia_ - _INERTIAS[5]) > 0.01 * _INERTIAS[5]:
+        problems.append("km should be KMeans on the scaled archive, one cluster per species, started several times (n_init=10). / km soll KMeans auf dem skalierten Archiv sein, ein Cluster pro Art, mehrmals gestartet (n_init=10).")
+    elif _card_check(km, scaler, catalogue) != "matched":
+        problems.append("catalogue doesn't match this km: every cluster needs the catalogue number of its species. / catalogue passt nicht zu diesem km: Jeder Cluster braucht die Katalognummer seiner Art.")
+    if problems:
+        return _problems_or(problems, "")
     try:
         got = [int(v) for v in (fields.values() if isinstance(fields, dict) else fields)]
     except (TypeError, ValueError):
         return _problems_or(["fields must be a list of six catalogue numbers, field 1 first. / fields muss eine Liste von sechs Katalognummern sein, Feld 1 zuerst."], "")
-    problems = []
     if len(got) != 6:
         problems.append(f"fields needs six numbers, one per field; you have {{len(got)}}. / fields braucht sechs Zahlen, eine pro Feld; ihr habt {{len(got)}}.")
     else:
@@ -310,6 +339,11 @@ def _sowing_check(fields):
             problems.append("These look like cluster numbers. The farmers order by catalogue number. / Das sehen nach Clusternummern aus. Die Bauern bestellen nach Katalognummer.")
         elif wrong:
             problems.append(f"Wrong species for field(s) {{', '.join(wrong)}}. / Falsche Art für Feld(er) {{', '.join(wrong)}}.")
+        if not problems:
+            d = km.transform(scaler.transform(orders))
+            cat = {{int(key): int(v) for key, v in dict(catalogue).items()}}
+            if got != [0 if row.min() > 2 else cat[int(row.argmin())] for row in d]:
+                problems.append("fields isn't what your scaler, km and catalogue give for the orders. / fields ist nicht das, was euer scaler, km und catalogue für die Bestellungen ergeben.")
     return _problems_or(problems, "sown")
 ''')
 

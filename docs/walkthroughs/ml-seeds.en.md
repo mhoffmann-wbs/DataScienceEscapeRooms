@@ -35,7 +35,7 @@
 >
 > They are loaded as `tray`: length and width in mm, weight in mg, and brightness from 0 (black) to 255 (white).
 >
-> 1. Group the envelopes into three clusters with `KMeans`, and store each envelope's cluster as `labels` (one per row of `tray`, in order). Each cluster should be one species.
+> 1. Group the envelopes into three clusters with `KMeans` on the features in `X`, and store each envelope's cluster as `labels` (one per row of `tray`, in order). Each cluster should be one species.
 
 <details><summary>Starter code</summary>
 
@@ -46,8 +46,9 @@ from helpers import show_scatter
 # tray is loaded: 200 envelopes, indexed by envelope number.
 print(tray.describe().round(1))
 
+X = tray       # the features KMeans compares
 km = KMeans(n_clusters=3, n_init=10, random_state=0)
-labels = km.fit_predict(tray)
+labels = km.fit_predict(X)
 
 print(tray.assign(group=labels).head(12))
 show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray")
@@ -70,7 +71,7 @@ print(pd.Series(labels).value_counts())
 show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray, scaled")
 ```
 
-**Checked result** (`_tray_check(labels)`):
+**Checked result** (`_tray_check(labels, X)`):
 
 ```json
 "sorted"
@@ -158,7 +159,7 @@ k = 6
 
 > **Six** species. The inertia falls steeply up to k = 6 and hardly at all after it, and the silhouette is highest at k = 6: there the clusters are tight and far apart.
 >
-> The curator's card index should have a card for each of them.
+> The curator's species cards list eight species, so two of them are not in this archive.
 
 **Hints:**
 
@@ -179,7 +180,7 @@ k = 6
 > 1. Run KMeans on the scaled archive the way the old machine does, as `old`. Pass the starting centres with `init=`: one row per cluster, scaled like the archive.
 > 2. Run it the modern way as `best`: the same number of clusters, k-means++ starts and `n_init=10`.
 > 3. Count the envelopes in each of the old machine's drawers, and store how many land in the fullest one as `biggest`.
-> 4. Compare `old.inertia_` with `best.inertia_`. Are the old machine's clusters as good as the modern ones? Store `as_good` (`True` or `False`).
+> 4. Compare `old.inertia_` with `best.inertia_`: how many times larger is the old machine's? Store it, rounded to one decimal, as `ratio`.
 
 <details><summary>Starter code</summary>
 
@@ -196,7 +197,7 @@ old = None     # KMeans as the old machine runs it
 best = None    # KMeans with k-means++ and n_init=10
 
 biggest = None # envelopes in the old machine's fullest drawer
-as_good = None # True or False
+ratio = None   # old.inertia_ compared with best.inertia_, one decimal
 ```
 
 </details>
@@ -216,11 +217,11 @@ best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)
 print(round(old.inertia_, 1), round(best.inertia_, 1))
 print("old drawers:", np.bincount(old.labels_))
 biggest = np.bincount(old.labels_).max()
-as_good = bool(old.inertia_ <= best.inertia_ * 1.01)
+ratio = round(old.inertia_ / best.inertia_, 1)
 print("best drawers:", np.bincount(best.labels_))
 ```
 
-**Checked result** (`_sorter_check(old, best, biggest, as_good)`):
+**Checked result** (`_sorter_check(old, best, biggest, ratio)`):
 
 ```json
 "explained"
@@ -236,7 +237,7 @@ print("best drawers:", np.bincount(best.labels_))
 
 1. The old sorter's service sheet says how it starts: it lists six envelope numbers. `archive.loc[[2, 3, 4, 8, 1, 7]]` picks those rows by envelope number, and `scaler.transform(...)` scales them like the rest.
 2. `old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)`. With fixed start points nothing in the run is random.
-3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. `np.bincount(old.labels_)` counts the envelopes in each drawer, so `biggest = np.bincount(old.labels_).max()`. The old inertia is about three times the best, so `as_good = False`.
+3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. `np.bincount(old.labels_)` counts the envelopes in each drawer, so `biggest = np.bincount(old.labels_).max()`. Then `ratio = round(old.inertia_ / best.inertia_, 1)`.
 
 ### 4. The card index
 
@@ -293,9 +294,9 @@ centres["envelopes"] = np.bincount(km.labels_)
 print(centres.round(1))
 
 cards = pd.DataFrame(
-    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2],
-     "weight_mg": [25, 240, 30, 600, 33, 55], "brightness": [45, 175, 140, 85, 205, 125]},
-    index=[1, 2, 3, 4, 5, 6])   # catalogue numbers, typical values from the species cards
+    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0, 13.0, 4.2], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2, 3.5, 2.0],
+     "weight_mg": [25, 240, 30, 600, 33, 55, 60, 5], "brightness": [45, 175, 140, 85, 205, 125, 20, 70]},
+    index=[1, 2, 3, 4, 5, 6, 7, 8])   # catalogue numbers, typical values from the species cards
 # Each cluster gets the card closest to its centre (compared on the scaled axes).
 catalogue = {}
 for cluster, centre in enumerate(km.cluster_centers_):
@@ -396,16 +397,17 @@ print(archive.loc[foreign])
 **Needs:** 4. The card index (its result), 5. The stereo microscope (its result), 🔒 3. The old sorting machine, 🔎 The cooperative's field map, 🔎 The curator's species cards, 🔎 Notice from the plant health inspection  
 **Data:** [archive.py](../../content/rooms/ml-seeds/data/archive.py)
 
-**Code lock** (opens with `556302`):
+**Code lock** (opens with `55630245`):
 
-> The cold store's steel door has a six-digit keypad. Taped next to it: "PIN = how many envelopes the old sorting machine puts in its biggest drawer, then how many envelopes of rye the card index counts."
+> The cold store's steel door has a eight-digit keypad. Taped next to it: "PIN = how many envelopes the old sorting machine puts in its biggest drawer, then how many envelopes of rye the card index counts, then the lowest envelope number among the foreign seeds the inspection finds."
 
 **Task:**
 
 > Behind the door wait the cooperative's six order slips, loaded as `orders`, one per field. Every farm sent last year's sample seed with its order, and the machine measured each one: the same four columns as the archive. Sow each field with its species, by catalogue number.
 >
-> 1. Assign each sample to a species with the archive's scaler and KMeans model.
-> 2. Store `fields`: six catalogue numbers, field 1 first.
+> 1. Set up the archive's scaler, its KMeans model (one cluster per species) and the catalogue for that model.
+> 2. Assign each sample to a species with them.
+> 3. Store `fields`: six catalogue numbers, field 1 first.
 
 <details><summary>Starter code</summary>
 
@@ -439,9 +441,9 @@ scaler = StandardScaler()
 X = scaler.fit_transform(archive)
 km = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)
 cards = pd.DataFrame(
-    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2],
-     "weight_mg": [25, 240, 30, 600, 33, 55], "brightness": [45, 175, 140, 85, 205, 125]},
-    index=[1, 2, 3, 4, 5, 6])   # catalogue numbers, typical values from the species cards
+    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0, 13.0, 4.2], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2, 3.5, 2.0],
+     "weight_mg": [25, 240, 30, 600, 33, 55, 60, 5], "brightness": [45, 175, 140, 85, 205, 125, 20, 70]},
+    index=[1, 2, 3, 4, 5, 6, 7, 8])   # catalogue numbers, typical values from the species cards
 catalogue = {}
 for cluster, centre in enumerate(km.cluster_centers_):
     catalogue[cluster] = int(cards.index[((scaler.transform(cards) - centre) ** 2).sum(axis=1).argmin()])
@@ -451,7 +453,7 @@ fields = [0 if d[i].min() > 2 else catalogue[int(d[i].argmin())] for i in range(
 print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 ```
 
-**Checked result** (`_sowing_check(fields)`):
+**Checked result** (`_sowing_check(scaler, km, catalogue, fields)`):
 
 ```json
 "sown"
@@ -493,7 +495,7 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 *Used by: 4. The card index, 6. The cold store*
 
-> A typical seed of each species, as the sorting machine measures it (length × width, weight, brightness from 0 to 255):
+> A typical seed of each species in the curator's catalogue, as the sorting machine measures it (length × width, weight, brightness from 0 to 255):
 >
 > **1 Buckwheat**: 5.5 × 4.0 mm, 25 mg, very dark (45)
 > **2 Pea**: 7.5 × 7.0 mm, 240 mg, pale (175)
@@ -501,6 +503,8 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 > **4 Field bean**: 15 × 10 mm, 600 mg, dark (85)
 > **5 Oat**: 10.5 × 2.8 mm, 33 mg, very pale (205)
 > **6 Lentil**: 5.0 × 5.2 mm, 55 mg, brown (125)
+> **7 Sunflower**: 13 × 3.5 mm, 60 mg, very dark (20)
+> **8 Flax**: 4.2 × 2.0 mm, 5 mg, brown (70)
 
 ### 🔎 The old sorter's service sheet
 
@@ -508,7 +512,6 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 > SORTER 2000 · service sheet
 >
-> Clusters: 6
 > Start centres: envelopes 2, 3, 4, 8, 1, 7 (in this order)
 > Restarts: none, saves time! (n_init = 1)
 >

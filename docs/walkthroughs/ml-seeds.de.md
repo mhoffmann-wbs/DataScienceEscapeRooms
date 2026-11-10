@@ -35,7 +35,7 @@
 >
 > Sie sind als `tray` geladen: Länge und Breite in mm, Gewicht in mg und Helligkeit von 0 (schwarz) bis 255 (weiß).
 >
-> 1. Teilt die Umschläge mit `KMeans` in drei Cluster und speichert den Cluster jedes Umschlags als `labels` (einer pro Zeile von `tray`, in dieser Reihenfolge). Jeder Cluster soll eine Art sein.
+> 1. Teilt die Umschläge mit `KMeans` in drei Cluster, auf den Merkmalen in `X`, und speichert den Cluster jedes Umschlags als `labels` (einer pro Zeile von `tray`, in dieser Reihenfolge). Jeder Cluster soll eine Art sein.
 
 <details><summary>Startcode</summary>
 
@@ -46,8 +46,9 @@ from helpers import show_scatter
 # tray ist geladen: 200 Umschläge, mit der Umschlagnummer als Index.
 print(tray.describe().round(1))
 
+X = tray       # die Merkmale, die KMeans vergleicht
 km = KMeans(n_clusters=3, n_init=10, random_state=0)
-labels = km.fit_predict(tray)
+labels = km.fit_predict(X)
 
 print(tray.assign(group=labels).head(12))
 show_scatter(tray.length_mm, tray.width_mm, c=labels, title="Das Tablett")
@@ -70,7 +71,7 @@ print(pd.Series(labels).value_counts())
 show_scatter(tray.length_mm, tray.width_mm, c=labels, title="The tray, scaled")
 ```
 
-**Geprüftes Ergebnis** (`_tray_check(labels)`):
+**Geprüftes Ergebnis** (`_tray_check(labels, X)`):
 
 ```json
 "sorted"
@@ -158,7 +159,7 @@ k = 6
 
 > **Sechs** Arten. Die Inertia fällt bis k = 6 steil und danach kaum noch, und die Silhouette ist bei k = 6 am höchsten: Dort sind die Cluster eng und weit voneinander entfernt.
 >
-> Der Karteikasten der Kuratorin sollte für jede davon eine Karte haben.
+> Die Artenkarten der Kuratorin führen acht Arten auf, also sind zwei davon nicht in diesem Archiv.
 
 **Hinweise:**
 
@@ -179,7 +180,7 @@ k = 6
 > 1. Lasst KMeans auf dem skalierten Archiv so laufen wie die alte Maschine, als `old`. Übergebt die Startzentren mit `init=`: eine Zeile pro Cluster, skaliert wie das Archiv.
 > 2. Lasst es auf die moderne Art laufen, als `best`: mit gleich vielen Clustern, k-means++-Starts und `n_init=10`.
 > 3. Zählt die Umschläge in jeder Schublade der alten Maschine und speichert, wie viele in der vollsten landen, als `biggest`.
-> 4. Vergleicht `old.inertia_` mit `best.inertia_`. Sind die Cluster der alten Maschine so gut wie die modernen? Speichert `as_good` (`True` oder `False`).
+> 4. Vergleicht `old.inertia_` mit `best.inertia_`: Um das Wievielfache ist die der alten Maschine größer? Speichert es, auf eine Nachkommastelle gerundet, als `ratio`.
 
 <details><summary>Startcode</summary>
 
@@ -196,7 +197,7 @@ old = None     # KMeans so, wie die alte Maschine es laufen lässt
 best = None    # KMeans mit k-means++ und n_init=10
 
 biggest = None # Umschläge in der vollsten Schublade der alten Maschine
-as_good = None # True oder False
+ratio = None   # old.inertia_ im Vergleich zu best.inertia_, eine Nachkommastelle
 ```
 
 </details>
@@ -216,11 +217,11 @@ best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)
 print(round(old.inertia_, 1), round(best.inertia_, 1))
 print("old drawers:", np.bincount(old.labels_))
 biggest = np.bincount(old.labels_).max()
-as_good = bool(old.inertia_ <= best.inertia_ * 1.01)
+ratio = round(old.inertia_ / best.inertia_, 1)
 print("best drawers:", np.bincount(best.labels_))
 ```
 
-**Geprüftes Ergebnis** (`_sorter_check(old, best, biggest, as_good)`):
+**Geprüftes Ergebnis** (`_sorter_check(old, best, biggest, ratio)`):
 
 ```json
 "explained"
@@ -236,7 +237,7 @@ print("best drawers:", np.bincount(best.labels_))
 
 1. Das Wartungsblatt der alten Sortiermaschine sagt, wie sie startet: Es nennt sechs Umschlagnummern. `archive.loc[[2, 3, 4, 8, 1, 7]]` wählt diese Zeilen über die Umschlagnummer aus, und `scaler.transform(...)` skaliert sie wie den Rest.
 2. `old = KMeans(n_clusters=6, init=start, n_init=1).fit(X)`. Mit festen Startpunkten ist an diesem Lauf nichts zufällig.
-3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. `np.bincount(old.labels_)` zählt die Umschläge in jeder Schublade, also `biggest = np.bincount(old.labels_).max()`. Die alte Inertia ist etwa dreimal so hoch wie die beste, also `as_good = False`.
+3. `best = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)`. `np.bincount(old.labels_)` zählt die Umschläge in jeder Schublade, also `biggest = np.bincount(old.labels_).max()`. Dann `ratio = round(old.inertia_ / best.inertia_, 1)`.
 
 ### 4. Der Karteikasten
 
@@ -293,9 +294,9 @@ centres["envelopes"] = np.bincount(km.labels_)
 print(centres.round(1))
 
 cards = pd.DataFrame(
-    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2],
-     "weight_mg": [25, 240, 30, 600, 33, 55], "brightness": [45, 175, 140, 85, 205, 125]},
-    index=[1, 2, 3, 4, 5, 6])   # catalogue numbers, typical values from the species cards
+    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0, 13.0, 4.2], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2, 3.5, 2.0],
+     "weight_mg": [25, 240, 30, 600, 33, 55, 60, 5], "brightness": [45, 175, 140, 85, 205, 125, 20, 70]},
+    index=[1, 2, 3, 4, 5, 6, 7, 8])   # catalogue numbers, typical values from the species cards
 # Each cluster gets the card closest to its centre (compared on the scaled axes).
 catalogue = {}
 for cluster, centre in enumerate(km.cluster_centers_):
@@ -396,16 +397,17 @@ print(archive.loc[foreign])
 **Braucht:** 4. Der Karteikasten (sein Ergebnis), 5. Das Stereomikroskop (sein Ergebnis), 🔒 3. Die alte Sortiermaschine, 🔎 Die Feldkarte der Genossenschaft, 🔎 Die Artenkarten der Kuratorin, 🔎 Aushang der Pflanzengesundheitsprüfung  
 **Daten:** [archive.py](../../content/rooms/ml-seeds/data/archive.py)
 
-**Zahlenschloss** (öffnet mit `556302`):
+**Zahlenschloss** (öffnet mit `55630245`):
 
-> Die Stahltür des Kühllagers hat ein sechsstelliges Tastenfeld. Daneben klebt: „PIN = wie viele Umschläge die alte Sortiermaschine in ihre größte Schublade steckt, dann wie viele Umschläge Roggen der Karteikasten zählt.“
+> Die Stahltür des Kühllagers hat ein achtstelliges Tastenfeld. Daneben klebt: „PIN = wie viele Umschläge die alte Sortiermaschine in ihre größte Schublade steckt, dann wie viele Umschläge Roggen der Karteikasten zählt, dann die niedrigste Umschlagnummer unter den fremden Samen, die die Kontrolle findet.“
 
 **Aufgabe:**
 
 > Hinter der Tür warten die sechs Bestellzettel der Genossenschaft, geladen als `orders`, einer pro Feld. Jeder Hof hat mit seiner Bestellung den Probensamen vom letzten Jahr geschickt, und die Maschine hat jeden gemessen: dieselben vier Spalten wie im Archiv. Besät jedes Feld mit seiner Art, nach Katalognummer.
 >
-> 1. Ordnet jede Probe mit dem Scaler und dem KMeans-Modell des Archivs einer Art zu.
-> 2. Speichert `fields`: sechs Katalognummern, Feld 1 zuerst.
+> 1. Richtet den Scaler des Archivs, sein KMeans-Modell (ein Cluster pro Art) und den catalogue für dieses Modell ein.
+> 2. Ordnet jede Probe damit einer Art zu.
+> 3. Speichert `fields`: sechs Katalognummern, Feld 1 zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -439,9 +441,9 @@ scaler = StandardScaler()
 X = scaler.fit_transform(archive)
 km = KMeans(n_clusters=6, n_init=10, random_state=0).fit(X)
 cards = pd.DataFrame(
-    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2],
-     "weight_mg": [25, 240, 30, 600, 33, 55], "brightness": [45, 175, 140, 85, 205, 125]},
-    index=[1, 2, 3, 4, 5, 6])   # catalogue numbers, typical values from the species cards
+    {"length_mm": [5.5, 7.5, 7.0, 15.0, 10.5, 5.0, 13.0, 4.2], "width_mm": [4.0, 7.0, 2.3, 10.0, 2.8, 5.2, 3.5, 2.0],
+     "weight_mg": [25, 240, 30, 600, 33, 55, 60, 5], "brightness": [45, 175, 140, 85, 205, 125, 20, 70]},
+    index=[1, 2, 3, 4, 5, 6, 7, 8])   # catalogue numbers, typical values from the species cards
 catalogue = {}
 for cluster, centre in enumerate(km.cluster_centers_):
     catalogue[cluster] = int(cards.index[((scaler.transform(cards) - centre) ** 2).sum(axis=1).argmin()])
@@ -451,7 +453,7 @@ fields = [0 if d[i].min() > 2 else catalogue[int(d[i].argmin())] for i in range(
 print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 ```
 
-**Geprüftes Ergebnis** (`_sowing_check(fields)`):
+**Geprüftes Ergebnis** (`_sowing_check(scaler, km, catalogue, fields)`):
 
 ```json
 "sown"
@@ -493,7 +495,7 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 *Gebraucht von: 4. Der Karteikasten, 6. Das Kühllager*
 
-> Ein typischer Samen jeder Art, wie die Sortiermaschine ihn misst (Länge × Breite, Gewicht, Helligkeit von 0 bis 255):
+> Ein typischer Samen jeder Art im Katalog der Kuratorin, wie die Sortiermaschine ihn misst (Länge × Breite, Gewicht, Helligkeit von 0 bis 255):
 >
 > **1 Buchweizen**: 5,5 × 4,0 mm, 25 mg, sehr dunkel (45)
 > **2 Erbse**: 7,5 × 7,0 mm, 240 mg, hell (175)
@@ -501,6 +503,8 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 > **4 Ackerbohne**: 15 × 10 mm, 600 mg, dunkel (85)
 > **5 Hafer**: 10,5 × 2,8 mm, 33 mg, sehr hell (205)
 > **6 Linse**: 5,0 × 5,2 mm, 55 mg, braun (125)
+> **7 Sonnenblume**: 13 × 3,5 mm, 60 mg, sehr dunkel (20)
+> **8 Lein**: 4,2 × 2,0 mm, 5 mg, braun (70)
 
 ### 🔎 Das Wartungsblatt der alten Sortiermaschine
 
@@ -508,7 +512,6 @@ print(orders.assign(nearest=d.min(axis=1).round(2), catalogue=fields))
 
 > SORTER 2000 · Wartungsblatt
 >
-> Cluster: 6
 > Startzentren: Umschläge 2, 3, 4, 8, 1, 7 (in dieser Reihenfolge)
 > Neustarts: keine, spart Zeit! (n_init = 1)
 >

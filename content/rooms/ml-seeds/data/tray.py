@@ -229,8 +229,8 @@ _TRAY_SPECIES = np.array([int(c) for c in (
 _TRAY_TAGS = {'rye': [3, 5, 9, 12], 'lentil': [2, 4, 6, 7], 'bean': [1, 10, 13, 17]}
 
 
-def _tray_check(labels):
-    '''The tray's check: three groups, each holding exactly one species.'''
+def _tray_check(labels, X):
+    '''The tray's check: three groups, each holding exactly one species, and X the tray's four columns, scaled.'''
     a = _labels(labels, len(tray))
     if a is None:
         return _problems_or(["labels needs one group per envelope on the tray (200). / labels braucht eine Gruppe pro Umschlag auf dem Tablett (200)."], "")
@@ -247,4 +247,14 @@ def _tray_check(labels):
                 problems.append("Envelopes with the same tag ended up in different groups. / Umschläge mit demselben Etikett sind in verschiedenen Gruppen gelandet.")
             if mixed:
                 problems.append("Envelopes with different tags share a group. Look at the numbers: which column decides the distances? / Umschläge mit verschiedenen Etiketten teilen sich eine Gruppe. Schaut auf die Zahlen: Welche Spalte bestimmt die Abstände?")
+    try:
+        x = np.asarray(X, dtype=float)
+    except (TypeError, ValueError):
+        x = None
+    if x is None or x.shape != tray.shape:
+        problems.append("X must be all four columns of the tray, one row per envelope: the features KMeans compares. / X muss alle vier Spalten des Tabletts enthalten, eine Zeile pro Umschlag: die Merkmale, die KMeans vergleicht.")
+    elif not (np.allclose(x.mean(axis=0), 0, atol=0.05) and np.allclose(x.std(axis=0), 1, atol=0.05)):
+        problems.append("X isn't scaled: its columns still have very different ranges. Every column needs mean 0 and standard deviation 1. / X ist nicht skaliert: Die Spalten haben noch sehr verschiedene Bereiche. Jede Spalte braucht Mittelwert 0 und Standardabweichung 1.")
+    elif any(abs(np.corrcoef(x[:, j], tray.values[:, j])[0, 1]) < 0.999 for j in range(4)):
+        problems.append("X should be the tray's columns, scaled, in their order. / X soll die Spalten des Tabletts sein, skaliert, in ihrer Reihenfolge.")
     return _problems_or(problems, "sorted")
