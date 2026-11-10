@@ -110,6 +110,13 @@ The post office has three parts: the public counter hall by the exit (where the 
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **The final could be passed without the scanner station.** The check only looked at `bins`, so a team could train the apprentice's script and read the six urgent letters by eye off `show_images`. The check is now `_sort_check(model, letters, bins)`: `letters` must be the urgent letters in Iris's format (`1 - urgent.reshape(6, 16, 16) / 255`, or the same inks on the 0 to 255 scale when the model has a `Rescaling` layer), and `bins` must be what the team's own model predicts from those `letters` (as well as the right bins). Inverting without dividing by 255 and unconverted letters are both rejected now. The task lists the three steps (train, prepare `letters`, read).
+- **Early stopping was not checked.** The model must now have been trained with validation cards (`val_loss` in `model.history`), as Ferdinand's rules say; a fit without `validation_split` is rejected. The stopper itself is still not required (it can't be seen from the model).
+- The checker keeps a private copy of `urgent` (`_urgent`), so overwriting `urgent` can't change what is compared.
+- Tried and not shortcuts: summing the numbers of a clue (the lock 18858 only comes from the blueprint's count, the postcode and reading are not typed anywhere before their station); a 1-epoch model (56 %), 100 samples (27 %), no scaling with 30 epochs (65 %) and ReLU on the output (`nan`, 10 %) all fail the 85 % of Jonas's laptop, so all three of Jonas's mistakes have to be fixed.
+
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **No task names its clues any more.** The scanner's task no longer says the manual explains the reading order or that the type plate gives the pixel format; the final no longer says the departure board gives the bins or that the blueprint, the fixed script and Ferdinand's rules say how to train; the cabinet no longer says "as Ferdinand's rules say"; the start panel's lock text no longer says the rules explain the code. Grader messages lost "check her type plate", "see its manual", "on the blueprint", "as Ferdinand's note says" and "Iris 2 from the blueprint". Where to look is in each puzzle's first hint.
@@ -125,6 +132,6 @@ Fixed while building:
 Left as they are:
 
 - **Jonas's note is soft on purpose:** its "categorical crossentropy must be right" is the debugging station's red herring.
-- **Early stopping isn't checked in the final.** The archive barely overfits within 30 epochs, so a team without it still passes; Ferdinand's rules matter for the start code, not for the training.
-- **Inverting the urgent letters without dividing by 255 passes:** scaling every input by the same factor rarely changes a ReLU network's argmax. Only the inversion is caught (unconverted letters all read as 2).
-- **The postcode 35781 goes nowhere;** what the final needs from the scanner is the conversion the team worked out there (the reveal no longer restates it; the final's hint 2 does).
+- **The stopper isn't required in the final.** The archive barely overfits within 30 epochs, so a team that trains with a validation split but no `EarlyStopping` still passes; Ferdinand's rules matter for the start code (the cabinet's lock), not for the training.
+- **Training on the test cards passes Jonas's 85 %** (about 90 % when fitted on `x_test`). It is no skip: the loss, softmax and scaling fixes are still needed. A hidden second test set would close it.
+- **The postcode 35781 goes nowhere;** what the final needs from the scanner is the conversion the team worked out there, which `letters` now checks (the reveal no longer restates it; the final's hint 2 does).

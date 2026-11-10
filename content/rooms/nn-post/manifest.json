@@ -295,8 +295,8 @@
         "de": "Iris"
       },
       "text": {
-        "en": "Time for the night sort. Which bins do the six urgent letters go into? They wait in Iris's tray, `urgent`: for each letter the one postcode box Iris sorts by, straight from the scanner, one row of 256 values per letter.\n\n1. Build and train Iris 2 on the archive. She needs at least 90 % on the test cards.\n2. Let her read the urgent letters, and store their bins in order as `bins`, a list of six numbers.",
-        "de": "Zeit für die Nachtsortierung. In welche Fächer gehören die sechs Eilbriefe? Sie warten in Iris' Fach, `urgent`: für jeden Brief das eine Postleitzahl-Kästchen, nach dem Iris sortiert, direkt vom Scanner, eine Zeile mit 256 Werten pro Brief.\n\n1. Baut und trainiert Iris 2 mit dem Archiv. Sie braucht mindestens 90 % auf den Testkarten.\n2. Lasst sie die Eilbriefe lesen, und speichert ihre Fächer der Reihe nach als `bins`, eine Liste aus sechs Zahlen."
+        "en": "Time for the night sort. Which bins do the six urgent letters go into? They wait in Iris's tray, `urgent`: for each letter the one postcode box Iris sorts by, straight from the scanner, one row of 256 values per letter.\n\n1. Build and train Iris 2 on the archive, following Ferdinand's rules. She needs at least 90 % on the test cards.\n2. Prepare the urgent letters for her as `letters`, with the shape `(6, 16, 16)`.\n3. Let her read them, and store their bins in order as `bins`, a list of six numbers.",
+        "de": "Zeit für die Nachtsortierung. In welche Fächer gehören die sechs Eilbriefe? Sie warten in Iris' Fach, `urgent`: für jeden Brief das eine Postleitzahl-Kästchen, nach dem Iris sortiert, direkt vom Scanner, eine Zeile mit 256 Werten pro Brief.\n\n1. Baut und trainiert Iris 2 mit dem Archiv, nach Ferdinands Regeln. Sie braucht mindestens 90 % auf den Testkarten.\n2. Bereitet die Eilbriefe für sie als `letters` auf, mit der Form `(6, 16, 16)`.\n3. Lasst sie sie lesen, und speichert ihre Fächer der Reihe nach als `bins`, eine Liste aus sechs Zahlen."
       },
       "workspace": "python",
       "starter": {
@@ -306,7 +306,7 @@
       "data": "archive.py",
       "check": {
         "type": "python",
-        "expr": "_sort_check(model, bins)",
+        "expr": "_sort_check(model, letters, bins)",
         "hash": "ebe40908916342d67e8e599d6fa3da6b6ffdc3774530661036768139275d993c"
       },
       "lock": {

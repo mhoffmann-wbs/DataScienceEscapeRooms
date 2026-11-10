@@ -2773,6 +2773,7 @@ urgent = 255 - _levels((
     "HL/m5kFyotWxh9hV4izyzTdBxD8i9q1jni+FC2Xm7559i27I0wxwrvs+kccV8gjknjMzE6V3LADRkGyh3DY43nfBbrj3atN+yteH"
     "rCNSrVJbE9a/poJgGMd/kU5X750IWpDV6ZvUtLzk+G9ISgrf"
 ), (6, 256))
+_urgent = urgent.copy()
 _URGENT_BINS = [4, 7, 1, 9, 2, 6]
 
 
@@ -2805,13 +2806,23 @@ def _apprentice_check(model):
     return _problems_or(problems, "in service")
 
 
-def _sort_check(model, bins):
-    """The midnight sort: a well-trained Iris 2 and the right bins for the six urgent letters."""
+def _sort_check(model, letters, bins):
+    import tensorflow as tf
     problems = _iris2_layout(model)
+    rescales = False
     if not problems:
+        rescales = any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers)
         acc = _accuracy(model)
         if not acc >= 0.9:
             problems.append(f"model reads only {acc:.0%} of the test cards; the night sort needs at least 90 %. / model liest nur {acc:.0%} der Testkarten; die Nachtsortierung braucht mindestens 90 %.")
+        elif "val_loss" not in (getattr(getattr(model, "history", None), "history", None) or {}):
+            problems.append("model wasn't trained with validation cards: Ferdinand's rules keep 20 % of the cards aside (validation_split) and let EarlyStopping watch them. / model wurde nicht mit Validierungskarten trainiert: Ferdinands Regeln legen 20 % der Karten beiseite (validation_split) und lassen EarlyStopping sie beobachten.")
+    expected = 1 - _urgent.reshape(6, 16, 16) / 255
+    l = _array(letters, (6, 16, 16))
+    if l is None:
+        problems.append("letters should be an array of shape (6, 16, 16): the six urgent letters as 16 x 16 images. / letters soll ein Array der Form (6, 16, 16) sein: die sechs Eilbriefe als 16 x 16-Bilder.")
+    elif not (np.allclose(l, expected, atol=1e-6) or (rescales and np.allclose(l, 255 * expected, atol=1e-3))):
+        problems.append("letters aren't in the format Iris reads yet: the scanner's format has to be converted just like at the scanner. Look at them with show_images. / letters haben noch nicht das Format, das Iris liest: Das Format des Scanners muss so umgerechnet werden wie am Scanner. Schaut sie mit show_images an.")
     try:
         bins = [int(b) for b in bins]
     except (TypeError, ValueError):
@@ -2820,4 +2831,11 @@ def _sort_check(model, bins):
         problems.append("bins should be a list of 6 numbers: the bin of each urgent letter, in order. / bins soll eine Liste von 6 Zahlen sein: das Fach jedes Eilbriefs, der Reihe nach.")
     elif bins != _URGENT_BINS:
         problems.append("bins are wrong. Look at the urgent letters with show_images: do they look like Iris's cards? / bins stimmen nicht. Schaut euch die Eilbriefe mit show_images an: Sehen sie aus wie Iris' Karten?")
+    elif not problems:
+        try:
+            read = model.predict(l, verbose=0).argmax(axis=1).tolist()
+        except Exception:
+            read = None
+        if read != bins:
+            problems.append("bins aren't what your model reads from your letters: let Iris read them with predict and argmax. / bins sind nicht das, was euer Modell aus euren letters liest: Lasst Iris sie mit predict und argmax lesen.")
     return _problems_or(problems, "sorted")

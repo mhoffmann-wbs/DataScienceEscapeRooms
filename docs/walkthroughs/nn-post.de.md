@@ -388,8 +388,9 @@ print(best_epoch, stop_epoch, kept_epoch)
 
 > Zeit für die Nachtsortierung. In welche Fächer gehören die sechs Eilbriefe? Sie warten in Iris' Fach, `urgent`: für jeden Brief das eine Postleitzahl-Kästchen, nach dem Iris sortiert, direkt vom Scanner, eine Zeile mit 256 Werten pro Brief.
 >
-> 1. Baut und trainiert Iris 2 mit dem Archiv. Sie braucht mindestens 90 % auf den Testkarten.
-> 2. Lasst sie die Eilbriefe lesen, und speichert ihre Fächer der Reihe nach als `bins`, eine Liste aus sechs Zahlen.
+> 1. Baut und trainiert Iris 2 mit dem Archiv, nach Ferdinands Regeln. Sie braucht mindestens 90 % auf den Testkarten.
+> 2. Bereitet die Eilbriefe für sie als `letters` auf, mit der Form `(6, 16, 16)`.
+> 3. Lasst sie sie lesen, und speichert ihre Fächer der Reihe nach als `bins`, eine Liste aus sechs Zahlen.
 
 <details><summary>Startcode</summary>
 
@@ -438,7 +439,7 @@ bins = model.predict(letters).argmax(axis=1).tolist()
 print(bins)
 ```
 
-**Geprüftes Ergebnis** (`_sort_check(model, bins)`):
+**Geprüftes Ergebnis** (`_sort_check(model, letters, bins)`):
 
 ```json
 "sorted"

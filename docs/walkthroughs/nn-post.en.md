@@ -388,8 +388,9 @@ print(best_epoch, stop_epoch, kept_epoch)
 
 > Time for the night sort. Which bins do the six urgent letters go into? They wait in Iris's tray, `urgent`: for each letter the one postcode box Iris sorts by, straight from the scanner, one row of 256 values per letter.
 >
-> 1. Build and train Iris 2 on the archive. She needs at least 90 % on the test cards.
-> 2. Let her read the urgent letters, and store their bins in order as `bins`, a list of six numbers.
+> 1. Build and train Iris 2 on the archive, following Ferdinand's rules. She needs at least 90 % on the test cards.
+> 2. Prepare the urgent letters for her as `letters`, with the shape `(6, 16, 16)`.
+> 3. Let her read them, and store their bins in order as `bins`, a list of six numbers.
 
 <details><summary>Starter code</summary>
 
@@ -438,7 +439,7 @@ bins = model.predict(letters).argmax(axis=1).tolist()
 print(bins)
 ```
 
-**Checked result** (`_sort_check(model, bins)`):
+**Checked result** (`_sort_check(model, letters, bins)`):
 
 ```json
 "sorted"
