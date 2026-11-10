@@ -104,6 +104,11 @@ The room is a hotel ground floor: the marble lobby with the reception counter an
 
 ## Findings
 
+Fixed in the fifth review (the door-lock server no longer leads straight to the thief):
+
+- **No door event after the theft points at 406 any more.** M-02 used to open 406 at 02:52, five minutes after 404, so the door-lock server's card and the guard's 02:50 were enough to find the room with one query around 02:50, and the encoder and security PC added nothing. That opening moved to 21:48: the thief tried the stolen card on their own door twice in the evening (21:20, 21:48) and came back after the theft through a door left on the latch.
+- So only the security PC's window, which starts when Otto lost the card (21:05, from the encoder), finds 406. From 22:00 (Victor away) or 23:00 (the logbook entry) M-02 opened only 404; with no window, 404 and 406 tie among seven rooms. The security PC's result and every hash stayed the same.
+
 Fixed in the fourth review (the bar till is needed to escape):
 
 - **Room 406 has a second guest, Theo Lambert** (booking 18, card C-406B), so the code 406 points at two people. Theo signed a receipt at the night bar at 02:48, inside the bar till's window, so only Nora is left. The phone's `uses` now names the bar till.
@@ -135,6 +140,5 @@ Fixed in the first review:
 Left as they are:
 
 - **A team that skips the bar till could still guess between Nora and Theo** at the phone. The answer box doesn't limit tries; the debrief shows the skipped station.
-- **A team that queries M-02 freely at the security PC sees 406 right after 404 at 02:52.** That is the station meant to find it, so this is fine.
 - **Every station shares one database**, so a team could re-derive M-02 at any station by repeating the door-lock query; the hand-off saves that work rather than making it impossible.
 - **The portrait is flavour only**, by design.
