@@ -111,6 +111,11 @@ flowchart LR
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **The packing check only looked at the box count and the last box,** so a hand-written last box passed. It now checks every box (`[list(b) for b in boxes]`).
+- **Tested and not shortcuts:** the fee ledger's wrong-but-obvious variants all fail (float `round` gives 6.23, `Decimal` with the default half-even rounding 6.25, no rounding 6.255, the answer is 6.30); the stamp format variants (`%Y` with `%V`, `%G` with `%W` or `%w`, `%Y-W%W-%w`) all fail on the New Year dates; the version answer 91012 and the door can't be reached without the lookups.
+
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **No task or starter names its clue any more.** The returns cart's task no longer says Margarete's note says how she wants the books, the packing table's no longer says "as the box label says", the ledger's task and starter no longer say "as the fee rules say" / "see the fee rules", the terminal's no longer says the list is pinned next to it, and the stamp machine's no longer says "in the format on the machine's instructions". Where to look is now in each puzzle's first hint.
@@ -118,7 +123,7 @@ Fixed in the second review (every clue once, no pointers to clues outside the hi
 
 Still open (from the first review):
 
-- **The packing table doesn't need the docs.** A loop over `sorted(book_ids)` packs the boxes without `itertools.batched`; only the box label is hard. It's also the smallest station (one line with `batched`). Options: ask for a second thing only the `batched` entry says (what happens with `strict=True` on the short last box), or keep it as the gentle start.
+- **The packing table doesn't need the docs.** A slicing loop over `sorted(book_ids)` packs the boxes without `itertools.batched`; only the box label is hard. Same for the cart (hand-ordering 12 titles, or trying both sort orders) and the ledger (integer cent arithmetic): trial and error works but needs the reasoning the station teaches. It's also the smallest station (one line with `batched`). Options: ask for a second thing only the `batched` entry says (what happens with `strict=True` on the short last box), or keep it as the gentle start.
 - **No station needs another station's result,** only the terminal's PIN. That keeps four lanes open in parallel but means little talk between them, apart from the final digits. A link could be: the fee ledger's titles come off the returns cart, or the stamp tray holds the books from the packing table.
 - **The digits are fixed in the reveals,** not derived from the results (as in the other rooms). Fine for the door, but a team could share them across teams.
 - **Doc facts are pinned to 3.14.** The version notes never change; the round note, the HOWTO and the format-code table could be reworded in later editions. Re-check when Pyodide's Python moves.

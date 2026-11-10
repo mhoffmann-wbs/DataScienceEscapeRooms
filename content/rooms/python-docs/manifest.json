@@ -92,8 +92,8 @@
       "data": "boxes.py",
       "check": {
         "type": "python",
-        "expr": "[len(boxes), list(boxes[-1])]",
-        "hash": "be0e12cb3f5adabe5118dd5269d75502fa564d5ae7a1c8706c43d05370c6ba8b"
+        "expr": "[list(b) for b in boxes]",
+        "hash": "496c718f74ae26828db848231ee0ed3e4a65ee7427e9ccb5c5bb7e6c54c54346"
       },
       "practises": {
         "en": "Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters.",
