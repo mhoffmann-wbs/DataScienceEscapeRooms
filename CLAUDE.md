@@ -29,6 +29,7 @@ npm test             # Vitest, all tests
 npx vitest run path/to/file.test.ts   # single test file
 npx vitest run -t "test name"         # single test by name
 node scripts/generate-art.mjs               # regenerate the tileset and the avatar parts sheet
+node scripts/generate-brand.mjs             # redraw the logo and banner in docs/brand/ from the game art
 npm run validate-rooms                # room tests: manifests, map placement, data files, reference solutions
 node scripts/maps/<roomId>.mjs        # rebuild a room's map.json from its ASCII layout script
 node scripts/maps/render.mjs content/rooms/<roomId>/map.json out.png --objects   # preview a map as a PNG
