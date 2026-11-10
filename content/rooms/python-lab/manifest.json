@@ -46,8 +46,8 @@
         "hash": "ba961a22c40d0a7f81bb4cc4b1a771c2581053b98420f8b066fc4f06632d4795"
       },
       "reveal": {
-        "en": "The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:\n\n\"Note to self: never write the override order on the whiteboard again! It goes ● ▲ ◆ ■.\"",
-        "de": "Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:\n\n\"Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ● ▲ ◆ ■.\""
+        "en": "The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:\n\n\"Note to self: never write the override order on the whiteboard again! It goes ■ ● ▲ ◆.\"",
+        "de": "Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:\n\n\"Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ■ ● ▲ ◆.\""
       },
       "practises": {
         "en": "Variables, string methods (`.upper()`), turning numbers into text with `str()`, `len()`",
@@ -138,11 +138,11 @@
       "check": {
         "type": "python",
         "expr": "[decode(line) for line in notes[\"en\"] + notes[\"de\"]]",
-        "hash": "1bd8b76ebecee5d4d6dbabf367fc09fa699c9203a97261a8352b597b669bd3e0"
+        "hash": "72a0a3304b6ffd9d69e237bf4d939fd69971f4d7945ca6c735be65b70f6c23ad"
       },
       "reveal": {
-        "en": "The decrypted notes:\n\n\"Day 212: the caps only glow when it is cold.\n\nI moved all glowing samples into the freezer.\n\nFreezer lock: add up the spore counts of the samples listed on its door.\n\nThe override digit in these notes is three.\"",
-        "de": "Die entschlüsselten Notizen:\n\n\"Tag 212: Die Hüte leuchten nur, wenn es kalt ist.\n\nIch habe alle leuchtenden Proben in den Gefrierschrank gelegt.\n\nGefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.\n\nDie Override-Ziffer in diesen Notizen ist drei.\""
+        "en": "The decrypted notes:\n\n\"Day 212: the caps only glow when it is cold.\n\nI moved my best glowing samples into the freezer.\n\nFreezer lock: of the samples listed on its door, the largest spore count minus the smallest.\n\nThe override digit in these notes is three.\"",
+        "de": "Die entschlüsselten Notizen:\n\n\"Tag 212: Die Hüte leuchten nur, wenn es kalt ist.\n\nIch habe meine besten leuchtenden Proben in den Gefrierschrank gelegt.\n\nGefrierschloss: Von den Proben auf seiner Tür die größte Sporenzahl minus die kleinste.\n\nDie Override-Ziffer in diesen Notizen ist drei.\""
       },
       "practises": {
         "en": "Strings: reversing with `[::-1]`, looping over characters, building a string, writing a function",
@@ -185,7 +185,7 @@
       "check": {
         "type": "answer",
         "mode": "number",
-        "hash": "0643e807123de0f22da9db18793b86e396e7b84ef2c43a929d7f8eb118c4486a"
+        "hash": "bbf5d430c8782a209d7ddbea7a1bc81a06ad6faf5432188e6b33c162f429f4c8"
       },
       "uses": [
         "notebook"
@@ -195,8 +195,8 @@
         "de": "Das Schloss springt auf, und kalter Nebel quillt heraus. Zwischen den vereisten Probenröhrchen steht ein Fläschchen mit einem Etikett: **4**"
       },
       "practises": {
-        "en": "Dictionaries: nested lookups, looping over `.items()`, filtering with conditions",
-        "de": "Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen"
+        "en": "Dictionaries: nested lookups, looping over `.items()`, filtering with conditions, `max()` and `min()`",
+        "de": "Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen, `max()` und `min()`"
       },
       "hints": [
         {
@@ -208,8 +208,8 @@
           "de": "`catalog[\"M-04\"][\"spores\"]` schlägt einen Wert nach. Um die verschmierte Probe zu finden, geht mit `for sample_id, info in catalog.items():` durch den Katalog und prüft `sample_id.startswith(\"M-1\")` und `info[\"glows\"]`."
         },
         {
-          "en": "The smudged sample is M-13. The code is the sum of the spore counts of M-04, M-09 and M-13.",
-          "de": "Die verschmierte Probe ist M-13. Der Code ist die Summe der Sporenzahlen von M-04, M-09 und M-13."
+          "en": "The smudged sample is M-13. The code is the largest spore count of M-04, M-09 and M-13 minus the smallest: put the three counts in a list and use `max(counts) - min(counts)`.",
+          "de": "Die verschmierte Probe ist M-13. Der Code ist die größte Sporenzahl von M-04, M-09 und M-13 minus die kleinste: Packt die drei Zahlen in eine Liste und nehmt `max(counts) - min(counts)`."
         }
       ]
     },
@@ -273,7 +273,7 @@
       "check": {
         "type": "answer",
         "mode": "exact",
-        "hash": "fdbda4cc71c8dc41199fab204dfff640b3736f16c0070a4ac077cff0df6f6c95"
+        "hash": "8bf5ad06a721c72eb751fe3ced4d5b65164145c14fae6f4d15f5d46f5b7fbb8e"
       },
       "uses": [
         "terminal",
@@ -300,8 +300,8 @@
           "de": "Idas Entwurf auf ihrem Terminal gibt die Reihenfolge als vier Formen an. Das Whiteboard zeigt, welche Form zu welcher Station gehört."
         },
         {
-          "en": "The order is ● ▲ ◆ ■: incubator, notebook, freezer, ventilation.",
-          "de": "Die Reihenfolge ist ● ▲ ◆ ■: Inkubator, Notizbuch, Gefrierschrank, Lüftung."
+          "en": "The order is ■ ● ▲ ◆: ventilation, incubator, notebook, freezer.",
+          "de": "Die Reihenfolge ist ■ ● ▲ ◆: Lüftung, Inkubator, Notizbuch, Gefrierschrank."
         }
       ]
     }
@@ -512,6 +512,14 @@
               "de": "Kurz für `total = total + x`. So zählt oder summiert man in einer Schleife; vor der Schleife mit `total = 0` beginnen. Ein einfaches `total = x` würde den Wert jedes Mal überschreiben."
             },
             "link": "https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements"
+          },
+          {
+            "name": "max(items)  min(items)",
+            "text": {
+              "en": "The largest and the smallest element of a list: `max([3, 9, 4])` is `9`, `min([3, 9, 4])` is `3`.",
+              "de": "Das größte und das kleinste Element einer Liste: `max([3, 9, 4])` ist `9`, `min([3, 9, 4])` ist `3`."
+            },
+            "link": "https://docs.python.org/3/library/functions.html#max"
           }
         ]
       },

@@ -3,9 +3,9 @@
   "incubator": "missing = 0\nalarms = 0\nfirst_alarm = None\n\nfor hour, t in enumerate(temps):\n    if t is None:\n        missing += 1\n    elif t < 20.0 or t > 26.0:\n        alarms += 1\n        if first_alarm is None:\n            first_alarm = hour\n\nprint(missing, alarms, first_alarm)\n",
   "notebook": "from helpers import unshift\n\nKEY = 7\n\ndef decode(line):\n    result = \"\"\n    for letter in line[::-1]:\n        result += unshift(letter, KEY)\n    return result\n\nfor line in notes[\"en\"]:\n    print(decode(line))\n",
   "freezer": {
-    "answer": "7325",
-    "code": "for sample_id, info in catalog.items():\n    if sample_id.startswith(\"M-1\") and info[\"glows\"]:\n        smudged = sample_id\nprint(smudged)\nprint(catalog[\"M-04\"][\"spores\"] + catalog[\"M-09\"][\"spores\"] + catalog[smudged][\"spores\"])\n"
+    "answer": "1270",
+    "code": "for sample_id, info in catalog.items():\n    if sample_id.startswith(\"M-1\") and info[\"glows\"]:\n        smudged = sample_id\nprint(smudged)\ncounts = [catalog[\"M-04\"][\"spores\"], catalog[\"M-09\"][\"spores\"], catalog[smudged][\"spores\"]]\nprint(max(counts) - min(counts))\n"
   },
   "ventilation": "HIGH = 1000\nMEDIUM = 600\n\nspeeds = {}\nfor vent in co2:\n    level = int(co2[vent])\n    if level > HIGH:\n        speed = 3\n    elif level > MEDIUM:\n        speed = 2\n    else:\n        speed = 1\n    speeds[vent] = speed\n\ntotal = 0\nfor speed in speeds.values():\n    total += speed\n\nprint(\"Fan speeds:\", speeds)\nprint(\"Total:\", total)\n",
-  "exit": "6348"
+  "exit": "8634"
 }

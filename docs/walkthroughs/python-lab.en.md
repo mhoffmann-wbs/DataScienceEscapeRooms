@@ -15,11 +15,11 @@
 | 1 | Ida's terminal | Variables, string methods (`.upper()`), turning numbers into text with `str()`, `len()` | 🔎 A framed photo, 🔎 A diploma |
 | 2 | The incubator | Lists, `for` loops with `enumerate`, `if`/`elif`, counting, skipping missing values (`None`) | 🔎 Incubator manual |
 | 3 | The encrypted notebook | Strings: reversing with `[::-1]`, looping over characters, building a string, writing a function | 🔎 The microscope |
-| 4 | The sample freezer | Dictionaries: nested lookups, looping over `.items()`, filtering with conditions | 3. The encrypted notebook (its result) |
+| 4 | The sample freezer | Dictionaries: nested lookups, looping over `.items()`, filtering with conditions, `max()` and `min()` | 3. The encrypted notebook (its result) |
 | 5 | The ventilation control | Debugging: reading error messages, syntax and indentation errors, `int()` conversion, `+=` versus `=` | 🔎 Air-quality poster |
 | 6 | The exit keypad (Final lock) | Combining results from the whole room | 1. Ida's terminal (its result), 2. The incubator (its result), 3. The encrypted notebook (its result), 4. The sample freezer (its result), 5. The ventilation control (its result), 🔎 The whiteboard |
 
-**Final code:** `6348`
+**Final code:** `8634`
 
 ## Stations
 
@@ -71,7 +71,7 @@ print("Logging in with:", password)
 
 > The screen unlocks: **Welcome back, Ida.** One unsent draft is waiting in the outbox:
 >
-> "Note to self: never write the override order on the whiteboard again! It goes ● ▲ ◆ ■."
+> "Note to self: never write the override order on the whiteboard again! It goes ■ ● ▲ ◆."
 
 **Hints:**
 
@@ -197,7 +197,7 @@ for line in notes["en"]:
 **Checked result** (`[decode(line) for line in notes["en"] + notes["de"]]`):
 
 ```json
-["Day 212: the caps only glow when it is cold.", "I moved all glowing samples into the freezer.", "Freezer lock: add up the spore counts of the samples listed on its door.", "The mushroom digit for the override is three.", "Tag 212: Die H\u00fcte leuchten nur, wenn es kalt ist.", "Ich habe alle leuchtenden Proben in den Gefrierschrank gelegt.", "Gefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner T\u00fcr stehen.", "Die Pilz-Ziffer f\u00fcr den Override ist drei."]
+["Day 212: the caps only glow when it is cold.", "I moved my best glowing samples into the freezer.", "Freezer lock: of the samples listed on its door, the largest spore count minus the smallest.", "The mushroom digit for the override is three.", "Tag 212: Die H\u00fcte leuchten nur, wenn es kalt ist.", "Ich habe meine besten leuchtenden Proben in den Gefrierschrank gelegt.", "Gefrierschloss: Von den Proben auf seiner T\u00fcr die gr\u00f6\u00dfte Sporenzahl minus die kleinste.", "Die Pilz-Ziffer f\u00fcr den Override ist drei."]
 ```
 
 **Reveals when solved:**
@@ -206,9 +206,9 @@ for line in notes["en"]:
 >
 > "Day 212: the caps only glow when it is cold.
 >
-> I moved all glowing samples into the freezer.
+> I moved my best glowing samples into the freezer.
 >
-> Freezer lock: add up the spore counts of the samples listed on its door.
+> Freezer lock: of the samples listed on its door, the largest spore count minus the smallest.
 >
 > The override digit in these notes is three."
 
@@ -220,7 +220,7 @@ for line in notes["en"]:
 
 ### 4. The sample freezer
 
-**Practises:** Dictionaries: nested lookups, looping over `.items()`, filtering with conditions  
+**Practises:** Dictionaries: nested lookups, looping over `.items()`, filtering with conditions, `max()` and `min()`  
 **Needs:** 3. The encrypted notebook (its result)  
 **Data:** [catalog.py](../../content/rooms/python-lab/data/catalog.py)
 
@@ -250,10 +250,11 @@ for sample_id, info in catalog.items():
     if sample_id.startswith("M-1") and info["glows"]:
         smudged = sample_id
 print(smudged)
-print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["spores"])
+counts = [catalog["M-04"]["spores"], catalog["M-09"]["spores"], catalog[smudged]["spores"]]
+print(max(counts) - min(counts))
 ```
 
-**Answer:** `7325`
+**Answer:** `1270`
 
 **Reveals when solved:**
 
@@ -263,7 +264,7 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 1. How Ida set the padlock code is not on the freezer. She explains it in her encrypted notes, so ask whoever is decoding the notebook. The label tells you which samples to use.
 2. `catalog["M-04"]["spores"]` looks up one value. To find the smudged sample, loop with `for sample_id, info in catalog.items():` and check `sample_id.startswith("M-1")` and `info["glows"]`.
-3. The smudged sample is M-13. The code is the sum of the spore counts of M-04, M-09 and M-13.
+3. The smudged sample is M-13. The code is the largest spore count of M-04, M-09 and M-13 minus the smallest: put the three counts in a list and use `max(counts) - min(counts)`.
 
 ### 5. The ventilation control
 
@@ -359,13 +360,13 @@ print("Total:", total)
 >
 > Enter the override code to open the door.
 
-**Answer:** `6348`
+**Answer:** `8634`
 
 **Hints:**
 
 1. Four stations show a digit once solved: the incubator, the notebook, the freezer and the ventilation control. Open a solved station again to read its digit. The terminal gives no digit, it gives the order.
 2. Ida's draft message on her terminal gives the order as four shapes. The whiteboard shows which shape belongs to which station.
-3. The order is ● ▲ ◆ ■: incubator, notebook, freezer, ventilation.
+3. The order is ■ ● ▲ ◆: ventilation, incubator, notebook, freezer.
 
 ## Clues in the room
 
@@ -443,7 +444,7 @@ print("Total:", total)
 
 **Text (strings):** [`a + b`](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str), [`len(x)`](https://docs.python.org/3/library/functions.html#len), [`s.upper()  s.lower()`](https://docs.python.org/3/library/stdtypes.html#str.upper), [`s.startswith(prefix)`](https://docs.python.org/3/library/stdtypes.html#str.startswith), [`s[start:stop:step]`](https://docs.python.org/3/tutorial/introduction.html#text)
 
-**Lists and loops:** [`for item in items:`](https://docs.python.org/3/tutorial/controlflow.html#for-statements), [`enumerate(items)`](https://docs.python.org/3/library/functions.html#enumerate), [`total += x`](https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements)
+**Lists and loops:** [`for item in items:`](https://docs.python.org/3/tutorial/controlflow.html#for-statements), [`enumerate(items)`](https://docs.python.org/3/library/functions.html#enumerate), [`total += x`](https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements), [`max(items)  min(items)`](https://docs.python.org/3/library/functions.html#max)
 
 **Decisions:** [`if / elif / else`](https://docs.python.org/3/tutorial/controlflow.html#if-statements), [`<  >  <=  >=  ==  !=`](https://docs.python.org/3/library/stdtypes.html#comparisons)
 

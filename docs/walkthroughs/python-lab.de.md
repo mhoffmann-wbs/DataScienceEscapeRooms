@@ -15,11 +15,11 @@
 | 1 | Idas Terminal | Variablen, String-Methoden (`.upper()`), Zahlen mit `str()` in Text umwandeln, `len()` | 🔎 Ein gerahmtes Foto, 🔎 Eine Urkunde |
 | 2 | Der Inkubator | Listen, `for`-Schleifen mit `enumerate`, `if`/`elif`, Zählen, fehlende Werte (`None`) überspringen | 🔎 Inkubator-Anleitung |
 | 3 | Das verschlüsselte Notizbuch | Strings: Umdrehen mit `[::-1]`, Schleifen über Zeichen, Strings zusammenbauen, eine Funktion schreiben | 🔎 Das Mikroskop |
-| 4 | Der Probengefrierschrank | Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen | 3. Das verschlüsselte Notizbuch (sein Ergebnis) |
+| 4 | Der Probengefrierschrank | Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen, `max()` und `min()` | 3. Das verschlüsselte Notizbuch (sein Ergebnis) |
 | 5 | Die Lüftungssteuerung | Debugging: Fehlermeldungen lesen, Syntax- und Einrückungsfehler, Umwandlung mit `int()`, `+=` statt `=` | 🔎 Luftqualitäts-Poster |
 | 6 | Das Tastenfeld am Ausgang (Abschluss-Schloss) | Ergebnisse aus dem ganzen Raum kombinieren | 1. Idas Terminal (sein Ergebnis), 2. Der Inkubator (sein Ergebnis), 3. Das verschlüsselte Notizbuch (sein Ergebnis), 4. Der Probengefrierschrank (sein Ergebnis), 5. Die Lüftungssteuerung (sein Ergebnis), 🔎 Das Whiteboard |
 
-**Abschluss-Code:** `6348`
+**Abschluss-Code:** `8634`
 
 ## Stationen
 
@@ -71,7 +71,7 @@ print("Logging in with:", password)
 
 > Der Bildschirm entsperrt sich: **Willkommen zurück, Ida.** Im Postausgang wartet ein nicht gesendeter Entwurf:
 >
-> "Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ● ▲ ◆ ■."
+> "Notiz an mich: Nie wieder die Override-Reihenfolge an das Whiteboard schreiben! Sie lautet ■ ● ▲ ◆."
 
 **Hinweise:**
 
@@ -197,7 +197,7 @@ for line in notes["en"]:
 **Geprüftes Ergebnis** (`[decode(line) for line in notes["en"] + notes["de"]]`):
 
 ```json
-["Day 212: the caps only glow when it is cold.", "I moved all glowing samples into the freezer.", "Freezer lock: add up the spore counts of the samples listed on its door.", "The mushroom digit for the override is three.", "Tag 212: Die H\u00fcte leuchten nur, wenn es kalt ist.", "Ich habe alle leuchtenden Proben in den Gefrierschrank gelegt.", "Gefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner T\u00fcr stehen.", "Die Pilz-Ziffer f\u00fcr den Override ist drei."]
+["Day 212: the caps only glow when it is cold.", "I moved my best glowing samples into the freezer.", "Freezer lock: of the samples listed on its door, the largest spore count minus the smallest.", "The mushroom digit for the override is three.", "Tag 212: Die H\u00fcte leuchten nur, wenn es kalt ist.", "Ich habe meine besten leuchtenden Proben in den Gefrierschrank gelegt.", "Gefrierschloss: Von den Proben auf seiner T\u00fcr die gr\u00f6\u00dfte Sporenzahl minus die kleinste.", "Die Pilz-Ziffer f\u00fcr den Override ist drei."]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -206,9 +206,9 @@ for line in notes["en"]:
 >
 > "Tag 212: Die Hüte leuchten nur, wenn es kalt ist.
 >
-> Ich habe alle leuchtenden Proben in den Gefrierschrank gelegt.
+> Ich habe meine besten leuchtenden Proben in den Gefrierschrank gelegt.
 >
-> Gefrierschloss: Addiert die Sporenzahlen der Proben, die auf seiner Tür stehen.
+> Gefrierschloss: Von den Proben auf seiner Tür die größte Sporenzahl minus die kleinste.
 >
 > Die Override-Ziffer in diesen Notizen ist drei."
 
@@ -220,7 +220,7 @@ for line in notes["en"]:
 
 ### 4. Der Probengefrierschrank
 
-**Übt:** Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen  
+**Übt:** Dictionaries: verschachtelte Zugriffe, Schleifen über `.items()`, Filtern mit Bedingungen, `max()` und `min()`  
 **Braucht:** 3. Das verschlüsselte Notizbuch (sein Ergebnis)  
 **Daten:** [catalog.py](../../content/rooms/python-lab/data/catalog.py)
 
@@ -250,10 +250,11 @@ for sample_id, info in catalog.items():
     if sample_id.startswith("M-1") and info["glows"]:
         smudged = sample_id
 print(smudged)
-print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["spores"])
+counts = [catalog["M-04"]["spores"], catalog["M-09"]["spores"], catalog[smudged]["spores"]]
+print(max(counts) - min(counts))
 ```
 
-**Antwort:** `7325`
+**Antwort:** `1270`
 
 **Zeigt nach dem Lösen:**
 
@@ -263,7 +264,7 @@ print(catalog["M-04"]["spores"] + catalog["M-09"]["spores"] + catalog[smudged]["
 
 1. Wie Ida den Code gewählt hat, steht nicht am Gefrierschrank. Sie erklärt es in ihren verschlüsselten Notizen, fragt also, wer gerade das Notizbuch entschlüsselt. Das Etikett sagt euch, welche Proben ihr braucht.
 2. `catalog["M-04"]["spores"]` schlägt einen Wert nach. Um die verschmierte Probe zu finden, geht mit `for sample_id, info in catalog.items():` durch den Katalog und prüft `sample_id.startswith("M-1")` und `info["glows"]`.
-3. Die verschmierte Probe ist M-13. Der Code ist die Summe der Sporenzahlen von M-04, M-09 und M-13.
+3. Die verschmierte Probe ist M-13. Der Code ist die größte Sporenzahl von M-04, M-09 und M-13 minus die kleinste: Packt die drei Zahlen in eine Liste und nehmt `max(counts) - min(counts)`.
 
 ### 5. Die Lüftungssteuerung
 
@@ -359,13 +360,13 @@ print("Total:", total)
 >
 > Gebt den Override-Code ein, um die Tür zu öffnen.
 
-**Antwort:** `6348`
+**Antwort:** `8634`
 
 **Hinweise:**
 
 1. Vier Stationen zeigen eine Ziffer, sobald sie gelöst sind: der Inkubator, das Notizbuch, der Gefrierschrank und die Lüftungssteuerung. Öffnet eine gelöste Station noch einmal, um ihre Ziffer zu lesen. Das Terminal liefert keine Ziffer, sondern die Reihenfolge.
 2. Idas Entwurf auf ihrem Terminal gibt die Reihenfolge als vier Formen an. Das Whiteboard zeigt, welche Form zu welcher Station gehört.
-3. Die Reihenfolge ist ● ▲ ◆ ■: Inkubator, Notizbuch, Gefrierschrank, Lüftung.
+3. Die Reihenfolge ist ■ ● ▲ ◆: Lüftung, Inkubator, Notizbuch, Gefrierschrank.
 
 ## Hinweise im Raum
 
@@ -443,7 +444,7 @@ print("Total:", total)
 
 **Text (Strings):** [`a + b`](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str), [`len(x)`](https://docs.python.org/3/library/functions.html#len), [`s.upper()  s.lower()`](https://docs.python.org/3/library/stdtypes.html#str.upper), [`s.startswith(prefix)`](https://docs.python.org/3/library/stdtypes.html#str.startswith), [`s[start:stop:step]`](https://docs.python.org/3/tutorial/introduction.html#text)
 
-**Listen und Schleifen:** [`for item in items:`](https://docs.python.org/3/tutorial/controlflow.html#for-statements), [`enumerate(items)`](https://docs.python.org/3/library/functions.html#enumerate), [`total += x`](https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements)
+**Listen und Schleifen:** [`for item in items:`](https://docs.python.org/3/tutorial/controlflow.html#for-statements), [`enumerate(items)`](https://docs.python.org/3/library/functions.html#enumerate), [`total += x`](https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements), [`max(items)  min(items)`](https://docs.python.org/3/library/functions.html#max)
 
 **Entscheidungen:** [`if / elif / else`](https://docs.python.org/3/tutorial/controlflow.html#if-statements), [`<  >  <=  >=  ==  !=`](https://docs.python.org/3/library/stdtypes.html#comparisons)
 
