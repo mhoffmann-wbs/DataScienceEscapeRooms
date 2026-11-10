@@ -209,7 +209,8 @@ function banner() {
       const h = Number(w.slice(1));
       tile(c, 6, x * T, T, h === 210 ? undefined : hue(h, h === 30 ? 1.2 : 0.9));
     } else tile(c, Number(w), x * T, T);
-    if (w[0] === 'D' || w === 'C') tile(c, 2, x * T, 2 * T);
+    if (w[0] === 'D') tile(c, 2, x * T, 2 * T);
+    if (w === 'C') tile(c, 8, x * T, 2 * T);
   });
   // Plants in the corners and a carpet runner along the bottom.
   for (let x = 0; x < W; x++) {
