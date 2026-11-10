@@ -16,13 +16,13 @@
       "de": "GROUP BY mit HAVING, CASE in Aggregaten, Unterabfragen, Datumsfunktionen, Lücken in einer Folge, laufende Summen mit SUM() OVER."
     },
     "story": {
-      "en": "Someone has been skimming the box office of an old cinema; follow the missing tickets through the tills, the usher's tally, the rota and the snack bar.",
-      "de": "Jemand zweigt an der Kasse eines alten Kinos Geld ab; folgt den fehlenden Tickets durch die Kassen, die Strichliste des Platzanweisers, den Dienstplan und die Snackbar."
+      "en": "Someone has been skimming the box office of an old cinema; follow the missing tickets through the tills, the usher's tally, the rota and the foyer tills.",
+      "de": "Jemand zweigt an der Kasse eines alten Kinos Geld ab; folgt den fehlenden Tickets durch die Kassen, die Strichliste des Platzanweisers, den Dienstplan und die Foyerkassen."
     }
   },
   "intro": {
-    "en": "Kino Lumen, Kleeberg's last old cinema, Sunday 15 November, after the last show. Tomorrow at nine Edith Brandauer has to show her books to the bank. They say the cinema loses money every week, yet the Studio was packed at the weekends. Somebody has been taking the box office's cash.\n\nEdith has locked the doors behind you and opened up the cinema's computer: every ticket the two tills printed, Ben the usher's tally at the door, the staff rota, the snack till and the fire marshal's new clicker. Find out who has been skimming, and tell Edith before the last bus leaves in half an hour.",
-    "de": "Kino Lumen, Kleebergs letztes altes Kino, Sonntag, 15. November, nach der letzten Vorstellung. Morgen um neun muss Edith Brandauer der Bank ihre Bücher zeigen. Nach denen verliert das Kino jede Woche Geld, dabei war das Studio an den Wochenenden voll. Jemand hat sich an der Kasse bedient.\n\nEdith hat die Türen hinter euch abgeschlossen und euch den Kinorechner geöffnet: jedes Ticket, das die beiden Kassen gedruckt haben, Bens Strichliste an der Tür, den Dienstplan, die Snackkasse und den neuen Zähler der Feuerwehr. Findet heraus, wer abgezweigt hat, und sagt es Edith, bevor in einer halben Stunde der letzte Bus fährt."
+    "en": "Kino Lumen, Kleeberg's last old cinema, Sunday 15 November, after the last show. Tomorrow at nine Edith Brandauer has to show her books to the bank. They say the cinema loses money every week, yet the Studio was packed at the weekends. Somebody has been taking the box office's cash.\n\nEdith has locked the doors behind you and opened up the cinema's computer: every ticket the two box office tills printed, Ben the usher's tally at the door, the staff rota, the foyer tills (snack bar and drinks bar) and the fire marshal's new clicker. Find out who has been skimming, and tell Edith before the last bus leaves in half an hour.",
+    "de": "Kino Lumen, Kleebergs letztes altes Kino, Sonntag, 15. November, nach der letzten Vorstellung. Morgen um neun muss Edith Brandauer der Bank ihre Bücher zeigen. Nach denen verliert das Kino jede Woche Geld, dabei war das Studio an den Wochenenden voll. Jemand hat sich an der Kasse bedient.\n\nEdith hat die Türen hinter euch abgeschlossen und euch den Kinorechner geöffnet: jedes Ticket, das die beiden Kassen gedruckt haben, Bens Strichliste an der Tür, den Dienstplan, die Foyerkassen (Snackbar und Getränkebar) und den neuen Zähler der Feuerwehr. Findet heraus, wer abgezweigt hat, und sagt es Edith, bevor in einer halben Stunde der letzte Bus fährt."
   },
   "puzzles": [
     {
@@ -91,11 +91,11 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "6680986e3872cb84421c489b7be9cfd6d4f8598192285c52b3726627a7615921"
+        "hash": "56c21b8564edbfb323122ee8b91cca80647c2b1c574d640a414b62e08475d268"
       },
       "reveal": {
-        "en": "Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of three evenings, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.",
-        "de": "Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken an drei Abenden, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht."
+        "en": "Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of three evenings, between 21:04 and 21:30, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.",
+        "de": "Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken an drei Abenden, zwischen 21:04 und 21:30, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht."
       },
       "practises": {
         "en": "Finding gaps in a sequence: `NOT EXISTS` with `ticket_no + 1`, and correlated subqueries with `MIN` and `MAX`",
@@ -136,11 +136,11 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "316a43b602bed473ca531e177840a220e2ed90c5c895c1403c65a296570aeb4c"
+        "hash": "a3399d419a93070c70abdf07545db35c5235246791c222229749376e4e6de91e"
       },
       "reveal": {
-        "en": "The Studio has 120 seats. During the late show on 14 November it was over that for two hours, from 21:40 to 23:39, with up to **132** people inside at once. Ben's tally says 134 came in: two people walked out at 21:50, before the last two latecomers arrived.",
-        "de": "Das Studio hat 120 Sitzplätze. In der Spätvorstellung am 14. November lag es zwei Stunden darüber, von 21:40 bis 23:39, mit bis zu **132** Leuten gleichzeitig. Laut Bens Strichliste kamen 134 herein: Zwei Leute sind um 21:50 gegangen, bevor die letzten beiden Nachzügler kamen."
+        "en": "The Studio has 120 seats. During the late show on 14 November it was over that for two hours, from 21:40 to 23:39, with up to **132** people inside at once. Ben's tally says 134 came in: two people walked out at 21:48, before the last two latecomers arrived.",
+        "de": "Das Studio hat 120 Sitzplätze. In der Spätvorstellung am 14. November lag es zwei Stunden darüber, von 21:40 bis 23:39, mit bis zu **132** Leuten gleichzeitig. Laut Bens Strichliste kamen 134 herein: Zwei Leute sind um 21:48 gegangen, bevor die letzten beiden Nachzügler kamen."
       },
       "practises": {
         "en": "Running totals with `SUM() OVER (ORDER BY …)`; filtering a window function through a subquery in `FROM`; a scalar subquery",
@@ -171,8 +171,8 @@
         "de": "Der Dienstplan"
       },
       "text": {
-        "en": "Edith plans every shift on the computer behind the box office. `rota` has one row per day, shift (`afternoon` or `evening`) and post (`till 1`, `till 2`, `snack bar` or `door`); `staff` has the names.\n\nOn each evening when Ben let in far too many people, who was planned where in the evening shift? Show one row per day: the `day`, then the names at till 1, till 2, the snack bar and the door, earliest first.",
-        "de": "Edith plant jede Schicht am Rechner hinter der Kasse. `rota` hat eine Zeile pro Tag, Schicht (`afternoon` oder `evening`) und Posten (`till 1`, `till 2`, `snack bar` oder `door`); `staff` enthält die Namen.\n\nWer war an jedem Abend, an dem Ben viel zu viele Leute eingelassen hat, in der Abendschicht wo eingeplant? Zeigt eine Zeile pro Tag: den Tag (`day`), dann die Namen an Kasse 1, Kasse 2, der Snackbar und der Tür, den frühesten zuerst."
+        "en": "Edith plans every shift on the computer behind the box office. `rota` has one row per day, shift (`afternoon` or `evening`) and post (`till 1`, `till 2`, `snack bar`, `drinks bar` or `door`); `staff` has the names.\n\nOn each evening when Ben let in far too many people, who was planned where in the evening shift? Show one row per day: the `day`, then the names at till 1, till 2, the snack bar, the drinks bar and the door, earliest first.",
+        "de": "Edith plant jede Schicht am Rechner hinter der Kasse. `rota` hat eine Zeile pro Tag, Schicht (`afternoon` oder `evening`) und Posten (`till 1`, `till 2`, `snack bar`, `drinks bar` oder `door`); `staff` enthält die Namen.\n\nWer war an jedem Abend, an dem Ben viel zu viele Leute eingelassen hat, in der Abendschicht wo eingeplant? Zeigt eine Zeile pro Tag: den Tag (`day`), dann die Namen an Kasse 1, Kasse 2, der Snackbar, der Getränkebar und der Tür, den frühesten zuerst."
       },
       "workspace": "sql",
       "data": "cinema.sql",
@@ -183,11 +183,11 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "82c77ca047ba4790a8d877c826ee42b25221cd711f83bef673a3283c8db58046"
+        "hash": "df7ae5328f3beaf59d1fadd7f182e917d4fdd6e8702f744cf7854d74a65df09e"
       },
       "reveal": {
-        "en": "The evening rota for the three nights:\n6 Nov: till 1 Jonas Pfeiffer, till 2 **Lukas Feld**, snack bar Tobias Rehm, door Ben Adeyemi\n7 Nov: till 1 Jonas Pfeiffer, till 2 **Lukas Feld**, snack bar Tobias Rehm, door Ben Adeyemi\n14 Nov: till 1 Ida Sommer, till 2 **Selin Aydın**, snack bar Tobias Rehm, door Ben Adeyemi\nOn paper, till 2 was Lukas twice and Selin once.",
-        "de": "Der Abenddienstplan für die drei Abende:\n6. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 **Lukas Feld**, Snackbar Tobias Rehm, Tür Ben Adeyemi\n7. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 **Lukas Feld**, Snackbar Tobias Rehm, Tür Ben Adeyemi\n14. Nov.: Kasse 1 Ida Sommer, Kasse 2 **Selin Aydın**, Snackbar Tobias Rehm, Tür Ben Adeyemi\nAuf dem Papier stand an Kasse 2 zweimal Lukas und einmal Selin."
+        "en": "The evening rota for the three nights:\n6 Nov: till 1 Jonas Pfeiffer, till 2 Lukas Feld, snack bar Tobias Rehm, drinks bar Marta Kowalski, door Ben Adeyemi\n7 Nov: till 1 Jonas Pfeiffer, till 2 Lukas Feld, snack bar Tobias Rehm, drinks bar Marta Kowalski, door Ben Adeyemi\n14 Nov: till 1 Ida Sommer, till 2 Selin Aydın, snack bar Tobias Rehm, drinks bar Marta Kowalski, door Ben Adeyemi\nOn paper, till 2 was Lukas twice and Selin once.",
+        "de": "Der Abenddienstplan für die drei Abende:\n6. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 Lukas Feld, Snackbar Tobias Rehm, Getränkebar Marta Kowalski, Tür Ben Adeyemi\n7. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 Lukas Feld, Snackbar Tobias Rehm, Getränkebar Marta Kowalski, Tür Ben Adeyemi\n14. Nov.: Kasse 1 Ida Sommer, Kasse 2 Selin Aydın, Snackbar Tobias Rehm, Getränkebar Marta Kowalski, Tür Ben Adeyemi\nAuf dem Papier stand an Kasse 2 zweimal Lukas und einmal Selin."
       },
       "practises": {
         "en": "Turning rows into columns: `MAX(CASE WHEN … THEN … END)` with `GROUP BY`; `IN` with a list of values",
@@ -199,28 +199,28 @@
       ],
       "hints": [
         {
-          "en": "Start with the rows for those days: join `rota` and `staff`, then `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` with the dates from Ben's tally. You get four rows per day, one per post.",
-          "de": "Beginnt mit den Zeilen für diese Tage: Verbindet `rota` und `staff`, dann `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` mit den Daten aus Bens Strichliste. Ihr bekommt vier Zeilen pro Tag, eine pro Posten."
+          "en": "Start with the rows for those days: join `rota` and `staff`, then `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` with the dates from Ben's tally. You get five rows per day, one per post.",
+          "de": "Beginnt mit den Zeilen für diese Tage: Verbindet `rota` und `staff`, dann `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` mit den Daten aus Bens Strichliste. Ihr bekommt fünf Zeilen pro Tag, eine pro Posten."
         },
         {
           "en": "For one row per day, `GROUP BY r.day` and make one column per post: `MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2`. `CASE` gives the name in the till-2 row and `NULL` in the other rows; `MAX` skips the `NULL`s and keeps the name.",
           "de": "Für eine Zeile pro Tag gruppiert ihr mit `GROUP BY r.day` und macht eine Spalte pro Posten: `MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2`. `CASE` liefert in der Zeile von Kasse 2 den Namen und in den anderen Zeilen `NULL`; `MAX` überspringt die `NULL`s und behält den Namen."
         },
         {
-          "en": "`SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`",
-          "de": "`SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`"
+          "en": "`SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'drinks bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`",
+          "de": "`SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'drinks bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`"
         }
       ]
     },
     {
       "id": "snacks",
       "title": {
-        "en": "The snack till",
-        "de": "Die Snackkasse"
+        "en": "The foyer tills",
+        "de": "Die Foyerkassen"
       },
       "text": {
-        "en": "The snack bar's till logs every sale together with whoever is signed in: `snack_sales`. The afternoon shift runs until 18:15, then the evening shift takes over.\n\nOn the evenings when Ben let in far too many people, who actually sold snacks in the evening shift? Show the day (as `YYYY-MM-DD`), the name and the number of sales, ordered by day and name.",
-        "de": "Die Kasse der Snackbar protokolliert jeden Verkauf zusammen mit dem, der gerade angemeldet ist: `snack_sales`. Die Nachmittagsschicht geht bis 18:15, dann übernimmt die Abendschicht.\n\nWer hat an den Abenden, an denen Ben viel zu viele Leute eingelassen hat, in der Abendschicht tatsächlich Snacks verkauft? Zeigt den Tag (als `YYYY-MM-DD`), den Namen und die Zahl der Verkäufe, sortiert nach Tag und Name."
+        "en": "The foyer has two counters, the snack bar and the drinks bar, and both ring up on one till system. It logs every sale together with the counter and whoever is signed in there: `snack_sales`. The afternoon shift runs until 18:15, then the evening shift takes over.\n\nOn the evenings when Ben let in far too many people, who actually served at each counter in the evening shift? Show the day (as `YYYY-MM-DD`), the counter, the name and the number of sales, ordered by day, counter and name.",
+        "de": "Das Foyer hat zwei Theken, die Snackbar und die Getränkebar, und beide kassieren über ein gemeinsames Kassensystem. Es protokolliert jeden Verkauf zusammen mit der Theke und dem, der dort gerade angemeldet ist: `snack_sales`. Die Nachmittagsschicht geht bis 18:15, dann übernimmt die Abendschicht.\n\nWer hat an den Abenden, an denen Ben viel zu viele Leute eingelassen hat, in der Abendschicht an welcher Theke tatsächlich bedient? Zeigt den Tag (als `YYYY-MM-DD`), die Theke, den Namen und die Zahl der Verkäufe, sortiert nach Tag, Theke und Name."
       },
       "workspace": "sql",
       "data": "cinema.sql",
@@ -231,15 +231,15 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "201541e93f1242a234dc4b954a94437e66b87f9c910e71359ffdfe4e922ed2b4"
+        "hash": "b791dbc5ac6628505de4c4e35abca5b060554805c6d57d13e4b56bf4f62ad59c"
       },
       "reveal": {
-        "en": "In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night.",
-        "de": "In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend."
+        "en": "In the evening shift the snack bar was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November. The drinks bar was **Jonas Pfeiffer** on 6 and 7 November and **Ida Sommer** on 14 November.",
+        "de": "In der Abendschicht war an der Snackbar am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**. An der Getränkebar waren es **Jonas Pfeiffer** am 6. und 7. November und **Ida Sommer** am 14. November."
       },
       "practises": {
-        "en": "`date()` and `time()` on timestamps; `GROUP BY` over two columns",
-        "de": "`date()` und `time()` auf Zeitstempeln; `GROUP BY` über zwei Spalten"
+        "en": "`date()` and `time()` on timestamps; `GROUP BY` over three columns",
+        "de": "`date()` und `time()` auf Zeitstempeln; `GROUP BY` über drei Spalten"
       },
       "clues": [
         "tobias-note"
@@ -253,12 +253,12 @@
           "de": "`date(sold_at)` liefert den Tag eines Zeitstempels, `time(sold_at)` seine Uhrzeit. Beides ist Text in festem Format, also könnt ihr vergleichen: `time(sold_at) >= '18:15'`."
         },
         {
-          "en": "Join `staff` for the names, keep the three days with `date(x.sold_at) IN (…)` and the evening with `time(x.sold_at) >= '18:15'`, then `GROUP BY` the day and the name and count with `COUNT(*)`.",
-          "de": "Verbindet `staff` für die Namen, behaltet die drei Tage mit `date(x.sold_at) IN (…)` und den Abend mit `time(x.sold_at) >= '18:15'`, gruppiert dann mit `GROUP BY` nach Tag und Name und zählt mit `COUNT(*)`."
+          "en": "Join `staff` for the names, keep the three days with `date(x.sold_at) IN (…)` and the evening with `time(x.sold_at) >= '18:15'`, then `GROUP BY` the day, the counter and the name and count with `COUNT(*)`.",
+          "de": "Verbindet `staff` für die Namen, behaltet die drei Tage mit `date(x.sold_at) IN (…)` und den Abend mit `time(x.sold_at) >= '18:15'`, gruppiert dann mit `GROUP BY` nach Tag, Theke und Name und zählt mit `COUNT(*)`."
         },
         {
-          "en": "`SELECT date(x.sold_at) AS day, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, s.name ORDER BY day, s.name;`",
-          "de": "`SELECT date(x.sold_at) AS day, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, s.name ORDER BY day, s.name;`"
+          "en": "`SELECT date(x.sold_at) AS day, x.counter, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, x.counter, s.name ORDER BY day, x.counter, s.name;`",
+          "de": "`SELECT date(x.sold_at) AS day, x.counter, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, x.counter, s.name ORDER BY day, x.counter, s.name;`"
         }
       ]
     },
@@ -309,16 +309,16 @@
       ],
       "hints": [
         {
-          "en": "All the missing tickets came from till 2 (ticket printers). On paper, till 2 was Lukas Feld or Selin Aydın on those evenings (staff rota). But Edith's note on the rota board says the rota is only a plan.",
-          "de": "Alle fehlenden Tickets kamen von Kasse 2 (Ticketdrucker). Auf dem Papier war Kasse 2 an diesen Abenden Lukas Feld oder Selin Aydın (Dienstplan). Aber Ediths Zettel am Dienstplan sagt, der Plan ist nur ein Plan."
+          "en": "All the missing tickets came from till 2 (ticket printers). On paper, till 2 was Lukas Feld or Selin Aydın on those evenings (staff rota). But Edith's note on the rota board says the rota is only a plan, not a record of who stood where.",
+          "de": "Alle fehlenden Tickets kamen von Kasse 2 (Ticketdrucker). Auf dem Papier war Kasse 2 an diesen Abenden Lukas Feld oder Selin Aydın (Dienstplan). Aber Ediths Zettel am Dienstplan sagt, der Plan ist nur ein Plan und kein Protokoll, wer wo stand."
         },
         {
-          "en": "The snack till shows that whoever was planned at till 2 actually sold snacks all evening. So they swapped with the person planned at the snack bar, who sold no snacks after 18:15.",
-          "de": "Die Snackkasse zeigt, dass, wer an Kasse 2 eingeplant war, den ganzen Abend Snacks verkauft hat. Also hat diese Person mit der getauscht, die an der Snackbar eingeplant war und nach 18:15 keine Snacks verkauft hat."
+          "en": "Compare the plan with the foyer tills. Two people planned at a counter sold nothing there in the evening: Tobias Rehm (snack bar) and Marta Kowalski (drinks bar). The people planned at the ticket tills served at the counters instead, so Tobias and Marta each swapped onto a ticket till. Which one stood at the till where the tickets disappeared? The ticket printers tell you which till matters.",
+          "de": "Vergleicht den Plan mit den Foyerkassen. Zwei Personen, die an einer Theke eingeplant waren, haben dort am Abend nichts verkauft: Tobias Rehm (Snackbar) und Marta Kowalski (Getränkebar). Die an den Kassen Eingeplanten haben stattdessen an den Theken bedient, also sind Tobias und Marta jeweils an eine Ticketkasse gewechselt. Wer von beiden stand an der Kasse, an der die Tickets verschwanden? Welche Kasse zählt, sagen die Ticketdrucker."
         },
         {
-          "en": "Tobias Rehm was planned at the snack bar on all three evenings but sold no snacks after 18:15. He swapped onto till 2, where the tickets disappeared, while the rota still named someone else.",
-          "de": "Tobias Rehm war an allen drei Abenden an der Snackbar eingeplant, hat aber nach 18:15 keine Snacks verkauft. Er hat an Kasse 2 getauscht, wo die Tickets verschwanden, während im Dienstplan noch jemand anderes stand."
+          "en": "Whoever was planned at till 2 sold snacks, so Tobias took till 2; whoever was planned at till 1 served drinks, so Marta took till 1. All the gaps are on till 2's roll, so it was Tobias Rehm, while the rota still named someone else.",
+          "de": "Wer an Kasse 2 eingeplant war, hat Snacks verkauft, also hat Tobias Kasse 2 übernommen; wer an Kasse 1 eingeplant war, hat Getränke ausgeschenkt, also hat Marta Kasse 1 übernommen. Alle Lücken liegen auf der Rolle von Kasse 2, also war es Tobias Rehm, während im Dienstplan noch jemand anderes stand."
         }
       ]
     }
@@ -364,8 +364,8 @@
         "de": "Ediths Zettel am Dienstplan"
       },
       "text": {
-        "en": "To everyone: swapping posts is fine, but TELL ME. The rota is a plan, not a record of who stood where. The snack till at least always knows who is signed in. — Edith",
-        "de": "An alle: Posten tauschen ist in Ordnung, aber SAGT ES MIR. Der Dienstplan ist ein Plan, kein Protokoll, wer wo stand. Die Snackkasse weiß wenigstens immer, wer angemeldet ist. — Edith"
+        "en": "To everyone: swapping posts is fine, but TELL ME. The rota is a plan, not a record of who stood where. The foyer tills at least always know who is signed in, at the snack bar and at the drinks bar. — Edith",
+        "de": "An alle: Posten tauschen ist in Ordnung, aber SAGT ES MIR. Der Dienstplan ist ein Plan, kein Protokoll, wer wo stand. Die Foyerkassen wissen wenigstens immer, wer angemeldet ist, an der Snackbar und an der Getränkebar. — Edith"
       }
     },
     {

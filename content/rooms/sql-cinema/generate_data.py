@@ -31,7 +31,8 @@ STAFF = [
     (8, "Marta Kowalski", "front of house"),
 ]
 ID = {name.split()[0]: sid for sid, name, _ in STAFF}
-POSTS = ["till 1", "till 2", "snack bar", "door"]
+POSTS = ["till 1", "till 2", "snack bar", "drinks bar", "door"]
+COUNTERS = ["snack bar", "drinks bar"]
 
 # The skimming: on these late shows in the Studio, Tobias sold tickets at till 2, took the cash
 # and deleted the sales. Each burst is one group at the counter, so it leaves one gap in till 2's roll.
@@ -40,9 +41,12 @@ SKIMS = {
     "2026-11-07": {"sold": 101, "bursts": [6, 4, 5, 4]},
     "2026-11-14": {"sold": 113, "bursts": [5, 6, 4, 6]},
 }
-# On those evenings Tobias was planned at the snack bar and took till 2; the one planned there sold snacks.
+# On those evenings Tobias was planned at the snack bar and took till 2; the one planned at till 2 sold snacks.
 SKIM_ROTA = {"2026-11-06": "Lukas", "2026-11-07": "Lukas", "2026-11-14": "Selin"}
-# One harmless swap, so swapping posts looks normal: Jonas takes the snack bar from Marta.
+# The decoy, the same shape on the same evenings: Marta was planned at the drinks bar and took till 1,
+# the one planned at till 1 served drinks. Only the printers (all gaps on till 2) tell the two swaps apart.
+DECOY_ROTA = {"2026-11-06": "Jonas", "2026-11-07": "Jonas", "2026-11-14": "Ida"}
+# One harmless swap on another evening, so swapping posts looks normal: Jonas takes the snack bar from Marta.
 OTHER_SWAP = ("2026-11-12", "Marta", "Jonas")
 
 
@@ -89,34 +93,36 @@ def attendance(day, hall, start):
 
 
 # --- Rota: planned posts per day and shift. `worked` is who really stood where.
+# Its own random stream, so the tickets, the tally and the clicker don't depend on it.
 def rota():
+    rr = random.Random(1958)
     planned, worked = {}, {}
     pool = ["Lukas", "Selin", "Tobias", "Ida", "Jonas", "Marta"]
     for day in DAYS:
         d = str(day)
         for shift in ["afternoon", "evening"]:
+            fixed = {}
+            if d in SKIM_ROTA:
+                fixed = {"snack bar": "Tobias", "drinks bar": "Marta"}
+                if shift == "evening":
+                    fixed |= {"till 2": SKIM_ROTA[d], "till 1": DECOY_ROTA[d]}
+            elif d == OTHER_SWAP[0] and shift == "evening":
+                fixed = {"snack bar": OTHER_SWAP[1], "till 1": OTHER_SWAP[2]}
+            if shift == "evening":
+                fixed["door"] = "Ben"
             while True:
-                people = rng.sample(pool, 3)
-                door = "Ben" if shift == "evening" else rng.choice([p for p in pool if p not in people])
-                post = dict(zip(POSTS, people + [door]))
-                if d in SKIM_ROTA:
-                    if "Tobias" in post.values() and post["snack bar"] != "Tobias":
-                        continue
-                    post["snack bar"] = "Tobias"
-                    if shift == "evening":
-                        if SKIM_ROTA[d] in post.values() and post["till 2"] != SKIM_ROTA[d]:
-                            continue
-                        post["till 2"] = SKIM_ROTA[d]
-                elif d == OTHER_SWAP[0] and shift == "evening":
-                    if post["snack bar"] != OTHER_SWAP[1] or post["till 1"] != OTHER_SWAP[2]:
-                        continue
-                elif shift == "evening" and post["snack bar"] == "Tobias":
-                    continue  # Tobias is only planned at the evening snack bar on the skimming nights
+                rest = rr.sample([p for p in pool if p not in fixed.values()], len(POSTS) - len(fixed))
+                post = dict(fixed)
+                post |= dict(zip([p for p in POSTS if p not in fixed], rest))
+                # Tobias and Marta are only planned at the evening counters on the skimming nights.
+                if d not in SKIM_ROTA and shift == "evening" and (post["snack bar"] == "Tobias" or post["drinks bar"] == "Marta"):
+                    continue
                 break
             planned[(d, shift)] = post
             real = dict(post)
             if d in SKIM_ROTA and shift == "evening":
                 real["till 2"], real["snack bar"] = "Tobias", SKIM_ROTA[d]
+                real["till 1"], real["drinks bar"] = "Marta", DECOY_ROTA[d]
             if d == OTHER_SWAP[0] and shift == "evening":
                 real["till 1"], real["snack bar"] = OTHER_SWAP[1], OTHER_SWAP[2]
             worked[(d, shift)] = real
@@ -179,8 +185,12 @@ def tickets_and_tally():
 TICKETS, TALLY = tickets_and_tally()
 
 
-# --- Snack bar: the till logs whoever is signed in, which is whoever really stood there.
-ITEMS = [("popcorn small", 4.5), ("popcorn large", 6.5), ("nachos", 5.5), ("cola", 3.5), ("ice cream", 3.0), ("beer", 4.0)]
+# --- Foyer: the snack bar and the drinks bar ring up on one till system, which logs whoever is
+# signed in at that counter, so whoever really stood there.
+ITEMS = {
+    "snack bar": [("popcorn small", 4.5), ("popcorn large", 6.5), ("nachos", 5.5), ("ice cream", 3.0)],
+    "drinks bar": [("cola", 3.5), ("lemonade", 3.5), ("beer", 4.0), ("wine", 5.0)],
+}
 
 
 def snack_rows():
@@ -190,11 +200,12 @@ def snack_rows():
     rows = []
     for sid, starts, _, _ in SCREENINGS:
         day, start = starts[:10], minutes(starts[11:])
-        for _ in range(round(sold.get(sid, 0) * rng.uniform(0.25, 0.4))):
+        for _ in range(round(sold.get(sid, 0) * rng.uniform(0.35, 0.55))):
             total = start + rng.randint(-30, 10)
             shift = "afternoon" if total < SHIFT_CHANGE else "evening"
-            item, price = rng.choice(ITEMS)
-            rows.append((stamp(day, total), item, price, ID[WORKED[(day, shift)]["snack bar"]]))
+            counter = rng.choice(COUNTERS)
+            item, price = rng.choice(ITEMS[counter])
+            rows.append((stamp(day, total), counter, item, price, ID[WORKED[(day, shift)][counter]]))
     rows.sort()
     return [(i + 1, *r) for i, r in enumerate(rows)]
 
@@ -250,12 +261,13 @@ def main():
         "CREATE TABLE staff (\n  staff_id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  role TEXT NOT NULL\n);\n",
         insert("staff", ["staff_id", "name", "role"], STAFF),
         "CREATE TABLE rota (\n  day TEXT NOT NULL,  -- 'YYYY-MM-DD'\n  shift TEXT NOT NULL,  -- 'afternoon' or 'evening'\n"
-        "  post TEXT NOT NULL,  -- 'till 1', 'till 2', 'snack bar' or 'door'\n"
+        "  post TEXT NOT NULL,  -- 'till 1', 'till 2', 'snack bar', 'drinks bar' or 'door'\n"
         "  staff_id INTEGER NOT NULL REFERENCES staff (staff_id),\n  PRIMARY KEY (day, shift, post)\n);\n",
         insert("rota", ["day", "shift", "post", "staff_id"], rota_rows()),
-        "CREATE TABLE snack_sales (\n  sale_id INTEGER PRIMARY KEY,\n  sold_at TEXT NOT NULL,\n  item TEXT NOT NULL,\n"
-        "  price REAL NOT NULL,\n  staff_id INTEGER NOT NULL REFERENCES staff (staff_id)  -- signed in at the snack till\n);\n",
-        insert("snack_sales", ["sale_id", "sold_at", "item", "price", "staff_id"], snack_rows()),
+        "CREATE TABLE snack_sales (\n  sale_id INTEGER PRIMARY KEY,\n  sold_at TEXT NOT NULL,\n"
+        "  counter TEXT NOT NULL,  -- 'snack bar' or 'drinks bar'\n  item TEXT NOT NULL,\n"
+        "  price REAL NOT NULL,\n  staff_id INTEGER NOT NULL REFERENCES staff (staff_id)  -- signed in at that counter\n);\n",
+        insert("snack_sales", ["sale_id", "sold_at", "counter", "item", "price", "staff_id"], snack_rows()),
         "CREATE TABLE clicks (\n  click_id INTEGER PRIMARY KEY,\n  time TEXT NOT NULL,  -- 'YYYY-MM-DD HH:MM:SS'\n"
         "  delta INTEGER NOT NULL  -- +1 someone came in, -1 someone went out\n);\n",
         insert("clicks", ["click_id", "time", "delta"], click_rows()),
@@ -279,12 +291,20 @@ def check(sql):
     assert len(gaps) == sum(len(s["bursts"]) for s in SKIMS.values()) and {g[0] for g in gaps} == {2}, gaps
     peak = q("SELECT MAX(n) FROM (SELECT SUM(delta) OVER (ORDER BY time) AS n FROM clicks)")[0][0]
     assert peak == admitted_14th() - 2 and peak > 120, peak
-    late = q("""SELECT date(sold_at), name FROM snack_sales JOIN staff USING (staff_id)
-                WHERE date(sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(sold_at) >= '18:15'
-                GROUP BY 1, 2""")
-    assert late == [("2026-11-06", "Lukas Feld"), ("2026-11-07", "Lukas Feld"), ("2026-11-14", "Selin Aydın")], late
-    tobias = q("""SELECT DISTINCT date(sold_at) FROM snack_sales WHERE staff_id = 5""")
-    assert {"2026-11-06", "2026-11-07", "2026-11-14"} <= {r[0] for r in tobias}, tobias
+    nights = "('2026-11-06', '2026-11-07', '2026-11-14')"
+    late = q(f"""SELECT date(sold_at), counter, name FROM snack_sales JOIN staff USING (staff_id)
+                WHERE date(sold_at) IN {nights} AND time(sold_at) >= '18:15' GROUP BY 1, 2, 3""")
+    full = {"Jonas": "Jonas Pfeiffer", "Ida": "Ida Sommer", "Lukas": "Lukas Feld", "Selin": "Selin Aydın"}
+    assert late == [(d, c, full[n]) for d in SKIM_ROTA for c, n in [("drinks bar", DECOY_ROTA[d]), ("snack bar", SKIM_ROTA[d])]], late
+    for who in (5, 8):  # Tobias and Marta sold in the afternoons of those days, which looks like an alibi
+        days = {r[0] for r in q(f"SELECT DISTINCT date(sold_at) FROM snack_sales WHERE staff_id = {who}")}
+        assert set(SKIM_ROTA) <= days, (who, days)
+    # Planned at a counter on all three evenings but sold nothing there: Tobias and Marta, the decoy.
+    absent = q(f"""SELECT r.day, r.post, s.name FROM rota r JOIN staff s USING (staff_id)
+                   WHERE r.shift = 'evening' AND r.post IN ('snack bar', 'drinks bar') AND r.day IN {nights}
+                   AND NOT EXISTS (SELECT 1 FROM snack_sales x WHERE x.staff_id = r.staff_id AND x.counter = r.post
+                                   AND date(x.sold_at) = r.day AND time(x.sold_at) >= '18:15')""")
+    assert sorted({r[2] for r in absent}) == ["Marta Kowalski", "Tobias Rehm"] and len(absent) == 6, absent
     print("ok: overfull", [r[1:] for r in over], "gaps", len(gaps), "peak", peak)
 
 

@@ -4,7 +4,7 @@ What a team has to carry from where to where in `sql-cinema`. Hand-maintained wi
 
 ```mermaid
 flowchart LR
-  intro(["Intro · two tills, Ben's tally, rota, snack till, clicker"])
+  intro(["Intro · two tills, Ben's tally, rota, foyer tills, clicker"])
 
   tallynote[/"🔎 Ben's clipboard"/]
   firenotice[/"🔎 The fire marshal's notice"/]
@@ -23,7 +23,7 @@ flowchart LR
 
   subgraph p2["Needs an earlier result"]
     rota["4 · The staff rota<br/>MAX(CASE WHEN …) pivot"]
-    snacks["5 · The snack till<br/>date(), time(), GROUP BY two columns"]
+    snacks["5 · The foyer tills<br/>snack bar + drinks bar: date(), time(), GROUP BY three columns"]
   end
 
   subgraph p3["Final lock"]
@@ -34,14 +34,14 @@ flowchart LR
   d_cinema -->|"📄 tickets"| printer
   d_cinema -->|"📄 clicks, halls"| clicker
   d_cinema -->|"📄 rota, staff"| rota
-  d_cinema -->|"📄 snack_sales, staff"| snacks
+  d_cinema -->|"📄 snack_sales (with counter), staff"| snacks
   d_cinema -.->|"📄 all tables, to re-check"| office
 
   tallynote -->|"🔎 Ben is off by 2 at most"| tally
   firenotice -->|"🔎 limit = the Studio's seats"| clicker
   officenote -->|"🔎 code = most people in the Studio at once"| office
-  edithnote -.->|"🔎 rota is a plan; snack till knows who was there"| office
-  tobiasnote -.->|"🔎 the snack till books sales under the signed-in name"| snacks
+  edithnote -.->|"🔎 rota is a plan; the foyer tills know who was signed in at each counter"| office
+  tobiasnote -.->|"🔎 the till books sales under the signed-in name"| snacks
   newspaper -.->|"🔎 bank decides Monday"| office
   intro -.->|"📜 two tills, one roll each"| printer
 
@@ -49,9 +49,9 @@ flowchart LR
   tally ==>|"📤 6, 7 and 14 Nov"| snacks
 
   clicker ==>|"🔒 code 132 = peak in the Studio"| office
-  printer ==>|"📤 all gaps on till 2"| office
-  rota ==>|"📤 till 2 planned: Lukas, Lukas, Selin;<br/>snack bar planned: Tobias"| office
-  snacks ==>|"📤 evening snacks sold by Lukas, Lukas, Selin"| office
+  printer ==>|"📤 all gaps on till 2: decides between Tobias and Marta"| office
+  rota ==>|"📤 planned: till 1 Jonas, Jonas, Ida; till 2 Lukas, Lukas, Selin;<br/>snack bar Tobias; drinks bar Marta"| office
+  snacks ==>|"📤 evening: snack bar Lukas, Lukas, Selin;<br/>drinks bar Jonas, Jonas, Ida"| office
   tally -.->|"📤 57 people without a ticket"| printer
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
@@ -73,23 +73,23 @@ flowchart LR
 | `-->` solid | A clue or data file the station can't be solved without |
 | `-.->` dotted | Context only: the value is also in the task text or the data, or it only helps to judge a result that isn't checked |
 
-All six stations load the same `cinema.sql`, so the room has one data node; the edges name the tables each station needs. The room has no `requires`: the office is behind a code lock, and the rota and the snack till need the dates from Ben's tally (`uses`).
+All six stations load the same `cinema.sql`, so the room has one data node; the edges name the tables each station needs. The room has no `requires`: the office is behind a code lock, and the rota and the foyer tills need the dates from Ben's tally (`uses`).
 
 ## Phases
 
 - **Start:** 3 stations at once (tally, ticket printers, clicker), each about 4–6 minutes. Enough for a team of 3; in a team of 4–5 the others read the clues and the handbook.
-- **Second wave:** the rota and the snack till both need the three dates from the tally, and open together as soon as it is solved, so the room stays 2–3 wide.
-- **Final:** the office opens with 132 (clicker + the note by the office door), then needs a name that only printers + rota + snack till give together: till 2 was skimmed, the people planned there sold snacks instead, so the one planned at the snack bar stood at till 2.
+- **Second wave:** the rota and the foyer tills both need the three dates from the tally, and open together as soon as it is solved, so the room stays 2–3 wide.
+- **Final:** the office opens with 132 (clicker + the note by the office door), then needs a name that only printers + rota + foyer tills give together: Tobias (planned at the snack bar) and Marta (planned at the drinks bar) sold nothing at their counters, and each stood at a ticket till instead; the people planned at till 2 sold snacks (so Tobias took till 2) and those planned at till 1 served drinks (so Marta took till 1). Only the printers' result, all gaps on till 2, picks Tobias.
 
 ## Chains
 
-- Tally → rota → office and tally → snack till → office: 3 stations, the longest paths for the name.
-- Ticket printers → office: 2 stations, which till.
+- Tally → rota → office and tally → foyer tills → office: 3 stations, the longest paths for the names of the two suspects.
+- Ticket printers → office: 2 stations, which till decides between the two suspects.
 - Clicker → office: 2 stations, the lock code.
 
 ## Hand-offs
 
-- Between stations: 7 edges, 6 hard (the dates twice, the lock code, till 2, the planned posts, the evening snack sellers) and 1 soft (57 missing tickets, which the printers confirm on their own).
+- Between stations: 7 edges, 6 hard (the dates twice, the lock code, till 2, the planned posts, the evening sellers per counter) and 1 soft (57 missing tickets, which the printers confirm on their own). The printers' edge is now decisive: without it the office has two equally good suspects.
 - From clues: 7 clue and intro edges from 6 clues and the intro, 3 of them hard (Ben's margin of 2, the fire limit, the office door code rule).
 
 ## Where things are
@@ -98,7 +98,7 @@ The room is the cinema's ground floor: the dark Studio with its screen and seats
 
 - The note by the office door (672, 32) hangs right next to the office (704, 32), but the code comes from the clicker at the Studio door (352, 352), about 480 px away across the foyer.
 - Ben's clipboard (224, 320) hangs beside his tally podium (256, 352), and the fire notice (384, 320) beside the clicker (352, 352), both on the Studio's back wall.
-- The tally's dates have to travel from the Studio door (256, 352) to the rota computer in the staff room (800, 64), about 610 px, and to the snack bar (96, 384), about 160 px.
+- The tally's dates have to travel from the Studio door (256, 352) to the rota computer in the staff room (800, 64), about 610 px, and to the foyer counters (96, 384), about 160 px.
 - Edith's note on the rota board (736, 32) is about 70 px from the rota computer and next to the office.
 - Tobias's reminder about signing in (128, 384) is taped to the end of the snack bar, beside the snack till (96, 384).
 
@@ -106,11 +106,11 @@ The room is the cinema's ground floor: the dark Studio with its screen and seats
 
 Fixed in the shortcut review:
 
-- **The snack till's reveal named the culprit.** It said that Tobias sold snacks only in the afternoon, which with the rota is the whole answer; it now names only the evening sellers, so the office has to join the rota and the snack till itself.
-- **Tobias's note was an alibi that pointed at him** (he alone says he worked the snack bar, "nowhere near the box office"). It is now a neutral reminder to sign in at the snack till.
+- **The snack till's reveal named the culprit.** It said that Tobias sold snacks only in the afternoon, which with the rota is the whole answer; it now names only the evening sellers per counter, so the office has to join the rota and the snack till itself.
+- **Tobias's note was an alibi that pointed at him** (he alone says he worked the snack bar, "nowhere near the box office"). It is now a neutral reminder to sign in at the till.
 - **The printers' reveal gave the dates** (6, 7 and 14 Nov), so the rota and the snack till didn't need Ben's tally. It now says "three evenings"; the dates come from the tally.
 
-Left as is: the printers are a soft link. A team that reads the rota and the snack till can reason that Tobias swapped away from his post without knowing the gaps are on till 2, and the same person being at the snack bar on all three evenings points at him too. Making the printers decisive would need a redesign (for example a decoy swap that only the till of the gaps can rule out).
+Fixed in step 23 (decoy swap): the printers used to be a soft link, because the rota and the snack till alone named Tobias. The room now has a second counter, the drinks bar, on the same till system (`snack_sales.counter`), and a decoy swap of the same shape as the culprit's: on the three evenings Marta Kowalski was planned at the drinks bar and stood at till 1, and the person planned at till 1 (Jonas, Jonas, Ida) served drinks. Tobias was planned at the snack bar and stood at till 2, and the person planned at till 2 (Lukas, Lukas, Selin) sold snacks. Rota plus foyer tills now give two suspects, Tobias and Marta, with nothing to tell them apart; only the printers' result (all 12 gaps on till 2) picks Tobias. No clue explains Marta's swap away. Caveat: the final answer has no attempt limit, so a team that skips the printers can still guess between the two names.
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
@@ -122,7 +122,7 @@ Earlier findings:
 
 - **The hard clues stand next to their stations.** The walking comes from the results instead: the tally's dates go across the room to the rota and the snack bar, and the clicker's code across to the office. A playtest should show whether that is enough talking.
 - **The ticket printers need no clue:** the task text explains the two rolls. The station still matters, since it is the only one that says the cash went missing at till 2.
-- **The trap in the final:** the rota names Lukas Feld and Selin Aydın at till 2, so a team that skips the snack till will likely answer one of them. Tobias's note on the snack bar points at the snack till on purpose: without the evening filter (`time(sold_at) >= '18:15'`) it shows him selling snacks on all three days, which looks like an alibi.
+- **The traps in the final:** the rota names Lukas Feld and Selin Aydın at till 2, so a team that skips the foyer tills will likely answer one of them. A team that reads the rota and the foyer tills but skips the printers finds two suspects, Tobias and Marta, and has a coin toss. Tobias's note on the snack bar points at the foyer tills on purpose: without the evening filter (`time(sold_at) >= '18:15'`) it shows him selling snacks on all three days, which looks like an alibi.
 - **The lock can't be taken from Ben's tally:** he let in 134 on the 14th, but two people walked out before the last latecomers came, so the clicker peaks at 132.
 - **The tally needs Ben's margin:** without it, `HAVING admitted > COUNT(…)` returns 35 screenings instead of 3.
 - **The printers' natural mistake:** without the per-till `MAX`, the last ticket of each roll shows up as a gap (14 rows instead of 12).

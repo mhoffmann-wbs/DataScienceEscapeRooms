@@ -6,7 +6,7 @@
 
 > Kino Lumen, Kleeberg's last old cinema, Sunday 15 November, after the last show. Tomorrow at nine Edith Brandauer has to show her books to the bank. They say the cinema loses money every week, yet the Studio was packed at the weekends. Somebody has been taking the box office's cash.
 >
-> Edith has locked the doors behind you and opened up the cinema's computer: every ticket the two tills printed, Ben the usher's tally at the door, the staff rota, the snack till and the fire marshal's new clicker. Find out who has been skimming, and tell Edith before the last bus leaves in half an hour.
+> Edith has locked the doors behind you and opened up the cinema's computer: every ticket the two box office tills printed, Ben the usher's tally at the door, the staff rota, the foyer tills (snack bar and drinks bar) and the fire marshal's new clicker. Find out who has been skimming, and tell Edith before the last bus leaves in half an hour.
 
 ## Overview
 
@@ -16,8 +16,8 @@
 | 2 | The ticket printers | Finding gaps in a sequence: `NOT EXISTS` with `ticket_no + 1`, and correlated subqueries with `MIN` and `MAX` | open from the start |
 | 3 | The fire marshal's clicker | Running totals with `SUM() OVER (ORDER BY …)`; filtering a window function through a subquery in `FROM`; a scalar subquery | 🔎 The fire marshal's notice |
 | 4 | The staff rota | Turning rows into columns: `MAX(CASE WHEN … THEN … END)` with `GROUP BY`; `IN` with a list of values | 1. Ben's tally (its result) |
-| 5 | The snack till | `date()` and `time()` on timestamps; `GROUP BY` over two columns | 1. Ben's tally (its result), 🔎 A note on the snack bar |
-| 6 | Edith's office (Final lock) | Combining the results of several queries | 2. The ticket printers (its result), 4. The staff rota (its result), 5. The snack till (its result), 3. The fire marshal's clicker (its result), 🔒 3. The fire marshal's clicker, 🔎 A note by the office door, 🔎 Edith's note on the rota board |
+| 5 | The foyer tills | `date()` and `time()` on timestamps; `GROUP BY` over three columns | 1. Ben's tally (its result), 🔎 A note on the snack bar |
+| 6 | Edith's office (Final lock) | Combining the results of several queries | 2. The ticket printers (its result), 4. The staff rota (its result), 5. The foyer tills (its result), 3. The fire marshal's clicker (its result), 🔒 3. The fire marshal's clicker, 🔎 A note by the office door, 🔎 Edith's note on the rota board |
 
 **Final code:** `Tobias Rehm`
 
@@ -120,12 +120,12 @@ ORDER BY t.ticket_no;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[[2,20920,20925],[2,20929,20935],[2,20942,20946],[2,20951,20957],[2,21212,21219],[2,21225,21230],[2,21239,21245],[2,21249,21254],[2,22705,22711],[2,22732,22739],[2,22740,22745],[2,22751,22758]]
+[[2,20969,20974],[2,20979,20985],[2,20998,21002],[2,21005,21011],[2,21240,21247],[2,21251,21256],[2,21263,21269],[2,21272,21277],[2,22769,22775],[2,22784,22791],[2,22802,22807],[2,22808,22815]]
 ```
 
 **Reveals when solved:**
 
-> Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of three evenings, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.
+> Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of three evenings, between 21:04 and 21:30, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.
 
 **Hints:**
 
@@ -171,12 +171,12 @@ ORDER BY time;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["2026-11-14 21:40:33",121],["2026-11-14 21:41:11",122],["2026-11-14 21:41:32",123],["2026-11-14 21:41:59",124],["2026-11-14 21:42:21",125],["2026-11-14 21:42:22",126],["2026-11-14 21:42:34",127],["2026-11-14 21:42:41",128],["2026-11-14 21:43:16",129],["2026-11-14 21:44:11",130],["2026-11-14 21:44:30",131],["2026-11-14 21:44:31",132],["2026-11-14 21:50:51",131],["2026-11-14 21:51:25",130],["2026-11-14 21:56:41",131],["2026-11-14 22:00:35",132],["2026-11-14 22:10:42",131],["2026-11-14 22:13:17",130],["2026-11-14 22:16:35",131],["2026-11-14 22:19:21",132],["2026-11-14 22:37:22",131],["2026-11-14 22:42:46",130],["2026-11-14 22:43:18",129],["2026-11-14 22:43:48",130],["2026-11-14 22:45:38",129],["2026-11-14 22:48:46",130],["2026-11-14 22:50:34",131],["2026-11-14 22:50:47",132],["2026-11-14 23:38:01",131],["2026-11-14 23:38:15",130],["2026-11-14 23:38:18",129],["2026-11-14 23:38:19",128],["2026-11-14 23:38:51",127],["2026-11-14 23:38:55",126],["2026-11-14 23:39:00",125],["2026-11-14 23:39:08",124],["2026-11-14 23:39:12",123],["2026-11-14 23:39:14",122],["2026-11-14 23:39:16",121]]
+[["2026-11-14 21:40:42",121],["2026-11-14 21:40:45",122],["2026-11-14 21:41:20",123],["2026-11-14 21:41:34",124],["2026-11-14 21:41:54",125],["2026-11-14 21:42:35",126],["2026-11-14 21:42:38",127],["2026-11-14 21:42:54",128],["2026-11-14 21:43:15",129],["2026-11-14 21:43:42",130],["2026-11-14 21:43:49",131],["2026-11-14 21:44:25",132],["2026-11-14 21:48:38",131],["2026-11-14 21:48:44",130],["2026-11-14 21:56:54",131],["2026-11-14 22:01:16",132],["2026-11-14 22:39:58",131],["2026-11-14 22:40:01",130],["2026-11-14 22:43:28",131],["2026-11-14 22:47:45",132],["2026-11-14 22:48:11",131],["2026-11-14 22:49:40",130],["2026-11-14 22:50:11",129],["2026-11-14 22:51:09",128],["2026-11-14 22:54:39",129],["2026-11-14 22:55:19",130],["2026-11-14 22:56:41",131],["2026-11-14 22:57:06",132],["2026-11-14 23:38:15",131],["2026-11-14 23:38:19",130],["2026-11-14 23:38:38",129],["2026-11-14 23:38:53",128],["2026-11-14 23:38:55",127],["2026-11-14 23:38:56",126],["2026-11-14 23:38:57",125],["2026-11-14 23:39:08",124],["2026-11-14 23:39:13",123],["2026-11-14 23:39:15",122],["2026-11-14 23:39:16",121]]
 ```
 
 **Reveals when solved:**
 
-> The Studio has 120 seats. During the late show on 14 November it was over that for two hours, from 21:40 to 23:39, with up to **132** people inside at once. Ben's tally says 134 came in: two people walked out at 21:50, before the last two latecomers arrived.
+> The Studio has 120 seats. During the late show on 14 November it was over that for two hours, from 21:40 to 23:39, with up to **132** people inside at once. Ben's tally says 134 came in: two people walked out at 21:48, before the last two latecomers arrived.
 
 **Hints:**
 
@@ -192,9 +192,9 @@ ORDER BY time;
 
 **Task:**
 
-> Edith plans every shift on the computer behind the box office. `rota` has one row per day, shift (`afternoon` or `evening`) and post (`till 1`, `till 2`, `snack bar` or `door`); `staff` has the names.
+> Edith plans every shift on the computer behind the box office. `rota` has one row per day, shift (`afternoon` or `evening`) and post (`till 1`, `till 2`, `snack bar`, `drinks bar` or `door`); `staff` has the names.
 >
-> On each evening when Ben let in far too many people, who was planned where in the evening shift? Show one row per day: the `day`, then the names at till 1, till 2, the snack bar and the door, earliest first.
+> On each evening when Ben let in far too many people, who was planned where in the evening shift? Show one row per day: the `day`, then the names at till 1, till 2, the snack bar, the drinks bar and the door, earliest first.
 
 <details><summary>Starter code</summary>
 
@@ -214,6 +214,7 @@ SELECT r.day,
        MAX(CASE WHEN r.post = 'till 1' THEN s.name END) AS till_1,
        MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2,
        MAX(CASE WHEN r.post = 'snack bar' THEN s.name END) AS snack_bar,
+       MAX(CASE WHEN r.post = 'drinks bar' THEN s.name END) AS drinks_bar,
        MAX(CASE WHEN r.post = 'door' THEN s.name END) AS door
 FROM rota AS r
 JOIN staff AS s ON s.staff_id = r.staff_id
@@ -226,34 +227,34 @@ ORDER BY r.day;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["2026-11-06","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Ben Adeyemi"],["2026-11-07","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Ben Adeyemi"],["2026-11-14","Ida Sommer","Selin Aydın","Tobias Rehm","Ben Adeyemi"]]
+[["2026-11-06","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Marta Kowalski","Ben Adeyemi"],["2026-11-07","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Marta Kowalski","Ben Adeyemi"],["2026-11-14","Ida Sommer","Selin Aydın","Tobias Rehm","Marta Kowalski","Ben Adeyemi"]]
 ```
 
 **Reveals when solved:**
 
 > The evening rota for the three nights:
-> 6 Nov: till 1 Jonas Pfeiffer, till 2 **Lukas Feld**, snack bar Tobias Rehm, door Ben Adeyemi
-> 7 Nov: till 1 Jonas Pfeiffer, till 2 **Lukas Feld**, snack bar Tobias Rehm, door Ben Adeyemi
-> 14 Nov: till 1 Ida Sommer, till 2 **Selin Aydın**, snack bar Tobias Rehm, door Ben Adeyemi
+> 6 Nov: till 1 Jonas Pfeiffer, till 2 Lukas Feld, snack bar Tobias Rehm, drinks bar Marta Kowalski, door Ben Adeyemi
+> 7 Nov: till 1 Jonas Pfeiffer, till 2 Lukas Feld, snack bar Tobias Rehm, drinks bar Marta Kowalski, door Ben Adeyemi
+> 14 Nov: till 1 Ida Sommer, till 2 Selin Aydın, snack bar Tobias Rehm, drinks bar Marta Kowalski, door Ben Adeyemi
 > On paper, till 2 was Lukas twice and Selin once.
 
 **Hints:**
 
-1. Start with the rows for those days: join `rota` and `staff`, then `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` with the dates from Ben's tally. You get four rows per day, one per post.
+1. Start with the rows for those days: join `rota` and `staff`, then `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` with the dates from Ben's tally. You get five rows per day, one per post.
 2. For one row per day, `GROUP BY r.day` and make one column per post: `MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2`. `CASE` gives the name in the till-2 row and `NULL` in the other rows; `MAX` skips the `NULL`s and keeps the name.
-3. `SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`
+3. `SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'drinks bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`
 
-### 5. The snack till
+### 5. The foyer tills
 
-**Practises:** `date()` and `time()` on timestamps; `GROUP BY` over two columns  
+**Practises:** `date()` and `time()` on timestamps; `GROUP BY` over three columns  
 **Needs:** 1. Ben's tally (its result), 🔎 A note on the snack bar  
 **Data:** [cinema.sql](../../content/rooms/sql-cinema/data/cinema.sql)
 
 **Task:**
 
-> The snack bar's till logs every sale together with whoever is signed in: `snack_sales`. The afternoon shift runs until 18:15, then the evening shift takes over.
+> The foyer has two counters, the snack bar and the drinks bar, and both ring up on one till system. It logs every sale together with the counter and whoever is signed in there: `snack_sales`. The afternoon shift runs until 18:15, then the evening shift takes over.
 >
-> On the evenings when Ben let in far too many people, who actually sold snacks in the evening shift? Show the day (as `YYYY-MM-DD`), the name and the number of sales, ordered by day and name.
+> On the evenings when Ben let in far too many people, who actually served at each counter in the evening shift? Show the day (as `YYYY-MM-DD`), the counter, the name and the number of sales, ordered by day, counter and name.
 
 <details><summary>Starter code</summary>
 
@@ -269,35 +270,35 @@ LIMIT 5;
 **Model solution:**
 
 ```sql
-SELECT date(x.sold_at) AS day, s.name, COUNT(*) AS sales
+SELECT date(x.sold_at) AS day, x.counter, s.name, COUNT(*) AS sales
 FROM snack_sales AS x
 JOIN staff AS s ON s.staff_id = x.staff_id
 WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14')
   AND time(x.sold_at) >= '18:15'
-GROUP BY day, s.name
-ORDER BY day, s.name;
+GROUP BY day, x.counter, s.name
+ORDER BY day, x.counter, s.name;
 ```
 
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["2026-11-06","Lukas Feld",102],["2026-11-07","Lukas Feld",95],["2026-11-14","Selin Aydın",100]]
+[["2026-11-06","drinks bar","Jonas Pfeiffer",84],["2026-11-06","snack bar","Lukas Feld",61],["2026-11-07","drinks bar","Jonas Pfeiffer",62],["2026-11-07","snack bar","Lukas Feld",71],["2026-11-14","drinks bar","Ida Sommer",73],["2026-11-14","snack bar","Selin Aydın",67]]
 ```
 
 **Reveals when solved:**
 
-> In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night.
+> In the evening shift the snack bar was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November. The drinks bar was **Jonas Pfeiffer** on 6 and 7 November and **Ida Sommer** on 14 November.
 
 **Hints:**
 
 1. `date(sold_at)` gives the day of a timestamp, `time(sold_at)` its time of day. Both are text in a fixed format, so you can compare them: `time(sold_at) >= '18:15'`.
-2. Join `staff` for the names, keep the three days with `date(x.sold_at) IN (…)` and the evening with `time(x.sold_at) >= '18:15'`, then `GROUP BY` the day and the name and count with `COUNT(*)`.
-3. `SELECT date(x.sold_at) AS day, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, s.name ORDER BY day, s.name;`
+2. Join `staff` for the names, keep the three days with `date(x.sold_at) IN (…)` and the evening with `time(x.sold_at) >= '18:15'`, then `GROUP BY` the day, the counter and the name and count with `COUNT(*)`.
+3. `SELECT date(x.sold_at) AS day, x.counter, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, x.counter, s.name ORDER BY day, x.counter, s.name;`
 
 ### 6. Edith's office (Final lock)
 
 **Practises:** Combining the results of several queries  
-**Needs:** 2. The ticket printers (its result), 4. The staff rota (its result), 5. The snack till (its result), 3. The fire marshal's clicker (its result), 🔒 3. The fire marshal's clicker, 🔎 A note by the office door, 🔎 Edith's note on the rota board  
+**Needs:** 2. The ticket printers (its result), 4. The staff rota (its result), 5. The foyer tills (its result), 3. The fire marshal's clicker (its result), 🔒 3. The fire marshal's clicker, 🔎 A note by the office door, 🔎 Edith's note on the rota board  
 **Data:** [cinema.sql](../../content/rooms/sql-cinema/data/cinema.sql)
 
 **Code lock** (opens with `132`):
@@ -326,28 +327,32 @@ LIMIT 5;
 **Model solution:**
 
 ```sql
--- Planned at the snack bar on all three evenings, but sold no snacks after 18:15:
-SELECT s.name, r.day,
+-- Planned at a foyer counter on all three evenings, but sold nothing there after 18:15:
+SELECT s.name, r.day, r.post,
        (SELECT COUNT(*)
         FROM snack_sales AS x
         WHERE x.staff_id = r.staff_id
+          AND x.counter = r.post
           AND date(x.sold_at) = r.day
           AND time(x.sold_at) >= '18:15') AS evening_sales
 FROM rota AS r
 JOIN staff AS s ON s.staff_id = r.staff_id
 WHERE r.shift = 'evening'
-  AND r.post = 'snack bar'
+  AND r.post IN ('snack bar', 'drinks bar')
   AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14')
-ORDER BY r.day;
+ORDER BY r.day, r.post;
+-- Tobias (snack bar) and Marta (drinks bar) both swapped onto a ticket till. The people planned at
+-- till 2 sold snacks, so Tobias took till 2; the people planned at till 1 served drinks, so Marta took
+-- till 1. All the gaps are on till 2's roll (ticket printers), so it was Tobias.
 ```
 
 **Answer:** `Tobias Rehm`
 
 **Hints:**
 
-1. All the missing tickets came from till 2 (ticket printers). On paper, till 2 was Lukas Feld or Selin Aydın on those evenings (staff rota). But Edith's note on the rota board says the rota is only a plan.
-2. The snack till shows that whoever was planned at till 2 actually sold snacks all evening. So they swapped with the person planned at the snack bar, who sold no snacks after 18:15.
-3. Tobias Rehm was planned at the snack bar on all three evenings but sold no snacks after 18:15. He swapped onto till 2, where the tickets disappeared, while the rota still named someone else.
+1. All the missing tickets came from till 2 (ticket printers). On paper, till 2 was Lukas Feld or Selin Aydın on those evenings (staff rota). But Edith's note on the rota board says the rota is only a plan, not a record of who stood where.
+2. Compare the plan with the foyer tills. Two people planned at a counter sold nothing there in the evening: Tobias Rehm (snack bar) and Marta Kowalski (drinks bar). The people planned at the ticket tills served at the counters instead, so Tobias and Marta each swapped onto a ticket till. Which one stood at the till where the tickets disappeared? The ticket printers tell you which till matters.
+3. Whoever was planned at till 2 sold snacks, so Tobias took till 2; whoever was planned at till 1 served drinks, so Marta took till 1. All the gaps are on till 2's roll, so it was Tobias Rehm, while the rota still named someone else.
 
 ## Clues in the room
 
@@ -379,11 +384,11 @@ ORDER BY r.day;
 
 *Used by: 6. Edith's office*
 
-> To everyone: swapping posts is fine, but TELL ME. The rota is a plan, not a record of who stood where. The snack till at least always knows who is signed in. — Edith
+> To everyone: swapping posts is fine, but TELL ME. The rota is a plan, not a record of who stood where. The foyer tills at least always know who is signed in, at the snack bar and at the drinks bar. — Edith
 
 ### 🔎 A note on the snack bar
 
-*Used by: 5. The snack till*
+*Used by: 5. The foyer tills*
 
 > Reminder for whoever takes over the snack bar: the till books every sale under the name that is signed in. Sign in with your own. — Tobias
 

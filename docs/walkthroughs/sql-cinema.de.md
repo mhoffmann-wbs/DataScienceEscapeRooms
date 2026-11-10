@@ -6,7 +6,7 @@
 
 > Kino Lumen, Kleebergs letztes altes Kino, Sonntag, 15. November, nach der letzten Vorstellung. Morgen um neun muss Edith Brandauer der Bank ihre Bücher zeigen. Nach denen verliert das Kino jede Woche Geld, dabei war das Studio an den Wochenenden voll. Jemand hat sich an der Kasse bedient.
 >
-> Edith hat die Türen hinter euch abgeschlossen und euch den Kinorechner geöffnet: jedes Ticket, das die beiden Kassen gedruckt haben, Bens Strichliste an der Tür, den Dienstplan, die Snackkasse und den neuen Zähler der Feuerwehr. Findet heraus, wer abgezweigt hat, und sagt es Edith, bevor in einer halben Stunde der letzte Bus fährt.
+> Edith hat die Türen hinter euch abgeschlossen und euch den Kinorechner geöffnet: jedes Ticket, das die beiden Kassen gedruckt haben, Bens Strichliste an der Tür, den Dienstplan, die Foyerkassen (Snackbar und Getränkebar) und den neuen Zähler der Feuerwehr. Findet heraus, wer abgezweigt hat, und sagt es Edith, bevor in einer halben Stunde der letzte Bus fährt.
 
 ## Überblick
 
@@ -16,8 +16,8 @@
 | 2 | Die Ticketdrucker | Lücken in einer Folge finden: `NOT EXISTS` mit `ticket_no + 1` und korrelierte Unterabfragen mit `MIN` und `MAX` | von Anfang an offen |
 | 3 | Der Zähler der Feuerwehr | Laufende Summen mit `SUM() OVER (ORDER BY …)`; eine Fensterfunktion über eine Unterabfrage in `FROM` filtern; eine skalare Unterabfrage | 🔎 Der Aushang der Feuerwehr |
 | 4 | Der Dienstplan | Zeilen in Spalten verwandeln: `MAX(CASE WHEN … THEN … END)` mit `GROUP BY`; `IN` mit einer Liste von Werten | 1. Bens Strichliste (sein Ergebnis) |
-| 5 | Die Snackkasse | `date()` und `time()` auf Zeitstempeln; `GROUP BY` über zwei Spalten | 1. Bens Strichliste (sein Ergebnis), 🔎 Ein Zettel an der Snackbar |
-| 6 | Ediths Büro (Abschluss-Schloss) | Die Ergebnisse mehrerer Abfragen kombinieren | 2. Die Ticketdrucker (sein Ergebnis), 4. Der Dienstplan (sein Ergebnis), 5. Die Snackkasse (sein Ergebnis), 3. Der Zähler der Feuerwehr (sein Ergebnis), 🔒 3. Der Zähler der Feuerwehr, 🔎 Ein Zettel an der Bürotür, 🔎 Ediths Zettel am Dienstplan |
+| 5 | Die Foyerkassen | `date()` und `time()` auf Zeitstempeln; `GROUP BY` über drei Spalten | 1. Bens Strichliste (sein Ergebnis), 🔎 Ein Zettel an der Snackbar |
+| 6 | Ediths Büro (Abschluss-Schloss) | Die Ergebnisse mehrerer Abfragen kombinieren | 2. Die Ticketdrucker (sein Ergebnis), 4. Der Dienstplan (sein Ergebnis), 5. Die Foyerkassen (sein Ergebnis), 3. Der Zähler der Feuerwehr (sein Ergebnis), 🔒 3. Der Zähler der Feuerwehr, 🔎 Ein Zettel an der Bürotür, 🔎 Ediths Zettel am Dienstplan |
 
 **Abschluss-Code:** `Tobias Rehm`
 
@@ -120,12 +120,12 @@ ORDER BY t.ticket_no;
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[[2,20920,20925],[2,20929,20935],[2,20942,20946],[2,20951,20957],[2,21212,21219],[2,21225,21230],[2,21239,21245],[2,21249,21254],[2,22705,22711],[2,22732,22739],[2,22740,22745],[2,22751,22758]]
+[[2,20969,20974],[2,20979,20985],[2,20998,21002],[2,21005,21011],[2,21240,21247],[2,21251,21256],[2,21263,21269],[2,21272,21277],[2,22769,22775],[2,22784,22791],[2,22802,22807],[2,22808,22815]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken an drei Abenden, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht.
+> Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken an drei Abenden, zwischen 21:04 und 21:30, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht.
 
 **Hinweise:**
 
@@ -171,12 +171,12 @@ ORDER BY time;
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["2026-11-14 21:40:33",121],["2026-11-14 21:41:11",122],["2026-11-14 21:41:32",123],["2026-11-14 21:41:59",124],["2026-11-14 21:42:21",125],["2026-11-14 21:42:22",126],["2026-11-14 21:42:34",127],["2026-11-14 21:42:41",128],["2026-11-14 21:43:16",129],["2026-11-14 21:44:11",130],["2026-11-14 21:44:30",131],["2026-11-14 21:44:31",132],["2026-11-14 21:50:51",131],["2026-11-14 21:51:25",130],["2026-11-14 21:56:41",131],["2026-11-14 22:00:35",132],["2026-11-14 22:10:42",131],["2026-11-14 22:13:17",130],["2026-11-14 22:16:35",131],["2026-11-14 22:19:21",132],["2026-11-14 22:37:22",131],["2026-11-14 22:42:46",130],["2026-11-14 22:43:18",129],["2026-11-14 22:43:48",130],["2026-11-14 22:45:38",129],["2026-11-14 22:48:46",130],["2026-11-14 22:50:34",131],["2026-11-14 22:50:47",132],["2026-11-14 23:38:01",131],["2026-11-14 23:38:15",130],["2026-11-14 23:38:18",129],["2026-11-14 23:38:19",128],["2026-11-14 23:38:51",127],["2026-11-14 23:38:55",126],["2026-11-14 23:39:00",125],["2026-11-14 23:39:08",124],["2026-11-14 23:39:12",123],["2026-11-14 23:39:14",122],["2026-11-14 23:39:16",121]]
+[["2026-11-14 21:40:42",121],["2026-11-14 21:40:45",122],["2026-11-14 21:41:20",123],["2026-11-14 21:41:34",124],["2026-11-14 21:41:54",125],["2026-11-14 21:42:35",126],["2026-11-14 21:42:38",127],["2026-11-14 21:42:54",128],["2026-11-14 21:43:15",129],["2026-11-14 21:43:42",130],["2026-11-14 21:43:49",131],["2026-11-14 21:44:25",132],["2026-11-14 21:48:38",131],["2026-11-14 21:48:44",130],["2026-11-14 21:56:54",131],["2026-11-14 22:01:16",132],["2026-11-14 22:39:58",131],["2026-11-14 22:40:01",130],["2026-11-14 22:43:28",131],["2026-11-14 22:47:45",132],["2026-11-14 22:48:11",131],["2026-11-14 22:49:40",130],["2026-11-14 22:50:11",129],["2026-11-14 22:51:09",128],["2026-11-14 22:54:39",129],["2026-11-14 22:55:19",130],["2026-11-14 22:56:41",131],["2026-11-14 22:57:06",132],["2026-11-14 23:38:15",131],["2026-11-14 23:38:19",130],["2026-11-14 23:38:38",129],["2026-11-14 23:38:53",128],["2026-11-14 23:38:55",127],["2026-11-14 23:38:56",126],["2026-11-14 23:38:57",125],["2026-11-14 23:39:08",124],["2026-11-14 23:39:13",123],["2026-11-14 23:39:15",122],["2026-11-14 23:39:16",121]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Das Studio hat 120 Sitzplätze. In der Spätvorstellung am 14. November lag es zwei Stunden darüber, von 21:40 bis 23:39, mit bis zu **132** Leuten gleichzeitig. Laut Bens Strichliste kamen 134 herein: Zwei Leute sind um 21:50 gegangen, bevor die letzten beiden Nachzügler kamen.
+> Das Studio hat 120 Sitzplätze. In der Spätvorstellung am 14. November lag es zwei Stunden darüber, von 21:40 bis 23:39, mit bis zu **132** Leuten gleichzeitig. Laut Bens Strichliste kamen 134 herein: Zwei Leute sind um 21:48 gegangen, bevor die letzten beiden Nachzügler kamen.
 
 **Hinweise:**
 
@@ -192,9 +192,9 @@ ORDER BY time;
 
 **Aufgabe:**
 
-> Edith plant jede Schicht am Rechner hinter der Kasse. `rota` hat eine Zeile pro Tag, Schicht (`afternoon` oder `evening`) und Posten (`till 1`, `till 2`, `snack bar` oder `door`); `staff` enthält die Namen.
+> Edith plant jede Schicht am Rechner hinter der Kasse. `rota` hat eine Zeile pro Tag, Schicht (`afternoon` oder `evening`) und Posten (`till 1`, `till 2`, `snack bar`, `drinks bar` oder `door`); `staff` enthält die Namen.
 >
-> Wer war an jedem Abend, an dem Ben viel zu viele Leute eingelassen hat, in der Abendschicht wo eingeplant? Zeigt eine Zeile pro Tag: den Tag (`day`), dann die Namen an Kasse 1, Kasse 2, der Snackbar und der Tür, den frühesten zuerst.
+> Wer war an jedem Abend, an dem Ben viel zu viele Leute eingelassen hat, in der Abendschicht wo eingeplant? Zeigt eine Zeile pro Tag: den Tag (`day`), dann die Namen an Kasse 1, Kasse 2, der Snackbar, der Getränkebar und der Tür, den frühesten zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -214,6 +214,7 @@ SELECT r.day,
        MAX(CASE WHEN r.post = 'till 1' THEN s.name END) AS till_1,
        MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2,
        MAX(CASE WHEN r.post = 'snack bar' THEN s.name END) AS snack_bar,
+       MAX(CASE WHEN r.post = 'drinks bar' THEN s.name END) AS drinks_bar,
        MAX(CASE WHEN r.post = 'door' THEN s.name END) AS door
 FROM rota AS r
 JOIN staff AS s ON s.staff_id = r.staff_id
@@ -226,34 +227,34 @@ ORDER BY r.day;
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["2026-11-06","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Ben Adeyemi"],["2026-11-07","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Ben Adeyemi"],["2026-11-14","Ida Sommer","Selin Aydın","Tobias Rehm","Ben Adeyemi"]]
+[["2026-11-06","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Marta Kowalski","Ben Adeyemi"],["2026-11-07","Jonas Pfeiffer","Lukas Feld","Tobias Rehm","Marta Kowalski","Ben Adeyemi"],["2026-11-14","Ida Sommer","Selin Aydın","Tobias Rehm","Marta Kowalski","Ben Adeyemi"]]
 ```
 
 **Zeigt nach dem Lösen:**
 
 > Der Abenddienstplan für die drei Abende:
-> 6. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 **Lukas Feld**, Snackbar Tobias Rehm, Tür Ben Adeyemi
-> 7. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 **Lukas Feld**, Snackbar Tobias Rehm, Tür Ben Adeyemi
-> 14. Nov.: Kasse 1 Ida Sommer, Kasse 2 **Selin Aydın**, Snackbar Tobias Rehm, Tür Ben Adeyemi
+> 6. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 Lukas Feld, Snackbar Tobias Rehm, Getränkebar Marta Kowalski, Tür Ben Adeyemi
+> 7. Nov.: Kasse 1 Jonas Pfeiffer, Kasse 2 Lukas Feld, Snackbar Tobias Rehm, Getränkebar Marta Kowalski, Tür Ben Adeyemi
+> 14. Nov.: Kasse 1 Ida Sommer, Kasse 2 Selin Aydın, Snackbar Tobias Rehm, Getränkebar Marta Kowalski, Tür Ben Adeyemi
 > Auf dem Papier stand an Kasse 2 zweimal Lukas und einmal Selin.
 
 **Hinweise:**
 
-1. Beginnt mit den Zeilen für diese Tage: Verbindet `rota` und `staff`, dann `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` mit den Daten aus Bens Strichliste. Ihr bekommt vier Zeilen pro Tag, eine pro Posten.
+1. Beginnt mit den Zeilen für diese Tage: Verbindet `rota` und `staff`, dann `WHERE r.shift = 'evening' AND r.day IN ('…', '…', '…')` mit den Daten aus Bens Strichliste. Ihr bekommt fünf Zeilen pro Tag, eine pro Posten.
 2. Für eine Zeile pro Tag gruppiert ihr mit `GROUP BY r.day` und macht eine Spalte pro Posten: `MAX(CASE WHEN r.post = 'till 2' THEN s.name END) AS till_2`. `CASE` liefert in der Zeile von Kasse 2 den Namen und in den anderen Zeilen `NULL`; `MAX` überspringt die `NULL`s und behält den Namen.
-3. `SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`
+3. `SELECT r.day, MAX(CASE WHEN r.post = 'till 1' THEN s.name END), MAX(CASE WHEN r.post = 'till 2' THEN s.name END), MAX(CASE WHEN r.post = 'snack bar' THEN s.name END), MAX(CASE WHEN r.post = 'drinks bar' THEN s.name END), MAX(CASE WHEN r.post = 'door' THEN s.name END) FROM rota AS r JOIN staff AS s ON s.staff_id = r.staff_id WHERE r.shift = 'evening' AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14') GROUP BY r.day ORDER BY r.day;`
 
-### 5. Die Snackkasse
+### 5. Die Foyerkassen
 
-**Übt:** `date()` und `time()` auf Zeitstempeln; `GROUP BY` über zwei Spalten  
+**Übt:** `date()` und `time()` auf Zeitstempeln; `GROUP BY` über drei Spalten  
 **Braucht:** 1. Bens Strichliste (sein Ergebnis), 🔎 Ein Zettel an der Snackbar  
 **Daten:** [cinema.sql](../../content/rooms/sql-cinema/data/cinema.sql)
 
 **Aufgabe:**
 
-> Die Kasse der Snackbar protokolliert jeden Verkauf zusammen mit dem, der gerade angemeldet ist: `snack_sales`. Die Nachmittagsschicht geht bis 18:15, dann übernimmt die Abendschicht.
+> Das Foyer hat zwei Theken, die Snackbar und die Getränkebar, und beide kassieren über ein gemeinsames Kassensystem. Es protokolliert jeden Verkauf zusammen mit der Theke und dem, der dort gerade angemeldet ist: `snack_sales`. Die Nachmittagsschicht geht bis 18:15, dann übernimmt die Abendschicht.
 >
-> Wer hat an den Abenden, an denen Ben viel zu viele Leute eingelassen hat, in der Abendschicht tatsächlich Snacks verkauft? Zeigt den Tag (als `YYYY-MM-DD`), den Namen und die Zahl der Verkäufe, sortiert nach Tag und Name.
+> Wer hat an den Abenden, an denen Ben viel zu viele Leute eingelassen hat, in der Abendschicht an welcher Theke tatsächlich bedient? Zeigt den Tag (als `YYYY-MM-DD`), die Theke, den Namen und die Zahl der Verkäufe, sortiert nach Tag, Theke und Name.
 
 <details><summary>Startcode</summary>
 
@@ -269,35 +270,35 @@ LIMIT 5;
 **Musterlösung:**
 
 ```sql
-SELECT date(x.sold_at) AS day, s.name, COUNT(*) AS sales
+SELECT date(x.sold_at) AS day, x.counter, s.name, COUNT(*) AS sales
 FROM snack_sales AS x
 JOIN staff AS s ON s.staff_id = x.staff_id
 WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14')
   AND time(x.sold_at) >= '18:15'
-GROUP BY day, s.name
-ORDER BY day, s.name;
+GROUP BY day, x.counter, s.name
+ORDER BY day, x.counter, s.name;
 ```
 
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["2026-11-06","Lukas Feld",102],["2026-11-07","Lukas Feld",95],["2026-11-14","Selin Aydın",100]]
+[["2026-11-06","drinks bar","Jonas Pfeiffer",84],["2026-11-06","snack bar","Lukas Feld",61],["2026-11-07","drinks bar","Jonas Pfeiffer",62],["2026-11-07","snack bar","Lukas Feld",71],["2026-11-14","drinks bar","Ida Sommer",73],["2026-11-14","snack bar","Selin Aydın",67]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend.
+> In der Abendschicht war an der Snackbar am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**. An der Getränkebar waren es **Jonas Pfeiffer** am 6. und 7. November und **Ida Sommer** am 14. November.
 
 **Hinweise:**
 
 1. `date(sold_at)` liefert den Tag eines Zeitstempels, `time(sold_at)` seine Uhrzeit. Beides ist Text in festem Format, also könnt ihr vergleichen: `time(sold_at) >= '18:15'`.
-2. Verbindet `staff` für die Namen, behaltet die drei Tage mit `date(x.sold_at) IN (…)` und den Abend mit `time(x.sold_at) >= '18:15'`, gruppiert dann mit `GROUP BY` nach Tag und Name und zählt mit `COUNT(*)`.
-3. `SELECT date(x.sold_at) AS day, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, s.name ORDER BY day, s.name;`
+2. Verbindet `staff` für die Namen, behaltet die drei Tage mit `date(x.sold_at) IN (…)` und den Abend mit `time(x.sold_at) >= '18:15'`, gruppiert dann mit `GROUP BY` nach Tag, Theke und Name und zählt mit `COUNT(*)`.
+3. `SELECT date(x.sold_at) AS day, x.counter, s.name, COUNT(*) FROM snack_sales AS x JOIN staff AS s ON s.staff_id = x.staff_id WHERE date(x.sold_at) IN ('2026-11-06', '2026-11-07', '2026-11-14') AND time(x.sold_at) >= '18:15' GROUP BY day, x.counter, s.name ORDER BY day, x.counter, s.name;`
 
 ### 6. Ediths Büro (Abschluss-Schloss)
 
 **Übt:** Die Ergebnisse mehrerer Abfragen kombinieren  
-**Braucht:** 2. Die Ticketdrucker (sein Ergebnis), 4. Der Dienstplan (sein Ergebnis), 5. Die Snackkasse (sein Ergebnis), 3. Der Zähler der Feuerwehr (sein Ergebnis), 🔒 3. Der Zähler der Feuerwehr, 🔎 Ein Zettel an der Bürotür, 🔎 Ediths Zettel am Dienstplan  
+**Braucht:** 2. Die Ticketdrucker (sein Ergebnis), 4. Der Dienstplan (sein Ergebnis), 5. Die Foyerkassen (sein Ergebnis), 3. Der Zähler der Feuerwehr (sein Ergebnis), 🔒 3. Der Zähler der Feuerwehr, 🔎 Ein Zettel an der Bürotür, 🔎 Ediths Zettel am Dienstplan  
 **Daten:** [cinema.sql](../../content/rooms/sql-cinema/data/cinema.sql)
 
 **Zahlenschloss** (öffnet mit `132`):
@@ -326,28 +327,32 @@ LIMIT 5;
 **Musterlösung:**
 
 ```sql
--- Planned at the snack bar on all three evenings, but sold no snacks after 18:15:
-SELECT s.name, r.day,
+-- Planned at a foyer counter on all three evenings, but sold nothing there after 18:15:
+SELECT s.name, r.day, r.post,
        (SELECT COUNT(*)
         FROM snack_sales AS x
         WHERE x.staff_id = r.staff_id
+          AND x.counter = r.post
           AND date(x.sold_at) = r.day
           AND time(x.sold_at) >= '18:15') AS evening_sales
 FROM rota AS r
 JOIN staff AS s ON s.staff_id = r.staff_id
 WHERE r.shift = 'evening'
-  AND r.post = 'snack bar'
+  AND r.post IN ('snack bar', 'drinks bar')
   AND r.day IN ('2026-11-06', '2026-11-07', '2026-11-14')
-ORDER BY r.day;
+ORDER BY r.day, r.post;
+-- Tobias (snack bar) and Marta (drinks bar) both swapped onto a ticket till. The people planned at
+-- till 2 sold snacks, so Tobias took till 2; the people planned at till 1 served drinks, so Marta took
+-- till 1. All the gaps are on till 2's roll (ticket printers), so it was Tobias.
 ```
 
 **Antwort:** `Tobias Rehm`
 
 **Hinweise:**
 
-1. Alle fehlenden Tickets kamen von Kasse 2 (Ticketdrucker). Auf dem Papier war Kasse 2 an diesen Abenden Lukas Feld oder Selin Aydın (Dienstplan). Aber Ediths Zettel am Dienstplan sagt, der Plan ist nur ein Plan.
-2. Die Snackkasse zeigt, dass, wer an Kasse 2 eingeplant war, den ganzen Abend Snacks verkauft hat. Also hat diese Person mit der getauscht, die an der Snackbar eingeplant war und nach 18:15 keine Snacks verkauft hat.
-3. Tobias Rehm war an allen drei Abenden an der Snackbar eingeplant, hat aber nach 18:15 keine Snacks verkauft. Er hat an Kasse 2 getauscht, wo die Tickets verschwanden, während im Dienstplan noch jemand anderes stand.
+1. Alle fehlenden Tickets kamen von Kasse 2 (Ticketdrucker). Auf dem Papier war Kasse 2 an diesen Abenden Lukas Feld oder Selin Aydın (Dienstplan). Aber Ediths Zettel am Dienstplan sagt, der Plan ist nur ein Plan und kein Protokoll, wer wo stand.
+2. Vergleicht den Plan mit den Foyerkassen. Zwei Personen, die an einer Theke eingeplant waren, haben dort am Abend nichts verkauft: Tobias Rehm (Snackbar) und Marta Kowalski (Getränkebar). Die an den Kassen Eingeplanten haben stattdessen an den Theken bedient, also sind Tobias und Marta jeweils an eine Ticketkasse gewechselt. Wer von beiden stand an der Kasse, an der die Tickets verschwanden? Welche Kasse zählt, sagen die Ticketdrucker.
+3. Wer an Kasse 2 eingeplant war, hat Snacks verkauft, also hat Tobias Kasse 2 übernommen; wer an Kasse 1 eingeplant war, hat Getränke ausgeschenkt, also hat Marta Kasse 1 übernommen. Alle Lücken liegen auf der Rolle von Kasse 2, also war es Tobias Rehm, während im Dienstplan noch jemand anderes stand.
 
 ## Hinweise im Raum
 
@@ -379,11 +384,11 @@ ORDER BY r.day;
 
 *Gebraucht von: 6. Ediths Büro*
 
-> An alle: Posten tauschen ist in Ordnung, aber SAGT ES MIR. Der Dienstplan ist ein Plan, kein Protokoll, wer wo stand. Die Snackkasse weiß wenigstens immer, wer angemeldet ist. — Edith
+> An alle: Posten tauschen ist in Ordnung, aber SAGT ES MIR. Der Dienstplan ist ein Plan, kein Protokoll, wer wo stand. Die Foyerkassen wissen wenigstens immer, wer angemeldet ist, an der Snackbar und an der Getränkebar. — Edith
 
 ### 🔎 Ein Zettel an der Snackbar
 
-*Gebraucht von: 5. Die Snackkasse*
+*Gebraucht von: 5. Die Foyerkassen*
 
 > Erinnerung für alle, die die Snackbar übernehmen: Die Kasse bucht jeden Verkauf auf den Namen, der angemeldet ist. Meldet euch mit eurem eigenen an. — Tobias
 
