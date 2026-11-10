@@ -17,7 +17,7 @@
 | 1 | Rückgabewagen | Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach mehreren Schlüsseln in verschiedenen Richtungen zu mehreren Sortierungen, der unwichtigste Schlüssel zuerst. | 🔎 Zettel am Rückgabewagen |
 | 2 | Packtisch | Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur, und die Schlüsselwort-Parameter einer Signatur lesen und was sie ändern. | 🔎 Etikett auf einem Archivkarton |
 | 3 | Mahngebühren-Buch | Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`: Zahlen aus Strings bauen, `quantize`, Rundungsarten). | 🔎 Gebührenordnung |
-| 4 | Das alte Terminal | Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit du weißt, ob Code auf einem älteren Python läuft. | 🔎 Margaretes Skriptliste |
+| 4 | Das alte Terminal | Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit ihr wisst, ob Code auf einem älteren Python läuft. | 🔎 Margaretes Skriptliste |
 | 5 | Datumsstempel-Maschine | Eine Tabelle in der Doku lesen, samt der Hinweise darunter: die Formatcodes von `strftime`, und warum ISO-Wochendaten `%G` mit `%V` und `%u` brauchen. | 🔒 4. Das alte Terminal, 🔎 Anleitung der Stempelmaschine |
 | 6 | Archivtür (Abschluss-Schloss) | Die Ergebnisse des Raums zusammensetzen. | 1. Rückgabewagen (sein Ergebnis), 2. Packtisch (sein Ergebnis), 3. Mahngebühren-Buch (sein Ergebnis), 5. Datumsstempel-Maschine (sein Ergebnis), 🔎 Karte im Zettelkatalog |
 
@@ -70,8 +70,8 @@ print(cart)
 
 **Hinweise:**
 
-1. Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“.
-2. Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem unwichtigsten Schlüssel (Titel), dann nach dem nächsten (Autor, `reverse=True`), dann nach dem wichtigsten (Regal). Ein einzelner Tupel-Schlüssel kann nicht nur einen von mehreren String-Schlüsseln umkehren.
+1. Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lest in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“.
+2. Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiert also zuerst nach dem unwichtigsten Schlüssel (Titel), dann nach dem nächsten (Autor, `reverse=True`), dann nach dem wichtigsten (Regal). Ein einzelner Tupel-Schlüssel kann nicht nur einen von mehreren String-Schlüsseln umkehren.
 3. `by_title = sorted(returns, key=lambda b: b["title"])`, dann `by_author = sorted(by_title, key=lambda b: b["author"], reverse=True)`, dann `sorted(by_author, key=lambda b: b["shelf"])`, dann die Titel herausziehen.
 
 ### 2. Packtisch
@@ -96,7 +96,7 @@ print(len(book_ids), book_ids[:3])
 
 
 def pack(ids):
-    ...  # gib die Kartons zurück
+    ...  # gebt die Kartons zurück
 
 
 boxes = pack(book_ids)
@@ -130,8 +130,8 @@ print(len(boxes), boxes[-1])
 
 **Hinweise:**
 
-1. Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe.
-2. `itertools.batched(iterable, n, *, strict=False)`: Lies im Eintrag, was der Schlüsselwort-Parameter `strict` macht (neu in 3.13). `batched` arbeitet lazy, also pack es in `pack` in `list(...)`, sonst kommt der Fehler zu spät. Und das Etikett will zuerst die Reihenfolge der Signaturen.
+1. Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffnet `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe.
+2. `itertools.batched(iterable, n, *, strict=False)`: Lest im Eintrag, was der Schlüsselwort-Parameter `strict` macht (neu in 3.13). `batched` arbeitet lazy, also packt es in `pack` in `list(...)`, sonst kommt der Fehler zu spät. Und das Etikett will zuerst die Reihenfolge der Signaturen.
 3. `from itertools import batched`, dann `def pack(ids): return list(batched(sorted(ids), 7, strict=True))` und `boxes = pack(book_ids)`
 
 ### 3. Mahngebühren-Buch
@@ -196,7 +196,7 @@ print(fees, total)
 
 ### 4. Das alte Terminal
 
-**Übt:** Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit du weißt, ob Code auf einem älteren Python läuft.  
+**Übt:** Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit ihr wisst, ob Code auf einem älteren Python läuft.  
 **Braucht:** 🔎 Margaretes Skriptliste
 
 **Aufgabe:**
@@ -213,7 +213,7 @@ print(fees, total)
 
 **Hinweise:**
 
-1. Margarete hat die Liste der Funktionen neben das Terminal gepinnt. Schlag jede nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“.
+1. Margarete hat die Liste der Funktionen neben das Terminal gepinnt. Schlagt jede nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“.
 2. Funktionen aus 3.8 oder früher laufen auf dem Terminal. Zwei der fünf auf der Liste tun das.
 3. `str.removeprefix` 3.9, `math.dist` 3.8, `itertools.pairwise` 3.10, `statistics.fmean` 3.8, `itertools.batched` 3.12.
 
@@ -231,7 +231,7 @@ print(fees, total)
 
 > Die Stempelmaschine druckt in jedes Buch einen Rückgabestempel. Ihr Fach ist voll, aber Margaretes Stempelskript druckt um Neujahr herum Unsinn.
 >
-> Die Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariere das Skript, sodass `stamps` für jedes Buch den richtigen Rückgabestempel enthält.
+> Die Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariert das Skript, sodass `stamps` für jedes Buch den richtigen Rückgabestempel enthält.
 
 <details><summary>Startcode</summary>
 

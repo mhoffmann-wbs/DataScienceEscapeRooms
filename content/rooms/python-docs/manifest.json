@@ -58,11 +58,11 @@
       "hints": [
         {
           "en": "Margarete's note on the cart gives the shelving order. The HOWTOs are linked from the docs' start page and from the handbook. In \"Sorting Techniques\", read the section \"Sort Stability and Complex Sorts\".",
-          "de": "Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“."
+          "de": "Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lest in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“."
         },
         {
           "en": "Sorts are stable: records with the same key keep their order. So sort by the least important key first (title), then by the next one (author, `reverse=True`), then by the most important (shelf). A single tuple key can't reverse just one of several string keys.",
-          "de": "Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem unwichtigsten Schlüssel (Titel), dann nach dem nächsten (Autor, `reverse=True`), dann nach dem wichtigsten (Regal). Ein einzelner Tupel-Schlüssel kann nicht nur einen von mehreren String-Schlüsseln umkehren."
+          "de": "Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiert also zuerst nach dem unwichtigsten Schlüssel (Titel), dann nach dem nächsten (Autor, `reverse=True`), dann nach dem wichtigsten (Regal). Ein einzelner Tupel-Schlüssel kann nicht nur einen von mehreren String-Schlüsseln umkehren."
         },
         {
           "en": "`by_title = sorted(returns, key=lambda b: b[\"title\"])`, then `by_author = sorted(by_title, key=lambda b: b[\"author\"], reverse=True)`, then `sorted(by_author, key=lambda b: b[\"shelf\"])`, then take the titles.",
@@ -87,7 +87,7 @@
       "workspace": "python",
       "starter": {
         "en": "# book_ids is loaded: call numbers like \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\n\ndef pack(ids):\n    ...  # return the boxes\n\n\nboxes = pack(book_ids)\n",
-        "de": "# book_ids ist geladen: Signaturen wie \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\n\ndef pack(ids):\n    ...  # gib die Kartons zurück\n\n\nboxes = pack(book_ids)\n"
+        "de": "# book_ids ist geladen: Signaturen wie \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\n\ndef pack(ids):\n    ...  # gebt die Kartons zurück\n\n\nboxes = pack(book_ids)\n"
       },
       "data": "boxes.py",
       "check": {
@@ -105,11 +105,11 @@
       "hints": [
         {
           "en": "The label on the archive boxes says how to pack them. Open `itertools` from the module index. The tables at the top of its page list every function with a one-line description; one of them makes groups of a fixed size.",
-          "de": "Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe."
+          "de": "Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffnet `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe."
         },
         {
           "en": "`itertools.batched(iterable, n, *, strict=False)`: read what the keyword-only `strict` does on its entry (it was added in 3.13). `batched` is lazy, so wrap it in `list(...)` inside `pack`, or the error comes up too late. And the label wants call-number order first.",
-          "de": "`itertools.batched(iterable, n, *, strict=False)`: Lies im Eintrag, was der Schlüsselwort-Parameter `strict` macht (neu in 3.13). `batched` arbeitet lazy, also pack es in `pack` in `list(...)`, sonst kommt der Fehler zu spät. Und das Etikett will zuerst die Reihenfolge der Signaturen."
+          "de": "`itertools.batched(iterable, n, *, strict=False)`: Lest im Eintrag, was der Schlüsselwort-Parameter `strict` macht (neu in 3.13). `batched` arbeitet lazy, also packt es in `pack` in `list(...)`, sonst kommt der Fehler zu spät. Und das Etikett will zuerst die Reihenfolge der Signaturen."
         },
         {
           "en": "`from itertools import batched`, then\n`def pack(ids):\n    return list(batched(sorted(ids), 7, strict=True))`\nand `boxes = pack(book_ids)`",
@@ -186,7 +186,7 @@
       },
       "practises": {
         "en": "Version notes: every entry in the docs says when it was added or changed (\"Added in version 3.x\"), so you know whether code runs on an older Python.",
-        "de": "Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit du weißt, ob Code auf einem älteren Python läuft."
+        "de": "Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit ihr wisst, ob Code auf einem älteren Python läuft."
       },
       "clues": [
         "script-list"
@@ -194,7 +194,7 @@
       "hints": [
         {
           "en": "Margarete pinned the list of functions next to the terminal. Look each one up (the general index or the search finds it). At the end of its entry there is a note such as \"Added in version 3.x\".",
-          "de": "Margarete hat die Liste der Funktionen neben das Terminal gepinnt. Schlag jede nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“."
+          "de": "Margarete hat die Liste der Funktionen neben das Terminal gepinnt. Schlagt jede nach (der allgemeine Index oder die Suche findet sie). Am Ende ihres Eintrags steht ein Hinweis wie „Added in version 3.x“."
         },
         {
           "en": "Functions added in 3.8 or earlier run on the terminal. Two of the five on the list do.",
@@ -218,7 +218,7 @@
       },
       "text": {
         "en": "The stamp machine prints a return stamp into every book. Its tray is full, but Margarete's stamp script prints nonsense around New Year.\n\nThe return dates are loaded as `returned`, ISO date strings. Fix the script so that `stamps` holds the correct return stamp for every book.",
-        "de": "Die Stempelmaschine druckt in jedes Buch einen Rückgabestempel. Ihr Fach ist voll, aber Margaretes Stempelskript druckt um Neujahr herum Unsinn.\n\nDie Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariere das Skript, sodass `stamps` für jedes Buch den richtigen Rückgabestempel enthält."
+        "de": "Die Stempelmaschine druckt in jedes Buch einen Rückgabestempel. Ihr Fach ist voll, aber Margaretes Stempelskript druckt um Neujahr herum Unsinn.\n\nDie Rückgabedaten sind als `returned` geladen, ISO-Datumsstrings. Repariert das Skript, sodass `stamps` für jedes Buch den richtigen Rückgabestempel enthält."
       },
       "workspace": "python",
       "starter": {
@@ -400,7 +400,7 @@
             "name": "Library Reference",
             "text": {
               "en": "Every built-in function, type and standard-library module, grouped by topic. Start here when you know roughly what you need (\"something for dates\").",
-              "de": "Jede eingebaute Funktion, jeder Typ und jedes Modul der Standardbibliothek, nach Themen geordnet. Fang hier an, wenn du ungefähr weißt, was du brauchst („irgendwas mit Datum“)."
+              "de": "Jede eingebaute Funktion, jeder Typ und jedes Modul der Standardbibliothek, nach Themen geordnet. Fangt hier an, wenn ihr ungefähr wisst, was ihr braucht („irgendwas mit Datum“)."
             },
             "link": "https://docs.python.org/3.14/library/index.html"
           },
@@ -408,7 +408,7 @@
             "name": "Module index",
             "text": {
               "en": "All modules from A to Z. The quickest way to a module's page when you know its name, like `itertools` or `decimal`.",
-              "de": "Alle Module von A bis Z. Der schnellste Weg zur Seite eines Moduls, wenn du seinen Namen kennst, etwa `itertools` oder `decimal`."
+              "de": "Alle Module von A bis Z. Der schnellste Weg zur Seite eines Moduls, wenn ihr seinen Namen kennt, etwa `itertools` oder `decimal`."
             },
             "link": "https://docs.python.org/3.14/py-modindex.html"
           },
@@ -424,7 +424,7 @@
             "name": "Search",
             "text": {
               "en": "Full-text search. Search for the exact name (`batched`), not for a description; the first hits are usually the reference entries.",
-              "de": "Volltextsuche. Such nach dem genauen Namen (`batched`), nicht nach einer Beschreibung; die ersten Treffer sind meist die Referenzeinträge."
+              "de": "Volltextsuche. Sucht nach dem genauen Namen (`batched`), nicht nach einer Beschreibung; die ersten Treffer sind meist die Referenzeinträge."
             },
             "link": "https://docs.python.org/3.14/search.html"
           },
@@ -456,7 +456,7 @@
             "name": "name(a, b=1, *, c=None)",
             "text": {
               "en": "The signature: what you can pass. `b=1` has a default and may be left out. Parameters after `*` must be given by name (`c=...`); parameters before a `/` only by position.",
-              "de": "Die Signatur: Was du übergeben kannst. `b=1` hat einen Standardwert und darf fehlen. Parameter nach `*` musst du mit Namen übergeben (`c=...`), Parameter vor einem `/` nur nach Position."
+              "de": "Die Signatur: Was ihr übergeben könnt. `b=1` hat einen Standardwert und darf fehlen. Parameter nach `*` müsst ihr mit Namen übergeben (`c=...`), Parameter vor einem `/` nur nach Position."
             },
             "link": "https://docs.python.org/3.14/glossary.html#term-parameter"
           },
@@ -464,7 +464,7 @@
             "name": "Added in version 3.x",
             "text": {
               "en": "Notes at the end of an entry: when it appeared, when it changed (\"Changed in version\"), when it is going away (\"Deprecated since version\"). They tell you whether code runs on an older Python. The What's New pages (the link) list every change, one page per release.",
-              "de": "Hinweise am Ende eines Eintrags: wann er dazukam, wann er sich geändert hat („Changed in version“), wann er wegfällt („Deprecated since version“). Sie sagen dir, ob Code auf einem älteren Python läuft. Die Seiten „What's New“ (der Link) listen jede Änderung auf, eine Seite pro Version."
+              "de": "Hinweise am Ende eines Eintrags: wann er dazukam, wann er sich geändert hat („Changed in version“), wann er wegfällt („Deprecated since version“). Sie sagen euch, ob Code auf einem älteren Python läuft. Die Seiten „What's New“ (der Link) listen jede Änderung auf, eine Seite pro Version."
             },
             "link": "https://docs.python.org/3.14/whatsnew/index.html"
           },
@@ -472,7 +472,7 @@
             "name": "Note  Warning  See also",
             "text": {
               "en": "Boxes inside an entry with the surprises: a behaviour you wouldn't guess, a common mistake, a better tool somewhere else. Read them even when you think you know the function.",
-              "de": "Kästen in einem Eintrag mit den Überraschungen: ein Verhalten, das man nicht erwartet, ein häufiger Fehler, ein besseres Werkzeug anderswo. Lies sie, auch wenn du glaubst, die Funktion zu kennen."
+              "de": "Kästen in einem Eintrag mit den Überraschungen: ein Verhalten, das man nicht erwartet, ein häufiger Fehler, ein besseres Werkzeug anderswo. Lest sie, auch wenn ihr glaubt, die Funktion zu kennen."
             }
           },
           {
@@ -486,7 +486,7 @@
             "name": ">>> examples",
             "text": {
               "en": "Lines starting with `>>>` are code; the line below is what Python prints. Copy them into the editor (without `>>>`) and change them until you understand them.",
-              "de": "Zeilen, die mit `>>>` beginnen, sind Code; die Zeile darunter ist, was Python ausgibt. Kopier sie in den Editor (ohne `>>>`) und verändere sie, bis du sie verstehst."
+              "de": "Zeilen, die mit `>>>` beginnen, sind Code; die Zeile darunter ist, was Python ausgibt. Kopiert sie in den Editor (ohne `>>>`) und verändert sie, bis ihr sie versteht."
             },
             "link": "https://docs.python.org/3.14/tutorial/interpreter.html#interactive-mode"
           }
@@ -510,7 +510,7 @@
             "name": "dir(obj)",
             "text": {
               "en": "Lists the names inside a module or object: `dir(str)` shows every string method. Useful when you half remember a name.",
-              "de": "Listet die Namen in einem Modul oder Objekt: `dir(str)` zeigt jede String-Methode. Praktisch, wenn du einen Namen nur halb erinnerst."
+              "de": "Listet die Namen in einem Modul oder Objekt: `dir(str)` zeigt jede String-Methode. Praktisch, wenn ihr einen Namen nur halb erinnert."
             },
             "link": "https://docs.python.org/3.14/library/functions.html#dir"
           },
@@ -518,7 +518,7 @@
             "name": "sys.version",
             "text": {
               "en": "The Python version your code runs on. The docs have one edition per version (the switcher at the top of each page); read the one that matches.",
-              "de": "Die Python-Version, auf der dein Code läuft. Die Doku gibt es für jede Version einzeln (die Auswahl oben auf jeder Seite); lies die passende."
+              "de": "Die Python-Version, auf der euer Code läuft. Die Doku gibt es für jede Version einzeln (die Auswahl oben auf jeder Seite); lest die passende."
             },
             "link": "https://docs.python.org/3.14/library/sys.html#sys.version"
           }
