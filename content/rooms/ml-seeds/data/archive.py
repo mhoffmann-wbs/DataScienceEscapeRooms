@@ -1583,13 +1583,13 @@ def _elbow_check(inertias, silhouettes, k):
         problems.append(f"inertias needs 10 values (k = 1 to 10) and silhouettes 9 (k = 2 to 10); you have {len(ins)} and {len(sil)}. / inertias braucht 10 Werte (k = 1 bis 10) und silhouettes 9 (k = 2 bis 10); ihr habt {len(ins)} und {len(sil)}.")
     elif abs(ins[0] - _RAW_INERTIAS[0]) < 0.01 * _RAW_INERTIAS[0]:
         problems.append("These inertias are in milligrams squared: the archive isn't scaled yet. / Diese Inertias sind in Milligramm zum Quadrat: Das Archiv ist noch nicht skaliert.")
-    elif any(abs(a - b) > 0.01 * b for a, b in zip(ins[:5], _INERTIAS[:5])):
+    elif any(abs(a - b) > 0.01 * b for a, b in zip(ins[:2], _INERTIAS[:2])) or any(not 0.95 * b <= a <= 1.12 * b for a, b in zip(ins[2:5], _INERTIAS[2:5])):
         problems.append("The inertias don't match the scaled archive. Scale all four columns with one StandardScaler, then fit KMeans for each k. / Die Inertias passen nicht zum skalierten Archiv. Skaliert alle vier Spalten mit einem StandardScaler und trainiert dann KMeans für jedes k.")
     elif ins[5] > _INERTIAS[5] * 1.05:
         problems.append("The inertia for k = 6 is higher than it can be: one run of KMeans got stuck. Let it start several times (n_init=10). / Die Inertia für k = 6 ist höher als möglich: Ein Durchlauf von KMeans ist hängen geblieben. Lasst es mehrmals starten (n_init=10).")
     elif abs(sil[4] - _SILHOUETTES[4]) > 0.01:
         problems.append("The silhouette for k = 6 is off: compute it on the scaled archive with the labels of that k. / Die Silhouette für k = 6 stimmt nicht: Berechnet sie auf dem skalierten Archiv mit den Labels dieses k.")
-    elif any(abs(a - b) > 0.02 for a, b in zip(sil[:5], _SILHOUETTES[:5])) or any(abs(a - b) > 0.25 for a, b in zip(sil[5:], _SILHOUETTES[5:])):
+    elif abs(sil[0] - _SILHOUETTES[0]) > 0.02 or any(abs(a - b) > 0.12 for a, b in zip(sil[1:4], _SILHOUETTES[1:4])) or any(abs(a - b) > 0.25 for a, b in zip(sil[5:], _SILHOUETTES[5:])):
         problems.append("The silhouettes don't match the scaled archive: one value per k from 2 to 10, each from that k's own labels. / Die Silhouetten passen nicht zum skalierten Archiv: ein Wert pro k von 2 bis 10, jeder aus den Labels seines k.")
     elif any(not 0.9 * b <= a <= 1.25 * b for a, b in zip(ins[6:], _INERTIAS[6:])):
         problems.append("The inertias for k = 7 to 10 don't match the scaled archive: fit KMeans for every k, not only the first few. / Die Inertias für k = 7 bis 10 passen nicht zum skalierten Archiv: Trainiert KMeans für jedes k, nicht nur für die ersten.")
