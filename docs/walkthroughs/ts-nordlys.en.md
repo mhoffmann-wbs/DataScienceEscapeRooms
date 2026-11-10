@@ -62,7 +62,7 @@ show_plot(fuel, fuel_filled, labels=["with gaps", "filled"], title="Fuel per mon
 **Checked result** (`[n_missing, int(fuel_filled.isna().sum()), [round(float(fuel_filled[d])) for d in ["2013-07-01", "2017-02-01", "2017-03-01", "2021-11-01"]]]`):
 
 ```json
-[4, 0, [2378, 4140, 3744, 4403]]
+[4, 0, [2120, 3909, 3603, 4505]]
 ```
 
 **Reveals when solved:**
@@ -176,12 +176,12 @@ show_plot(train["2021":], test, seasonal_naive, labels=["train", "test", "season
 **Checked result** (`[round(float(mae_naive)), round(float(mae_snaive))]`):
 
 ```json
-[1519, 602]
+[1533, 440]
 ```
 
 **Reveals when solved:**
 
-> The chief's rule of thumb (seasonal naive) misses by **602 litres** a month on average; the naive forecast by 1519.
+> The chief's rule of thumb (seasonal naive) misses by **440 litres** a month on average; the naive forecast by 1533.
 
 **Hints:**
 
@@ -234,7 +234,7 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 **Checked result** (`[len(stationary), round(float(stationary.mean()), 4), round(float(stationary.std()), 4), bool(adf_p < 0.05)]`):
 
 ```json
-[179, 0.0002, 0.0365, true]
+[179, 0.0004, 0.0394, true]
 ```
 
 **Reveals when solved:**
@@ -314,18 +314,18 @@ order, seasonal_order = best[1], best[2]
 **Checked result** (`[list(order), list(seasonal_order), len(stationary), round(float(stationary.std()), 4)]`):
 
 ```json
-[[0, 1, 1], [0, 1, 1, 12], 179, 0.0365]
+[[1, 1, 1], [0, 1, 1, 12], 179, 0.0394]
 ```
 
 **Reveals when solved:**
 
-> The echoes settle: **(0,1,1)(0,1,1,12)**, the classic airline model. One short echo at lag 1 and one at lag 12, nothing else.
+> The echoes settle: **(1,1,1)(0,1,1,12)**. One clear echo at lag 12, and at the short lags a mix of AR and MA that only the AIC settles. It beats the textbook airline model (0,1,1)(0,1,1,12).
 
 **Hints:**
 
-1. The stationary series is the gauge's result, and the echo sounder manual on the wall says how to read the echoes. Each difference the gauge needed becomes an order of differencing in the model: `.diff(1)` is d = 1, `.diff(12)` is D = 1. The ACF has two clear spikes, at lag 1 and lag 12, while the PACF fades out; single bars that just touch the dashed band are noise. In the manual that means MA terms: q = 1 and Q = 1.
+1. The stationary series is the gauge's result, and the echo sounder manual on the wall says how to read the echoes. Each difference the gauge needed becomes an order of differencing in the model: `.diff(1)` is d = 1, `.diff(12)` is D = 1. At the seasonal lags the ACF has one clear spike at lag 12 while the PACF fades out: in the manual that is a seasonal MA, Q = 1. The short lags are less clean: small bars at lag 1 and 2 that neither plot cuts off and both fade, so a mix of AR and MA is possible. Single bars that just touch the dashed band are noise. When in doubt, let the AIC decide.
 2. Fit on `train` (the log series), not on `stationary`: with d = 1 and D = 1 the model differences by itself. The manual's last line says how the data decides: loop over `candidates`, fit `sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12))`, read `.fit(disp=False).aic` and keep the smallest.
-3. `stationary = log_fuel.diff(12).diff(1).dropna()`; with d = D = 1 the lowest AIC (about −635) belongs to `order = (0, 1, 1)` and `seasonal_order = (0, 1, 1, 12)`.
+3. `stationary = log_fuel.diff(12).diff(1).dropna()`; with d = D = 1 the lowest AIC (about −615) belongs to `order = (1, 1, 1)` and `seasonal_order = (0, 1, 1, 12)`.
 
 ### 6. The supply terminal (Final lock)
 
@@ -371,10 +371,10 @@ import statsmodels.api as sm
 from helpers import show_plot
 fuel_filled = fuel.interpolate(method="time")
 log_fuel = np.log(fuel_filled)
-order, seasonal_order = (0, 1, 1), (0, 1, 1, 12)
+order, seasonal_order = (1, 1, 1), (0, 1, 1, 12)
 holdout = sm.tsa.SARIMAX(log_fuel[:"2023-12"], order=order, seasonal_order=seasonal_order).fit(disp=False)
 forecast = np.exp(holdout.forecast(24))
-mae_chief = 602   # from the chief's method
+mae_chief = 440   # from the chief's method
 mae_sarima = (forecast - fuel_filled["2024-01":]).abs().mean()
 model = sm.tsa.SARIMAX(log_fuel, order=order, seasonal_order=seasonal_order).fit(disp=False)
 jan_2026 = float(np.exp(model.forecast(1).iloc[0]))
@@ -392,7 +392,7 @@ show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 
 1. Sigrid's order form says how to write the order. Bring three things: `mae_chief` and her test period from the chief's method, and `order`, `seasonal_order` from the echo chamber. Fit `sm.tsa.SARIMAX(log_fuel[:last_training_month], order=order, seasonal_order=seasonal_order).fit(disp=False)` and `.forecast()` as many months as the test period has.
 2. The model forecasts log litres; the order form wants real litres, so take `np.exp` before you compare or order. For January 2026, fit the same model on all of `log_fuel` and use `.forecast(1)`.
-3. `fuel_filled = fuel.interpolate(method="time")`, the model is (0,1,1)(0,1,1,12), training ends in 2023-12 and the test period has 24 months. `mae_chief = 602`, `mae_sarima` is about 269 litres and `jan_2026` about 7220 litres.
+3. `fuel_filled = fuel.interpolate(method="time")`, the model is (1,1,1)(0,1,1,12), training ends in 2023-12 and the test period has 24 months. `mae_chief = 440`, `mae_sarima` is about 177 litres and `jan_2026` about 7426 litres.
 
 ## Clues in the room
 

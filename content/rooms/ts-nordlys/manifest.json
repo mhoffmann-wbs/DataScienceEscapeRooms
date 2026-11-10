@@ -49,7 +49,7 @@
       "check": {
         "type": "python",
         "expr": "[n_missing, int(fuel_filled.isna().sum()), [round(float(fuel_filled[d])) for d in [\"2013-07-01\", \"2017-02-01\", \"2017-03-01\", \"2021-11-01\"]]]",
-        "hash": "69a1e59576cbd7307f8ee0a3b3a542e38e9d52611675b3250b041c3cd0a511f7"
+        "hash": "3dcb5a94dde874e89574534c21715ec0ab9a660953ca614947b2133ea9006a2a"
       },
       "reveal": {
         "en": "The log is complete again: four frozen months filled with `fuel.interpolate(method=\"time\")`, in proportion to the time between readings.",
@@ -143,11 +143,11 @@
       "check": {
         "type": "python",
         "expr": "[round(float(mae_naive)), round(float(mae_snaive))]",
-        "hash": "9a5a50b6c22bbb53368a78b29b10424c9aeb63d1577a82623240c412b3117c0b"
+        "hash": "6147d659154fd94d7812d3e864c0d8a5769a47d633ce1064fff1650ed4c54df4"
       },
       "reveal": {
-        "en": "The chief's rule of thumb (seasonal naive) misses by **602 litres** a month on average; the naive forecast by 1519.",
-        "de": "Die Faustregel der Leiterin (saisonal naiv) liegt im Schnitt **602 Liter** pro Monat daneben, die naive Prognose 1519."
+        "en": "The chief's rule of thumb (seasonal naive) misses by **440 litres** a month on average; the naive forecast by 1533.",
+        "de": "Die Faustregel der Leiterin (saisonal naiv) liegt im Schnitt **440 Liter** pro Monat daneben, die naive Prognose 1533."
       },
       "practises": {
         "en": "Train/test split in time, naive and seasonal naive baselines, mean absolute error",
@@ -190,7 +190,7 @@
       "check": {
         "type": "python",
         "expr": "[len(stationary), round(float(stationary.mean()), 4), round(float(stationary.std()), 4), bool(adf_p < 0.05)]",
-        "hash": "efa56f70aff0f2e4a185d1b2be949224f12f31b48bc679c512c1ddbb19611a1f"
+        "hash": "3fdf1f695be8ad1a63657482b9b14d9614489aa2a0067fbe99ac97625d110c7a"
       },
       "uses": [
         "logbook"
@@ -240,15 +240,15 @@
       "check": {
         "type": "python",
         "expr": "[list(order), list(seasonal_order), len(stationary), round(float(stationary.std()), 4)]",
-        "hash": "28906d355702835e99af98a59ba74d1fd96a4f6f5a088d1f9d9d9efbcd442524"
+        "hash": "4b01aaae0c0f86edac3c0cd4bee57fc7a049019afdb184740b007aefe20e79f1"
       },
       "uses": [
         "logbook",
         "gauge"
       ],
       "reveal": {
-        "en": "The echoes settle: **(0,1,1)(0,1,1,12)**, the classic airline model. One short echo at lag 1 and one at lag 12, nothing else.",
-        "de": "Die Echos legen sich: **(0,1,1)(0,1,1,12)**, das klassische Airline-Modell. Ein kurzes Echo bei Lag 1 und eines bei Lag 12, sonst nichts."
+        "en": "The echoes settle: **(1,1,1)(0,1,1,12)**. One clear echo at lag 12, and at the short lags a mix of AR and MA that only the AIC settles. It beats the textbook airline model (0,1,1)(0,1,1,12).",
+        "de": "Die Echos legen sich: **(1,1,1)(0,1,1,12)**. Ein deutliches Echo bei Lag 12, und bei den kurzen Lags eine Mischung aus AR und MA, die erst der AIC entscheidet. Es schlägt das Lehrbuch-Airline-Modell (0,1,1)(0,1,1,12)."
       },
       "practises": {
         "en": "Reading ACF and PACF, MA vs AR signatures, comparing ARIMA/SARIMA candidates by AIC, differencing inside the model (d, D)",
@@ -259,16 +259,16 @@
       ],
       "hints": [
         {
-          "en": "The stationary series is the gauge's result, and the echo sounder manual on the wall says how to read the echoes. Each difference the gauge needed becomes an order of differencing in the model: `.diff(1)` is d = 1, `.diff(12)` is D = 1. The ACF has two clear spikes, at lag 1 and lag 12, while the PACF fades out; single bars that just touch the dashed band are noise. In the manual that means MA terms: q = 1 and Q = 1.",
-          "de": "Die stationäre Reihe ist das Ergebnis der Anzeige, und das Echolot-Handbuch an der Wand sagt, wie man die Echos liest. Jede Differenz, die die Anzeige gebraucht hat, wird eine Differenzierungsordnung im Modell: `.diff(1)` ist d = 1, `.diff(12)` ist D = 1. Die ACF hat zwei deutliche Ausschläge, bei Lag 1 und Lag 12, während die PACF ausklingt; einzelne Balken, die das gestrichelte Band gerade berühren, sind Rauschen. Laut Handbuch heißt das MA-Terme: q = 1 und Q = 1."
+          "en": "The stationary series is the gauge's result, and the echo sounder manual on the wall says how to read the echoes. Each difference the gauge needed becomes an order of differencing in the model: `.diff(1)` is d = 1, `.diff(12)` is D = 1. At the seasonal lags the ACF has one clear spike at lag 12 while the PACF fades out: in the manual that is a seasonal MA, Q = 1. The short lags are less clean: small bars at lag 1 and 2 that neither plot cuts off and both fade, so a mix of AR and MA is possible. Single bars that just touch the dashed band are noise. When in doubt, let the AIC decide.",
+          "de": "Die stationäre Reihe ist das Ergebnis der Anzeige, und das Echolot-Handbuch an der Wand sagt, wie man die Echos liest. Jede Differenz, die die Anzeige gebraucht hat, wird eine Differenzierungsordnung im Modell: `.diff(1)` ist d = 1, `.diff(12)` ist D = 1. Bei den saisonalen Lags hat die ACF einen deutlichen Ausschlag bei Lag 12, während die PACF ausklingt: laut Handbuch ein saisonaler MA-Term, Q = 1. Die kurzen Lags sind weniger eindeutig: kleine Balken bei Lag 1 und 2, bei denen keine der beiden Grafiken abbricht und beide ausklingen, also ist eine Mischung aus AR und MA möglich. Einzelne Balken, die das gestrichelte Band gerade berühren, sind Rauschen. Im Zweifel entscheidet der AIC."
         },
         {
           "en": "Fit on `train` (the log series), not on `stationary`: with d = 1 and D = 1 the model differences by itself. The manual's last line says how the data decides: loop over `candidates`, fit `sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12))`, read `.fit(disp=False).aic` and keep the smallest.",
           "de": "Passt auf `train` an (die Log-Reihe), nicht auf `stationary`: Mit d = 1 und D = 1 differenziert das Modell selbst. Die letzte Zeile des Handbuchs sagt, wie die Daten entscheiden: Geht in einer Schleife durch `candidates`, passt `sm.tsa.SARIMAX(train, order=(p, d, q), seasonal_order=(P, D, Q, 12))` an, lest `.fit(disp=False).aic` und behaltet den kleinsten."
         },
         {
-          "en": "`stationary = log_fuel.diff(12).diff(1).dropna()`; with d = D = 1 the lowest AIC (about −635) belongs to `order = (0, 1, 1)` and `seasonal_order = (0, 1, 1, 12)`.",
-          "de": "`stationary = log_fuel.diff(12).diff(1).dropna()`; mit d = D = 1 hat den kleinsten AIC (etwa −635) `order = (0, 1, 1)` mit `seasonal_order = (0, 1, 1, 12)`."
+          "en": "`stationary = log_fuel.diff(12).diff(1).dropna()`; with d = D = 1 the lowest AIC (about −615) belongs to `order = (1, 1, 1)` and `seasonal_order = (0, 1, 1, 12)`.",
+          "de": "`stationary = log_fuel.diff(12).diff(1).dropna()`; mit d = D = 1 hat den kleinsten AIC (etwa −615) `order = (1, 1, 1)` mit `seasonal_order = (0, 1, 1, 12)`."
         }
       ]
     },
@@ -325,8 +325,8 @@
           "de": "Das Modell prognostiziert Log-Liter; das Bestellformular will echte Liter, also nehmt `np.exp`, bevor ihr vergleicht oder bestellt. Für Januar 2026 passt dasselbe Modell auf ganz `log_fuel` an und nutzt `.forecast(1)`."
         },
         {
-          "en": "`fuel_filled = fuel.interpolate(method=\"time\")`, the model is (0,1,1)(0,1,1,12), training ends in 2023-12 and the test period has 24 months. `mae_chief = 602`, `mae_sarima` is about 269 litres and `jan_2026` about 7220 litres.",
-          "de": "`fuel_filled = fuel.interpolate(method=\"time\")`, das Modell ist (0,1,1)(0,1,1,12), das Training endet 2023-12 und der Testzeitraum hat 24 Monate. `mae_chief = 602`, `mae_sarima` liegt bei etwa 269 Litern und `jan_2026` bei etwa 7220 Litern."
+          "en": "`fuel_filled = fuel.interpolate(method=\"time\")`, the model is (1,1,1)(0,1,1,12), training ends in 2023-12 and the test period has 24 months. `mae_chief = 440`, `mae_sarima` is about 177 litres and `jan_2026` about 7426 litres.",
+          "de": "`fuel_filled = fuel.interpolate(method=\"time\")`, das Modell ist (1,1,1)(0,1,1,12), das Training endet 2023-12 und der Testzeitraum hat 24 Monate. `mae_chief = 440`, `mae_sarima` liegt bei etwa 177 Litern und `jan_2026` bei etwa 7426 Litern."
         }
       ]
     }

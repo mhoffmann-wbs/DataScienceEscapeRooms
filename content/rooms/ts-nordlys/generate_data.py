@@ -1,25 +1,32 @@
 # Generates data/fuel.py and data/freezer.py for Station Nordlys. Not bundled with the site.
-# The supply check's reference values (holdout MAE 269 litres, Jan 2026 forecast 7220 litres)
-# and the chief's 602 come from the reference solutions in solutions.json; update it if the data changes (the room tests will notice).
+# The supply check's reference values (holdout MAE and the Jan 2026 forecast, in litres)
+# and the chief's MAE come from the reference solutions in solutions.json; update it if the data changes (the room tests will notice).
 # Needs numpy (any Python with numpy works); the seeds were chosen so that the ACF/PACF of the
-# fuel series show the airline-model pattern clearly and the freezer's AR(2) coefficients round
+# fuel series give the (1,1,1)(0,1,1,12) model a clear AIC lead and the freezer's AR(2) coefficients round
 # cleanly. Run from this folder:  python3 generate_data.py
 import numpy as np
 
-# Heating fuel, monthly 2010-01..2025-12: airline model (0,1,1)(0,1,1,12) on the log scale,
-# so the seasonal swing grows with the level. Four months are missing (frozen meter).
+# Heating fuel, monthly 2010-01..2025-12: SARIMA (1,1,1)(0,1,1,12) on the log scale, so the seasonal
+# swing grows with the level. Not the airline model (0,1,1)(0,1,1,12), the textbook default, so the
+# echo chamber's ACF/PACF reading and AIC comparison are needed: the airline model misses the chief's
+# test period by about 165 l more and January by about 47 l. AR 0.7 and MA -0.9 keep the long-run
+# drift as small as the airline model's ((1 - 0.9) / (1 - 0.7)). Four months are missing (frozen meter).
 N = 192
-rng = np.random.default_rng(255)
+rng = np.random.default_rng(60)
 n = N + 36
+PHI, THETA, STHETA = 0.7, -0.9, -0.6
 e = rng.normal(0, 0.03, n)
 w = e.copy()
-w[1:] += -0.4 * e[:-1]
-w[12:] += -0.6 * e[:-12]
-w[13:] += 0.24 * e[:-13]
+w[1:] += THETA * e[:-1]
+w[12:] += STHETA * e[:-12]
+w[13:] += THETA * STHETA * e[:-13]
+u = np.zeros(n)
+for t in range(n):
+    u[t] = w[t] + (PHI * u[t - 1] if t else 0)
 z = np.zeros(n)
 z[:13] = np.log(3000) + 0.32 * np.cos(2 * np.pi * np.arange(13) / 12) + 0.004 * np.arange(13)
 for t in range(13, n):
-    z[t] = z[t - 1] + z[t - 12] - z[t - 13] + w[t]
+    z[t] = z[t - 1] + z[t - 12] - z[t - 13] + u[t]
 fuel = np.round(np.exp(z[36:])).astype(int).tolist()
 GAPS = [(2013, 7), (2017, 2), (2017, 3), (2021, 11)]
 for y, m in GAPS:
@@ -46,7 +53,7 @@ _fuel_raw = fuel.copy()
 def _supply_check(chief_mae, holdout_mae, litres, repaired):
     """The supply terminal's check: the chief's error, the model's holdout error, the January 2026 order and
     the repaired log it was built on (gaps filled in proportion to time).
-    The model must be the station's airline model (holdout MAE about 269 l, January about 7220 l)."""
+    The model must be the station's (1,1,1)(0,1,1,12) model (holdout MAE about 177 l, January about 7426 l)."""
     def number(x):
         try:
             return float(x)
@@ -54,13 +61,13 @@ def _supply_check(chief_mae, holdout_mae, litres, repaired):
             return None
     chief_mae, holdout_mae, litres = number(chief_mae), number(holdout_mae), number(litres)
     problems = []
-    if chief_mae is None or round(chief_mae) != 602:
+    if chief_mae is None or round(chief_mae) != 440:
         problems.append("The terminal doesn't recognise mae_chief as the chief's error. / Das Terminal erkennt mae_chief nicht als Fehler der Leiterin.")
     elif holdout_mae is None or holdout_mae >= chief_mae:
         problems.append("Order refused: that model doesn't beat the chief (mae_sarima). / Bestellung abgelehnt: Dieses Modell schlägt die Leiterin nicht (mae_sarima).")
-    elif abs(holdout_mae - 269) > 10:
+    elif abs(holdout_mae - 177) > 10:
         problems.append("Order refused: mae_sarima doesn't match the station's model on the repaired log, on the chief's test period. / Bestellung abgelehnt: mae_sarima passt nicht zum Modell der Station auf dem reparierten Logbuch, auf dem Testzeitraum der Leiterin.")
-    if litres is None or abs(litres - 7220) > 15:
+    if litres is None or abs(litres - 7426) > 15:
         problems.append("Order refused: that January order doesn't match the station's model on the repaired log. / Bestellung abgelehnt: Diese Januar-Bestellung passt nicht zum Modell der Station auf dem reparierten Logbuch.")
     try:
         repaired_ok = len(repaired) == len(_fuel_raw) and bool(((repaired - _fuel_raw.interpolate(method="time")).abs() < 0.5).all())
