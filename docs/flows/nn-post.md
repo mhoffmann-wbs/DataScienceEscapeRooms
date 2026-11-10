@@ -133,5 +133,5 @@ Left as they are:
 
 - **Jonas's note is soft on purpose:** its "categorical crossentropy must be right" is the debugging station's red herring.
 - **The stopper isn't required in the final.** The archive barely overfits within 30 epochs, so a team that trains with a validation split but no `EarlyStopping` still passes; Ferdinand's rules matter for the start code (the cabinet's lock), not for the training.
-- **Training on the test cards passes Jonas's 85 %** (about 90 % when fitted on `x_test`). It is no skip: the loss, softmax and scaling fixes are still needed. A hidden second test set would close it.
+- **Fixed in step 23: the checks score on sealed cards.** Training on the test cards used to pass Jonas's 85 % (about 90 % when fitted on `x_test`). `archive.py` now holds 600 more cards (seed 41) inside the graders' closure, with no global name, and the apprentice's 85 % and the night sort's 90 % score the model on them instead of `x_test`, so fitting the test cards no longer inflates the score. Every reference model scores 92–95 % on them (asserted at 90 % in the generator). The failure messages say the grader keeps its own cards.
 - **The postcode 35781 goes nowhere;** what the final needs from the scanner is the conversion the team worked out there, which `letters` now checks (the reveal no longer restates it; the final's hint 2 does).

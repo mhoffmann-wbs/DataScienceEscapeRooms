@@ -132,7 +132,7 @@ Earlier findings:
 - **The crate label is soft.** Mika's script already scales with `/ 255`; the label only confirms it. Night Post teaches scaling; here it's context on purpose.
 - **Mika's note is soft:** it only describes the errors; the third bug (2 epochs) is the starter's own comment.
 - **Typed numbers at the laptop, tally and notebook** (18, 98, 3; 246; `mika_wrong` 13) pass the checks without code, but each can only be known from that station's own reveal, so it can't be done early.
-- **A model trained on `x_train` plus `x_test`** would still pass the 85 % check; it takes deliberate effort and teaches nothing the room tests, so it is left.
+- **Fixed in step 23: the checks score on sealed fragments.** `archive.py` holds 600 more fragments (seed 41) inside the graders' closure, with no global name, and the notebook's and the jar's 85 % checks score the reader on them instead of `x_test`. Training on the test fragments, or on train plus test, no longer inflates the score; a reader passes only if it reads fragments it has never seen. Every reference reader scores at least 85 % on them (asserted in the generator). The failure message says the grader keeps its own fragments.
 - **The final retrains the reader** (about 4 s), as the notebook did, because stations don't share a namespace. A team that kept the notebook's code just copies it.
 - **The prototype could read the lid,** but the jar station doesn't load it (nor the stamps), and its check wants a reader trained there. Good as it is.
 - `uses` on the notebook (`blueprint`) was missing at first; added, since its check enforces draft 3's layout.

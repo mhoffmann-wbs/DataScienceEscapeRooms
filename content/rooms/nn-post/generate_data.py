@@ -151,6 +151,9 @@ def write(name, header, body):
 
 x_train, y_train = dataset(3000, 1)
 x_test, y_test = dataset(600, 2)
+# Sealed cards: the graders score a model on these, never on x_test, so training on the test cards
+# (or on train plus test) gains nothing. They live only inside the graders' closure in archive.py.
+x_sealed, y_sealed = dataset(600, 41)
 print("drew the archive", flush=True)
 x_train_scaled = bytes_of(x_train) / 255
 x_test_scaled = bytes_of(x_test) / 255
@@ -170,7 +173,9 @@ for seed in range(8):
     m.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     m.fit(x_train_scaled, y_train, epochs=[6, 10, 15, 20][seed % 4], validation_split=0.2, verbose=0)
     acc = m.evaluate(x_test_scaled, y_test, verbose=0)[1]
-    print("reference model", seed, "test accuracy", round(acc, 3), flush=True)
+    sealed = m.evaluate(bytes_of(x_sealed) / 255, y_sealed, verbose=0)[1]
+    print("reference model", seed, "test accuracy", round(acc, 3), "sealed", round(sealed, 3), flush=True)
+    assert sealed >= 0.9, "a reference model fails the night sort's 90 % on the sealed cards"
     references.append(m)
 
 # The six urgent letters: one bin number each, written neatly, every reference model sure of it.
@@ -206,21 +211,13 @@ def _iris2_layout(model):
     return []
 
 
-def _accuracy(model):
-    """Accuracy on the test cards, with the inputs scaled the way the model expects."""
-    import tensorflow as tf
-    rescales = any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers)
-    probs = model.predict(_x_test if rescales else _x_test / 255, verbose=0)
-    return float((probs.argmax(axis=1) == _y_test).mean())
-
-
 def _apprentice_check(model):
     """Jonas's script: Iris 2 trained well enough for service."""
     problems = _iris2_layout(model)
     if not problems:
         acc = _accuracy(model)
         if not acc >= 0.85:
-            problems.append(f"model reads only {acc:.0%} of the test cards; Iris needs at least 85 %. Look at the loss in the training output. / model liest nur {acc:.0%} der Testkarten; Iris braucht mindestens 85 %. Schaut euch den loss in der Trainingsausgabe an.")
+            problems.append(f"model reads only {acc:.0%} of fresh cards it has never seen (the grader keeps its own); Iris needs at least 85 %. Look at the loss in the training output. / model liest nur {acc:.0%} von frischen Karten, die es nie gesehen hat (der Prüfer hat eigene); Iris braucht mindestens 85 %. Schaut euch den loss in der Trainingsausgabe an.")
     return _problems_or(problems, "in service")
 
 
@@ -234,7 +231,7 @@ def _sort_check(model, letters, bins):
         rescales = any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers)
         acc = _accuracy(model)
         if not acc >= 0.9:
-            problems.append(f"model reads only {acc:.0%} of the test cards; the night sort needs at least 90 %. / model liest nur {acc:.0%} der Testkarten; die Nachtsortierung braucht mindestens 90 %.")
+            problems.append(f"model reads only {acc:.0%} of fresh cards it has never seen (the grader keeps its own); the night sort needs at least 90 %. / model liest nur {acc:.0%} von frischen Karten, die es nie gesehen hat (der Prüfer hat eigene); die Nachtsortierung braucht mindestens 90 %.")
         elif "val_loss" not in (getattr(getattr(model, "history", None), "history", None) or {}):
             problems.append("model wasn't trained with validation cards: Ferdinand's rules keep 20 % of the cards aside (validation_split) and let EarlyStopping watch them. / model wurde nicht mit Validierungskarten trainiert: Ferdinands Regeln legen 20 % der Karten beiseite (validation_split) und lassen EarlyStopping sie beobachten.")
     expected = 1 - _urgent.reshape(6, 16, 16) / 255
@@ -272,6 +269,21 @@ _y_train = _digits({digit_string(y_train)})
 _x_test = _levels({packed(x_test)}, (600, 16, 16))
 _y_test = _digits({digit_string(y_test)})
 x_train, y_train, x_test, y_test = _x_train.copy(), _y_train.copy(), _x_test.copy(), _y_test.copy()
+
+
+def _sealed_cards(x, y):
+    """The graders' own cards, kept inside a closure: a model is scored on cards it has never seen."""
+    def accuracy(model):
+        """Accuracy on the sealed cards, with the inputs scaled the way the model expects."""
+        import tensorflow as tf
+        rescales = any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers)
+        probs = model.predict(x if rescales else x / 255, verbose=0)
+        return float((probs.argmax(axis=1) == y).mean())
+    return accuracy
+
+
+_accuracy = _sealed_cards(_levels({packed(x_sealed)}, (600, 16, 16)), _digits({digit_string(y_sealed)}))
+del _sealed_cards
 
 # The urgent letters as the scanner delivers them: one line of 256 values per letter.
 urgent = 255 - _levels({packed(urgent)}, (6, 256))

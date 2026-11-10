@@ -191,6 +191,9 @@ def trained(model, x, y, epochs):
 
 x_train, y_train = dataset(2400, 1)
 x_test, y_test = dataset(600, 2)
+# Sealed fragments: the graders score a reader on these, never on x_test, so training on the test
+# fragments (or on train plus test) gains nothing. They live only inside the graders' closure in archive.py.
+x_sealed, y_sealed = dataset(600, 41)
 print("drew the archive", flush=True)
 
 references = []
@@ -200,6 +203,8 @@ for seed in range(8):
     acc = m.evaluate(scaled(x_test), y_test, verbose=0)[1]
     print("reference reader", seed, "test accuracy", round(acc, 3), flush=True)
     assert acc > 0.86, "a reference reader should pass the room's 85 %"
+    sealed = m.evaluate(scaled(x_sealed), y_sealed, verbose=0)[1]
+    assert sealed >= 0.85, f"reference reader {seed} reads only {sealed:.0%} of the sealed fragments"
     references.append(m)
 
 # ---- the seal: identical stamped signs, read with the stamps as filters ----
@@ -546,22 +551,13 @@ def _reader_layout(model):
     return []
 
 
-def _accuracy(model):
-    """Accuracy on the test fragments, prepared the way the model expects them."""
-    import tensorflow as tf
-    x = _x_test if any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers) else _x_test / 255
-    if len(model.input_shape) == 4:
-        x = x[..., None]
-    return float((model.predict(x, verbose=0).argmax(axis=1) == _y_test).mean())
-
-
 def _notebook_check(model, mika_wrong):
     """Mika's notebook: the reader trained well enough to read the archive, and Mika's sorting of crate 7 checked with it."""
     problems = _reader_layout(model)
     if not problems:
         acc = _accuracy(model)
         if not acc >= 0.85:
-            problems.append(f"model reads only {acc:.0%} of the test fragments; it needs at least 85 %. Look at the accuracy in the training output: has it finished learning? / model liest nur {acc:.0%} der Testfragmente; nötig sind mindestens 85 %. Schaut auf die accuracy in der Trainingsausgabe: Ist es schon fertig mit Lernen?")
+            problems.append(f"model reads only {acc:.0%} of fresh fragments it has never seen (the grader keeps its own); it needs at least 85 %. Look at the accuracy in the training output: has it finished learning? / model liest nur {acc:.0%} von frischen Fragmenten, die es nie gesehen hat (der Prüfer hat eigene); nötig sind mindestens 85 %. Schaut auf die accuracy in der Trainingsausgabe: Ist es schon fertig mit Lernen?")
     try:
         mika_wrong = int(mika_wrong)
     except (TypeError, ValueError):
@@ -581,7 +577,7 @@ def _jar_check(model, fragments, signs, word):
         rescales = any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers)
         acc = _accuracy(model)
         if not acc >= 0.85:
-            problems.append(f"model reads only {acc:.0%} of the test fragments; it needs at least 85 %. / model liest nur {acc:.0%} der Testfragmente; nötig sind mindestens 85 %.")
+            problems.append(f"model reads only {acc:.0%} of fresh fragments it has never seen (the grader keeps its own); it needs at least 85 %. / model liest nur {acc:.0%} von frischen Fragmenten, die es nie gesehen hat (der Prüfer hat eigene); nötig sind mindestens 85 %.")
     expected = np.stack(np.hsplit(_jar, 6))[..., None] / 255
     f = _array(fragments, (6, 24, 24, 1))
     if f is None:
@@ -619,6 +615,22 @@ _y_train = _digits({digit_string(y_train)})
 _x_test = _levels({packed(x_test)}, (600, 24, 24))
 _y_test = _digits({digit_string(y_test)})
 x_train, y_train, x_test, y_test = _x_train.copy(), _y_train.copy(), _x_test.copy(), _y_test.copy()
+
+
+def _sealed_fragments(x, y):
+    """The graders' own fragments, kept inside a closure: a reader is scored on fragments it has never seen."""
+    def accuracy(model):
+        """Accuracy on the sealed fragments, prepared the way the model expects them."""
+        import tensorflow as tf
+        xs = x if any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers) else x / 255
+        if len(model.input_shape) == 4:
+            xs = xs[..., None]
+        return float((model.predict(xs, verbose=0).argmax(axis=1) == y).mean())
+    return accuracy
+
+
+_accuracy = _sealed_fragments(_levels({packed(x_sealed)}, (600, 24, 24)), _digits({digit_string(y_sealed)}))
+del _sealed_fragments
 
 # The jar's lid: six signs side by side, 24 rows x 144 columns.
 jar = _levels({packed(lid)}, (24, 144))
