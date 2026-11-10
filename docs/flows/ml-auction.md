@@ -27,7 +27,7 @@ flowchart LR
   end
 
   subgraph p3["Final lock"]
-    catalogue{{"6 · The catalogue 🔒<br/>PIN 196414, age², 8 estimates"}}
+    catalogue{{"6 · The catalogue 🔒<br/>PIN 196414, age², 8 estimates, model, X and C checked"}}
   end
 
   d_all -->|"📄 sales: 1,200 lots"| rule
@@ -46,7 +46,7 @@ flowchart LR
   insurerletter -.->|"🔎 within 10 %; forgeries excluded"| catalogue
   workshopnote -.->|"🔎 young and antique dearer: a U in age"| catalogue
 
-  rule ==>|"🔒 274 € per grade"| movement
+  rule ==>|"🔒 288 € per grade"| movement
   estimates ==>|"🔒 256 € MAE"| forgery
   tail ==>|"📤 fit on np.log, read np.exp(b) - 1"| movement
   tail ==>|"📤 log residuals are ratios"| forgery
@@ -76,7 +76,7 @@ flowchart LR
 ## Phases
 
 - **Start:** 3 stations open at once (rule of thumb, last year's estimates, long tail), each independent: right for a team of 3, pairs in a team of 5. The rule of thumb is the shortest (one fix in the starter); the long tail the longest (split, two fits, back-transform, a percentage), and it teaches what stations 4 and 5 need.
-- **Second wave:** the movement opens with the rule's 274, the suspicious lot with the estimates' 256. Both are far easier for a team that has done the long tail: the movement's grader wants a log percentage, the forgery only stands out in log residuals.
+- **Second wave:** the movement opens with the rule's 288, the suspicious lot with the estimates' 256. Both are far easier for a team that has done the long tail: the movement's grader wants a log percentage, the forgery only stands out in log residuals.
 - **Final:** the press's PIN 196414 joins the forged lot and the papers' premium. The catalogue itself then needs age², found from the residual plot.
 
 ## Chains
@@ -85,7 +85,7 @@ flowchart LR
 
 ## Hand-offs
 
-- Between stations: 2 lock codes (274, 256), the final's PIN from 2 stations (1964, 14), and 2 hard lessons from the long tail (log target, reading log coefficients and residuals); the lessons into the final are soft, since its starter already has the log target and the dummies.
+- Between stations: 2 lock codes (288, 256), the final's PIN from 2 stations (1964, 14), and 2 hard lessons from the long tail (log target, reading log coefficients and residuals); the lessons into the final are soft, since its starter already has the log target and the dummies.
 - From clues: 8 clues, 2 hard (Ilse's memo defines the baseline; the house rule gives the split, which the long tail's grader enforces) and 6 soft.
 
 ## Where things are
@@ -95,6 +95,13 @@ flowchart LR
 - Away from their station: the evening paper lies on the coffee table in the foyer, across the saleroom from the workshop where the suspicious lot is examined.
 
 ## Findings
+
+Fixed in the shortcut review:
+
+- **The forgery was the dearest quartz watch, the dearest no-name watch and the dearest young watch.** `sales[sales.movement == "quartz"].price.idxmax()` (or the same for `maker_tier == 1` or `age < 20`) named lot 1964 with no model and no residuals, once the newspaper said "a cheap quartz watch". The forgery now hammered at 6,000 € (was 8,400 €) and three genuine bidding wars sold dearer (lots 1317, 1544 and 1731: a mint tier-5 quartz at 6,600 €, a tier-1 antique automatic at 6,200 €, a young tier-5 automatic at 7,500 €; log residuals 1.0, 1.3 and 0.6, the forgery 3.6), so each of those rules now gives a genuine watch. The data shifted a little: the rule of thumb's lock is now 288 (was 274), the box premium is still 14 %, the PIN is still 196414.
+- **The final's check only compared eight numbers.** Any method that lands within 10 % passed, and keeping the forged lot in the fit passed too (it moves the estimates by under 2 %). The check now also takes the team's own `model`, its features `X` and the catalogue's features `C`: `X` must not contain lot 1964 and hold most of the genuine sales, `model.predict(X)` must stay close (mean 0.03 in log euros) to the reference log model with the movement encoded and age squared on the same rows, and `estimates` must equal `np.exp(model.predict(C))` within 3 %. Tested: the reference model, rounded and unrounded estimates, a `PolynomialFeatures` pipeline on arrays, a scaled ridge pipeline, 80 % splits with `random_state` 0 to 20 and None (before or after dropping the forgery) all pass; the forgery kept in `X`, a model in euros, a model without age², group means and typed numbers that are not the model's output are rejected.
+
+Left as it is: a team that fits on all rows but drops lot 1964 from `X` afterwards passes (the two models differ by under 2 %); the hand rule "mean price of the same movement and tier" and the most similar past lot (KNN, k = 1 to 10) miss the insurer's 10 % on at least one lot and fail.
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 

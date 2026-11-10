@@ -62,15 +62,15 @@ print(model.coef_[0], model.intercept_)
 print(round(model.coef_[0]))
 ```
 
-**Answer:** `274`
+**Answer:** `288`
 
 **Reveals when solved:**
 
-> **274 € per grade.** Albers's line starts at 800 € (at a grade 0 that no watch has) and climbs 274 € with every grade.
+> **288 € per grade.** Albers's line starts at 760 € (at a grade 0 that no watch has) and climbs 288 € with every grade.
 >
 > scikit-learn always wants a table of features, even with only one column: `sales[["condition"]]` (a DataFrame) instead of `sales["condition"]` (a Series). The fitted line is then `intercept_ + coef_ × grade`.
 >
-> One line for every watch, though: 274 € is a fortune for a 300 € quartz watch and nothing for a 20,000 € antique.
+> One line for every watch, though: 288 € is a fortune for a 300 € quartz watch and nothing for a 20,000 € antique.
 
 **Hints:**
 
@@ -219,7 +219,7 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 **Reveals when solved:**
 
-> On the log of the price the model misses test lots by **717 €** instead of 971 €. In euros, the few dear watches pull every coefficient towards them, and the line even predicts negative prices for 23 cheap test lots.
+> On the log of the price the model misses test lots by **716 €** instead of 980 €. In euros, the few dear watches pull every coefficient towards them, and the line even predicts negative prices for 23 cheap test lots.
 >
 > On the log scale every feature multiplies the price instead of adding euros: **one condition grade adds 16 %**, to a 300 € quartz watch and to a 20,000 € antique alike. A log coefficient `b` reads as `np.exp(b) - 1`; for small `b` that is close to `b` itself. Predictions come back to euros with `np.exp`.
 
@@ -227,7 +227,7 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 1. The note under the chart says how bidders pay for a better grade. The house rule for valuations gives the split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Then `log_model = LinearRegression().fit(X_train, np.log(y_train))`.
 2. The log model predicts log euros. `np.exp(log_model.predict(X_test))` turns them back into euros; compare those with `y_test`.
-3. `condition` is the fourth column, so its coefficient is `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. The log model misses by 717 € instead of 971 €: `log_better = mae_log < mae_linear` is `True`.
+3. `condition` is the fourth column, so its coefficient is `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. The log model misses by 716 € instead of 980 €: `log_better = mae_log < mae_linear` is `True`.
 
 ### 4. The movement
 
@@ -235,7 +235,7 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 **Needs:** 3. The long tail (its result), 🔒 1. The rule of thumb, 🔎 The card in the display case  
 **Data:** [sales.py](../../content/rooms/ml-auction/data/sales.py)
 
-**Code lock** (opens with `274`):
+**Code lock** (opens with `288`):
 
 > The display case has a three-digit combination lock. A brass tag hangs from it: "Combination = Albers's rule of thumb, in euros per condition grade."
 
@@ -294,9 +294,9 @@ print("without the movement:", round(without_percent, 1))
 
 **Reveals when solved:**
 
-> With the movement in the model, box and papers add **14 %**, not the 37 % a model without the movement claims, and not Albers's third. Papers survive more often with automatics, and automatics fetch far more than quartz watches: left out of the model, the movement's effect was credited to the papers. That is omitted-variable bias.
+> With the movement in the model, box and papers add **14 %**, not the 36.5 % a model without the movement claims, and not Albers's third. Papers survive more often with automatics, and automatics fetch far more than quartz watches: left out of the model, the movement's effect was credited to the papers. That is omitted-variable bias.
 >
-> `pd.get_dummies` turns the word column into one 0/1 column per word. With an intercept one of them is redundant, and `drop_first=True` drops it; the other coefficients stay the same either way. Quartz costs 45 % less than an automatic, all else equal.
+> `pd.get_dummies` turns the word column into one 0/1 column per word. With an intercept one of them is redundant, and `drop_first=True` drops it; the other coefficients stay the same either way. Quartz costs 51 % less than an automatic, all else equal.
 
 **Hints:**
 
@@ -369,7 +369,9 @@ print(sales.loc[lot])
 
 **Reveals when solved:**
 
-> **Lot 1964**: a 14-year-old quartz watch by a no-name maker, grade 2, no papers. Its features say about 170 €; it hammered at 8,400 €, 50 times as much. In log terms its residual is 3.9; no other sale is off by more than 1.1, a factor of 3.
+> **Lot 1964**: a 14-year-old quartz watch by a no-name maker, grade 2, no papers. Its features say about 165 €; it hammered at 6,000 €, 36 times as much. In log terms its residual is 3.6; no other sale is off by more than 1.3, a factor of 3.8.
+>
+> The price alone would have misled you: the dearest quartz watch, lot 1317, is genuine, a mint watch by one of the great houses that two collectors fought over (6,600 € against the 2,400 € its features suggest, a residual of 1.0). So are the dearest no-name watch and the dearest young one.
 >
 > In euros, the largest residuals were genuine watches: lots 1467, 2066 and 1913, antiques of the great houses, where a miss of 10 % is thousands of euros. On the log scale every residual is a ratio, so the cheap forgery stands out. The house will refund the buyer, and lot 1964 has no place in the model for the catalogue.
 
@@ -394,7 +396,7 @@ print(sales.loc[lot])
 > The proof of Saturday's catalogue lies on the press, with eight empty estimate fields. `catalogue` holds the eight lots, indexed by lot number, with the same columns as `sales`, in the printer's order. The press starts at 06:00. What is each lot worth?
 >
 > 1. Build the house's valuation model from everything you learned tonight. Before you trust it, plot its residuals against age.
-> 2. Store an estimate in euros for each lot as `estimates`: a list in the catalogue's order, or a Series indexed by lot number.
+> 2. Keep your fitted `model`, the features `X` it was fitted on and the catalogue's features `C` (same columns as `X`) as variables, and store an estimate in euros for each lot as `estimates`: a list in the catalogue's order, or a Series indexed by lot number.
 
 <details><summary>Starter code</summary>
 
@@ -413,6 +415,7 @@ model = LinearRegression().fit(X, y)
 
 # show_scatter(sales["age"], y - model.predict(X), xlabel="age", ylabel="residual (log)", title="Residuals by age")
 
+C = None           # the catalogue's features, the same columns as X
 estimates = None   # one estimate in euros per catalogue lot
 ```
 
@@ -444,7 +447,7 @@ estimates = pd.Series(np.exp(model.predict(C)), index=catalogue.index).round(-1)
 print(estimates)
 ```
 
-**Checked result** (`_catalogue_check(estimates)`):
+**Checked result** (`_catalogue_check(estimates, model, X, C)`):
 
 ```json
 "printed"

@@ -68,9 +68,19 @@ sales.index = pd.RangeIndex(1001, 2201, name="lot")
 # The forgery: a cheap quartz watch in a fake case and dial, sold in the spring sale for a fortune.
 FORGED = 1964
 sales.loc[FORGED, COLUMNS] = [14, 1, 36, 2, 0, "quartz"]
-sales.loc[FORGED, "price"] = 8400
+sales.loc[FORGED, "price"] = 6000
+# Three genuine bidding wars, each dearer than the forgery, so that no one-line rule finds it: the dearest quartz watch,
+# the dearest no-name watch and the dearest young watch are all genuine.
+for lot, row, price in [(1317, [22, 5, 42, 5, 0, "quartz"], 6600), (1544, [90, 1, 46, 5, 1, "automatic"], 6200),
+                        (1731, [3, 5, 42, 5, 0, "automatic"], 7500)]:
+    sales.loc[lot, COLUMNS] = row
+    sales.loc[lot, "price"] = price
 sales[NUMERIC + ["price"]] = sales[NUMERIC + ["price"]].astype(int)
 y = sales.price
+assert sales[sales.movement == "quartz"].price.drop(FORGED).max() > 6000
+assert sales[sales.maker_tier == 1].price.drop(FORGED).max() > 6000 and sales[sales.age < 20].price.drop(FORGED).max() > 6000
+assert sales[sales.movement == "quartz"].price.idxmax() != FORGED and sales[sales.maker_tier == 1].price.idxmax() != FORGED
+assert sales[sales.age < 20].price.idxmax() != FORGED
 
 # 1. The rule of thumb: euros per condition grade, from a line through all sales.
 rule = LinearRegression().fit(sales[["condition"]], y)
@@ -322,8 +332,46 @@ def _forgery_check(lot):
     return _problems_or(["That lot is explained well enough by its features. Fit the log model with every column on all sales and look for the largest residual. / Dieses Los erklären seine Merkmale gut genug. Trainiert das Log-Modell mit jeder Spalte auf allen Verkäufen und sucht das größte Residuum."], "")
 
 
-def _catalogue_check(estimates):
-    \'\'\'The final check: an estimate in euros for each of the eight catalogue lots, within 10 % of the insurer's valuation.\'\'\'
+def _own_model(got, model, X, C):
+    \'\'\'The estimates must come from the team's own fitted model: it predicts log euros on X (the genuine sales without the forged lot, with age squared and the movement encoded) and its prediction for C is what was stored.\'\'\'
+    from sklearn.linear_model import LinearRegression
+    problems = []
+    try:
+        own = np.exp(np.ravel(model.predict(C)))
+        if len(own) != len(got):
+            raise ValueError
+    except Exception:
+        return _problems_or(["model, X and C must be your fitted model, its features and the catalogue's features in the same columns: model.predict(C) has to work, one value per catalogue lot. / model, X und C müssen euer trainiertes Modell, seine Merkmale und die Merkmale des Katalogs in denselben Spalten sein: model.predict(C) muss funktionieren, ein Wert pro Katalog-Los."], "")
+    if np.abs(got / own - 1).max() > 0.03:
+        problems.append("estimates aren't what your model predicts for C, back in euros. / estimates ist nicht, was euer Modell für C vorhersagt, zurück in Euro.")
+    genuine = sales.drop(_FORGED)
+    n = len(X)
+    if isinstance(X, pd.DataFrame) and _FORGED in X.index:
+        problems.append("X still holds the forged lot. It has no place in the model. / X enthält noch das gefälschte Los. Es gehört nicht ins Modell.")
+    elif n > len(genuine) or n < 800:
+        problems.append("X should hold the genuine sales: all of them, or most of them if you keep a test part back. / X soll die echten Verkäufe enthalten: alle oder die meisten, wenn ihr einen Testteil zurückhaltet.")
+    else:
+        rows = None
+        if isinstance(X, pd.DataFrame) and set(X.index) <= set(genuine.index):
+            rows = list(X.index)
+        elif n == len(genuine):
+            rows = list(genuine.index)
+        if rows is not None:
+            full = pd.get_dummies(genuine.drop(columns="price"), dtype=int)
+            full["age2"] = full["age"] ** 2
+            ref = LinearRegression().fit(full, np.log(genuine["price"]))
+            try:
+                diff = np.abs(np.ravel(model.predict(X)) - ref.predict(full.loc[rows]))
+            except Exception:
+                diff = None
+            if diff is None or diff.mean() > 0.03:
+                problems.append("model isn't the log model on the genuine sales with every column, the movement encoded and the age squared: model.predict(X) should be log euros, close to np.log(price). / model ist nicht das Log-Modell auf den echten Verkäufen mit jeder Spalte, kodiertem Uhrwerk und quadriertem Alter: model.predict(X) soll Log-Euro liefern, nahe an np.log(price).")
+    return _problems_or(problems, "printed")
+
+
+def _catalogue_check(estimates, model, X, C):
+    \'\'\'The final check: an estimate in euros for each of the eight catalogue lots, within 10 % of the insurer's valuation, and the team's own
+    fitted model, its features X and the catalogue's features C: the estimates must be what that model predicts, and it must be the log model on the genuine sales.\'\'\'
     lots = list(catalogue.index)
     try:
         if isinstance(estimates, (pd.Series, dict)):
@@ -341,7 +389,7 @@ def _catalogue_check(estimates):
     off = np.abs(got / ref - 1)
     bad = [lot for lot, o in zip(lots, off) if o > {TOLERANCE!r}]
     if not bad:
-        return "printed"
+        return _own_model(got, model, X, C)
     if np.all(got < 20):
         return _problems_or(["These look like log prices. np.exp turns them back into euros. / Das sehen aus wie Log-Preise. np.exp macht wieder Euro daraus."], "")
     problems = [f"The insurer refuses lots {{', '.join(map(str, bad))}}: too far from its valuation. / Der Versicherer lehnt die Lose {{', '.join(map(str, bad))}} ab: zu weit von seiner Bewertung entfernt."]
@@ -361,6 +409,7 @@ print("1 euros per grade:", round(rule.coef_[0], 2), "intercept", round(rule.int
 print("2 appraiser MAE", round(mae, 2), "RMSE", round(rmse, 1), "R2", round(r2, 3), "baseline MAE", round(baseline_mae, 1))
 print("3 test MAE linear", round(mae_linear, 1), "log", round(mae_log, 1), "percent per grade", round(grade_pct, 2), "(all sales", round(grade_all, 2), "raw", round(grade_raw, 2), ")")
 print("4 box premium", round(box_pct, 2), "raw", round(box_raw, 2), "without movement", round(box_without, 2))
+print("   decoy residuals", resid_log.loc[[1317, 1544, 1731]].round(2).tolist())
 print("5 forged lot", FORGED, "log residual", round(resid_log.max(), 2), "next", round(resid_log.sort_values().iloc[-2], 2), "euro top", euro_top)
 print("6 catalogue reference", dict(zip(catalogue.index, reference.round())))
 for name, est in {**good, **wrong}.items():

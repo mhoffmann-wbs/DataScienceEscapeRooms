@@ -327,7 +327,7 @@ sales = pd.read_csv(_io.StringIO("""lot,age,maker_tier,case_mm,condition,box_pap
 1314,90,5,40,4,0,manual,14130
 1315,6,2,36,2,1,quartz,470
 1316,13,5,39,4,0,manual,4800
-1317,57,5,38,5,0,manual,3510
+1317,22,5,42,5,0,quartz,6600
 1318,49,3,41,5,1,automatic,1710
 1319,9,2,36,5,1,automatic,830
 1320,80,1,36,2,0,manual,910
@@ -554,7 +554,7 @@ sales = pd.read_csv(_io.StringIO("""lot,age,maker_tier,case_mm,condition,box_pap
 1541,58,2,40,4,1,manual,1340
 1542,73,2,37,3,0,manual,1200
 1543,70,1,34,2,0,automatic,510
-1544,73,3,36,5,0,manual,2540
+1544,90,1,46,5,1,automatic,6200
 1545,25,2,40,4,1,manual,720
 1546,82,2,33,5,0,automatic,1670
 1547,3,2,34,3,0,automatic,750
@@ -741,7 +741,7 @@ sales = pd.read_csv(_io.StringIO("""lot,age,maker_tier,case_mm,condition,box_pap
 1728,43,3,45,2,0,quartz,470
 1729,87,1,33,2,1,automatic,1260
 1730,25,1,40,5,0,quartz,290
-1731,42,5,42,2,0,automatic,1910
+1731,3,5,42,5,0,automatic,7500
 1732,53,3,37,1,1,manual,860
 1733,67,5,40,5,1,automatic,8300
 1734,19,3,35,1,1,automatic,730
@@ -974,7 +974,7 @@ sales = pd.read_csv(_io.StringIO("""lot,age,maker_tier,case_mm,condition,box_pap
 1961,39,3,38,1,1,automatic,810
 1962,59,4,38,4,1,automatic,2130
 1963,35,2,33,4,1,automatic,720
-1964,14,1,36,2,0,quartz,8400
+1964,14,1,36,2,0,quartz,6000
 1965,18,2,37,1,1,manual,590
 1966,45,1,39,5,1,automatic,620
 1967,40,5,35,4,1,automatic,4090
@@ -1350,11 +1350,11 @@ catalogue = pd.read_csv(_io.StringIO("""lot,movement,maker_tier,age,condition,ca
 _NUMERIC = ['age', 'maker_tier', 'case_mm', 'condition', 'box_papers']
 _FORGED = 1964
 _EURO_TOP = [1467, 2066, 1913]
-_REFERENCE = [4564.15, 3954.07, 412.5, 3847.09, 468.79, 877.84, 6521.06, 634.72]
+_REFERENCE = [4608.6, 3957.68, 412.85, 3876.12, 465.91, 885.57, 6563.42, 635.18]
 _WRONG = {
-    "euros": [4268.95, 4529.3, 358.24, 3733.0, -92.58, 1728.93, 5237.09, 251.03],
-    "age": [2660.59, 2163.76, 477.83, 5440.42, 565.24, 568.17, 5360.85, 738.21],
-    "movement": [4091.78, 3824.57, 694.47, 3602.97, 376.46, 1222.98, 6712.92, 486.2],
+    "euros": [4321.47, 4535.08, 352.57, 3763.13, -120.45, 1767.48, 5259.57, 261.12],
+    "age": [2700.42, 2160.12, 477.18, 5518.13, 560.13, 574.4, 5406.45, 741.06],
+    "movement": [4130.38, 3827.5, 693.87, 3619.31, 374.66, 1231.64, 6743.4, 486.64],
 }
 
 
@@ -1444,14 +1444,14 @@ def _movement_check(box_percent, without_percent):
         return _problems_or(["That looks like euros. Fit on the log of the price, and turn the coefficient into a percentage. / Das sieht nach Euro aus. Trainiert auf dem Log des Preises und macht aus dem Koeffizienten einen Prozentwert."], "")
     p = _percent(p)
     problems = []
-    if abs(p - np.float64(36.63)) < 1:
+    if abs(p - np.float64(36.5)) < 1:
         problems.append("That is the premium without the movement in the model. Encode the movement column, e.g. with pd.get_dummies, and fit again. / Das ist der Aufschlag ohne das Uhrwerk im Modell. Kodiert die Spalte movement, z. B. mit pd.get_dummies, und trainiert neu.")
-    elif abs(p - np.float64(13.26)) < 0.3:
+    elif abs(p - np.float64(12.98)) < 0.3:
         problems.append("That is the coefficient times 100. np.exp(coef) - 1 turns a log coefficient into a share of the price. / Das ist der Koeffizient mal 100. np.exp(coef) - 1 macht aus einem Log-Koeffizienten einen Anteil am Preis.")
-    elif abs(p - np.float64(14.18)) > 0.5:
+    elif abs(p - np.float64(13.86)) > 0.5:
         problems.append("box_percent isn't the premium of box and papers in the log model on all sales with every column, the movement one-hot encoded. / box_percent ist nicht der Aufschlag für Box und Papiere im Log-Modell auf allen Verkäufen mit jeder Spalte, das Uhrwerk one-hot-kodiert.")
     w = _percent(without_percent)
-    if w is None or abs(w - np.float64(36.63)) > 0.5:
+    if w is None or abs(w - np.float64(36.5)) > 0.5:
         problems.append("without_percent isn't what box and papers add in the same log model with the movement left out. / without_percent ist nicht, was Box und Papiere im selben Log-Modell ohne das Uhrwerk hinzufügen.")
     return _problems_or(problems, "wound")
 
@@ -1468,8 +1468,46 @@ def _forgery_check(lot):
     return _problems_or(["That lot is explained well enough by its features. Fit the log model with every column on all sales and look for the largest residual. / Dieses Los erklären seine Merkmale gut genug. Trainiert das Log-Modell mit jeder Spalte auf allen Verkäufen und sucht das größte Residuum."], "")
 
 
-def _catalogue_check(estimates):
-    '''The final check: an estimate in euros for each of the eight catalogue lots, within 10 % of the insurer's valuation.'''
+def _own_model(got, model, X, C):
+    '''The estimates must come from the team's own fitted model: it predicts log euros on X (the genuine sales without the forged lot, with age squared and the movement encoded) and its prediction for C is what was stored.'''
+    from sklearn.linear_model import LinearRegression
+    problems = []
+    try:
+        own = np.exp(np.ravel(model.predict(C)))
+        if len(own) != len(got):
+            raise ValueError
+    except Exception:
+        return _problems_or(["model, X and C must be your fitted model, its features and the catalogue's features in the same columns: model.predict(C) has to work, one value per catalogue lot. / model, X und C müssen euer trainiertes Modell, seine Merkmale und die Merkmale des Katalogs in denselben Spalten sein: model.predict(C) muss funktionieren, ein Wert pro Katalog-Los."], "")
+    if np.abs(got / own - 1).max() > 0.03:
+        problems.append("estimates aren't what your model predicts for C, back in euros. / estimates ist nicht, was euer Modell für C vorhersagt, zurück in Euro.")
+    genuine = sales.drop(_FORGED)
+    n = len(X)
+    if isinstance(X, pd.DataFrame) and _FORGED in X.index:
+        problems.append("X still holds the forged lot. It has no place in the model. / X enthält noch das gefälschte Los. Es gehört nicht ins Modell.")
+    elif n > len(genuine) or n < 800:
+        problems.append("X should hold the genuine sales: all of them, or most of them if you keep a test part back. / X soll die echten Verkäufe enthalten: alle oder die meisten, wenn ihr einen Testteil zurückhaltet.")
+    else:
+        rows = None
+        if isinstance(X, pd.DataFrame) and set(X.index) <= set(genuine.index):
+            rows = list(X.index)
+        elif n == len(genuine):
+            rows = list(genuine.index)
+        if rows is not None:
+            full = pd.get_dummies(genuine.drop(columns="price"), dtype=int)
+            full["age2"] = full["age"] ** 2
+            ref = LinearRegression().fit(full, np.log(genuine["price"]))
+            try:
+                diff = np.abs(np.ravel(model.predict(X)) - ref.predict(full.loc[rows]))
+            except Exception:
+                diff = None
+            if diff is None or diff.mean() > 0.03:
+                problems.append("model isn't the log model on the genuine sales with every column, the movement encoded and the age squared: model.predict(X) should be log euros, close to np.log(price). / model ist nicht das Log-Modell auf den echten Verkäufen mit jeder Spalte, kodiertem Uhrwerk und quadriertem Alter: model.predict(X) soll Log-Euro liefern, nahe an np.log(price).")
+    return _problems_or(problems, "printed")
+
+
+def _catalogue_check(estimates, model, X, C):
+    '''The final check: an estimate in euros for each of the eight catalogue lots, within 10 % of the insurer's valuation, and the team's own
+    fitted model, its features X and the catalogue's features C: the estimates must be what that model predicts, and it must be the log model on the genuine sales.'''
     lots = list(catalogue.index)
     try:
         if isinstance(estimates, (pd.Series, dict)):
@@ -1487,7 +1525,7 @@ def _catalogue_check(estimates):
     off = np.abs(got / ref - 1)
     bad = [lot for lot, o in zip(lots, off) if o > 0.1]
     if not bad:
-        return "printed"
+        return _own_model(got, model, X, C)
     if np.all(got < 20):
         return _problems_or(["These look like log prices. np.exp turns them back into euros. / Das sehen aus wie Log-Preise. np.exp macht wieder Euro daraus."], "")
     problems = [f"The insurer refuses lots {', '.join(map(str, bad))}: too far from its valuation. / Der Versicherer lehnt die Lose {', '.join(map(str, bad))} ab: zu weit von seiner Bewertung entfernt."]

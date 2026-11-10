@@ -62,15 +62,15 @@ print(model.coef_[0], model.intercept_)
 print(round(model.coef_[0]))
 ```
 
-**Antwort:** `274`
+**Antwort:** `288`
 
 **Zeigt nach dem Lösen:**
 
-> **274 € pro Grad.** Albers' Gerade beginnt bei 800 € (bei einem Grad 0, den keine Uhr hat) und steigt mit jedem Grad um 274 €.
+> **288 € pro Grad.** Albers' Gerade beginnt bei 760 € (bei einem Grad 0, den keine Uhr hat) und steigt mit jedem Grad um 288 €.
 >
 > scikit-learn will immer eine Tabelle von Features, auch mit nur einer Spalte: `sales[["condition"]]` (ein DataFrame) statt `sales["condition"]` (eine Series). Die trainierte Gerade ist dann `intercept_ + coef_ × Grad`.
 >
-> Eine Gerade für jede Uhr allerdings: 274 € sind ein Vermögen für eine Quarzuhr für 300 € und nichts für eine Antiquität für 20.000 €.
+> Eine Gerade für jede Uhr allerdings: 288 € sind ein Vermögen für eine Quarzuhr für 300 € und nichts für eine Antiquität für 20.000 €.
 
 **Hinweise:**
 
@@ -219,7 +219,7 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 **Zeigt nach dem Lösen:**
 
-> Auf dem Log des Preises liegt das Modell bei den Testlosen um **717 €** daneben statt um 971 €. In Euro ziehen die wenigen teuren Uhren jeden Koeffizienten zu sich, und die Gerade sagt für 23 billige Testlose sogar negative Preise voraus.
+> Auf dem Log des Preises liegt das Modell bei den Testlosen um **716 €** daneben statt um 980 €. In Euro ziehen die wenigen teuren Uhren jeden Koeffizienten zu sich, und die Gerade sagt für 23 billige Testlose sogar negative Preise voraus.
 >
 > Auf der Log-Skala vervielfacht jedes Feature den Preis, statt Euro zu addieren: **Ein Zustandsgrad fügt 16 % hinzu**, einer Quarzuhr für 300 € genauso wie einer Antiquität für 20.000 €. Ein Log-Koeffizient `b` liest sich als `np.exp(b) - 1`; für kleine `b` liegt das nahe bei `b` selbst. Vorhersagen kommen mit `np.exp` zurück in Euro.
 
@@ -227,7 +227,7 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 
 1. Die Notiz unter dem Diagramm sagt, wie Bieter für einen besseren Grad zahlen. Die Hausregel für Bewertungen nennt den Split: `train_test_split(X, y, test_size=0.2, random_state=6)`. Dann `log_model = LinearRegression().fit(X_train, np.log(y_train))`.
 2. Das Log-Modell sagt Log-Euro vorher. `np.exp(log_model.predict(X_test))` macht wieder Euro daraus; vergleicht diese mit `y_test`.
-3. `condition` ist die vierte Spalte, ihr Koeffizient also `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. Das Log-Modell liegt um 717 € statt 971 € daneben: `log_better = mae_log < mae_linear` ist `True`.
+3. `condition` ist die vierte Spalte, ihr Koeffizient also `log_model.coef_[3]`; `percent = (np.exp(log_model.coef_[3]) - 1) * 100`. Das Log-Modell liegt um 716 € statt 980 € daneben: `log_better = mae_log < mae_linear` ist `True`.
 
 ### 4. Das Uhrwerk
 
@@ -235,7 +235,7 @@ print(round(mae_linear), round(mae_log), round(percent, 1))
 **Braucht:** 3. Der lange Schwanz (sein Ergebnis), 🔒 1. Die Faustregel, 🔎 Die Karte in der Vitrine  
 **Daten:** [sales.py](../../content/rooms/ml-auction/data/sales.py)
 
-**Zahlenschloss** (öffnet mit `274`):
+**Zahlenschloss** (öffnet mit `288`):
 
 > Die Vitrine hat ein dreistelliges Zahlenschloss. Daran hängt ein Messingschild: „Kombination = Albers' Faustregel, in Euro pro Zustandsgrad.“
 
@@ -294,9 +294,9 @@ print("without the movement:", round(without_percent, 1))
 
 **Zeigt nach dem Lösen:**
 
-> Mit dem Uhrwerk im Modell fügen Box und Papiere **14 %** hinzu, nicht die 37 %, die ein Modell ohne Uhrwerk behauptet, und nicht Albers' Drittel. Papiere überleben öfter bei Automatikuhren, und Automatikuhren bringen weit mehr als Quarzuhren: Ohne das Uhrwerk im Modell wurde seine Wirkung den Papieren zugeschrieben. Das ist ein Omitted-Variable-Bias, eine Verzerrung durch eine fehlende Variable.
+> Mit dem Uhrwerk im Modell fügen Box und Papiere **14 %** hinzu, nicht die 36,5 %, die ein Modell ohne Uhrwerk behauptet, und nicht Albers' Drittel. Papiere überleben öfter bei Automatikuhren, und Automatikuhren bringen weit mehr als Quarzuhren: Ohne das Uhrwerk im Modell wurde seine Wirkung den Papieren zugeschrieben. Das ist ein Omitted-Variable-Bias, eine Verzerrung durch eine fehlende Variable.
 >
-> `pd.get_dummies` macht aus der Wortspalte eine 0/1-Spalte pro Wort. Mit einem Achsenabschnitt ist eine davon überflüssig, und `drop_first=True` lässt sie weg; die übrigen Koeffizienten bleiben in beiden Fällen gleich. Quarz kostet bei sonst gleichen Merkmalen 45 % weniger als eine Automatikuhr.
+> `pd.get_dummies` macht aus der Wortspalte eine 0/1-Spalte pro Wort. Mit einem Achsenabschnitt ist eine davon überflüssig, und `drop_first=True` lässt sie weg; die übrigen Koeffizienten bleiben in beiden Fällen gleich. Quarz kostet bei sonst gleichen Merkmalen 51 % weniger als eine Automatikuhr.
 
 **Hinweise:**
 
@@ -369,7 +369,9 @@ print(sales.loc[lot])
 
 **Zeigt nach dem Lösen:**
 
-> **Los 1964**: eine 14 Jahre alte Quarzuhr eines namenlosen Herstellers, Grad 2, ohne Papiere. Ihre Merkmale sagen etwa 170 €; sie ging für 8.400 € weg, das 50-Fache. In Log-Werten ist ihr Residuum 3,9; kein anderer Verkauf liegt um mehr als 1,1 daneben, einen Faktor 3.
+> **Los 1964**: eine 14 Jahre alte Quarzuhr eines namenlosen Herstellers, Grad 2, ohne Papiere. Ihre Merkmale sagen etwa 165 €; sie ging für 6.000 € weg, das 36-Fache. In Log-Werten ist ihr Residuum 3,6; kein anderer Verkauf liegt um mehr als 1,3 daneben, einen Faktor 3,8.
+>
+> Der Preis allein hätte euch in die Irre geführt: Die teuerste Quarzuhr, Los 1317, ist echt, eine makellose Uhr eines der großen Häuser, um die sich zwei Sammler gestritten haben (6.600 € gegen die 2.400 €, die ihre Merkmale nahelegen, ein Residuum von 1,0). Ebenso die teuerste namenlose Uhr und die teuerste junge.
 >
 > In Euro waren die größten Residuen echte Uhren: die Lose 1467, 2066 und 1913, Antiquitäten der großen Häuser, bei denen 10 % Abweichung Tausende Euro sind. Auf der Log-Skala ist jedes Residuum ein Verhältnis, also fällt die billige Fälschung auf. Das Haus erstattet dem Käufer den Preis, und Los 1964 hat im Modell für den Katalog nichts verloren.
 
@@ -394,7 +396,7 @@ print(sales.loc[lot])
 > Der Probedruck des Katalogs für Samstag liegt auf der Druckmaschine, mit acht leeren Feldern für Schätzpreise. `catalogue` enthält die acht Lose, indiziert nach Losnummer, mit denselben Spalten wie `sales`, in der Reihenfolge der Druckerei. Die Maschine läuft um 06:00 an. Was ist jedes Los wert?
 >
 > 1. Baut das Bewertungsmodell des Hauses aus allem, was ihr heute Nacht gelernt habt. Bevor ihr ihm traut, zeichnet seine Residuen gegen das Alter.
-> 2. Speichert für jedes Los eine Schätzung in Euro als `estimates`: eine Liste in der Reihenfolge des Katalogs oder eine Series, indiziert nach Losnummer.
+> 2. Behaltet euer trainiertes `model`, die Merkmale `X`, auf denen es trainiert wurde, und die Merkmale des Katalogs `C` (dieselben Spalten wie `X`) als Variablen, und speichert für jedes Los eine Schätzung in Euro als `estimates`: eine Liste in der Reihenfolge des Katalogs oder eine Series, indiziert nach Losnummer.
 
 <details><summary>Startcode</summary>
 
@@ -413,6 +415,7 @@ model = LinearRegression().fit(X, y)
 
 # show_scatter(sales["age"], y - model.predict(X), xlabel="Alter", ylabel="Residuum (log)", title="Residuen nach Alter")
 
+C = None           # die Merkmale des Katalogs, dieselben Spalten wie X
 estimates = None   # eine Schätzung in Euro pro Katalog-Los
 ```
 
@@ -444,7 +447,7 @@ estimates = pd.Series(np.exp(model.predict(C)), index=catalogue.index).round(-1)
 print(estimates)
 ```
 
-**Geprüftes Ergebnis** (`_catalogue_check(estimates)`):
+**Geprüftes Ergebnis** (`_catalogue_check(estimates, model, X, C)`):
 
 ```json
 "printed"
