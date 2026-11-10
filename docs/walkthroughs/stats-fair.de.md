@@ -19,7 +19,7 @@
 | 5 | Das Kassenhäuschen | Grundgesamtheit vs. Stichprobe, zufällige vs. verzerrte Stichproben, wie stark ein Stichprobenmittel schwankt | 🔒 3. Der Ententeich, 🔎 Brunos Flyer für Sponsoren |
 | 6 | Das Tor des Festplatzes (Abschluss-Schloss) | Die Prüfung zusammenführen: Welche Befunde sind Zufall und welche nicht | 2. Glückssieben (sein Ergebnis), 3. Der Ententeich (sein Ergebnis), 4. Die Abfüllmaschine (sein Ergebnis), 5. Das Kassenhäuschen (sein Ergebnis), 🔎 Der Festplatzplan |
 
-**Abschluss-Code:** `1836`
+**Abschluss-Code:** `radar kiwi opal panda`
 
 ## Stationen
 
@@ -156,7 +156,7 @@ print(games.stack().value_counts().sort_index())
 
 > Nur **163 Gewinne** in 900 Spielen, wo faire Würfel etwa 200 ergeben. Mit fairen Würfeln kommt ein so schlechter Abend etwa einmal in 700 Abenden vor: weit unter den 1 zu 100 des Handbuchs. Die Würfel sind gezinkt; 5 und 6 fallen zu selten.
 >
-> Prüfsiegel für die Glückssieben: **3**
+> Prüfsiegel für die Glückssieben: **OPAL**
 
 **Hinweise:**
 
@@ -222,7 +222,7 @@ print(round(p_win, 4), round(profit, 2), observed, honest)
 
 > Der Teich ist ehrlich: Heute Abend haben 17 % der Spiele einen Teddy gewonnen, genau wie die Binomialverteilung sagt, und Bruno verdient trotzdem 1,15 € pro Spiel.
 >
-> Prüfsiegel für den Ententeich: **8**
+> Prüfsiegel für den Ententeich: **KIWI**
 >
 > Unter die Theke geklebt, in Brunos Handschrift: „PIN Büro-Laptop = meine Entenchance, die ersten vier Ziffern nach der 0.“
 
@@ -290,7 +290,7 @@ print(round(z, 2), round(share_below, 4), legal, round(target, 1))
 
 > Bei 296,4 ml enthalten 7,5 % der Becher weniger als 285 ml: fast das Vierfache dessen, was das Gesetz erlaubt. Kai betrügt nicht absichtlich; die Maschine ist zu niedrig eingestellt. Auf 301,2 ml eingestellt, besteht sie.
 >
-> Prüfsiegel für den Limonadenstand: **6**
+> Prüfsiegel für den Limonadenstand: **PANDA**
 
 **Hinweise:**
 
@@ -366,7 +366,7 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 > Die Besucher von heute Abend haben im Schnitt **33,51 €** ausgegeben, und 1.000 Zufallsstichproben von 40 bleiben zwischen etwa 25 € und 45 €. Die Umfrage des Flyers im VIP-Zelt sagt 65 €: Das ist kein Pech, sondern eine verzerrte Stichprobe. Gefragt wurden nur Vielausgeber. Der Flyer täuscht die Sponsoren.
 >
-> Prüfsiegel für das Kassenhäuschen: **1**
+> Prüfsiegel für das Kassenhäuschen: **RADAR**
 
 **Hinweise:**
 
@@ -381,9 +381,9 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Aufgabe:**
 
-> Das Tor hat ein vierstelliges Tastenfeld und die Notiz des Nachtwächters: „Jeder Stand, den ihr fertig geprüft habt, bekommt ein Siegel mit einer Ziffer. Gebt die Siegel in der Reihenfolge der Standnummern ein.“
+> Das Schloss am Tor hat eine kleine Tastatur, daneben die Notiz des Nachtwächters: „Jeder Stand, den ihr fertig geprüft habt, bekommt ein Siegel mit einem Codewort. Tippt die Codewörter in der Reihenfolge der Standnummern ein, mit einem Leerzeichen dazwischen.“
 
-**Antwort:** `1836`
+**Antwort:** `radar kiwi opal panda`
 
 **Zeigt nach dem Lösen:**
 
@@ -391,9 +391,9 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Hinweise:**
 
-1. Jede fertige Prüfung zeigt beim Lösen eine Siegelziffer: Kassenhäuschen, Ententeich, Glückssieben und Abfüllmaschine. Heftet sie an eure Notizen.
+1. Jede fertige Prüfung zeigt beim Lösen ein Siegelwort: Kassenhäuschen, Ententeich, Glückssieben und Abfüllmaschine. Heftet sie an eure Notizen.
 2. Der Festplatzplan nummeriert die Stände: 1 Kassenhäuschen, 2 Ententeich, 3 Glückssieben, 4 Limonadenstand.
-3. Kassenhäuschen 1, Ententeich 8, Glückssieben 3, Limonadenstand 6: 1836.
+3. Kassenhäuschen RADAR, Ententeich KIWI, Glückssieben OPAL, Limonadenstand PANDA: `radar kiwi opal panda`.
 
 ## Hinweise im Raum
 

@@ -19,7 +19,7 @@
 | 5 | The ticket office | Population vs. sample, random vs. biased samples, how much a sample mean varies | 🔒 3. The duck pond, 🔎 Bruno's flyer for sponsors |
 | 6 | The fairground gate (Final lock) | Putting the inspection together: which findings are chance and which are not | 2. Lucky Seven (its result), 3. The duck pond (its result), 4. The filling machine (its result), 5. The ticket office (its result), 🔎 The fair map |
 
-**Final code:** `1836`
+**Final code:** `radar kiwi opal panda`
 
 ## Stations
 
@@ -156,7 +156,7 @@ print(games.stack().value_counts().sort_index())
 
 > Only **163 wins** in 900 games, where fair dice give about 200. With fair dice, a night this bad happens about once in 700 nights: far below the handbook's 1 in 100. The dice are loaded; 5 and 6 come up too rarely.
 >
-> Inspection seal for Lucky Seven: **3**
+> Inspection seal for Lucky Seven: **OPAL**
 
 **Hints:**
 
@@ -222,7 +222,7 @@ print(round(p_win, 4), round(profit, 2), observed, honest)
 
 > The pond is honest: tonight 17 % of games won a teddy, just as the binomial distribution says, and Bruno still earns €1.15 per game.
 >
-> Inspection seal for the duck pond: **8**
+> Inspection seal for the duck pond: **KIWI**
 >
 > Stuck under the counter, in Bruno's handwriting: "Office laptop PIN = my duck odds, the first four digits after the 0."
 
@@ -290,7 +290,7 @@ print(round(z, 2), round(share_below, 4), legal, round(target, 1))
 
 > At 296.4 ml, 7.5 % of cups hold less than 285 ml: almost four times what the law allows. Kai isn't cheating on purpose; the machine is set too low. Set to 301.2 ml, it passes.
 >
-> Inspection seal for the lemonade stand: **6**
+> Inspection seal for the lemonade stand: **PANDA**
 
 **Hints:**
 
@@ -366,7 +366,7 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 > Tonight's visitors spent **€33.51** on average, and 1,000 random samples of 40 stay between about €25 and €45. The flyer's survey in the VIP tent says €65: that's not bad luck, it's a biased sample. Only big spenders were asked. The flyer misleads the sponsors.
 >
-> Inspection seal for the ticket office: **1**
+> Inspection seal for the ticket office: **RADAR**
 
 **Hints:**
 
@@ -381,9 +381,9 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Task:**
 
-> The gate has a four-digit keypad and the night guard's note: "Every stall you finish inspecting gets a seal with one digit. Enter the seals in the order of the stall numbers."
+> The gate's lock has a small keyboard and the night guard's note: "Every stall you finish inspecting gets a seal with a code word. Type the code words in the order of the stall numbers, with a space between them."
 
-**Answer:** `1836`
+**Answer:** `radar kiwi opal panda`
 
 **Reveals when solved:**
 
@@ -391,9 +391,9 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 **Hints:**
 
-1. Every finished inspection shows a seal digit when it's solved: the ticket office, the duck pond, Lucky Seven and the filling machine. Pin them to your notes.
+1. Every finished inspection shows a seal word when it's solved: the ticket office, the duck pond, Lucky Seven and the filling machine. Pin them to your notes.
 2. The fair map numbers the stalls: 1 ticket office, 2 duck pond, 3 Lucky Seven, 4 lemonade stand.
-3. Ticket office 1, duck pond 8, Lucky Seven 3, lemonade stand 6: 1836.
+3. Ticket office RADAR, duck pond KIWI, Lucky Seven OPAL, lemonade stand PANDA: `radar kiwi opal panda`.
 
 ## Clues in the room
 

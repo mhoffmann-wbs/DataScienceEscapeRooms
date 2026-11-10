@@ -29,7 +29,7 @@ flowchart LR
   end
 
   subgraph p3["Final lock"]
-    gate{{"6 · The fairground gate<br/>final code 1836"}}
+    gate{{"6 · The fairground gate<br/>final code radar kiwi opal panda"}}
   end
 
   d_lemonade --> lemonade
@@ -48,10 +48,10 @@ flowchart LR
   lemonade ==>|"📤 μ = 296.4 ml, σ = 7.9 ml"| filler
   ducks ==>|"🔒 PIN 1694 = p_win 0.1694"| tickets
 
-  tickets ==>|"🔢 seal 1"| gate
-  ducks ==>|"🔢 seal 8"| gate
-  dice ==>|"🔢 seal 3"| gate
-  filler ==>|"🔢 seal 6 (lemonade stand)"| gate
+  tickets ==>|"🔢 seal RADAR"| gate
+  ducks ==>|"🔢 seal KIWI"| gate
+  dice ==>|"🔢 seal OPAL"| gate
+  filler ==>|"🔢 seal PANDA (lemonade stand)"| gate
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
   classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
@@ -67,7 +67,7 @@ flowchart LR
 
 | Arrow | Meaning |
 |---|---|
-| `==>` thick | A result, lock code or final digit moves from one station to another |
+| `==>` thick | A result, lock code or seal word moves from one station to another |
 | `-->` solid | A clue or data file the station can't be solved without |
 | `-.->` dotted | Context only: the value is also in the task text, or it only helps to judge a result that isn't checked |
 
@@ -85,7 +85,7 @@ flowchart LR
 
 ## Hand-offs
 
-- Between stations: 2 (μ/σ, the PIN), plus 4 seal digits into the gate.
+- Between stations: 2 (μ/σ, the PIN), plus 4 seal words into the gate.
 - From clues: 7 clues, all hard. The gate's task is the only place that explains the seals; the intro no longer repeats it.
 
 ## Where things are
@@ -96,13 +96,17 @@ flowchart LR
 
 ## Findings
 
+Fixed in step 23 (the gate can't be brute-forced):
+
+- **The seals are code words, not digits.** The gate's code was one digit per stall, so a team with three seals could try the ten values for the fourth and skip a station (most likely the lemonade stand and the filling machine). Each seal is now a word, spelled the same in English and German and unrelated to the others (ticket office RADAR, duck pond KIWI, Lucky Seven OPAL, lemonade stand PANDA), and the gate wants all four in stall order with spaces: `radar kiwi opal panda`. A missing word can't be guessed. Answers ignore case and extra spaces, but other separators (commas) count as wrong: the night guard's note asks for spaces.
+
 Fixed in the shortcut review:
 
 - **`flyer_mean = 65` passed.** The flyer clue states the number and the survey averaged exactly €65.00, so the filtering step could be skipped. The VIP-tent Saturday survey now averages €64.675 (its largest spend went from 101 to 88; `generate_data.py` targets a sum of 2587), the flyer's €65 is a rounding, and the check names a typed 65 ("the number printed on the flyer").
 - **The Lucky Seven sign no longer says "2 in 9".** That was `p_theory` word for word (8/36), so the 36-outcome count could be skipped. The sign now only says which sums win; the hints still carry 8 / 36.
 - **The cup log's `clean` was only checked for its length (116),** so any 116 values passed. It now has to hold exactly the cups above 0 ml and up to 400 ml.
 - Tried and failed as intended: all four surveys averaged, the wrong survey, `clean` dropping the wrong four cups. Tried and fine: `clean` built by sorting and slicing, or with a looser upper bound (same reasoning as the station teaches).
-- **Left: the gate's code is four seals, one per station.** With three seals in hand a team could try the ten values for the fourth and skip the lemonade stand and the filling machine; a bigger fix would be a lock with an attempt limit or a code that is not a plain digit per stall. The `means` check only tests plausibility (mean and spread), so means drawn from a normal distribution instead of `wristbands.sample` pass; a bigger fix would pass the team's code a second input. The duck pond's and the filling machine's numbers can't be read off anything before the station is solved, so the tolerances stay.
+- **Left:** the `means` check only tests plausibility (mean and spread), so means drawn from a normal distribution instead of `wristbands.sample` pass; a bigger fix would pass the team's code a second input. The duck pond's and the filling machine's numbers can't be read off anything before the station is solved, so the tolerances stay.
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
