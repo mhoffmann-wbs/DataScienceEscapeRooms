@@ -113,7 +113,7 @@ const FONT5 = {
   W: '10001 10001 10001 10101 10101 10101 01010', X: '10001 10001 01010 00100 01010 10001 10001',
   Y: '10001 10001 01010 00100 00100 00100 00100', Z: '11111 00001 00010 00100 01000 10000 11111',
   0: '01110 10011 10101 10101 11001 10001 01110', 1: '00100 01100 00100 00100 00100 00100 01110',
-  2: '01110 10001 00001 00110 01000 10000 11111', 3: '11110 00001 00001 01110 00001 00001 11110', 5: '11111 10000 11110 00001 00001 10001 01110',
+  2: '01110 10001 00001 00110 01000 10000 11111', 3: '11110 00001 00001 01110 00001 00001 11110', 4: '00010 00110 01010 10010 11111 00010 00010', 5: '11111 10000 11110 00001 00001 10001 01110',
   '-': '00000 00000 00000 01110 00000 00000 00000', '·': '00000 00000 00000 00100 00000 00000 00000',
   ',': '00000 00000 00000 00000 00000 00100 01000', '.': '00000 00000 00000 00000 00000 00000 00100',
   ' ': '00000 00000 00000 00000 00000 00000 00000',
@@ -169,26 +169,72 @@ function chartDoor(dst, dx, dy, h) {
 
 // --- Logo: 64x64 pixels, shown at 8x ------------------------------------------------
 
-function logo() {
-  const c = canvas(64, 64);
-  const r = 7;
+const STEEL = [168, 182, 196];
+const SCREEN = [22, 30, 38];
+
+/** A navy tile with rounded corners and a darker rim. */
+function roundedTile(c, r = 8) {
   const inside = (x, y) => {
-    const cx = Math.min(Math.max(x + 0.5, r), 64 - r), cy = Math.min(Math.max(y + 0.5, r), 64 - r);
+    const cx = Math.min(Math.max(x + 0.5, r), c.w - r), cy = Math.min(Math.max(y + 0.5, r), c.h - r);
     return (x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2 <= r * r;
   };
-  for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) if (inside(x, y)) c.set(x, y, NAVY);
-  for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++)
-    if (inside(x, y) && (!inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1))) c.set(x, y, shade(NAVY, 0.6));
-  // A slice of the lobby wall with its lamps, the chart door and a strip of floor.
-  for (let x = 5; x < 59; x += T) tilePart(c, 4, 0, 0, Math.min(T, 59 - x), 30, x, 6);
-  tilePart(c, 1, 0, 0, 27, 5, 5, 36);
-  tilePart(c, 1, 0, 0, 27, 5, 32, 36);
-  tilePart(c, 136, 9, 4, 14, 26, 2, 6);
-  tilePart(c, 136, 9, 4, 14, 26, 48, 6);
-  chartDoor(c, 16, 9, 160);
-  c.rect(5, 41, 54, 1, shade(NAVY, 0.6));
-  centered(c, FONT3, 'DATA SCIENCE', 32, 45, MINT, 1);
-  centered(c, FONT3, 'ESCAPE ROOMS', 32, 53, GOLD, 1);
+  for (let y = 0; y < c.h; y++) for (let x = 0; x < c.w; x++)
+    if (inside(x, y)) c.set(x, y, !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1) ? shade(NAVY, 0.6) : NAVY);
+}
+
+/** Fills the pixels a predicate picks, lighter on the top-left rim and darker on the bottom-right. */
+function shape(c, inside, col) {
+  for (let y = 0; y < c.h; y++) for (let x = 0; x < c.w; x++)
+    if (inside(x, y)) {
+      const dark = !inside(x + 1, y) || !inside(x, y + 1), light = !inside(x - 1, y) || !inside(x, y - 1);
+      c.set(x, y, dark ? shade(col, 0.6) : light ? shade(col, 1.3) : col);
+    }
+}
+
+/** The two padlock sizes: shackle centre and radii, legs, body box, screen box in the body, trend points. */
+const LOCKS = {
+  large: { ring: [22, 14, 8.5], legs: [[18, 24], [40, 46]], body: [12, 28, 40, 29], screen: [4, 4, 32, 20],
+    points: [[18, 19], [24, 16], [29, 18], [34, 12], [39, 13], [45, 7]] },
+  small: { ring: [11, 10, 6], legs: [[22, 26], [38, 42]], body: [16, 15, 32, 22], screen: [3, 3, 26, 14],
+    points: [[21, 13], [26, 10], [30, 12], [34, 7], [38, 8], [43, 4]] },
+};
+
+/** A padlock whose body is a screen with a rising trend line: data that opens the lock. */
+function padlock(c, size, dy = 0) {
+  const { ring: [ry, R, r], legs, body: [bx, by, bw, bh], screen: [sx, sy, sw, sh], points } = LOCKS[size];
+  const top = by + dy;
+  shape(c, (x, y) => {
+    const d = Math.hypot(x + 0.5 - 32, y + 0.5 - ry - dy);
+    return (y < ry + dy && d <= R && d >= r) || (y >= ry + dy && y < top + 2 && legs.some(([a, b]) => x >= a && x < b));
+  }, STEEL);
+  shape(c, (x, y) => x >= bx && x < bx + bw && y >= top && y < top + bh && !((x === bx || x === bx + bw - 1) && (y === top || y === top + bh - 1)), GOLD);
+  c.rect(bx + sx, top + sy, sw, sh, SCREEN);
+  for (let x = bx + sx + 2; x < bx + sx + sw - 2; x += 4) c.rect(x, top + sy + 1, 1, sh - 2, [32, 44, 54]);
+  const pts = points.map(([x, y]) => [x, top + y]);
+  for (let k = 0; k < pts.length - 1; k++) {
+    const [ax, ay] = pts[k], [bx2, by2] = pts[k + 1];
+    for (let t = 0; t <= 1; t += 0.02) c.set(Math.round(ax + (bx2 - ax) * t), Math.round(ay + (by2 - ay) * t), MINT);
+  }
+  for (const [x, y] of pts) c.rect(x - 1, y - 1, 3, 3, shade(MINT, 1.3));
+  c.rect(30, top + bh - 4, 4, 2, shade(GOLD, 0.5));
+  return top + bh;
+}
+
+/** The logo: the padlock over the name, the topic small in mint and ESCAPE large in gold. */
+function logo() {
+  const c = canvas(64, 64);
+  roundedTile(c);
+  const y = padlock(c, 'small', 4) + 4;
+  centered(c, FONT3, 'DATA SCIENCE', 32, y, MINT, 1);
+  centered(c, FONT5, 'ESCAPE', 32, y + 7, GOLD, 1);
+  return c;
+}
+
+/** The icon: the padlock alone, for small places such as a browser tab. */
+function icon() {
+  const c = canvas(64, 64);
+  roundedTile(c);
+  padlock(c, 'large');
   return c;
 }
 
@@ -248,8 +294,13 @@ function banner() {
   return c;
 }
 
-const out = REPO + 'docs/brand/';
-mkdirSync(out, { recursive: true });
-writeFileSync(out + 'logo.png', encode(upscale(logo(), 8)));
-writeFileSync(out + 'banner.png', encode(upscale(banner(), 3)));
-console.log('wrote docs/brand/logo.png (512x512) and docs/brand/banner.png (1632x864)');
+export { canvas, blit, tile, tilePart, hue, shade, avatar, text, centered, upscale, chartDoor, encode, FONT5, FONT3, NAVY, MINT, GOLD, TEXT, SHADOW, T };
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const out = REPO + 'docs/brand/';
+  mkdirSync(out, { recursive: true });
+  writeFileSync(out + 'logo.png', encode(upscale(logo(), 8)));
+  writeFileSync(out + 'logo-icon.png', encode(upscale(icon(), 8)));
+  writeFileSync(out + 'banner.png', encode(upscale(banner(), 3)));
+  console.log('wrote docs/brand/logo.png and logo-icon.png (512x512) and docs/brand/banner.png (1632x864)');
+}
