@@ -16,7 +16,7 @@ flowchart LR
   d_tally[("tally.py<br/>scan")]
   d_seal[("seal.py<br/>impressions, templates")]
   d_blueprint[("blueprint.py<br/>grader only")]
-  d_archive[("archive.py<br/>x_train, y_train, x_test, y_test, jar")]
+  d_archive[("archive.py<br/>x_train, y_train, x_test, y_test, jar<br/>crate 7: x_crate, y_mika")]
   d_laptop[("laptop.py<br/>old_reader, prototype, x_new, y_new, probe")]
 
   subgraph p1["Open from the start"]
@@ -26,12 +26,12 @@ flowchart LR
   end
 
   subgraph p2["Needs an earlier code"]
-    notebook["4 · Mika's notebook 🔒<br/>Keras errors, channel axis, epochs"]
+    notebook["4 · Mika's notebook 🔒<br/>Keras errors, channel axis, epochs;<br/>crate 7: count Mika's label errors: mika_wrong"]
     laptop["5 · Amara's laptop 🔒<br/>dense vs CNN on shifted signs, np.roll: counts, first_miss"]
   end
 
   subgraph p3["Final lock"]
-    jar{{"6 · The Varda jar<br/>final code 1898"}}
+    jar{{"6 · The Varda jar<br/>final code 189813"}}
   end
 
   d_tally --> tally
@@ -39,6 +39,7 @@ flowchart LR
   d_blueprint --> blueprint
   d_archive --> notebook
   d_archive --> jar
+  d_archive -.->|"crate 7 is read at the notebook: x_crate, y_mika"| notebook
   d_laptop --> laptop
 
   theonote -->|"🔎 kernel 0 1 0 / 1 -4 1 / 0 1 0"| tally
@@ -51,14 +52,15 @@ flowchart LR
   archivelabel -.->|"🔎 bytes 0-255, labels 0-7"| notebook
   archivelabel -.->|"🔎 bytes 0-255"| jar
   amaramail -.->|"🔎 compare both readers on the new fragments"| laptop
-  amaramail -->|"🔎 code = old count, then prototype's"| jar
+  amaramail -->|"🔎 code = old count, prototype's, Mika's mistakes in crate 7"| jar
 
   blueprint ==>|"🔒 password 1384"| notebook
   blueprint ==>|"📤 draft 3 layers"| notebook
   tally ==>|"🔒 password 246"| laptop
-  laptop ==>|"🔢 18 then 98 = 1898"| jar
+  laptop ==>|"🔢 18 then 98"| jar
   seal ==>|"📤 sounds of signs 0-7"| jar
   blueprint ==>|"📤 draft 3 layers"| jar
+  notebook ==>|"🔢 13: Mika's mistakes in crate 7"| jar
   notebook ==>|"📤 channel axis, ≥ 6 epochs (soft)"| jar
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
@@ -83,18 +85,18 @@ flowchart LR
 
 - **Start:** 3 stations open at once (raking light, seal, blueprint). Enough for a team of 3; a team of 5 pairs up on the seal (kernel layout) and the tally (two loops plus Keras).
 - **Second wave:** Mika's notebook opens with the blueprint's 1,384, Amara's laptop with the tally's 246. Both can run in parallel.
-- **Final:** the jar's cabinet needs the laptop's two counts and Amara's mail; the task needs the seal's sounds, draft 3 and the notebook's fixes.
+- **Final:** the jar's cabinet needs the laptop's two counts, the notebook's count of Mika's mistakes in crate 7 (six digits: 18, 98, 13) and Amara's mail for the rule; the task needs the seal's sounds, draft 3 and the notebook's fixes.
 
 ## Chains
 
-- Blueprint → notebook → jar and tally → laptop → jar: 3 stations each, the longest paths.
+- Blueprint → notebook → jar and tally → laptop → jar: 3 stations each, the longest paths. Both now deliver a part of the cabinet code (the notebook 13, the laptop 18 and 98).
 - Seal → jar: 2 stations; the seal can be done any time before the end.
 - The two long chains share no station, so two sub-teams can each take one.
 
 ## Hand-offs
 
-- Between stations: 2 lock codes (1384, 246), the final code (1898), and 4 results (draft 3 into the notebook and the jar, the sounds into the jar, the notebook's fixes into the jar).
-- From clues: 8 clues; hard: Theo's note, the numeral chart, the seal's label, the blueprint, Amara's mail (for the jar's code). Soft: the sign list, Mika's note, the crate label, and Amara's mail at the laptop.
+- Between stations: 2 lock codes (1384, 246), the final code (189813: the laptop's 18 and 98, the notebook's 13), and 5 results (draft 3 into the notebook and the jar, the sounds into the jar, the notebook's fixes and its count of Mika's mistakes into the jar).
+- From clues: 8 clues; hard: Theo's note, the numeral chart, the seal's label, the blueprint, Amara's mail (for the jar's code). Soft: the sign list, Mika's note, the crate label, and Amara's mail at the laptop. Mika's note doesn't mention crate 7 (the notebook's task has it).
 
 ## Where things are
 
@@ -117,13 +119,19 @@ Fixed in the second review (every clue once, no pointers to clues outside the hi
 - **Every clue once.** Theo's note no longer repeats the task's step-by-step convolution or the "loses one point on every side" (hint 1 has the shape); Mika's note no longer repeats the lock's password rule or the starter's "2 epochs"; Amara's mail no longer repeats the laptop task's "trained on the photo set, every sign in the middle"; the laptop's check no longer restates the crate label's 0.0 to 1.0; the reader check no longer gives away the blueprint's stained total (1,384).
 - **Every station starts with its question:** "What number does it record?", "Which sound does each Varda sign stand for?", "Which reader copes with that, and why does the other one fail?", "What does the lid say?". The laptop's commented-out `np.roll` line in the starter is gone (the task already shows the call).
 
+Fixed in step 23 (the notebook feeds the cabinet code):
+
+- **Mika's notebook was not needed to escape.** The final retrained the same reader and the cabinet's code came only from the laptop. Now `archive.py` also holds crate 7 (`x_crate`, 60 more fragments, and `y_mika`, the sign numbers Mika gave them by hand; Mika got 13 wrong), the notebook has a second step (let the trained reader read crate 7 and count the disagreements: `mika_wrong`), and the cabinet's code is six digits: the old reader's count, the prototype's, then Mika's mistakes: **189813**. The rule is only in Amara's mail. Teaching point: a trained model can audit hand labels (label noise).
+- **The count doesn't depend on how the team trains.** The fragments are chosen so that every reader that passes the 85 % check reads them clearly: readers trained with seeds 11-17 and 4-12 epochs all count 13. An undertrained reader (66 %) counts 18, and is rejected by the 85 % check anyway.
+- **It can't be done at the jar.** The jar station is behind the cabinet lock, so crate 7 can only be checked at the notebook, which is behind the 1384 lock (blueprint).
+- **Remaining weakness:** `mika_wrong` typed as a number passes, like the laptop's counts, but 13 is only known from the notebook's own reveal. The last two digits of the six-digit code could be brute-forced (100 tries) by a team that has 18 and 98 and skips the notebook; accepted for now.
+
 Earlier findings:
 
 - **The sign list is soft.** The seal's task says filter `i` is `templates[i]`, so the numbers come with the data; the list only names the signs (and helps to read the lid by eye). Left as it is: it gives the script a face, and the reveal repeats the names.
 - **The crate label is soft.** Mika's script already scales with `/ 255`; the label only confirms it. Night Post teaches scaling; here it's context on purpose.
 - **Mika's note is soft:** it only describes the errors; the third bug (2 epochs) is the starter's own comment.
-- **Mika's notebook is not needed to escape.** Its lock and fixes are a rehearsal of the jar: the final checks the same reader (draft 3, 85 %, channel axis, scaling) from scratch, and the cabinet's code comes from the laptop. Left as it is; a bigger fix would give the cabinet's code a digit that only the notebook yields, which needs a result that doesn't depend on how the team trains (not the accuracy).
-- **Typed numbers at the laptop and tally** (18, 98, 3; 246) pass the checks without code, but each can only be known from that station's own reveal, so it can't be done early.
+- **Typed numbers at the laptop, tally and notebook** (18, 98, 3; 246; `mika_wrong` 13) pass the checks without code, but each can only be known from that station's own reveal, so it can't be done early.
 - **A model trained on `x_train` plus `x_test`** would still pass the 85 % check; it takes deliberate effort and teaches nothing the room tests, so it is left.
 - **The final retrains the reader** (about 4 s), as the notebook did, because stations don't share a namespace. A team that kept the notebook's code just copies it.
 - **The prototype could read the lid,** but the jar station doesn't load it (nor the stamps), and its check wants a reader trained there. Good as it is.

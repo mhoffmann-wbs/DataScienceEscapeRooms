@@ -183,18 +183,18 @@
         "de": "Mikas Notebook"
       },
       "text": {
-        "en": "Mika, Amara's student assistant, tried to train the reader on the archive: `x_train` and `y_train` to learn from, `x_test` and `y_test` to test with. The script crashed again and again, and Mika went home.\n\nFix the script. The reader is ready when it reads at least 85 % of the test fragments.",
-        "de": "Mika, Amaras studentische Hilfskraft, hat versucht, den Leser mit dem Archiv zu trainieren: `x_train` und `y_train` zum Lernen, `x_test` und `y_test` zum Testen. Das Skript ist immer wieder abgestürzt, und Mika ist nach Hause gegangen.\n\nRepariert das Skript. Der Leser ist bereit, wenn er mindestens 85 % der Testfragmente richtig liest."
+        "en": "Mika, Amara's student assistant, tried to train the reader on the archive: `x_train` and `y_train` to learn from, `x_test` and `y_test` to test with. The script crashed again and again, and Mika went home.\n\n1. Fix the script. The reader is ready when it reads at least 85 % of the test fragments.\n2. Mika also sorted crate 7 by hand: `x_crate` holds its 60 fragments (raw, like `x_train`), `y_mika` the sign numbers Mika gave them. Let the trained reader read crate 7 and count on how many of the 60 it disagrees with Mika: `mika_wrong`.",
+        "de": "Mika, Amaras studentische Hilfskraft, hat versucht, den Leser mit dem Archiv zu trainieren: `x_train` und `y_train` zum Lernen, `x_test` und `y_test` zum Testen. Das Skript ist immer wieder abgestürzt, und Mika ist nach Hause gegangen.\n\n1. Repariert das Skript. Der Leser ist bereit, wenn er mindestens 85 % der Testfragmente richtig liest.\n2. Mika hat auch Kiste 7 von Hand sortiert: `x_crate` enthält die 60 Fragmente (roh, wie `x_train`), `y_mika` die Zeichennummern, die Mika ihnen gegeben hat. Lasst den trainierten Leser Kiste 7 lesen und zählt, bei wie vielen der 60 er anderer Meinung ist als Mika: `mika_wrong`."
       },
       "workspace": "python",
       "starter": {
-        "en": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Mika: the reader, draft 3. Why does it crash every time?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    layers.Conv2D(8, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Conv2D(16, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Dense(8, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n# only 2 epochs, or it takes forever\nhistory = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test / 255, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n",
-        "de": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Mika: der Leser, Entwurf 3. Warum stürzt das jedes Mal ab?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    layers.Conv2D(8, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Conv2D(16, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Dense(8, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n# nur 2 Epochen, sonst dauert es ewig\nhistory = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test / 255, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n"
+        "en": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Mika: the reader, draft 3. Why does it crash every time?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    layers.Conv2D(8, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Conv2D(16, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Dense(8, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n# only 2 epochs, or it takes forever\nhistory = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test / 255, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n\nmika_wrong = None   # how many of crate 7 did Mika sort wrong?\n",
+        "de": "import tensorflow as tf\nfrom tensorflow.keras import layers\n\n# Mika: der Leser, Entwurf 3. Warum stürzt das jedes Mal ab?!\ntf.keras.utils.set_random_seed(1)\n\nmodel = tf.keras.Sequential([\n    tf.keras.Input(shape=(24, 24, 1)),\n    layers.Conv2D(8, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Conv2D(16, 3, activation=\"relu\"),\n    layers.MaxPooling2D(4),\n    layers.Dense(8, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\", loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n# nur 2 Epochen, sonst dauert es ewig\nhistory = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)\n\ntest_loss, test_accuracy = model.evaluate(x_test / 255, y_test)\nprint(\"Test accuracy:\", test_accuracy)\n\nmika_wrong = None   # wie viele aus Kiste 7 hat Mika falsch sortiert?\n"
       },
       "data": "archive.py",
       "check": {
         "type": "python",
-        "expr": "_notebook_check(model)",
+        "expr": "_notebook_check(model, mika_wrong)",
         "hash": "78f86443cbcd0b31eb356861e39254240178a1b562fce13ca754fb98b4596e87"
       },
       "lock": {
@@ -210,12 +210,12 @@
         "blueprint"
       ],
       "reveal": {
-        "en": "The reader reads about **95 %** of the test fragments. Mika made three mistakes: two poolings of 4 × 4 shrank the fragments to nothing (Keras says the output size would be negative), the fragments had no channel axis (Conv2D wants `(24, 24, 1)`, not `(24, 24)`), and after 2 epochs the reader was still learning. Here an epoch takes well under a second, so 6 to 8 are fine.",
-        "de": "Der Leser liest etwa **95 %** der Testfragmente richtig. Mika hat drei Fehler gemacht: Zwei Poolings von 4 × 4 haben die Fragmente auf nichts geschrumpft (Keras sagt, die Ausgabegröße würde negativ), die Fragmente hatten keine Kanal-Achse (Conv2D will `(24, 24, 1)`, nicht `(24, 24)`), und nach 2 Epochen lernte der Leser noch. Hier dauert eine Epoche deutlich unter einer Sekunde, also sind 6 bis 8 in Ordnung."
+        "en": "The reader reads about **95 %** of the test fragments. Mika made three mistakes: two poolings of 4 × 4 shrank the fragments to nothing (Keras says the output size would be negative), the fragments had no channel axis (Conv2D wants `(24, 24, 1)`, not `(24, 24)`), and after 2 epochs the reader was still learning. Here an epoch takes well under a second, so 6 to 8 are fine.\n\nOn crate 7 the reader disagrees with Mika on **13** of the 60 fragments. A trained model can check hand labels: an archive sorted by hand always has some label noise.",
+        "de": "Der Leser liest etwa **95 %** der Testfragmente richtig. Mika hat drei Fehler gemacht: Zwei Poolings von 4 × 4 haben die Fragmente auf nichts geschrumpft (Keras sagt, die Ausgabegröße würde negativ), die Fragmente hatten keine Kanal-Achse (Conv2D will `(24, 24, 1)`, nicht `(24, 24)`), und nach 2 Epochen lernte der Leser noch. Hier dauert eine Epoche deutlich unter einer Sekunde, also sind 6 bis 8 in Ordnung.\n\nBei Kiste 7 ist der Leser bei **13** der 60 Fragmente anderer Meinung als Mika. Ein trainiertes Modell kann von Hand vergebene Labels prüfen: Ein von Hand sortiertes Archiv hat immer etwas Label-Rauschen."
       },
       "practises": {
-        "en": "Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN",
-        "de": "Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN"
+        "en": "Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN; using a trained model to audit hand labels (label noise)",
+        "de": "Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN; ein trainiertes Modell zum Prüfen von Hand-Labels nutzen (Label-Rauschen)"
       },
       "clues": [
         "mika-note",
@@ -228,12 +228,12 @@
           "de": "Lest den ersten Fehler: Für das zweite `MaxPooling2D` ist nichts mehr zum Poolen übrig. Verfolgt die Formen durch die Schichten und vergleicht sie mit dem Bauplan; `model.summary()` zeigt sie, sobald das Modell sich bauen lässt."
         },
         {
-          "en": "Conv2D wants every fragment with a channel axis: `(24, 24, 1)`, not `(24, 24)`. `x_train[..., None]` adds it, and `x_test` needs it too. Then look at the accuracy after the last epoch: is it still climbing?",
-          "de": "Conv2D will jedes Fragment mit einer Kanal-Achse: `(24, 24, 1)`, nicht `(24, 24)`. `x_train[..., None]` fügt sie ein, und `x_test` braucht sie auch. Schaut dann auf die accuracy nach der letzten Epoche: Steigt sie noch?"
+          "en": "Conv2D wants every fragment with a channel axis: `(24, 24, 1)`, not `(24, 24)`. `x_train[..., None]` adds it, and `x_test` needs it too. Then look at the accuracy after the last epoch: is it still climbing? For crate 7, prepare `x_crate` the same way, let the reader predict, and compare with `y_mika`.",
+          "de": "Conv2D will jedes Fragment mit einer Kanal-Achse: `(24, 24, 1)`, nicht `(24, 24)`. `x_train[..., None]` fügt sie ein, und `x_test` braucht sie auch. Schaut dann auf die accuracy nach der letzten Epoche: Steigt sie noch? Für Kiste 7 bereitet `x_crate` genauso vor, lasst den Leser vorhersagen und vergleicht mit `y_mika`."
         },
         {
-          "en": "The layers from the blueprint, then `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` and `model.evaluate(x_test[..., None] / 255, y_test)`.",
-          "de": "Die Schichten aus dem Bauplan, dann `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` und `model.evaluate(x_test[..., None] / 255, y_test)`."
+          "en": "The layers from the blueprint, then `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` and `model.evaluate(x_test[..., None] / 255, y_test)`. For crate 7: `read = model.predict(x_crate[..., None] / 255).argmax(axis=1)` and `mika_wrong = int((read != y_mika).sum())`.",
+          "de": "Die Schichten aus dem Bauplan, dann `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` und `model.evaluate(x_test[..., None] / 255, y_test)`. Für Kiste 7: `read = model.predict(x_crate[..., None] / 255).argmax(axis=1)` und `mika_wrong = int((read != y_mika).sum())`."
         }
       ]
     },
@@ -316,12 +316,12 @@
       },
       "lock": {
         "text": {
-          "en": "The jar stands in a locked display cabinet with a four-digit lock.",
-          "de": "Der Krug steht in einer verschlossenen Vitrine mit einem vierstelligen Schloss."
+          "en": "The jar stands in a locked display cabinet with a six-digit lock.",
+          "de": "Der Krug steht in einer verschlossenen Vitrine mit einem sechsstelligen Schloss."
         },
         "from": "laptop",
         "mode": "caseless",
-        "hash": "62791f54868e58f02a2719bfaff720c1f8bd452c2bce8d794879ee3ace714e7c"
+        "hash": "063694b12ca5ed7630698fc17a3753409d7ccdd282876a421fec460c14e84b29"
       },
       "final": true,
       "uses": [
@@ -442,8 +442,8 @@
         "de": "Amaras Mail, ausgedruckt"
       },
       "text": {
-        "en": "From: Amara Okafor · Sunday, 19:48\n\nStuck at the airport, fog. My old reader read the photo set perfectly, but the new fragments from last week look like noise to it. On my laptop you'll find it and a prototype of draft 3. Please compare them on the 100 new fragments. If draft 3 wins, train it on the whole archive and read the jar!\n\nThe jar's cabinet: the code is how many of the 100 the old reader gets right, then how many the prototype gets right.\n\nA.",
-        "de": "Von: Amara Okafor · Sonntag, 19:48\n\nFestgesteckt am Flughafen, Nebel. Mein alter Leser hat den Fotosatz perfekt gelesen, aber die neuen Fragmente von letzter Woche sehen für ihn aus wie Rauschen. Auf meinem Laptop findet ihr ihn und einen Prototyp von Entwurf 3. Bitte vergleicht sie an den 100 neuen Fragmenten. Wenn Entwurf 3 gewinnt, trainiert ihn mit dem ganzen Archiv und lest den Krug!\n\nDie Vitrine des Krugs: Der Code ist, wie viele der 100 der alte Leser richtig liest, dann wie viele der Prototyp richtig liest.\n\nA."
+        "en": "From: Amara Okafor · Sunday, 19:48\n\nStuck at the airport, fog. My old reader read the photo set perfectly, but the new fragments from last week look like noise to it. On my laptop you'll find it and a prototype of draft 3. Please compare them on the 100 new fragments. If draft 3 wins, train it on the whole archive and read the jar!\n\nThe jar's cabinet: the code is how many of the 100 the old reader gets right, then how many the prototype gets right, then how many fragments of crate 7 Mika sorted wrong. The crate was sorted by hand on Friday, and I don't quite trust it.\n\nA.",
+        "de": "Von: Amara Okafor · Sonntag, 19:48\n\nFestgesteckt am Flughafen, Nebel. Mein alter Leser hat den Fotosatz perfekt gelesen, aber die neuen Fragmente von letzter Woche sehen für ihn aus wie Rauschen. Auf meinem Laptop findet ihr ihn und einen Prototyp von Entwurf 3. Bitte vergleicht sie an den 100 neuen Fragmenten. Wenn Entwurf 3 gewinnt, trainiert ihn mit dem ganzen Archiv und lest den Krug!\n\nDie Vitrine des Krugs: Der Code ist, wie viele der 100 der alte Leser richtig liest, dann wie viele der Prototyp richtig liest, dann bei wie vielen Fragmenten aus Kiste 7 Mika falsch sortiert hat. Die Kiste wurde am Freitag von Hand sortiert, und ich traue dem nicht ganz.\n\nA."
       }
     }
   ],

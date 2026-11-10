@@ -3007,6 +3007,69 @@ _jar = jar.copy()
 _JAR_SIGNS = [3, 5, 1, 0, 2, 6]
 _JAR_WORD = 'talumirakone'
 
+# Crate 7: 60 more fragments, sorted by Mika by hand. y_mika are Mika's sign numbers.
+x_crate = _levels((
+    "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"
+    "UwtLZ6XsH/FqQOQ="
+), (60, 24, 24))
+y_mika = _digits((
+    "777573737767677173271463773166112761242611703776707612711716"
+))
+_MIKA_WRONG = 13
+
 
 def _reader_layout(model):
     """Problems with a model that should be draft 3 of Amara's blueprint."""
@@ -3028,13 +3091,19 @@ def _accuracy(model):
     return float((model.predict(x, verbose=0).argmax(axis=1) == _y_test).mean())
 
 
-def _notebook_check(model):
-    """Mika's notebook: the reader trained well enough to read the archive."""
+def _notebook_check(model, mika_wrong):
+    """Mika's notebook: the reader trained well enough to read the archive, and Mika's sorting of crate 7 checked with it."""
     problems = _reader_layout(model)
     if not problems:
         acc = _accuracy(model)
         if not acc >= 0.85:
             problems.append(f"model reads only {acc:.0%} of the test fragments; it needs at least 85 %. Look at the accuracy in the training output: has it finished learning? / model liest nur {acc:.0%} der Testfragmente; nötig sind mindestens 85 %. Schaut auf die accuracy in der Trainingsausgabe: Ist es schon fertig mit Lernen?")
+    try:
+        mika_wrong = int(mika_wrong)
+    except (TypeError, ValueError):
+        mika_wrong = None
+    if mika_wrong != _MIKA_WRONG:
+        problems.append("mika_wrong is off: let the reader read crate 7 (x_crate, prepared like the training fragments) and count where it disagrees with Mika's labels y_mika. / mika_wrong stimmt nicht: Lasst den Leser Kiste 7 lesen (x_crate, vorbereitet wie die Trainingsfragmente) und zählt, wo er Mikas Etiketten y_mika widerspricht.")
     return _problems_or(problems, "trained")
 
 

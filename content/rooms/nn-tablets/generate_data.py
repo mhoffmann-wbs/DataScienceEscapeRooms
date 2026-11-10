@@ -513,6 +513,26 @@ stamp_misses = int((finder_scores(jar).argmax(1) != JAR_SIGNS).sum())
 print("jar: the prototype misreads", proto_misses, "| the stamps misread", stamp_misses)
 lid = jar.transpose(1, 0, 2).reshape(24, 24 * len(JAR_SIGNS))
 
+# ---- crate 7: Mika sorted it by hand, and got some wrong ----
+# Only fragments every reference reader reads clearly, so any reader that passes the 85 % check counts
+# Mika's mistakes the same way, however it was trained. The count is part of the jar cabinet's code.
+CRATE_SIZE, MIKA_WRONG = 60, 13
+rng = np.random.default_rng(47)
+crate, crate_signs = [], []
+while len(crate) < CRATE_SIZE:
+    s = int(rng.integers(0, 8))
+    img = press(s, rng)
+    x = scaled(img[None])
+    if all(lead(m.predict(x, verbose=0), s)[0] > 0.3 for m in references):
+        crate.append(img)
+        crate_signs.append(s)
+crate, crate_signs = np.stack(crate), np.array(crate_signs)
+y_mika = crate_signs.copy()
+for i in rng.choice(CRATE_SIZE, MIKA_WRONG, replace=False):
+    y_mika[i] = (crate_signs[i] + int(rng.integers(1, 8))) % 8
+assert int((y_mika != crate_signs).sum()) == MIKA_WRONG
+print("crate 7:", CRATE_SIZE, "fragments, Mika got", MIKA_WRONG, "wrong", flush=True)
+
 ARCHIVE_GRADERS = '''
 
 def _reader_layout(model):
@@ -535,13 +555,19 @@ def _accuracy(model):
     return float((model.predict(x, verbose=0).argmax(axis=1) == _y_test).mean())
 
 
-def _notebook_check(model):
-    """Mika's notebook: the reader trained well enough to read the archive."""
+def _notebook_check(model, mika_wrong):
+    """Mika's notebook: the reader trained well enough to read the archive, and Mika's sorting of crate 7 checked with it."""
     problems = _reader_layout(model)
     if not problems:
         acc = _accuracy(model)
         if not acc >= 0.85:
             problems.append(f"model reads only {acc:.0%} of the test fragments; it needs at least 85 %. Look at the accuracy in the training output: has it finished learning? / model liest nur {acc:.0%} der Testfragmente; nötig sind mindestens 85 %. Schaut auf die accuracy in der Trainingsausgabe: Ist es schon fertig mit Lernen?")
+    try:
+        mika_wrong = int(mika_wrong)
+    except (TypeError, ValueError):
+        mika_wrong = None
+    if mika_wrong != _MIKA_WRONG:
+        problems.append("mika_wrong is off: let the reader read crate 7 (x_crate, prepared like the training fragments) and count where it disagrees with Mika's labels y_mika. / mika_wrong stimmt nicht: Lasst den Leser Kiste 7 lesen (x_crate, vorbereitet wie die Trainingsfragmente) und zählt, wo er Mikas Etiketten y_mika widerspricht.")
     return _problems_or(problems, "trained")
 
 
@@ -599,7 +625,12 @@ jar = _levels({packed(lid)}, (24, 144))
 _jar = jar.copy()
 _JAR_SIGNS = {JAR_SIGNS}
 _JAR_WORD = {JAR_WORD!r}
+
+# Crate 7: {CRATE_SIZE} more fragments, sorted by Mika by hand. y_mika are Mika's sign numbers.
+x_crate = _levels({packed(crate)}, ({CRATE_SIZE}, 24, 24))
+y_mika = _digits({digit_string(y_mika)})
+_MIKA_WRONG = {MIKA_WRONG}
 ''' + ARCHIVE_GRADERS)
 
 print(json.dumps({"tally": TALLY, "seal order": SEAL_ORDER, "caption": CAPTION, "old right": OLD_RIGHT,
-                  "proto right": PROTO_RIGHT, "first miss": FIRST_MISS, "jar": JAR_SIGNS, "word": JAR_WORD}))
+                  "proto right": PROTO_RIGHT, "mika wrong": MIKA_WRONG, "first miss": FIRST_MISS, "jar": JAR_SIGNS, "word": JAR_WORD}))

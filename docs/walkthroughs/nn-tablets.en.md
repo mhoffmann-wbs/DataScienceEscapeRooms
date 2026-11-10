@@ -15,7 +15,7 @@
 | 1 | The raking light | What a convolution computes: a sliding 3 × 3 window, point-by-point product and sum; how much smaller the result is; the same filter as a Keras Conv2D with set_weights; images with a channel axis | 🔎 Theo's note, 🔎 Chart: Varda numerals |
 | 2 | The cylinder seal | A convolution as a search for a pattern; the kernel layout of Conv2D (rows, columns, channels in, filters); GlobalMaxPooling2D: the best match anywhere; scores and argmax | 🔎 Amara's sign list, 🔎 The label in the glass case |
 | 3 | The stained blueprint | Output shapes of Conv2D and MaxPooling2D, valid vs. same padding, counting a convolution's parameters (kernel × kernel × channels in × filters + one bias per filter), GlobalMaxPooling2D vs. Flatten, summary() | 🔎 Blueprint: the reader |
-| 4 | Mika's notebook | Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN | 3. The stained blueprint (its result), 🔒 3. The stained blueprint, 🔎 A note from Mika, 🔎 The label on the crates, 🔎 Blueprint: the reader |
+| 4 | Mika's notebook | Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN; using a trained model to audit hand labels (label noise) | 3. The stained blueprint (its result), 🔒 3. The stained blueprint, 🔎 A note from Mika, 🔎 The label on the crates, 🔎 Blueprint: the reader |
 | 5 | Amara's laptop | Evaluating models with predict, argmax and a count; why a dense network is tied to pixel positions; translation invariance from convolution and global pooling; np.roll | 🔒 1. The raking light, 🔎 Amara's mail, printed out |
 | 6 | The Varda jar (Final lock) | The whole workflow for a CNN: architecture, channel axis and scaling, compile, fit, evaluate; cutting an image into fields; predicting new data prepared like the training data | 2. The cylinder seal (its result), 3. The stained blueprint (its result), 4. Mika's notebook (its result), 🔒 5. Amara's laptop, 🔎 The label on the crates, 🔎 Amara's mail, printed out |
 
@@ -230,7 +230,7 @@ model.summary()
 
 ### 4. Mika's notebook
 
-**Practises:** Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN  
+**Practises:** Reading Keras errors: images that shrink to nothing, the missing channel axis (x[..., None]); epochs and when a network has finished learning; fit and evaluate for a CNN; using a trained model to audit hand labels (label noise)  
 **Needs:** 3. The stained blueprint (its result), 🔒 3. The stained blueprint, 🔎 A note from Mika, 🔎 The label on the crates, 🔎 Blueprint: the reader  
 **Data:** [archive.py](../../content/rooms/nn-tablets/data/archive.py)
 
@@ -242,7 +242,8 @@ model.summary()
 
 > Mika, Amara's student assistant, tried to train the reader on the archive: `x_train` and `y_train` to learn from, `x_test` and `y_test` to test with. The script crashed again and again, and Mika went home.
 >
-> Fix the script. The reader is ready when it reads at least 85 % of the test fragments.
+> 1. Fix the script. The reader is ready when it reads at least 85 % of the test fragments.
+> 2. Mika also sorted crate 7 by hand: `x_crate` holds its 60 fragments (raw, like `x_train`), `y_mika` the sign numbers Mika gave them. Let the trained reader read crate 7 and count on how many of the 60 it disagrees with Mika: `mika_wrong`.
 
 <details><summary>Starter code</summary>
 
@@ -267,6 +268,8 @@ history = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)
 
 test_loss, test_accuracy = model.evaluate(x_test / 255, y_test)
 print("Test accuracy:", test_accuracy)
+
+mika_wrong = None   # how many of crate 7 did Mika sort wrong?
 ```
 
 </details>
@@ -292,9 +295,14 @@ history = model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_spli
 
 test_loss, test_accuracy = model.evaluate(x_test[..., None] / 255, y_test)
 print("Test accuracy:", test_accuracy)
+
+# Crate 7: where does the reader disagree with Mika's hand labels?
+read = model.predict(x_crate[..., None] / 255).argmax(axis=1)
+mika_wrong = int((read != y_mika).sum())
+print("Mika got", mika_wrong, "wrong")
 ```
 
-**Checked result** (`_notebook_check(model)`):
+**Checked result** (`_notebook_check(model, mika_wrong)`):
 
 ```json
 "trained"
@@ -303,12 +311,14 @@ print("Test accuracy:", test_accuracy)
 **Reveals when solved:**
 
 > The reader reads about **95 %** of the test fragments. Mika made three mistakes: two poolings of 4 × 4 shrank the fragments to nothing (Keras says the output size would be negative), the fragments had no channel axis (Conv2D wants `(24, 24, 1)`, not `(24, 24)`), and after 2 epochs the reader was still learning. Here an epoch takes well under a second, so 6 to 8 are fine.
+>
+> On crate 7 the reader disagrees with Mika on **13** of the 60 fragments. A trained model can check hand labels: an archive sorted by hand always has some label noise.
 
 **Hints:**
 
 1. Read the first error: the second `MaxPooling2D` has nothing left to pool. Follow the shapes through the layers and compare them with the blueprint; `model.summary()` shows them once the model builds.
-2. Conv2D wants every fragment with a channel axis: `(24, 24, 1)`, not `(24, 24)`. `x_train[..., None]` adds it, and `x_test` needs it too. Then look at the accuracy after the last epoch: is it still climbing?
-3. The layers from the blueprint, then `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` and `model.evaluate(x_test[..., None] / 255, y_test)`.
+2. Conv2D wants every fragment with a channel axis: `(24, 24, 1)`, not `(24, 24)`. `x_train[..., None]` adds it, and `x_test` needs it too. Then look at the accuracy after the last epoch: is it still climbing? For crate 7, prepare `x_crate` the same way, let the reader predict, and compare with `y_mika`.
+3. The layers from the blueprint, then `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` and `model.evaluate(x_test[..., None] / 255, y_test)`. For crate 7: `read = model.predict(x_crate[..., None] / 255).argmax(axis=1)` and `mika_wrong = int((read != y_mika).sum())`.
 
 ### 5. Amara's laptop
 
@@ -384,9 +394,9 @@ print(first_miss)
 **Needs:** 2. The cylinder seal (its result), 3. The stained blueprint (its result), 4. Mika's notebook (its result), 🔒 5. Amara's laptop, 🔎 The label on the crates, 🔎 Amara's mail, printed out  
 **Data:** [archive.py](../../content/rooms/nn-tablets/data/archive.py)
 
-**Code lock** (opens with `1898`):
+**Code lock** (opens with `189813`):
 
-> The jar stands in a locked display cabinet with a four-digit lock.
+> The jar stands in a locked display cabinet with a six-digit lock.
 
 **Task:**
 
@@ -568,7 +578,7 @@ print(signs, word)
 >
 > Stuck at the airport, fog. My old reader read the photo set perfectly, but the new fragments from last week look like noise to it. On my laptop you'll find it and a prototype of draft 3. Please compare them on the 100 new fragments. If draft 3 wins, train it on the whole archive and read the jar!
 >
-> The jar's cabinet: the code is how many of the 100 the old reader gets right, then how many the prototype gets right.
+> The jar's cabinet: the code is how many of the 100 the old reader gets right, then how many the prototype gets right, then how many fragments of crate 7 Mika sorted wrong. The crate was sorted by hand on Friday, and I don't quite trust it.
 >
 > A.
 

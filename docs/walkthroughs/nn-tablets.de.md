@@ -15,7 +15,7 @@
 | 1 | Das Streiflicht | Was eine Faltung rechnet: ein gleitendes 3 × 3-Fenster, punktweises Produkt und Summe; wie viel kleiner das Ergebnis ist; derselbe Filter als Keras-Conv2D mit set_weights; Bilder mit einer Kanal-Achse | 🔎 Theos Notiz, 🔎 Schautafel: Varda-Zahlzeichen |
 | 2 | Das Rollsiegel | Eine Faltung als Suche nach einem Muster; der Kernel-Aufbau von Conv2D (Zeilen, Spalten, Kanäle rein, Filter); GlobalMaxPooling2D: die beste Übereinstimmung irgendwo; Werte und argmax | 🔎 Amaras Zeichenliste, 🔎 Das Schild in der Vitrine |
 | 3 | Der fleckige Bauplan | Ausgabeformen von Conv2D und MaxPooling2D, Padding valid vs. same, die Parameter einer Faltung zählen (Kernel × Kernel × Kanäle rein × Filter + ein Bias pro Filter), GlobalMaxPooling2D vs. Flatten, summary() | 🔎 Bauplan: der Leser |
-| 4 | Mikas Notebook | Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN | 3. Der fleckige Bauplan (sein Ergebnis), 🔒 3. Der fleckige Bauplan, 🔎 Ein Zettel von Mika, 🔎 Das Etikett der Kisten, 🔎 Bauplan: der Leser |
+| 4 | Mikas Notebook | Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN; ein trainiertes Modell zum Prüfen von Hand-Labels nutzen (Label-Rauschen) | 3. Der fleckige Bauplan (sein Ergebnis), 🔒 3. Der fleckige Bauplan, 🔎 Ein Zettel von Mika, 🔎 Das Etikett der Kisten, 🔎 Bauplan: der Leser |
 | 5 | Amaras Laptop | Modelle mit predict, argmax und Zählen bewerten; warum ein dichtes Netz an Pixelpositionen gebunden ist; Verschiebungsinvarianz durch Faltung und globales Pooling; np.roll | 🔒 1. Das Streiflicht, 🔎 Amaras Mail, ausgedruckt |
 | 6 | Der Krug von Varda (Abschluss-Schloss) | Der ganze Ablauf für ein CNN: Architektur, Kanal-Achse und Skalierung, compile, fit, evaluate; ein Bild in Felder schneiden; neue Daten vorhersagen, die wie die Trainingsdaten vorbereitet sind | 2. Das Rollsiegel (sein Ergebnis), 3. Der fleckige Bauplan (sein Ergebnis), 4. Mikas Notebook (sein Ergebnis), 🔒 5. Amaras Laptop, 🔎 Das Etikett der Kisten, 🔎 Amaras Mail, ausgedruckt |
 
@@ -230,7 +230,7 @@ model.summary()
 
 ### 4. Mikas Notebook
 
-**Übt:** Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN  
+**Übt:** Keras-Fehler lesen: Bilder, die auf nichts schrumpfen, die fehlende Kanal-Achse (x[..., None]); Epochen und wann ein Netz fertig gelernt hat; fit und evaluate für ein CNN; ein trainiertes Modell zum Prüfen von Hand-Labels nutzen (Label-Rauschen)  
 **Braucht:** 3. Der fleckige Bauplan (sein Ergebnis), 🔒 3. Der fleckige Bauplan, 🔎 Ein Zettel von Mika, 🔎 Das Etikett der Kisten, 🔎 Bauplan: der Leser  
 **Daten:** [archive.py](../../content/rooms/nn-tablets/data/archive.py)
 
@@ -242,7 +242,8 @@ model.summary()
 
 > Mika, Amaras studentische Hilfskraft, hat versucht, den Leser mit dem Archiv zu trainieren: `x_train` und `y_train` zum Lernen, `x_test` und `y_test` zum Testen. Das Skript ist immer wieder abgestürzt, und Mika ist nach Hause gegangen.
 >
-> Repariert das Skript. Der Leser ist bereit, wenn er mindestens 85 % der Testfragmente richtig liest.
+> 1. Repariert das Skript. Der Leser ist bereit, wenn er mindestens 85 % der Testfragmente richtig liest.
+> 2. Mika hat auch Kiste 7 von Hand sortiert: `x_crate` enthält die 60 Fragmente (roh, wie `x_train`), `y_mika` die Zeichennummern, die Mika ihnen gegeben hat. Lasst den trainierten Leser Kiste 7 lesen und zählt, bei wie vielen der 60 er anderer Meinung ist als Mika: `mika_wrong`.
 
 <details><summary>Startcode</summary>
 
@@ -267,6 +268,8 @@ history = model.fit(x_train / 255, y_train, epochs=2, validation_split=0.2)
 
 test_loss, test_accuracy = model.evaluate(x_test / 255, y_test)
 print("Test accuracy:", test_accuracy)
+
+mika_wrong = None   # wie viele aus Kiste 7 hat Mika falsch sortiert?
 ```
 
 </details>
@@ -292,9 +295,14 @@ history = model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_spli
 
 test_loss, test_accuracy = model.evaluate(x_test[..., None] / 255, y_test)
 print("Test accuracy:", test_accuracy)
+
+# Crate 7: where does the reader disagree with Mika's hand labels?
+read = model.predict(x_crate[..., None] / 255).argmax(axis=1)
+mika_wrong = int((read != y_mika).sum())
+print("Mika got", mika_wrong, "wrong")
 ```
 
-**Geprüftes Ergebnis** (`_notebook_check(model)`):
+**Geprüftes Ergebnis** (`_notebook_check(model, mika_wrong)`):
 
 ```json
 "trained"
@@ -303,12 +311,14 @@ print("Test accuracy:", test_accuracy)
 **Zeigt nach dem Lösen:**
 
 > Der Leser liest etwa **95 %** der Testfragmente richtig. Mika hat drei Fehler gemacht: Zwei Poolings von 4 × 4 haben die Fragmente auf nichts geschrumpft (Keras sagt, die Ausgabegröße würde negativ), die Fragmente hatten keine Kanal-Achse (Conv2D will `(24, 24, 1)`, nicht `(24, 24)`), und nach 2 Epochen lernte der Leser noch. Hier dauert eine Epoche deutlich unter einer Sekunde, also sind 6 bis 8 in Ordnung.
+>
+> Bei Kiste 7 ist der Leser bei **13** der 60 Fragmente anderer Meinung als Mika. Ein trainiertes Modell kann von Hand vergebene Labels prüfen: Ein von Hand sortiertes Archiv hat immer etwas Label-Rauschen.
 
 **Hinweise:**
 
 1. Lest den ersten Fehler: Für das zweite `MaxPooling2D` ist nichts mehr zum Poolen übrig. Verfolgt die Formen durch die Schichten und vergleicht sie mit dem Bauplan; `model.summary()` zeigt sie, sobald das Modell sich bauen lässt.
-2. Conv2D will jedes Fragment mit einer Kanal-Achse: `(24, 24, 1)`, nicht `(24, 24)`. `x_train[..., None]` fügt sie ein, und `x_test` braucht sie auch. Schaut dann auf die accuracy nach der letzten Epoche: Steigt sie noch?
-3. Die Schichten aus dem Bauplan, dann `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` und `model.evaluate(x_test[..., None] / 255, y_test)`.
+2. Conv2D will jedes Fragment mit einer Kanal-Achse: `(24, 24, 1)`, nicht `(24, 24)`. `x_train[..., None]` fügt sie ein, und `x_test` braucht sie auch. Schaut dann auf die accuracy nach der letzten Epoche: Steigt sie noch? Für Kiste 7 bereitet `x_crate` genauso vor, lasst den Leser vorhersagen und vergleicht mit `y_mika`.
+3. Die Schichten aus dem Bauplan, dann `model.fit(x_train[..., None] / 255, y_train, epochs=6, validation_split=0.2)` und `model.evaluate(x_test[..., None] / 255, y_test)`. Für Kiste 7: `read = model.predict(x_crate[..., None] / 255).argmax(axis=1)` und `mika_wrong = int((read != y_mika).sum())`.
 
 ### 5. Amaras Laptop
 
@@ -384,9 +394,9 @@ print(first_miss)
 **Braucht:** 2. Das Rollsiegel (sein Ergebnis), 3. Der fleckige Bauplan (sein Ergebnis), 4. Mikas Notebook (sein Ergebnis), 🔒 5. Amaras Laptop, 🔎 Das Etikett der Kisten, 🔎 Amaras Mail, ausgedruckt  
 **Daten:** [archive.py](../../content/rooms/nn-tablets/data/archive.py)
 
-**Zahlenschloss** (öffnet mit `1898`):
+**Zahlenschloss** (öffnet mit `189813`):
 
-> Der Krug steht in einer verschlossenen Vitrine mit einem vierstelligen Schloss.
+> Der Krug steht in einer verschlossenen Vitrine mit einem sechsstelligen Schloss.
 
 **Aufgabe:**
 
@@ -568,7 +578,7 @@ print(signs, word)
 >
 > Festgesteckt am Flughafen, Nebel. Mein alter Leser hat den Fotosatz perfekt gelesen, aber die neuen Fragmente von letzter Woche sehen für ihn aus wie Rauschen. Auf meinem Laptop findet ihr ihn und einen Prototyp von Entwurf 3. Bitte vergleicht sie an den 100 neuen Fragmenten. Wenn Entwurf 3 gewinnt, trainiert ihn mit dem ganzen Archiv und lest den Krug!
 >
-> Die Vitrine des Krugs: Der Code ist, wie viele der 100 der alte Leser richtig liest, dann wie viele der Prototyp richtig liest.
+> Die Vitrine des Krugs: Der Code ist, wie viele der 100 der alte Leser richtig liest, dann wie viele der Prototyp richtig liest, dann bei wie vielen Fragmenten aus Kiste 7 Mika falsch sortiert hat. Die Kiste wurde am Freitag von Hand sortiert, und ich traue dem nicht ganz.
 >
 > A.
 
