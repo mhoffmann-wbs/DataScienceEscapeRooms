@@ -3003,6 +3003,7 @@ jar = _levels((
     "gnoTGMtqUbUwXHWcDS1bgTZT4mZaiZUJLd13dU/7Mh8YLmohJXt9OJHHgYYfdmB0uJ3zhcGpPvJXP6dC+o5mJMMyg1ZPxOm74xEq"
     "Cuz2ACF5am2GLiLoxXx+e1TEgge/j6GCr/Y/coj6qNHrNnhRjFds4dvD/vea4amI+ErUP2d6B5E="
 ), (24, 144))
+_jar = jar.copy()
 _JAR_SIGNS = [3, 5, 1, 0, 2, 6]
 _JAR_WORD = 'talumirakone'
 
@@ -3037,13 +3038,23 @@ def _notebook_check(model):
     return _problems_or(problems, "trained")
 
 
-def _jar_check(model, signs, word):
-    """The jar: a well-trained reader, the six signs on the lid, and how they sound."""
+def _jar_check(model, fragments, signs, word):
+    """The jar: a well-trained reader, the lid's six fields in the format it expects, and the signs that reader
+    reads from them with their sounds."""
+    import tensorflow as tf
     problems = _reader_layout(model)
+    rescales = False
     if not problems:
+        rescales = any(isinstance(l, tf.keras.layers.Rescaling) for l in model.layers)
         acc = _accuracy(model)
         if not acc >= 0.85:
             problems.append(f"model reads only {acc:.0%} of the test fragments; it needs at least 85 %. / model liest nur {acc:.0%} der Testfragmente; nötig sind mindestens 85 %.")
+    expected = np.stack(np.hsplit(_jar, 6))[..., None] / 255
+    f = _array(fragments, (6, 24, 24, 1))
+    if f is None:
+        problems.append("fragments should be an array of shape (6, 24, 24, 1): the lid's six fields, each with a channel axis. / fragments soll ein Array der Form (6, 24, 24, 1) sein: die sechs Felder des Deckels, jedes mit Kanalachse.")
+    elif not (np.allclose(f, expected, atol=1e-6) or (rescales and np.allclose(f, 255 * expected, atol=1e-3))):
+        problems.append("fragments aren't the lid's six fields in the format the reader expects: prepare them exactly like the training fragments. / fragments sind nicht die sechs Felder des Deckels im Format, das der Leser erwartet: Bereitet sie genau so vor wie die Trainingsfragmente.")
     try:
         signs = [int(s) for s in signs]
     except (TypeError, ValueError):
@@ -3052,6 +3063,13 @@ def _jar_check(model, signs, word):
         problems.append("signs should be a list of 6 sign numbers, the lid's signs from left to right. / signs soll eine Liste aus 6 Zeichennummern sein, die Zeichen des Deckels von links nach rechts.")
     elif signs != _JAR_SIGNS:
         problems.append("signs aren't what's on the lid. Cut the lid into its six 24 x 24 fields and prepare them like the training data. / signs ist nicht, was auf dem Deckel steht. Schneidet den Deckel in seine sechs 24 x 24-Felder und bereitet sie vor wie die Trainingsdaten.")
+    elif f is not None and not problems:
+        try:
+            read = model.predict(f, verbose=0).argmax(axis=1).tolist()
+        except Exception:
+            read = None
+        if read != signs:
+            problems.append("signs aren't what your reader reads from your fragments: let it read them with predict and argmax. / signs sind nicht das, was euer Leser aus euren fragments liest: Lasst ihn sie mit predict und argmax lesen.")
     if "".join(c for c in str(word).lower() if c.isalpha()) != _JAR_WORD:
         problems.append("word isn't how the lid sounds: each sign's sound, in order. / word ist nicht, wie der Deckel klingt: der Laut jedes Zeichens, der Reihe nach.")
     return _problems_or(problems, "read")

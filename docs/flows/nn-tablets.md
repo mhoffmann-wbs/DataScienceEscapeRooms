@@ -59,7 +59,7 @@ flowchart LR
   laptop ==>|"🔢 18 then 98 = 1898"| jar
   seal ==>|"📤 sounds of signs 0-7"| jar
   blueprint ==>|"📤 draft 3 layers"| jar
-  notebook ==>|"📤 channel axis, ≥ 6 epochs"| jar
+  notebook ==>|"📤 channel axis, ≥ 6 epochs (soft)"| jar
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
   classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
@@ -106,6 +106,11 @@ The museum basement has five parts: the stone vestibule at the foot of the stair
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **The lid could be read by eye.** The jar's check only compared `signs` and `word` with the answer, so a team could read the six signs off `show_images` with Amara's sign list and type them in, without a trained reader or any preparation (also with unscaled fields). The check now also takes `fragments`: the lid's six fields as `(6, 24, 24, 1)`, scaled like the training data (raw also passes for a model with a `Rescaling` layer), and `signs` must equal what the team's own model reads from them with `predict`. The task text now asks for `fragments`.
+- Tried and not a shortcut: 1, 2 or 3 epochs, unscaled training data, an untrained model, and training on `x_test` alone all fail the 85 % check; unscaled fragments at the laptop give a wrong prototype count (89, not 98); the tally's edges, the seal's filters, and draft 3's layout, shapes and 1,384 parameters are checked exactly, and the raw scan doesn't show the tally.
+
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **No task names its clues any more.** The raking light no longer says Theo's note explains the method or asks for "Theo's kernel" (task, starter and check messages); its check no longer says "count with the numeral chart"; the seal no longer says "her sign list"; the jar no longer says "the way the blueprint and the fixed notebook say", its check no longer says "from the seal", and its lock text no longer says "Amara's mail says how the code is made" (the rule is only in the mail now). Mika's starter says "the reader, draft 3" instead of "the reader from Amara's blueprint", and the reader check no longer says "from the blueprint". Where to look is in the first hint (Theo's note at the raking light, the glass-case label at the seal).
@@ -117,6 +122,9 @@ Earlier findings:
 - **The sign list is soft.** The seal's task says filter `i` is `templates[i]`, so the numbers come with the data; the list only names the signs (and helps to read the lid by eye). Left as it is: it gives the script a face, and the reveal repeats the names.
 - **The crate label is soft.** Mika's script already scales with `/ 255`; the label only confirms it. Night Post teaches scaling; here it's context on purpose.
 - **Mika's note is soft:** it only describes the errors; the third bug (2 epochs) is the starter's own comment.
+- **Mika's notebook is not needed to escape.** Its lock and fixes are a rehearsal of the jar: the final checks the same reader (draft 3, 85 %, channel axis, scaling) from scratch, and the cabinet's code comes from the laptop. Left as it is; a bigger fix would give the cabinet's code a digit that only the notebook yields, which needs a result that doesn't depend on how the team trains (not the accuracy).
+- **Typed numbers at the laptop and tally** (18, 98, 3; 246) pass the checks without code, but each can only be known from that station's own reveal, so it can't be done early.
+- **A model trained on `x_train` plus `x_test`** would still pass the 85 % check; it takes deliberate effort and teaches nothing the room tests, so it is left.
 - **The final retrains the reader** (about 4 s), as the notebook did, because stations don't share a namespace. A team that kept the notebook's code just copies it.
 - **The prototype could read the lid,** but the jar station doesn't load it (nor the stamps), and its check wants a reader trained there. Good as it is.
 - `uses` on the notebook (`blueprint`) was missing at first; added, since its check enforces draft 3's layout.

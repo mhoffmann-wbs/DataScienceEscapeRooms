@@ -393,7 +393,7 @@ print(first_miss)
 > Der Deckel des Krugs von Varda trägt sechs Zeichen in der Hand eines Schreibers: `jar`, ein Tiefenscan aus 24 Zeilen × 144 Spalten, ein Zeichen in jedem 24 × 24-Feld. Die Kisten gehen um 06:00. Was steht auf dem Deckel?
 >
 > 1. Trainiert den Leser mit dem Archiv. Er braucht mindestens 85 % auf den Testfragmenten.
-> 2. Lasst ihn den Deckel lesen: `signs`, die sechs Zeichennummern von links nach rechts.
+> 2. Schneidet den Deckel in seine sechs Felder und bereitet sie für den Leser vor: `fragments`. Lasst den Leser sie lesen: `signs`, die sechs Zeichennummern von links nach rechts.
 > 3. `word`: wie der Deckel klingt, eine Silbe pro Zeichen, z. B. `"ba-de-fo-gu-hi-jo"`.
 
 <details><summary>Startcode</summary>
@@ -447,7 +447,7 @@ word = "-".join(values[s] for s in signs)
 print(signs, word)
 ```
 
-**Geprüftes Ergebnis** (`_jar_check(model, signs, word)`):
+**Geprüftes Ergebnis** (`_jar_check(model, fragments, signs, word)`):
 
 ```json
 "read"

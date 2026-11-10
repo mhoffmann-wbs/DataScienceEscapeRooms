@@ -393,7 +393,7 @@ print(first_miss)
 > The lid of the Varda jar carries six signs in a scribe's hand: `jar`, a depth scan of 24 rows × 144 columns, one sign in each 24 × 24 field. The crates leave at 06:00. What does the lid say?
 >
 > 1. Train the reader on the archive. It needs at least 85 % on the test fragments.
-> 2. Let it read the lid: `signs`, the six sign numbers from left to right.
+> 2. Cut the lid into its six fields and prepare them for the reader: `fragments`. Let the reader read them: `signs`, the six sign numbers from left to right.
 > 3. `word`: how the lid sounds, one syllable per sign, e.g. `"ba-de-fo-gu-hi-jo"`.
 
 <details><summary>Starter code</summary>
@@ -447,7 +447,7 @@ word = "-".join(values[s] for s in signs)
 print(signs, word)
 ```
 
-**Checked result** (`_jar_check(model, signs, word)`):
+**Checked result** (`_jar_check(model, fragments, signs, word)`):
 
 ```json
 "read"

@@ -300,8 +300,8 @@
         "de": "Der Krug von Varda"
       },
       "text": {
-        "en": "The lid of the Varda jar carries six signs in a scribe's hand: `jar`, a depth scan of 24 rows × 144 columns, one sign in each 24 × 24 field. The crates leave at 06:00. What does the lid say?\n\n1. Train the reader on the archive. It needs at least 85 % on the test fragments.\n2. Let it read the lid: `signs`, the six sign numbers from left to right.\n3. `word`: how the lid sounds, one syllable per sign, e.g. `\"ba-de-fo-gu-hi-jo\"`.",
-        "de": "Der Deckel des Krugs von Varda trägt sechs Zeichen in der Hand eines Schreibers: `jar`, ein Tiefenscan aus 24 Zeilen × 144 Spalten, ein Zeichen in jedem 24 × 24-Feld. Die Kisten gehen um 06:00. Was steht auf dem Deckel?\n\n1. Trainiert den Leser mit dem Archiv. Er braucht mindestens 85 % auf den Testfragmenten.\n2. Lasst ihn den Deckel lesen: `signs`, die sechs Zeichennummern von links nach rechts.\n3. `word`: wie der Deckel klingt, eine Silbe pro Zeichen, z. B. `\"ba-de-fo-gu-hi-jo\"`."
+        "en": "The lid of the Varda jar carries six signs in a scribe's hand: `jar`, a depth scan of 24 rows × 144 columns, one sign in each 24 × 24 field. The crates leave at 06:00. What does the lid say?\n\n1. Train the reader on the archive. It needs at least 85 % on the test fragments.\n2. Cut the lid into its six fields and prepare them for the reader: `fragments`. Let the reader read them: `signs`, the six sign numbers from left to right.\n3. `word`: how the lid sounds, one syllable per sign, e.g. `\"ba-de-fo-gu-hi-jo\"`.",
+        "de": "Der Deckel des Krugs von Varda trägt sechs Zeichen in der Hand eines Schreibers: `jar`, ein Tiefenscan aus 24 Zeilen × 144 Spalten, ein Zeichen in jedem 24 × 24-Feld. Die Kisten gehen um 06:00. Was steht auf dem Deckel?\n\n1. Trainiert den Leser mit dem Archiv. Er braucht mindestens 85 % auf den Testfragmenten.\n2. Schneidet den Deckel in seine sechs Felder und bereitet sie für den Leser vor: `fragments`. Lasst den Leser sie lesen: `signs`, die sechs Zeichennummern von links nach rechts.\n3. `word`: wie der Deckel klingt, eine Silbe pro Zeichen, z. B. `\"ba-de-fo-gu-hi-jo\"`."
       },
       "workspace": "python",
       "starter": {
@@ -311,7 +311,7 @@
       "data": "archive.py",
       "check": {
         "type": "python",
-        "expr": "_jar_check(model, signs, word)",
+        "expr": "_jar_check(model, fragments, signs, word)",
         "hash": "d95492bae8a3f5ea98ff079985b367a93893390bcdca265ec3e7b5d017e70815"
       },
       "lock": {
