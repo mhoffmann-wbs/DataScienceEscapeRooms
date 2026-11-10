@@ -251,9 +251,9 @@ Kräuter & Co,30.2,9
 Mosterei Apfelgrün,24.9,5
 Imkerei Sommer,161.2,9
 Blumen Wild,110.0,7
-Hof Linde,74.0,3
+Hof Linde,74.0,9
 Eierhof Brandt,74.2,7
-Obstgarten Petersen,46.4,5
+Obstgarten Petersen,46.4,9
 Bienenhaus Okafor,110.3,12
 Käserei Alpweide,95.6,7
 """)

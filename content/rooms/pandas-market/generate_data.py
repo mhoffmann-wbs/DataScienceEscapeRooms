@@ -84,7 +84,8 @@ cash_by_stall = {k: round(v, 2) for k, v in cash_by_stall.items()}
 
 # Who carried each stall's envelope to the office. Badge 7 (Tobi) skimmed four envelopes;
 # a dropped coin at badge 12 and a stall that didn't take its change at badge 3 are honest noise.
-BADGE = {"S01": 3, "S02": 3, "S05": 5, "S10": 5, "S04": 9, "S09": 9, "S07": 12, "S12": 12,
+# Badge 9 carries four honest envelopes too, so counting envelopes per badge doesn't name the skimmer.
+BADGE = {"S02": 3, "S10": 5, "S01": 9, "S05": 9, "S04": 9, "S09": 9, "S07": 12, "S12": 12,
          "S03": 7, "S06": 7, "S08": 7, "S11": 7}
 SKIM = {"S03": 35.0, "S06": 40.0, "S08": 20.0, "S11": 50.0, "S12": 0.50, "S02": -1.00}
 handover = []

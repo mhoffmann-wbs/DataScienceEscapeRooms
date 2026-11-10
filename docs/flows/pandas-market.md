@@ -99,6 +99,12 @@ The map is 22 × 15 tiles.
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **The skimmer's badge could be read off `handover.csv`.** Badge 7 carried four envelopes and every other badge two, so "who carries the most envelopes" named Tobi without a single station, and the report's name did not depend on the ledger chain (only the lock code did). Badge 9 now also carries four envelopes (the honest ones of S01, S05, S04, S09), so the count is a tie; only the corrected `expected` shows which badge is short. Tested: with a wrong `expected` (no payment filter, no `strip`, no stall id cleaning) the code is not 145, so the lock still needs the full cleaning chain.
+- **Tested, not a shortcut:** skipping the card terminal's `EC` rename still gives 145 (only `cash` is filtered), but the `strip` on `payment` and the `stall_id` cleaning are needed; wrong price cleaning gives badge 12 and 0.5. The total short is 144.5, so the lock's 145 can't be guessed from the handover sums without `expected`.
+- **Left: the register is still not needed for the final** (a red herring by design). A bigger fix would feed its result into a later station, for example a `stalls.csv` column the rota's badge lookup needs, or a second short badge that only the complaint rules out.
+
 Fixed in the second review (every clue once, no pointers to clues or other stations outside the hints, a clear goal per station):
 
 - **No task or starter names another station any more.** The ledger's task no longer says the cleaning comes from the price tags and the card terminal, and its starter only lists the columns to clean; the envelope table's task and starter no longer mention the cash ledger's code or `expected`. Hint 1 of each now says where that code comes from.
