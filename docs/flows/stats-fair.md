@@ -38,11 +38,11 @@ flowchart LR
   d_tickets --> tickets
 
   cupnote -->|"🔎 0 ml = spilled, > 400 ml = typo"| lemonade
-  dicesign -->|"🔎 a 7 or an 11 wins; claim 2 in 9"| dice
+  dicesign -->|"🔎 a 7 or an 11 wins"| dice
   handbook -->|"🔎 suspicious below 1 in 100: fair = False"| dice
   ducksign -->|"🔎 6 ducks, every 4th starred, 3+ stars win;<br/>€2 a game, teddy costs €5"| ducks
   filllaw -->|"🔎 15 ml short (limit 300 − 15 = 285 ml), allowed share 2 %"| filler
-  flyer -->|"🔎 claim €65; source: VIP tent, Saturday, 40 guests"| tickets
+  flyer -->|"🔎 claim €65 (rounded); source: VIP tent, Saturday, 40 guests"| tickets
   fairmap -->|"🔎 stall order: 1 tickets, 2 ducks,<br/>3 Lucky Seven, 4 lemonade"| gate
 
   lemonade ==>|"📤 μ = 296.4 ml, σ = 7.9 ml"| filler
@@ -96,13 +96,21 @@ flowchart LR
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **`flyer_mean = 65` passed.** The flyer clue states the number and the survey averaged exactly €65.00, so the filtering step could be skipped. The VIP-tent Saturday survey now averages €64.675 (its largest spend went from 101 to 88; `generate_data.py` targets a sum of 2587), the flyer's €65 is a rounding, and the check names a typed 65 ("the number printed on the flyer").
+- **The Lucky Seven sign no longer says "2 in 9".** That was `p_theory` word for word (8/36), so the 36-outcome count could be skipped. The sign now only says which sums win; the hints still carry 8 / 36.
+- **The cup log's `clean` was only checked for its length (116),** so any 116 values passed. It now has to hold exactly the cups above 0 ml and up to 400 ml.
+- Tried and failed as intended: all four surveys averaged, the wrong survey, `clean` dropping the wrong four cups. Tried and fine: `clean` built by sorting and slicing, or with a looser upper bound (same reasoning as the station teaches).
+- **Left: the gate's code is four seals, one per station.** With three seals in hand a team could try the ten values for the fourth and skip the lemonade stand and the filling machine; a bigger fix would be a lock with an attempt limit or a code that is not a plain digit per stall. The `means` check only tests plausibility (mean and spread), so means drawn from a normal distribution instead of `wristbands.sample` pass; a bigger fix would pass the team's code a second input. The duck pond's and the filling machine's numbers can't be read off anything before the station is solved, so the tolerances stay.
+
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **No task names its clues any more.** The gate's task no longer mentions the fair map, the duck pond's no longer says the sign has the rules, the cup log's no longer mentions Kai's note, the filling machine's no longer says its values come from the cup log and the regulation, and no starter comment or check message says "see the sign". Where to look is now in each puzzle's first hint.
 - **The seal rule is only on the gate.** The intro no longer repeats the night guard's note.
 - **The fill regulation no longer works out 285 ml for the team;** they subtract the 15 ml themselves.
 - **Every station ends in a verdict:** `mean_moved`/`median_moved` (cup log), `fair` (Lucky Seven, replacing `threshold` and `rigged`), `honest` (duck pond, which used to end in an optional commented-out chart), `legal` (filling machine) and `could_be_luck` (ticket office, from `max_mean`, the largest of 1,000 random sample means).
-- **The flyer's €65 is exact:** the VIP-tent Saturday survey now averages €65.00 (it was €65.175, and the reveal said €65.18). The fixed-seed `sample(40, random_state=7)` step is gone.
+- **The flyer's €65 is the survey rounded:** the VIP-tent Saturday survey averages €64.675 (see the shortcut review above). The fixed-seed `sample(40, random_state=7)` step is gone.
 - **Lucky Seven's starter no longer builds the 36 outcomes;** the team lists them with `itertools.product`.
 
 Fixed (the first review):
@@ -115,5 +123,4 @@ Fixed (the first review):
 
 Left as they are:
 
-- **The Lucky Seven sign's "2 in 9" is p_theory.** A team can copy it instead of counting outcomes; the check can't tell. It's the stall's claim the inspection tests, and the count of wins and the p-value still need the winning sums, so it stays.
 - **Lucky Seven and the duck pond get nothing from other stations,** only from clues. With two lanes of three stations already chained, a third chain would push the room past 30 minutes.

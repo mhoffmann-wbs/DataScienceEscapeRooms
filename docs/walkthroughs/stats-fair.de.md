@@ -372,7 +372,7 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 1. `wristbands.mean()` ist der Mittelwert der Grundgesamtheit. Der Flyer nennt seine Quelle im Kleingedruckten: Filtert `surveys` nach Ort und Tag, etwa `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
 2. In einer Schleife zieht `wristbands.sample(40).mean()` jedes Mal eine neue Zufallsstichprobe; hängt jeden Mittelwert an `means` an. `max(means)` ist der höchste, den eine davon erreicht hat; `show_hist(means)` zeigt, wie stark ein Stichprobenmittel von 40 zufällig schwankt.
-3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (65 €), `means = [wristbands.sample(40).mean() for i in range(1000)]` und `max_mean = max(means)` (etwa 45 €). Nicht einmal die glücklichste Zufallsstichprobe kommt an 65 € heran, also ist `could_be_luck = max_mean >= flyer_mean` gleich `False`: Die Umfrage hat nur VIP-Gäste gefragt.
+3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (64,675 €, die der Flyer auf 65 € rundet), `means = [wristbands.sample(40).mean() for i in range(1000)]` und `max_mean = max(means)` (etwa 45 €). Nicht einmal die glücklichste Zufallsstichprobe kommt an 65 € heran, also ist `could_be_luck = max_mean >= flyer_mean` gleich `False`: Die Umfrage hat nur VIP-Gäste gefragt.
 
 ### 6. Das Tor des Festplatzes (Abschluss-Schloss)
 
@@ -415,7 +415,7 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 >
 > Zwei Würfel: Eine **7** oder eine **11** gewinnt!
 >
-> Eure Chance: **2 zu 9**! Nur 3 € pro Spiel.
+> Leicht verdientes Geld! Nur 3 € pro Spiel.
 
 ### 🔎 Das Schild am Ententeich
 

@@ -293,7 +293,7 @@ surveys = pd.DataFrame({
         'Saturday', 'Saturday', 'Friday', 'Saturday', 'Saturday', 'Friday', 'Saturday',
     ],
     "spent": [
-        15, 24, 39, 71, 26, 50, 42, 24, 50, 57, 64, 34, 67, 27, 21, 43, 101, 34, 9, 36,
+        15, 24, 39, 71, 26, 50, 42, 24, 50, 57, 64, 34, 67, 27, 21, 43, 88, 34, 9, 36,
         56, 46, 30, 55, 11, 74, 36, 69, 43, 75, 76, 26, 18, 47, 33, 20, 17, 35, 56, 99,
         73, 50, 32, 91, 24, 25, 65, 64, 58, 57, 30, 43, 59, 57, 72, 46, 14, 25, 91, 61,
         63, 45, 26, 38, 50, 48, 58, 46, 78, 23, 51, 68, 15, 14, 57, 67, 19, 72, 69, 46,
@@ -310,8 +310,10 @@ def _ticket_check(mu, flyer_mean, means, max_mean, could_be_luck):
     problems = []
     if not isinstance(mu, Real) or abs(mu - 33.509) > 0.001:
         problems.append("mu is off: the mean of all wristbands. / mu stimmt nicht: der Mittelwert aller Armbänder.")
-    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65) > 0.001:
-        if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in [35.825, 50.133, 35.88, 47.659]):
+    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 64.675) > 0.001:
+        if isinstance(flyer_mean, Real) and flyer_mean == 65:
+            problems.append("flyer_mean is the number printed on the flyer, rounded. Work it out from the survey's rows. / flyer_mean ist die Zahl auf dem Flyer, gerundet. Rechnet sie aus den Zeilen der Umfrage aus.")
+        elif isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in [35.825, 50.133, 35.88, 47.563]):
             problems.append("flyer_mean comes from the wrong survey. / flyer_mean kommt aus der falschen Umfrage.")
         else:
             problems.append("flyer_mean is off: the mean of the one survey behind the flyer (filter surveys by place and day). / flyer_mean stimmt nicht: der Mittelwert der einen Umfrage hinter dem Flyer (filtert surveys nach place und day).")

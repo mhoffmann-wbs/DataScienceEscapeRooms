@@ -274,8 +274,8 @@
           "de": "In einer Schleife zieht `wristbands.sample(40).mean()` jedes Mal eine neue Zufallsstichprobe; hängt jeden Mittelwert an `means` an. `max(means)` ist der höchste, den eine davon erreicht hat; `show_hist(means)` zeigt, wie stark ein Stichprobenmittel von 40 zufällig schwankt."
         },
         {
-          "en": "`flyer_mean = surveys[(surveys.place == \"VIP tent\") & (surveys.day == \"Saturday\")].spent.mean()` (€65), `means = [wristbands.sample(40).mean() for i in range(1000)]` and `max_mean = max(means)` (about €45). Not even the luckiest random sample comes near €65, so `could_be_luck = max_mean >= flyer_mean` is `False`: the survey only asked VIP guests.",
-          "de": "`flyer_mean = surveys[(surveys.place == \"VIP tent\") & (surveys.day == \"Saturday\")].spent.mean()` (65 €), `means = [wristbands.sample(40).mean() for i in range(1000)]` und `max_mean = max(means)` (etwa 45 €). Nicht einmal die glücklichste Zufallsstichprobe kommt an 65 € heran, also ist `could_be_luck = max_mean >= flyer_mean` gleich `False`: Die Umfrage hat nur VIP-Gäste gefragt."
+          "en": "`flyer_mean = surveys[(surveys.place == \"VIP tent\") & (surveys.day == \"Saturday\")].spent.mean()` (€64.675, which the flyer rounds to €65), `means = [wristbands.sample(40).mean() for i in range(1000)]` and `max_mean = max(means)` (about €45). Not even the luckiest random sample comes near €65, so `could_be_luck = max_mean >= flyer_mean` is `False`: the survey only asked VIP guests.",
+          "de": "`flyer_mean = surveys[(surveys.place == \"VIP tent\") & (surveys.day == \"Saturday\")].spent.mean()` (64,675 €, die der Flyer auf 65 € rundet), `means = [wristbands.sample(40).mean() for i in range(1000)]` und `max_mean = max(means)` (etwa 45 €). Nicht einmal die glücklichste Zufallsstichprobe kommt an 65 € heran, also ist `could_be_luck = max_mean >= flyer_mean` gleich `False`: Die Umfrage hat nur VIP-Gäste gefragt."
         }
       ]
     },
@@ -348,8 +348,8 @@
         "de": "Das Schild der Glückssieben"
       },
       "text": {
-        "en": "LUCKY SEVEN!\n\nRoll two dice: a **7** or an **11** wins!\n\nYour chance: **2 in 9**! Only €3 a game.",
-        "de": "GLÜCKSSIEBEN!\n\nZwei Würfel: Eine **7** oder eine **11** gewinnt!\n\nEure Chance: **2 zu 9**! Nur 3 € pro Spiel."
+        "en": "LUCKY SEVEN!\n\nRoll two dice: a **7** or an **11** wins!\n\nEasy money! Only €3 a game.",
+        "de": "GLÜCKSSIEBEN!\n\nZwei Würfel: Eine **7** oder eine **11** gewinnt!\n\nLeicht verdientes Geld! Nur 3 € pro Spiel."
       }
     },
     {

@@ -372,7 +372,7 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 
 1. `wristbands.mean()` is the population mean. The flyer names its source in the small print: filter `surveys` by place and day, as in `surveys[(surveys.place == ...) & (surveys.day == ...)]`.
 2. In a loop, `wristbands.sample(40).mean()` draws a new random sample each time; append each mean to `means`. `max(means)` is the highest any of them reached; `show_hist(means)` shows how much a sample mean of 40 varies by chance.
-3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (€65), `means = [wristbands.sample(40).mean() for i in range(1000)]` and `max_mean = max(means)` (about €45). Not even the luckiest random sample comes near €65, so `could_be_luck = max_mean >= flyer_mean` is `False`: the survey only asked VIP guests.
+3. `flyer_mean = surveys[(surveys.place == "VIP tent") & (surveys.day == "Saturday")].spent.mean()` (€64.675, which the flyer rounds to €65), `means = [wristbands.sample(40).mean() for i in range(1000)]` and `max_mean = max(means)` (about €45). Not even the luckiest random sample comes near €65, so `could_be_luck = max_mean >= flyer_mean` is `False`: the survey only asked VIP guests.
 
 ### 6. The fairground gate (Final lock)
 
@@ -415,7 +415,7 @@ show_hist(means, title="Means of 1,000 random samples of 40")
 >
 > Roll two dice: a **7** or an **11** wins!
 >
-> Your chance: **2 in 9**! Only €3 a game.
+> Easy money! Only €3 a game.
 
 ### 🔎 The duck pond sign
 

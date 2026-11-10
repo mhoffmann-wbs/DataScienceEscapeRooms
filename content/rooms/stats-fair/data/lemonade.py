@@ -27,6 +27,8 @@ def _cup_check(mean_raw, median_raw, clean, mean, median, sd, mean_moved, median
             problems.append("mean_raw and median_raw describe the log as it is, before any cleaning. / mean_raw und median_raw beschreiben das Protokoll, wie es ist, vor jeder Bereinigung.")
         if not hasattr(clean, "__len__") or len(clean) != 116:
             problems.append(f"clean has {len(clean) if hasattr(clean, '__len__') else 0} cups, but the log has 116 real ones. / clean hat {len(clean) if hasattr(clean, '__len__') else 0} Becher, das Protokoll hat aber 116 echte.")
+        elif sorted(clean) != sorted(v for v in cups if 0 < v <= 400):
+            problems.append("clean has 116 cups, but not the real ones: drop the spilled cups (0 ml) and the typo (more than 400 ml), nothing else. / clean hat 116 Becher, aber nicht die echten: Lasst die verschütteten Becher (0 ml) und den Tippfehler (mehr als 400 ml) weg, sonst nichts.")
         elif abs(mean - 296.388) > 0.01 or median != 296:
             problems.append("mean and median should describe the clean cups. / mean und median sollen die bereinigten Becher beschreiben.")
         elif abs(sd - 7.840) < 0.005:

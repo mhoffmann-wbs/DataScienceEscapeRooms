@@ -51,6 +51,8 @@ def _cup_check(mean_raw, median_raw, clean, mean, median, sd, mean_moved, median
             problems.append("mean_raw and median_raw describe the log as it is, before any cleaning. / mean_raw und median_raw beschreiben das Protokoll, wie es ist, vor jeder Bereinigung.")
         if not hasattr(clean, "__len__") or len(clean) != 116:
             problems.append(f"clean has {{len(clean) if hasattr(clean, '__len__') else 0}} cups, but the log has 116 real ones. / clean hat {{len(clean) if hasattr(clean, '__len__') else 0}} Becher, das Protokoll hat aber 116 echte.")
+        elif sorted(clean) != sorted(v for v in cups if 0 < v <= 400):
+            problems.append("clean has 116 cups, but not the real ones: drop the spilled cups (0 ml) and the typo (more than 400 ml), nothing else. / clean hat 116 Becher, aber nicht die echten: Lasst die verschütteten Becher (0 ml) und den Tippfehler (mehr als 400 ml) weg, sonst nichts.")
         elif abs(mean - 296.388) > 0.01 or median != 296:
             problems.append("mean and median should describe the clean cups. / mean und median sollen die bereinigten Becher beschreiben.")
         elif abs(sd - 7.840) < 0.005:
@@ -142,7 +144,7 @@ def _duck_check(p_win, profit, observed, honest):
 rng = np.random.default_rng(23)
 spent = np.round(rng.gamma(2.2, 14.0, 6000)).astype(int) + 3
 vip = np.round(rng.gamma(6.0, 9.5, 40)).astype(int) + 4
-vip[np.argmax(vip)] -= vip.sum() - 40 * 65   # the survey's mean is exactly the flyer's €65
+vip[np.argmax(vip)] -= vip.sum() - 2587   # the survey's mean is 64.675: the flyer rounds it to €65, so typing 65 in doesn't pass
 groups = [
     ("Main entrance", "Saturday", np.round(rng.gamma(2.2, 14.0, 40)).astype(int) + 3),
     ("VIP tent", "Friday", np.round(rng.gamma(6.0, 8.0, 30)).astype(int) + 4),
@@ -177,8 +179,10 @@ def _ticket_check(mu, flyer_mean, means, max_mean, could_be_luck):
     problems = []
     if not isinstance(mu, Real) or abs(mu - 33.509) > 0.001:
         problems.append("mu is off: the mean of all wristbands. / mu stimmt nicht: der Mittelwert aller Armbänder.")
-    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 65) > 0.001:
-        if isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in {others!r}):
+    if not isinstance(flyer_mean, Real) or abs(flyer_mean - 64.675) > 0.001:
+        if isinstance(flyer_mean, Real) and flyer_mean == 65:
+            problems.append("flyer_mean is the number printed on the flyer, rounded. Work it out from the survey's rows. / flyer_mean ist die Zahl auf dem Flyer, gerundet. Rechnet sie aus den Zeilen der Umfrage aus.")
+        elif isinstance(flyer_mean, Real) and any(abs(flyer_mean - o) < 0.01 for o in {others!r}):
             problems.append("flyer_mean comes from the wrong survey. / flyer_mean kommt aus der falschen Umfrage.")
         else:
             problems.append("flyer_mean is off: the mean of the one survey behind the flyer (filter surveys by place and day). / flyer_mean stimmt nicht: der Mittelwert der einen Umfrage hinter dem Flyer (filtert surveys nach place und day).")
