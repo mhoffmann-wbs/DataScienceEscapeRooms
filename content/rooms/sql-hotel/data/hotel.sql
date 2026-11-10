@@ -31,33 +31,34 @@ INSERT INTO bookings (booking_id, guest_name, room, check_in, check_out) VALUES
 CREATE TABLE keycards (
   card_id TEXT PRIMARY KEY,
   holder TEXT NOT NULL,
-  role TEXT NOT NULL
+  role TEXT NOT NULL,
+  issued TEXT NOT NULL  -- 'YYYY-MM-DD HH:MM', when the encoder wrote the card
 );
 
-INSERT INTO keycards (card_id, holder, role) VALUES
-  ('M-01', 'Sabine Kohl', 'day manager'),
-  ('M-02', 'Otto Brandt', 'night manager'),
-  ('M-03', 'Otto Brandt', 'night manager'),
-  ('H-01', 'Jan Petrov', 'housekeeping'),
-  ('H-03', 'Mia Lund', 'housekeeping'),
-  ('P-01', 'Leo Marek', 'porter'),
-  ('C-402', 'Tom Berger', 'guest'),
-  ('C-406', 'Nora Quill', 'guest'),
-  ('C-411', 'Ada Okafor', 'guest'),
-  ('C-401', 'Henrik Sol', 'guest'),
-  ('C-404', 'Victor Hale', 'guest'),
-  ('C-409', 'Priya Nand', 'guest'),
-  ('C-407', 'Lena Fischer', 'guest'),
-  ('C-207', 'Jonas Wirth', 'guest'),
-  ('C-211', 'Clara Moss', 'guest'),
-  ('C-312', 'Marco Ruiz', 'guest'),
-  ('C-305', 'Eva Lindqvist', 'guest'),
-  ('C-408', 'Samuel Adeyemi', 'guest'),
-  ('C-103', 'Yuki Tanaka', 'guest'),
-  ('C-412', 'Bruno Costa', 'guest'),
-  ('C-204', 'Ingrid Holm', 'guest'),
-  ('C-310', 'Felix Grau', 'guest'),
-  ('C-403', 'Rosa Martín', 'guest');
+INSERT INTO keycards (card_id, holder, role, issued) VALUES
+  ('M-01', 'Sabine Kohl', 'day manager', '2025-04-01 08:00'),
+  ('M-02', 'Otto Brandt', 'night manager', '2025-10-01 18:00'),
+  ('M-03', 'Otto Brandt', 'night manager', '2026-03-14 21:05'),
+  ('H-01', 'Jan Petrov', 'housekeeping', '2025-06-15 07:00'),
+  ('H-03', 'Mia Lund', 'housekeeping', '2026-01-12 07:00'),
+  ('P-01', 'Leo Marek', 'porter', '2025-12-01 07:30'),
+  ('C-402', 'Tom Berger', 'guest', '2026-03-11 15:10'),
+  ('C-406', 'Nora Quill', 'guest', '2026-03-12 16:40'),
+  ('C-411', 'Ada Okafor', 'guest', '2026-03-10 14:20'),
+  ('C-401', 'Henrik Sol', 'guest', '2026-03-13 17:55'),
+  ('C-404', 'Victor Hale', 'guest', '2026-03-14 15:25'),
+  ('C-409', 'Priya Nand', 'guest', '2026-03-14 16:00'),
+  ('C-407', 'Lena Fischer', 'guest', '2026-03-15 14:30'),
+  ('C-207', 'Jonas Wirth', 'guest', '2026-03-13 18:45'),
+  ('C-211', 'Clara Moss', 'guest', '2026-03-14 16:40'),
+  ('C-312', 'Marco Ruiz', 'guest', '2026-03-15 02:46'),
+  ('C-305', 'Eva Lindqvist', 'guest', '2026-03-12 13:15'),
+  ('C-408', 'Samuel Adeyemi', 'guest', '2026-03-01 15:00'),
+  ('C-103', 'Yuki Tanaka', 'guest', '2026-03-14 17:35'),
+  ('C-412', 'Bruno Costa', 'guest', '2026-03-16 15:00'),
+  ('C-204', 'Ingrid Holm', 'guest', '2026-03-13 12:50'),
+  ('C-310', 'Felix Grau', 'guest', '2026-03-14 18:20'),
+  ('C-403', 'Rosa Martín', 'guest', '2026-03-09 16:05');
 
 CREATE TABLE door_log (
   log_id INTEGER PRIMARY KEY,

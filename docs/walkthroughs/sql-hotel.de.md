@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 1 | Der Rezeptionscomputer | `SELECT` und `WHERE` mit mehreren Bedingungen (`AND`, `BETWEEN`), Datumsvergleiche, `ORDER BY` | 🔎 Notizen des Nachtwächters, 🔎 Der Grundriss, 🔎 Eine Zeitung |
 | 2 | Der Türschloss-Server | `WHERE` mit einem Zeitraum über Mitternacht, Textvergleich von Zeitstempeln, `ORDER BY` | 🔎 Victor Hales Aussage, 🔎 Eine Zeitung |
-| 3 | Das Kartencodiergerät | Zwei Tabellen über eine gemeinsame Spalte verbinden (`JOIN`), Tabellen-Aliasse | 2. Der Türschloss-Server (sein Ergebnis), 🔎 Victor Hales Aussage, 🔎 Eine Zeitung |
+| 3 | Das Kartencodiergerät | Einen Wert in einer Abfrage nachschlagen und in der nächsten danach filtern, `WHERE` auf Text, `ORDER BY … DESC` | 2. Der Türschloss-Server (sein Ergebnis) |
 | 4 | Der Sicherheits-PC | `GROUP BY` mit `COUNT(*)`, vor dem Gruppieren filtern, nach einer Anzahl sortieren | 2. Der Türschloss-Server (sein Ergebnis), 3. Das Kartencodiergerät (sein Ergebnis), 🔎 Das Logbuch der Rezeption |
 | 5 | Die Barkasse | `JOIN` kombiniert mit `WHERE` und `ORDER BY` | 🔎 Notizen des Nachtwächters, 🔎 Eine Zeitung |
 | 6 | Das Telefon des Managers (Abschluss-Schloss) | Hinweise aus mehreren Abfragen kombinieren | 4. Der Sicherheits-PC (sein Ergebnis), 1. Der Rezeptionscomputer (sein Ergebnis), 🔒 4. Der Sicherheits-PC |
@@ -124,15 +124,15 @@ ORDER BY time;
 
 ### 3. Das Kartencodiergerät
 
-**Übt:** Zwei Tabellen über eine gemeinsame Spalte verbinden (`JOIN`), Tabellen-Aliasse  
-**Braucht:** 2. Der Türschloss-Server (sein Ergebnis), 🔎 Victor Hales Aussage, 🔎 Eine Zeitung  
+**Übt:** Einen Wert in einer Abfrage nachschlagen und in der nächsten danach filtern, `WHERE` auf Text, `ORDER BY … DESC`  
+**Braucht:** 2. Der Türschloss-Server (sein Ergebnis)  
 **Daten:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Aufgabe:**
 
-> Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört. Wem gehört die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, und wo war sie sonst noch?
+> Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört und wann es sie geschrieben hat. Wem gehört die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, und trägt diese Person noch eine andere bei sich?
 >
-> Zeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst.
+> Zeigt `card_id`, `role` und `issued` für jede Karte, die auf den Inhaber dieser Karte registriert ist, die neueste zuerst.
 
 <details><summary>Startcode</summary>
 
@@ -148,29 +148,27 @@ LIMIT 5;
 **Musterlösung:**
 
 ```sql
-SELECT d.time, d.room, k.holder, d.event
-FROM door_log AS d
-JOIN keycards AS k ON d.card_id = k.card_id
-WHERE d.card_id = 'M-02'
-  AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'
-ORDER BY d.time;
+SELECT card_id, role, issued
+FROM keycards
+WHERE holder = 'Otto Brandt'
+ORDER BY issued DESC;
 ```
 
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["2026-03-15 02:40",402,"Otto Brandt","denied"],["2026-03-15 02:47",404,"Otto Brandt","open"],["2026-03-15 02:52",406,"Otto Brandt","open"]]
+[["M-03","night manager","2026-03-14 21:05"],["M-02","night manager","2025-10-01 18:00"]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> **M-02** ist die Generalkarte des Nachtmanagers, registriert auf **Otto Brandt**. Aber hatte Otto sie in dieser Nacht überhaupt noch?
+> **M-02** ist die Generalkarte des Nachtmanagers, registriert auf **Otto Brandt**. Aber Otto trägt eine zweite Karte: Das Codiergerät hat ihm **M-03** am 14. um **21:05** geschrieben.
 
 **Hinweise:**
 
-1. Das Ergebnis am Türschloss-Server nennt die Karte. Victors Aussage verrät, wann er weg war, und die Zeitung nennt das Datum.
-2. `door_log` enthält die Karten-IDs, `keycards` die Inhaber: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Beide Tabellen haben eine Spalte `card_id`, also schreibt `d.card_id`, und filtert nach der Karte statt nach dem Zimmer.
-3. `SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`
+1. Das Ergebnis am Türschloss-Server nennt die Karte. Schlagt sie zuerst in `keycards` nach, um herauszufinden, wem sie gehört.
+2. `SELECT * FROM keycards WHERE card_id = 'M-02';` liefert den Inhaber. Filtert dann nach diesem Namen mit `WHERE holder = '…'` (Text in einfachen Anführungszeichen) und sortiert mit `ORDER BY issued DESC`.
+3. `SELECT card_id, role, issued FROM keycards WHERE holder = 'Otto Brandt' ORDER BY issued DESC;`
 
 ### 4. Der Sicherheits-PC
 
@@ -180,7 +178,7 @@ ORDER BY d.time;
 
 **Aufgabe:**
 
-> Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Welche Zimmer hat die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, immer wieder geöffnet, seit sie verschwunden ist?
+> Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Welche Zimmer hat die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, immer wieder geöffnet, seit ihr Besitzer sie nicht mehr hatte?
 >
 > Zählt, wie oft sie in dieser Zeit jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst.
 
@@ -202,7 +200,7 @@ SELECT room, COUNT(*) AS openings
 FROM door_log
 WHERE card_id = 'M-02'
   AND event = 'open'
-  AND time >= '2026-03-14 21:00'
+  AND time >= '2026-03-14 21:05'
 GROUP BY room
 ORDER BY openings DESC;
 ```
@@ -215,15 +213,15 @@ ORDER BY openings DESC;
 
 **Zeigt nach dem Lösen:**
 
-> Seit 21:00 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal.
+> Seit 21:05 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal.
 >
 > Der Sicherheits-PC piept: "Zimmer 406 markiert. Code ans Telefon des Managers gesendet."
 
 **Hinweise:**
 
-1. Der Türschloss-Server hat die Karte gefunden, und das Kartencodiergerät verrät, wem sie gehört. Das Logbuch an der Rezeption verrät, seit wann die Generalkarte dieser Person verschwunden ist.
-2. Behaltet nur Zeilen mit `card_id = 'M-02'`, `event = 'open'` und einer Zeit nach dem Verschwinden (21:00 am 14.). Dann `GROUP BY room` und mit `COUNT(*)` zählen.
-3. `SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:00' GROUP BY room ORDER BY openings DESC;`
+1. Der Türschloss-Server hat die Karte gefunden, und das Kartencodiergerät verrät, wem sie gehört und wann ihr Besitzer eine neue bekam. Das Logbuch an der Rezeption verrät, wie diese neue Karte mit dem Moment zusammenhängt, in dem die alte verschwand.
+2. Otto hat sich die neue Karte M-03 sofort schreiben lassen, nachdem M-02 verschwunden war, am 14. um 21:05. Behaltet nur Zeilen mit `card_id = 'M-02'`, `event = 'open'` und `time >= '2026-03-14 21:05'`. Dann `GROUP BY room` und mit `COUNT(*)` zählen.
+3. `SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:05' GROUP BY room ORDER BY openings DESC;`
 
 ### 5. Die Barkasse
 
@@ -311,7 +309,7 @@ FROM door_log AS d
 JOIN bookings AS b ON b.room = d.room
 WHERE d.card_id = 'M-02'
   AND d.event = 'open'
-  AND d.time >= '2026-03-14 21:00'
+  AND d.time >= '2026-03-14 21:05'
   AND b.check_in <= '2026-03-14'
   AND b.check_out > '2026-03-14'
 GROUP BY b.guest_name, d.room
@@ -330,7 +328,7 @@ ORDER BY openings DESC;
 
 ### 🔎 Eine Zeitung
 
-*Gebraucht von: 1. Der Rezeptionscomputer, 2. Der Türschloss-Server, 3. Das Kartencodiergerät, 5. Die Barkasse*
+*Gebraucht von: 1. Der Rezeptionscomputer, 2. Der Türschloss-Server, 5. Die Barkasse*
 
 > ALPENKURIER · Samstag, 14. März 2026
 >
@@ -354,7 +352,7 @@ ORDER BY openings DESC;
 
 ### 🔎 Victor Hales Aussage
 
-*Gebraucht von: 2. Der Türschloss-Server, 3. Das Kartencodiergerät*
+*Gebraucht von: 2. Der Türschloss-Server*
 
 > Aussage von Victor Hale, Juwelier, Zimmer 404. Aufgenommen um 07:20.
 >
@@ -368,7 +366,7 @@ ORDER BY openings DESC;
 >
 > 18:00 Beginn Nachtschicht: O. Brandt
 >
-> 21:00 Gepäckträger Leo meldet, dass meine Generalkarte, die ich ihm fürs Gepäck geliehen habe, von seinem Wagen verschwunden ist. Lasse sie morgen früh sperren, bis dahin nehme ich meine Ersatzkarte. – O.B.
+> 23:00 Gepäckträger Leo hat mir heute Abend gemeldet, dass meine Generalkarte, die ich ihm fürs Gepäck geliehen habe, von seinem Wagen verschwunden ist. Habe mir sofort eine neue Karte am Codiergerät schreiben lassen. Die alte wird morgen früh gesperrt. – O.B.
 >
 > 02:45 Später Check-in: Herr Ruiz, Zimmer 312, zu Fuß durch den Sturm gekommen.
 

@@ -129,8 +129,8 @@
         "de": "Das Kartencodiergerät"
       },
       "text": {
-        "en": "This machine writes the hotel's key cards, and it knows who every card belongs to. Whose is the card that opened room 404 in the middle of the night, and where else did it go?\n\nShow `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.",
-        "de": "Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört. Wem gehört die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, und wo war sie sonst noch?\n\nZeigt `time`, `room`, den Namen des Karteninhabers und `event` für alles, was diese Karte getan hat, während Victor weg war, das Früheste zuerst."
+        "en": "This machine writes the hotel's key cards, and it knows who every card belongs to and when it wrote it. Whose is the card that opened room 404 in the middle of the night, and does that person carry another one?\n\nShow `card_id`, `role` and `issued` for every card registered to the holder of that card, the newest first.",
+        "de": "Dieses Gerät beschreibt die Schlüsselkarten des Hotels und weiß, wem jede Karte gehört und wann es sie geschrieben hat. Wem gehört die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, und trägt diese Person noch eine andere bei sich?\n\nZeigt `card_id`, `role` und `issued` für jede Karte, die auf den Inhaber dieser Karte registriert ist, die neueste zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -141,35 +141,32 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "b836b7fdba651c07ba14e918d69f2425700d59facd5a441906303aeae2713963"
+        "hash": "e7baf99e5167ad7642ed995dbcce0599641d732c5a1c54be02d54d767b9e4309"
       },
       "uses": [
         "door-log"
       ],
       "reveal": {
-        "en": "**M-02** is the night manager's master card, registered to **Otto Brandt**. But did Otto still have it that night?",
-        "de": "**M-02** ist die Generalkarte des Nachtmanagers, registriert auf **Otto Brandt**. Aber hatte Otto sie in dieser Nacht überhaupt noch?"
+        "en": "**M-02** is the night manager's master card, registered to **Otto Brandt**. But Otto carries a second card: the encoder wrote **M-03** for him at **21:05** on the 14th.",
+        "de": "**M-02** ist die Generalkarte des Nachtmanagers, registriert auf **Otto Brandt**. Aber Otto trägt eine zweite Karte: Das Codiergerät hat ihm **M-03** am 14. um **21:05** geschrieben."
       },
       "practises": {
-        "en": "`JOIN` two tables on a shared column, table aliases",
-        "de": "Zwei Tabellen über eine gemeinsame Spalte verbinden (`JOIN`), Tabellen-Aliasse"
+        "en": "Looking up a value in one query and filtering on it in the next, `WHERE` on text, `ORDER BY … DESC`",
+        "de": "Einen Wert in einer Abfrage nachschlagen und in der nächsten danach filtern, `WHERE` auf Text, `ORDER BY … DESC`"
       },
-      "clues": [
-        "statement",
-        "newspaper"
-      ],
+      "clues": [],
       "hints": [
         {
-          "en": "The door-lock server's result names the card. Victor's statement says when he was away, and the newspaper gives the date.",
-          "de": "Das Ergebnis am Türschloss-Server nennt die Karte. Victors Aussage verrät, wann er weg war, und die Zeitung nennt das Datum."
+          "en": "The door-lock server's result names the card. Look it up in `keycards` first to find out whose it is.",
+          "de": "Das Ergebnis am Türschloss-Server nennt die Karte. Schlagt sie zuerst in `keycards` nach, um herauszufinden, wem sie gehört."
         },
         {
-          "en": "`door_log` has the card ids, `keycards` has the holders: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Both tables have a `card_id`, so write `d.card_id`, and filter on the card instead of the room.",
-          "de": "`door_log` enthält die Karten-IDs, `keycards` die Inhaber: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Beide Tabellen haben eine Spalte `card_id`, also schreibt `d.card_id`, und filtert nach der Karte statt nach dem Zimmer."
+          "en": "`SELECT * FROM keycards WHERE card_id = 'M-02';` gives the holder. Then filter on that name with `WHERE holder = '…'` (text in single quotes) and sort with `ORDER BY issued DESC`.",
+          "de": "`SELECT * FROM keycards WHERE card_id = 'M-02';` liefert den Inhaber. Filtert dann nach diesem Namen mit `WHERE holder = '…'` (Text in einfachen Anführungszeichen) und sortiert mit `ORDER BY issued DESC`."
         },
         {
-          "en": "`SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`",
-          "de": "`SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`"
+          "en": "`SELECT card_id, role, issued FROM keycards WHERE holder = 'Otto Brandt' ORDER BY issued DESC;`",
+          "de": "`SELECT card_id, role, issued FROM keycards WHERE holder = 'Otto Brandt' ORDER BY issued DESC;`"
         }
       ]
     },
@@ -180,8 +177,8 @@
         "de": "Der Sicherheits-PC"
       },
       "text": {
-        "en": "The security PC can report on any single card. Which rooms did the card that opened room 404 in the middle of the night keep opening after it went missing?\n\nCount how often it **opened** each room in that time. Show `room` and the count, the room with the most openings first.",
-        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Welche Zimmer hat die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, immer wieder geöffnet, seit sie verschwunden ist?\n\nZählt, wie oft sie in dieser Zeit jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
+        "en": "The security PC can report on any single card. Which rooms did the card that opened room 404 in the middle of the night keep opening once its owner no longer had it?\n\nCount how often it **opened** each room in that time. Show `room` and the count, the room with the most openings first.",
+        "de": "Der Sicherheits-PC kann Berichte zu jeder einzelnen Karte erstellen. Welche Zimmer hat die Karte, die mitten in der Nacht Zimmer 404 geöffnet hat, immer wieder geöffnet, seit ihr Besitzer sie nicht mehr hatte?\n\nZählt, wie oft sie in dieser Zeit jedes Zimmer **geöffnet** hat. Zeigt `room` und die Anzahl, das Zimmer mit den meisten Öffnungen zuerst."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -199,8 +196,8 @@
         "card-holders"
       ],
       "reveal": {
-        "en": "Since 21:00 the master card opened room 404 once, and room **406** twice.\n\nThe security PC beeps: \"Room 406 flagged. Code sent to the manager's phone.\"",
-        "de": "Seit 21:00 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal.\n\nDer Sicherheits-PC piept: \"Zimmer 406 markiert. Code ans Telefon des Managers gesendet.\""
+        "en": "Since 21:05 the master card opened room 404 once, and room **406** twice.\n\nThe security PC beeps: \"Room 406 flagged. Code sent to the manager's phone.\"",
+        "de": "Seit 21:05 hat die Generalkarte Zimmer 404 einmal geöffnet, und Zimmer **406** zweimal.\n\nDer Sicherheits-PC piept: \"Zimmer 406 markiert. Code ans Telefon des Managers gesendet.\""
       },
       "practises": {
         "en": "`GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count",
@@ -211,16 +208,16 @@
       ],
       "hints": [
         {
-          "en": "The door-lock server found the card, and the key-card encoder says whose it is. The front-desk logbook at reception says since when that person's master card has been missing.",
-          "de": "Der Türschloss-Server hat die Karte gefunden, und das Kartencodiergerät verrät, wem sie gehört. Das Logbuch an der Rezeption verrät, seit wann die Generalkarte dieser Person verschwunden ist."
+          "en": "The door-lock server found the card, and the key-card encoder says whose it is and when its owner got a new one. The front-desk logbook at reception says how that new card is linked to the moment the old one went missing.",
+          "de": "Der Türschloss-Server hat die Karte gefunden, und das Kartencodiergerät verrät, wem sie gehört und wann ihr Besitzer eine neue bekam. Das Logbuch an der Rezeption verrät, wie diese neue Karte mit dem Moment zusammenhängt, in dem die alte verschwand."
         },
         {
-          "en": "Keep only rows where `card_id = 'M-02'`, `event = 'open'` and the time is after it went missing (21:00 on the 14th). Then `GROUP BY room` and count with `COUNT(*)`.",
-          "de": "Behaltet nur Zeilen mit `card_id = 'M-02'`, `event = 'open'` und einer Zeit nach dem Verschwinden (21:00 am 14.). Dann `GROUP BY room` und mit `COUNT(*)` zählen."
+          "en": "Otto had the new card M-03 written straight after M-02 went missing, at 21:05 on the 14th. Keep only rows where `card_id = 'M-02'`, `event = 'open'` and `time >= '2026-03-14 21:05'`. Then `GROUP BY room` and count with `COUNT(*)`.",
+          "de": "Otto hat sich die neue Karte M-03 sofort schreiben lassen, nachdem M-02 verschwunden war, am 14. um 21:05. Behaltet nur Zeilen mit `card_id = 'M-02'`, `event = 'open'` und `time >= '2026-03-14 21:05'`. Dann `GROUP BY room` und mit `COUNT(*)` zählen."
         },
         {
-          "en": "`SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:00' GROUP BY room ORDER BY openings DESC;`",
-          "de": "`SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:00' GROUP BY room ORDER BY openings DESC;`"
+          "en": "`SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:05' GROUP BY room ORDER BY openings DESC;`",
+          "de": "`SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:05' GROUP BY room ORDER BY openings DESC;`"
         }
       ]
     },
@@ -369,8 +366,8 @@
         "de": "Das Logbuch der Rezeption"
       },
       "text": {
-        "en": "FRONT DESK · 14 March\n\n18:00 Night shift starts: O. Brandt\n\n21:00 Porter Leo says my master card, which I lent him for the luggage, is gone from his trolley. Will have it blocked in the morning; until then I'm using my spare card. – O.B.\n\n02:45 Late check-in: Mr Ruiz, room 312, came through the storm on foot.",
-        "de": "REZEPTION · 14. März\n\n18:00 Beginn Nachtschicht: O. Brandt\n\n21:00 Gepäckträger Leo meldet, dass meine Generalkarte, die ich ihm fürs Gepäck geliehen habe, von seinem Wagen verschwunden ist. Lasse sie morgen früh sperren, bis dahin nehme ich meine Ersatzkarte. – O.B.\n\n02:45 Später Check-in: Herr Ruiz, Zimmer 312, zu Fuß durch den Sturm gekommen."
+        "en": "FRONT DESK · 14 March\n\n18:00 Night shift starts: O. Brandt\n\n23:00 Earlier tonight porter Leo told me my master card, which I lent him for the luggage, is gone from his trolley. Had the encoder write me a new card straight away. The old one gets blocked in the morning. – O.B.\n\n02:45 Late check-in: Mr Ruiz, room 312, came through the storm on foot.",
+        "de": "REZEPTION · 14. März\n\n18:00 Beginn Nachtschicht: O. Brandt\n\n23:00 Gepäckträger Leo hat mir heute Abend gemeldet, dass meine Generalkarte, die ich ihm fürs Gepäck geliehen habe, von seinem Wagen verschwunden ist. Habe mir sofort eine neue Karte am Codiergerät schreiben lassen. Die alte wird morgen früh gesperrt. – O.B.\n\n02:45 Später Check-in: Herr Ruiz, Zimmer 312, zu Fuß durch den Sturm gekommen."
       }
     },
     {

@@ -22,7 +22,7 @@ flowchart LR
   end
 
   subgraph p2["Needs the card from the door-lock server"]
-    cardholders["3 · The key-card encoder<br/>JOIN two tables, aliases"]
+    cardholders["3 · The key-card encoder<br/>look up, then WHERE on text"]
     mastercard["4 · The security PC<br/>GROUP BY, COUNT"]
   end
 
@@ -32,7 +32,7 @@ flowchart LR
 
   d_hotel -->|"📄 bookings"| reception
   d_hotel -->|"📄 door_log"| doorlog
-  d_hotel -->|"📄 door_log, keycards"| cardholders
+  d_hotel -->|"📄 keycards, with issued"| cardholders
   d_hotel -->|"📄 door_log"| mastercard
   d_hotel -->|"📄 receipts, keycards"| alibis
   d_hotel -.->|"📄 all four tables, to re-check"| accusation
@@ -42,16 +42,14 @@ flowchart LR
   newspaper -->|"🔎 theft night = 14 March 2026"| reception
   statement -->|"🔎 Victor away 22:00 – 07:00"| doorlog
   newspaper -->|"🔎 date for 22:00 → 07:00"| doorlog
-  statement -->|"🔎 Victor away 22:00 – 07:00"| cardholders
-  newspaper -->|"🔎 date for 22:00 → 07:00"| cardholders
-  logbook -->|"🔎 Otto's master card gone since 21:00"| mastercard
+  logbook -->|"🔎 new card written straight after the master card went missing"| mastercard
   guard -->|"🔎 door closed at 02:50"| alibis
   newspaper -.->|"🔎 02:50 is on 15 March"| alibis
   intro -.->|"📜 Victor's room is 404"| doorlog
 
   doorlog ==>|"📤 card M-02 opened 404 at 02:47"| cardholders
   doorlog ==>|"📤 card M-02"| mastercard
-  cardholders -.->|"📤 M-02 = Otto's master card"| mastercard
+  cardholders ==>|"📤 Otto's new card M-03 written 21:05"| mastercard
 
   mastercard ==>|"🔒 code 406 = room opened twice"| accusation
   reception ==>|"📤 406 = Nora Quill"| accusation
@@ -81,20 +79,19 @@ All six stations load the same `hotel.sql`, so the room has one data node; the e
 ## Phases
 
 - **Start:** 3 stations can be solved at once (reception, door-lock server, bar till), and reception needs three clues from three corners of the room. Enough for a team of 3; in a team of 5 the others fetch clues.
-- **Second wave:** the key-card encoder and the security PC are open, but their tasks name "the card that opened room 404 in the middle of the night", which only the door-lock server's result gives. The door-lock server is a short station (about 4 minutes), so the room is about 3 wide, then 4–5.
+- **Second wave:** the key-card encoder and the security PC are open, but their tasks name "the card that opened room 404 in the middle of the night", which only the door-lock server's result gives. The security PC also needs the encoder's 21:05, so the second wave is a short chain (encoder, then PC) next to the reception and bar till work. The door-lock server and encoder are short stations (about 4 minutes each), so the room is about 3 wide, then 4.
 - **Final:** the phone opens with the code 406 from the security PC, then needs one name from the reception list.
 
 ## Chains
 
-- Door-lock server → key-card encoder → security PC → phone: 4 stations, the longest path (the encoder link is soft, see below).
-- Door-lock server → security PC → phone: 3 stations, the decisive path for the code.
+- Door-lock server → key-card encoder → security PC → phone: 4 stations, the longest path and the decisive one for the code.
 - Reception → phone: 2 stations, needed for the name.
 - Bar till → phone: 2 stations, context (rules out Otto, the card's owner and obvious suspect).
 
 ## Hand-offs
 
-- Between stations: 6 edges. Hard: card M-02 into the encoder and the security PC, the lock code 406, and 406 = Nora Quill. Soft: the encoder's "M-02 is Otto's master card" for the security PC (the PC can also look it up in `keycards`), and the bar till's alibis for the phone.
-- From clues: 10 clue edges from 5 clues, 9 of them hard. The newspaper feeds four stations (the date), the guard's notes two (the wing for reception, the time for the bar till), Victor's statement two, the floor plan and the logbook one each. The portrait stays flavour.
+- Between stations: 6 edges. Hard: card M-02 into the encoder and the security PC, the encoder's 21:05 into the security PC, the lock code 406, and 406 = Nora Quill. Soft: the bar till's alibis for the phone.
+- From clues: 7 clue edges from 5 clues, 6 of them hard. The newspaper feeds three stations (the date), the guard's notes two (the wing for reception, the time for the bar till), Victor's statement, the floor plan and the logbook one each. The encoder needs no clue. The portrait stays flavour.
 
 ## Where things are
 
@@ -102,10 +99,17 @@ The room is a hotel ground floor: the marble lobby with the reception counter an
 
 - The guard's notes, on his stand by the lift (704, 64), are about 200 px from reception, which needs them, and 660 px from the bar till, which needs their time.
 - The newspaper in the lounge (512, 384) is 256 px from reception, 370–450 px from the door-lock server and encoder, and 384 px from the bar till.
-- The logbook on the reception counter (544, 128) is about 300 px from the security PC in the back office that needs it; Victor's statement on the card table where he played all night (320, 448) is about 380–400 px from the door-lock server and encoder.
+- The logbook on the reception counter (544, 128) is about 300 px from the security PC in the back office that needs it; Victor's statement on the card table where he played all night (320, 448) is about 380–400 px from the door-lock server.
 - The floor plan on the back-office wall (96, 32) is about 430 px from reception.
 
 ## Findings
+
+Fixed in the third review (each station of the card chain adds one piece the security PC needs):
+
+- **The encoder no longer shows where the card went.** It used to list every M-02 event of the night with its holder: the door-lock server's query plus a `JOIN`, and its table already showed 404 at 02:47 and then 406 at 02:52, the phone code. Now it looks the card up in `keycards` and lists every card of its holder by the new `issued` column: Otto's new card M-03, written at 21:05.
+- **The logbook no longer gives a time.** Otto writes at 23:00 that the master card went missing "earlier tonight" and that he had a new one written straight away. So the start of the security PC's window (21:05) only comes from the encoder, and the logbook says how to read it.
+- **The security PC's check fails for every wrong window:** no filter gives 404 and 406 twice each, from 22:00 (Victor away) or 23:00 (the logbook entry) once each; only a start between 20:11 and 21:20 gives 406 twice, 404 once. Its result and hash did not change.
+- The encoder no longer practises `JOIN`; the bar till still does.
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
@@ -125,7 +129,7 @@ Fixed in the first review:
 
 Left as they are:
 
-- **The encoder and the bar till are not needed to escape.** Their results only explain the case (M-02 is Otto's; Otto and Priya have alibis). A team that skips them can still open the phone and name Nora; the debrief shows the skipped stations. Making them hard for the final would need a new twist (e.g. two guests in room 406), more than the fix asked for.
-- **The encoder's table already shows 406 at 02:52**, so a sharp team could guess the phone code before the security PC; the "twice" still comes from the PC.
+- **The bar till is not needed to escape.** Its result only explains the case (Otto and Priya have alibis). A team that skips it can still open the phone and name Nora; the debrief shows skipped stations.
+- **A team that queries M-02 freely at the security PC sees 406 right after 404 at 02:52.** That is the station meant to find it, so this is fine.
 - **Every station shares one database**, so a team could re-derive M-02 at any station by repeating the door-lock query; the hand-off saves that work rather than making it impossible.
 - **The portrait is flavour only**, by design.

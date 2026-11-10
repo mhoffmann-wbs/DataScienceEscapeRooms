@@ -1,12 +1,12 @@
 {
   "reception": "SELECT guest_name, room\nFROM bookings\nWHERE room BETWEEN 405 AND 412\n  AND check_in <= '2026-03-14'\n  AND check_out > '2026-03-14'\nORDER BY room;\n",
   "door-log": "SELECT time, card_id, event\nFROM door_log\nWHERE room = 404\n  AND time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'\nORDER BY time;\n",
-  "card-holders": "SELECT d.time, d.room, k.holder, d.event\nFROM door_log AS d\nJOIN keycards AS k ON d.card_id = k.card_id\nWHERE d.card_id = 'M-02'\n  AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'\nORDER BY d.time;\n",
-  "master-card": "SELECT room, COUNT(*) AS openings\nFROM door_log\nWHERE card_id = 'M-02'\n  AND event = 'open'\n  AND time >= '2026-03-14 21:00'\nGROUP BY room\nORDER BY openings DESC;\n",
+  "card-holders": "SELECT card_id, role, issued\nFROM keycards\nWHERE holder = 'Otto Brandt'\nORDER BY issued DESC;\n",
+  "master-card": "SELECT room, COUNT(*) AS openings\nFROM door_log\nWHERE card_id = 'M-02'\n  AND event = 'open'\n  AND time >= '2026-03-14 21:05'\nGROUP BY room\nORDER BY openings DESC;\n",
   "alibis": "SELECT r.time, k.holder, r.place\nFROM receipts AS r\nJOIN keycards AS k ON r.card_id = k.card_id\nWHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'\nORDER BY r.time;\n",
   "accusation": {
     "answer": "Nora Quill",
-    "code": "SELECT b.guest_name, d.room, COUNT(*) AS openings\nFROM door_log AS d\nJOIN bookings AS b ON b.room = d.room\nWHERE d.card_id = 'M-02'\n  AND d.event = 'open'\n  AND d.time >= '2026-03-14 21:00'\n  AND b.check_in <= '2026-03-14'\n  AND b.check_out > '2026-03-14'\nGROUP BY b.guest_name, d.room\nORDER BY openings DESC;\n"
+    "code": "SELECT b.guest_name, d.room, COUNT(*) AS openings\nFROM door_log AS d\nJOIN bookings AS b ON b.room = d.room\nWHERE d.card_id = 'M-02'\n  AND d.event = 'open'\n  AND d.time >= '2026-03-14 21:05'\n  AND b.check_in <= '2026-03-14'\n  AND b.check_out > '2026-03-14'\nGROUP BY b.guest_name, d.room\nORDER BY openings DESC;\n"
   },
   "accusation#lock": "406"
 }

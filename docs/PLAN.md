@@ -61,7 +61,7 @@ Vite, React and TypeScript around Phaser 4; event bus between game and UI; DE/EN
 ### 6. The two starter rooms
 - **Quarantine / abandoned research lab (Python):** ✅ content built, playtest pending. Fix a mycologist's broken scripts to collect the 4 override digits: login terminal (variables, `str()`), incubator log (loops, `None`), encrypted notebook (string decoding), sample freezer (dict lookups), ventilation script (debugging), exit keypad.
 - **Clues and reveals:** ✅ read-only `clue` objects in maps and manifests, and a puzzle `reveal` shown to the team once solved, so room exploration and coding feed into each other.
-- **The Blue Index / hotel mystery (SQL):** ✅ content built, playtest pending. Name the thief who opened room 404's safe: reception list (`WHERE`, dates, `ORDER BY`), door-lock server (time ranges), key-card encoder (`JOIN`), security PC (`GROUP BY`), bar till alibis (`JOIN` + `WHERE`), and an accusation on the manager's phone.
+- **The Blue Index / hotel mystery (SQL):** ✅ content built, playtest pending. Name the thief who opened room 404's safe: reception list (`WHERE`, dates, `ORDER BY`), door-lock server (time ranges), key-card encoder (`WHERE` on text, when the stolen card was replaced), security PC (`GROUP BY`), bar till alibis (`JOIN` + `WHERE`), and an accusation on the manager's phone.
 - Each room: about 30 minutes, 5–6 puzzles ordered easy to hard, a final lock combining earlier results, story text in DE and EN, hints, datasets.
 - **Debrief screen** ✅ after escaping: what each puzzle practised, model solutions, time and hints used per puzzle; reopenable from the room HUD.
 - Playtest each room against the time budget using the author shortcut.

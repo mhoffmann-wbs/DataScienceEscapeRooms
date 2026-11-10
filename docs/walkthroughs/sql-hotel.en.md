@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 1 | The reception computer | `SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY` | 🔎 The night guard's notes, 🔎 The floor plan, 🔎 A newspaper |
 | 2 | The door-lock server | `WHERE` on a time range that crosses midnight, text comparison of timestamps, `ORDER BY` | 🔎 Victor Hale's statement, 🔎 A newspaper |
-| 3 | The key-card encoder | `JOIN` two tables on a shared column, table aliases | 2. The door-lock server (its result), 🔎 Victor Hale's statement, 🔎 A newspaper |
+| 3 | The key-card encoder | Looking up a value in one query and filtering on it in the next, `WHERE` on text, `ORDER BY … DESC` | 2. The door-lock server (its result) |
 | 4 | The security PC | `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count | 2. The door-lock server (its result), 3. The key-card encoder (its result), 🔎 The front-desk logbook |
 | 5 | The bar till | `JOIN` combined with `WHERE` and `ORDER BY` | 🔎 The night guard's notes, 🔎 A newspaper |
 | 6 | The manager's phone (Final lock) | Combining evidence from several queries | 4. The security PC (its result), 1. The reception computer (its result), 🔒 4. The security PC |
@@ -124,15 +124,15 @@ ORDER BY time;
 
 ### 3. The key-card encoder
 
-**Practises:** `JOIN` two tables on a shared column, table aliases  
-**Needs:** 2. The door-lock server (its result), 🔎 Victor Hale's statement, 🔎 A newspaper  
+**Practises:** Looking up a value in one query and filtering on it in the next, `WHERE` on text, `ORDER BY … DESC`  
+**Needs:** 2. The door-lock server (its result)  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Task:**
 
-> This machine writes the hotel's key cards, and it knows who every card belongs to. Whose is the card that opened room 404 in the middle of the night, and where else did it go?
+> This machine writes the hotel's key cards, and it knows who every card belongs to and when it wrote it. Whose is the card that opened room 404 in the middle of the night, and does that person carry another one?
 >
-> Show `time`, `room`, the name of the card holder and `event` for everything that card did while Victor was away, earliest first.
+> Show `card_id`, `role` and `issued` for every card registered to the holder of that card, the newest first.
 
 <details><summary>Starter code</summary>
 
@@ -148,29 +148,27 @@ LIMIT 5;
 **Model solution:**
 
 ```sql
-SELECT d.time, d.room, k.holder, d.event
-FROM door_log AS d
-JOIN keycards AS k ON d.card_id = k.card_id
-WHERE d.card_id = 'M-02'
-  AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00'
-ORDER BY d.time;
+SELECT card_id, role, issued
+FROM keycards
+WHERE holder = 'Otto Brandt'
+ORDER BY issued DESC;
 ```
 
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["2026-03-15 02:40",402,"Otto Brandt","denied"],["2026-03-15 02:47",404,"Otto Brandt","open"],["2026-03-15 02:52",406,"Otto Brandt","open"]]
+[["M-03","night manager","2026-03-14 21:05"],["M-02","night manager","2025-10-01 18:00"]]
 ```
 
 **Reveals when solved:**
 
-> **M-02** is the night manager's master card, registered to **Otto Brandt**. But did Otto still have it that night?
+> **M-02** is the night manager's master card, registered to **Otto Brandt**. But Otto carries a second card: the encoder wrote **M-03** for him at **21:05** on the 14th.
 
 **Hints:**
 
-1. The door-lock server's result names the card. Victor's statement says when he was away, and the newspaper gives the date.
-2. `door_log` has the card ids, `keycards` has the holders: `FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id`. Both tables have a `card_id`, so write `d.card_id`, and filter on the card instead of the room.
-3. `SELECT d.time, d.room, k.holder, d.event FROM door_log AS d JOIN keycards AS k ON d.card_id = k.card_id WHERE d.card_id = 'M-02' AND d.time BETWEEN '2026-03-14 22:00' AND '2026-03-15 07:00' ORDER BY d.time;`
+1. The door-lock server's result names the card. Look it up in `keycards` first to find out whose it is.
+2. `SELECT * FROM keycards WHERE card_id = 'M-02';` gives the holder. Then filter on that name with `WHERE holder = '…'` (text in single quotes) and sort with `ORDER BY issued DESC`.
+3. `SELECT card_id, role, issued FROM keycards WHERE holder = 'Otto Brandt' ORDER BY issued DESC;`
 
 ### 4. The security PC
 
@@ -180,7 +178,7 @@ ORDER BY d.time;
 
 **Task:**
 
-> The security PC can report on any single card. Which rooms did the card that opened room 404 in the middle of the night keep opening after it went missing?
+> The security PC can report on any single card. Which rooms did the card that opened room 404 in the middle of the night keep opening once its owner no longer had it?
 >
 > Count how often it **opened** each room in that time. Show `room` and the count, the room with the most openings first.
 
@@ -202,7 +200,7 @@ SELECT room, COUNT(*) AS openings
 FROM door_log
 WHERE card_id = 'M-02'
   AND event = 'open'
-  AND time >= '2026-03-14 21:00'
+  AND time >= '2026-03-14 21:05'
 GROUP BY room
 ORDER BY openings DESC;
 ```
@@ -215,15 +213,15 @@ ORDER BY openings DESC;
 
 **Reveals when solved:**
 
-> Since 21:00 the master card opened room 404 once, and room **406** twice.
+> Since 21:05 the master card opened room 404 once, and room **406** twice.
 >
 > The security PC beeps: "Room 406 flagged. Code sent to the manager's phone."
 
 **Hints:**
 
-1. The door-lock server found the card, and the key-card encoder says whose it is. The front-desk logbook at reception says since when that person's master card has been missing.
-2. Keep only rows where `card_id = 'M-02'`, `event = 'open'` and the time is after it went missing (21:00 on the 14th). Then `GROUP BY room` and count with `COUNT(*)`.
-3. `SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:00' GROUP BY room ORDER BY openings DESC;`
+1. The door-lock server found the card, and the key-card encoder says whose it is and when its owner got a new one. The front-desk logbook at reception says how that new card is linked to the moment the old one went missing.
+2. Otto had the new card M-03 written straight after M-02 went missing, at 21:05 on the 14th. Keep only rows where `card_id = 'M-02'`, `event = 'open'` and `time >= '2026-03-14 21:05'`. Then `GROUP BY room` and count with `COUNT(*)`.
+3. `SELECT room, COUNT(*) AS openings FROM door_log WHERE card_id = 'M-02' AND event = 'open' AND time >= '2026-03-14 21:05' GROUP BY room ORDER BY openings DESC;`
 
 ### 5. The bar till
 
@@ -311,7 +309,7 @@ FROM door_log AS d
 JOIN bookings AS b ON b.room = d.room
 WHERE d.card_id = 'M-02'
   AND d.event = 'open'
-  AND d.time >= '2026-03-14 21:00'
+  AND d.time >= '2026-03-14 21:05'
   AND b.check_in <= '2026-03-14'
   AND b.check_out > '2026-03-14'
 GROUP BY b.guest_name, d.room
@@ -330,7 +328,7 @@ ORDER BY openings DESC;
 
 ### 🔎 A newspaper
 
-*Used by: 1. The reception computer, 2. The door-lock server, 3. The key-card encoder, 5. The bar till*
+*Used by: 1. The reception computer, 2. The door-lock server, 5. The bar till*
 
 > THE ALPINE COURIER · Saturday, 14 March 2026
 >
@@ -354,7 +352,7 @@ ORDER BY openings DESC;
 
 ### 🔎 Victor Hale's statement
 
-*Used by: 2. The door-lock server, 3. The key-card encoder*
+*Used by: 2. The door-lock server*
 
 > Statement of Victor Hale, jeweller, room 404. Taken at 07:20.
 >
@@ -368,7 +366,7 @@ ORDER BY openings DESC;
 >
 > 18:00 Night shift starts: O. Brandt
 >
-> 21:00 Porter Leo says my master card, which I lent him for the luggage, is gone from his trolley. Will have it blocked in the morning; until then I'm using my spare card. – O.B.
+> 23:00 Earlier tonight porter Leo told me my master card, which I lent him for the luggage, is gone from his trolley. Had the encoder write me a new card straight away. The old one gets blocked in the morning. – O.B.
 >
 > 02:45 Late check-in: Mr Ruiz, room 312, came through the storm on foot.
 
