@@ -81,6 +81,8 @@ def _clt_check(skew_orders, means, se_theory, skew_means, t_tests_ok):
         problems.append("means needs the means of at least 1,000 random samples. / means braucht die Mittelwerte von mindestens 1.000 Zufallsstichproben.")
     elif abs(m.mean() - 37.77) > 0.6 or not 4.5 < m.std() < 5.5:
         problems.append("Your sample means don't look like means of random samples as large as the board's reports use. / Eure Stichprobenmittel sehen nicht nach Mittelwerten von Zufallsstichproben in der Größe der Vorstandsberichte aus.")
+    elif not 0.15 < stats.skew(m) < 1.2:
+        problems.append("Your sample means are not skewed like means of random samples of these orders (a bit to the right). Draw them from the orders, don't generate them. / Eure Stichprobenmittel sind nicht so schief wie Mittelwerte von Zufallsstichproben dieser Bestellungen (leicht nach rechts). Zieht sie aus den Bestellungen, erzeugt sie nicht frei.")
     elif not isinstance(skew_means, Real) or abs(skew_means - stats.skew(m)) > 0.01:
         problems.append("skew_means should be the skewness of your sample means. / skew_means soll die Schiefe eurer Stichprobenmittel sein.")
     if not isinstance(t_tests_ok, (bool, np.bool_)):

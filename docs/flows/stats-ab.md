@@ -96,6 +96,11 @@ The factory has four parts: the marble foyer with the exit, the release console 
 
 ## Findings
 
+Fixed in the shortcut review (every number a check compares was tested; typing a printed or guessed value, wrong tests and wrong levels were tried):
+
+- **Ana's laptop no longer accepts made-up sample means.** `means = np.random.normal(37.77, 4.99, 1000)` passed, because the check only looked at the mean and spread of `means` (and that `skew_means` matches them). It now also requires their skewness to lie between 0.15 and 1.2 (real means of 50 orders: 0.24 to 0.62; normal draws: about 0), so the means have to be drawn from the orders. The verdict `t_tests_ok` is checked together with `skew_orders`, `se_theory` and these means, so it can't be guessed 50/50.
+- Tested and fine: typing the checked values (0.0252, 16.68, 0.00024, 100.3264 and so on) is only possible from the hints; no clue, sign or task prints one, and `diff` needs four digits (the hint's 0.60 fails). Alpha 0.05 or a one-sided or paired test fails the tasting room's p-value, the 99 % and the normal-distribution intervals fail the packing line, sample sizes 45 and 60 fail Ana's laptop. The lock codes 77 and 499 and the final 5294 appear nowhere before their stations are solved, and every card digit comes only from a reveal, so no station can be skipped.
+
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **No task names its clues any more.** The packing line no longer says the quality manual sets the level, Ana's laptop no longer says Ana's note has the sample size and the formula, the tasting room no longer mentions the tasting protocol or the planning board, and the dashboard no longer asks for "the registered level". Starter comments ("see the quality manual", "see Ana's note", "see the tasting protocol", "as registered") and check messages ("Ana's note", "the pre-registration says", "see the tasting protocol", "the planning board's α") are cleaned up the same way; where to look is in each puzzle's first hint (Ana's note moved to hint 1/2 of Ana's laptop, the significance level to the dashboard's hint 2).
