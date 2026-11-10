@@ -23,9 +23,9 @@ flowchart LR
   d_stamps[("stamps.py<br/>returned")]
 
   subgraph p1["Open from the start"]
-    cart["1 · Returns cart<br/>a HOWTO: stable sorts"]
-    boxes["2 · Packing table<br/>a function from a description"]
-    fees["3 · Late-fees ledger<br/>notes under round, decimal"]
+    cart["1 · Returns cart<br/>a HOWTO: three stable sorts"]
+    boxes["2 · Packing table<br/>batched with strict=True"]
+    fees["3 · Late-fees ledger<br/>notes under round, Decimal fees"]
     terminal["4 · The old terminal<br/>version notes"]
   end
 
@@ -45,16 +45,16 @@ flowchart LR
   handbook -.->|"📖 links to the indexes, HOWTOs, glossary"| docs
   intro -.->|"📜 use the 3.14 docs"| docs
 
-  cartnote -->|"🔎 shelves A→Z, titles Z→A;<br/>sorting HOWTO, stability"| cart
+  cartnote -->|"🔎 shelves A→Z, authors Z→A, titles A→Z;<br/>sorting HOWTO, stability"| cart
   boxlabel -->|"🔎 7 per box, call-number order;<br/>itertools has a function"| boxes
   feerules -->|"🔎 4.5 cents a day,<br/>half a cent rounds up"| fees
   scriptlist -->|"🔎 removeprefix, dist, pairwise,<br/>fmean, batched"| terminal
   stampinstructions -->|"🔎 ISO year-Wweek-weekday,<br/>2026-W45-3; table on datetime page"| stamps
   cataloguecard -->|"🔎 order: stamps, returns,<br/>fees, packing"| door
 
-  docs -->|"📚 sorts are stable;<br/>secondary key first"| cart
-  docs -.->|"📚 itertools.batched"| boxes
-  docs -->|"📚 round: ties to even, floats inexact;<br/>Decimal, quantize, ROUND_HALF_UP"| fees
+  docs -->|"📚 sorts are stable; least important<br/>key first: title, author reversed, shelf"| cart
+  docs -->|"📚 itertools.batched(..., strict=True)<br/>raises on a short last batch (3.13)"| boxes
+  docs -->|"📚 round: ties to even, floats inexact;<br/>Decimal from strings, quantize, ROUND_HALF_UP"| fees
   docs -->|"📚 Added in version 3.9, 3.8,<br/>3.10, 3.8, 3.12"| terminal
   docs -->|"📚 %G, %V, %u; not interchangeable<br/>with %Y, %W"| stamps
 
@@ -100,7 +100,7 @@ flowchart LR
 
 - Between stations: 1 (the PIN), plus 4 digits into the door.
 - From clues: 6 clues, all hard. The handbook only helps to find pages in the docs.
-- From the docs: 5 stations need a doc fact; 4 of them can't pass without it.
+- From the docs: 5 stations need a doc fact; all 5 can't pass without it (the packing table, cart and ledger since step 23).
 
 ## Where things are
 
@@ -114,16 +114,21 @@ flowchart LR
 Fixed in the shortcut review:
 
 - **The packing check only looked at the box count and the last box,** so a hand-written last box passed. It now checks every box (`[list(b) for b in boxes]`).
-- **Tested and not shortcuts:** the fee ledger's wrong-but-obvious variants all fail (float `round` gives 6.23, `Decimal` with the default half-even rounding 6.25, no rounding 6.255, the answer is 6.30); the stamp format variants (`%Y` with `%V`, `%G` with `%W` or `%w`, `%Y-W%W-%w`) all fail on the New Year dates; the version answer 91012 and the door can't be reached without the lookups.
+- **Tested and not shortcuts:** the fee ledger's wrong-but-obvious variants all fail (float `round` gives 6.23, `Decimal` with the default half-even rounding 6.25, no rounding 6.255, the answer is 6.30, now also checked as `Decimal` amounts per book); the packing check runs `pack` on a hidden pile of 23 books and wants `batched`'s own `ValueError`, so a hand-raised error or a missing one fails; the stamp format variants (`%Y` with `%V`, `%G` with `%W` or `%w`, `%Y-W%W-%w`) all fail on the New Year dates; the version answer 91012 and the door can't be reached without the lookups.
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **No task or starter names its clue any more.** The returns cart's task no longer says Margarete's note says how she wants the books, the packing table's no longer says "as the box label says", the ledger's task and starter no longer say "as the fee rules say" / "see the fee rules", the terminal's no longer says the list is pinned next to it, and the stamp machine's no longer says "in the format on the machine's instructions". Where to look is now in each puzzle's first hint.
 - **Left as is:** the ledger's margin note ("why my script is wrong is written under `round()`") points into the documentation, not at a clue or station; pointing into the docs is the room's premise (Margarete's rule in the intro).
 
+Fixed in step 23 (the docs are needed):
+
+- **Packing table:** `book_ids` has 28 call numbers (4 full boxes of 7), and the task asks for a function `pack(ids)` that must refuse a pile whose last box isn't full (the lift tips over). The check runs `pack` on a hidden pile of 23 books and wants the `ValueError` ("batched(): incomplete batch") that `itertools.batched(..., strict=True)` raises. A slicing loop sends a short box and fails; a hand-raised error is rejected ("Margarete never writes that loop herself"); `strict` (added in 3.13) is only in the docs entry, not in the task or the clue.
+- **Returns cart:** 40 books with `title`, `author` and `shelf`; order is shelf A to Z, author Z to A, title A to Z. 40 titles are too many to order by hand. A single tuple key can't reverse just the string author (no negating strings); only one of the 6 orders of three stable sorts is right (title, then author with `reverse=True`, then shelf), which is the HOWTO's "Sort Stability and Complex Sorts" (`functools.cmp_to_key` works too).
+- **Late-fees ledger:** the ledger wants every fee (`fees`) and the sum (`total`) as `Decimal` amounts rounded to two places. Integer-cent arithmetic or `Decimal(cents) / 100` gives `6.3` / `0.5` and fails the string check; floats fail the type check; `Decimal(float)` rounds half-up wrongly on binary representation errors. So `quantize`, `ROUND_HALF_UP` and building Decimals from strings, all from the `decimal` docs, are needed.
+
 Still open (from the first review):
 
-- **The packing table doesn't need the docs.** A slicing loop over `sorted(book_ids)` packs the boxes without `itertools.batched`; only the box label is hard. Same for the cart (hand-ordering 12 titles, or trying both sort orders) and the ledger (integer cent arithmetic): trial and error works but needs the reasoning the station teaches. It's also the smallest station (one line with `batched`). Options: ask for a second thing only the `batched` entry says (what happens with `strict=True` on the short last box), or keep it as the gentle start.
 - **No station needs another station's result,** only the terminal's PIN. That keeps four lanes open in parallel but means little talk between them, apart from the final digits. A link could be: the fee ledger's titles come off the returns cart, or the stamp tray holds the books from the packing table.
 - **The digits are fixed in the reveals,** not derived from the results (as in the other rooms). Fine for the door, but a team could share them across teams.
 - **Doc facts are pinned to 3.14.** The version notes never change; the round note, the HOWTO and the format-code table could be reworded in later editions. Re-check when Pyodide's Python moves.

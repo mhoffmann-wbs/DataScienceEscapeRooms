@@ -14,9 +14,9 @@
 
 | # | Station | Practises | Needs |
 |---|---|---|---|
-| 1 | Returns cart | Reading a HOWTO: Python's sort is stable, so a sort on two keys in opposite directions is two sorts, the secondary key first. | 🔎 Note on the returns cart |
-| 2 | Packing table | Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters. | 🔎 Label on an archive box |
-| 3 | Late-fees ledger | Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`, `quantize`, rounding modes). | 🔎 Fee rules |
+| 1 | Returns cart | Reading a HOWTO: Python's sort is stable, so a sort on several keys in different directions is several sorts, the least important key first. | 🔎 Note on the returns cart |
+| 2 | Packing table | Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters, and reading a signature's keyword-only parameters and what they change. | 🔎 Label on an archive box |
+| 3 | Late-fees ledger | Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`: building numbers from strings, `quantize`, rounding modes). | 🔎 Fee rules |
 | 4 | The old terminal | Version notes: every entry in the docs says when it was added or changed ("Added in version 3.x"), so you know whether code runs on an older Python. | 🔎 Margarete's script list |
 | 5 | Date-stamp machine | Reading a table in the docs, and the notes under it: the `strftime` format codes, and why ISO week dates need `%G` with `%V` and `%u`. | 🔒 4. The old terminal, 🔎 Stamp machine instructions |
 | 6 | Archive door (Final lock) | Putting the room's results together. | 1. Returns cart (its result), 2. Packing table (its result), 3. Late-fees ledger (its result), 5. Date-stamp machine (its result), 🔎 Card in the card catalogue |
@@ -27,7 +27,7 @@
 
 ### 1. Returns cart
 
-**Practises:** Reading a HOWTO: Python's sort is stable, so a sort on two keys in opposite directions is two sorts, the secondary key first.  
+**Practises:** Reading a HOWTO: Python's sort is stable, so a sort on several keys in different directions is several sorts, the least important key first.  
 **Needs:** 🔎 Note on the returns cart  
 **Data:** [cart.py](../../content/rooms/python-docs/data/cart.py)
 
@@ -35,12 +35,12 @@
 
 > A cart full of returned books stands by the shelves, its brake locked until the books are in Margarete's shelving order.
 >
-> The books are loaded as `returns`, a list of dictionaries with `"title"` and `"shelf"`. Store the titles in shelving order in `cart`, a list of strings.
+> The books are loaded as `returns`, a list of dictionaries with `"title"`, `"author"` and `"shelf"`. Store the titles in shelving order in `cart`, a list of strings.
 
 <details><summary>Starter code</summary>
 
 ```python
-# returns is loaded: a list of dicts with "title" and "shelf".
+# returns is loaded: a list of dicts with "title", "author" and "shelf".
 print(returns[0])
 
 cart = []  # the titles, in shelving order
@@ -51,8 +51,9 @@ cart = []  # the titles, in shelving order
 **Model solution:**
 
 ```python
-by_title = sorted(returns, key=lambda b: b["title"], reverse=True)
-by_shelf = sorted(by_title, key=lambda b: b["shelf"])
+by_title = sorted(returns, key=lambda b: b["title"])
+by_author = sorted(by_title, key=lambda b: b["author"], reverse=True)
+by_shelf = sorted(by_author, key=lambda b: b["shelf"])
 cart = [b["title"] for b in by_shelf]
 print(cart)
 ```
@@ -60,7 +61,7 @@ print(cart)
 **Checked result** (`cart`):
 
 ```json
-["Winter Birds", "Apples of the Valley", "A Short History of Rain", "Kleeberg in Old Photographs", "Bridges", "Salt Roads", "Moss and Lichen", "Field Notes", "Paper Boats", "Northern Lights", "The Lantern Keeper", "The Clockmaker"]
+["Salt Roads", "Moss and Lichen", "Northern Lights", "Paper Boats", "Field Notes", "Kleeberg in Old Photographs", "A Short History of Rain", "Apples of the Valley", "Bridges", "Orchard Year", "The Ferryman", "Glass and Ash", "Harbour Songs", "Winter Birds", "The Clockmaker", "The Lantern Keeper", "Owls", "The Weaver's Daughter", "Quiet Hours", "The Map Room", "Bees of Kleeberg", "Night Trains", "Stone Walls", "Copper Kettles", "River Atlas", "Chalk Hills", "Small Gardens", "The Long Road", "Old Mills", "The Tin Soldier", "Lighthouses", "Mushrooms of the North", "Tidewater", "Clouds", "Morning Market", "A Year of Bread", "The Glassblower", "Wild Herbs", "Feathers", "Ice Roads"]
 ```
 
 **Reveals when solved:**
@@ -70,12 +71,12 @@ print(cart)
 **Hints:**
 
 1. Margarete's note on the cart gives the shelving order. The HOWTOs are linked from the docs' start page and from the handbook. In "Sorting Techniques", read the section "Sort Stability and Complex Sorts".
-2. Sorts are stable: records with the same key keep their order. So sort by the secondary key first (title, `reverse=True`), then by the primary key (shelf).
-3. `by_title = sorted(returns, key=lambda b: b["title"], reverse=True)`, then `sorted(by_title, key=lambda b: b["shelf"])`, then take the titles.
+2. Sorts are stable: records with the same key keep their order. So sort by the least important key first (title), then by the next one (author, `reverse=True`), then by the most important (shelf). A single tuple key can't reverse just one of several string keys.
+3. `by_title = sorted(returns, key=lambda b: b["title"])`, then `by_author = sorted(by_title, key=lambda b: b["author"], reverse=True)`, then `sorted(by_author, key=lambda b: b["shelf"])`, then take the titles.
 
 ### 2. Packing table
 
-**Practises:** Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters.  
+**Practises:** Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters, and reading a signature's keyword-only parameters and what they change.  
 **Needs:** 🔎 Label on an archive box  
 **Data:** [boxes.py](../../content/rooms/python-docs/data/boxes.py)
 
@@ -83,7 +84,9 @@ print(cart)
 
 > A pile of books waits on the packing table to go down to the cellar, next to a stack of empty archive boxes. The cellar lift only takes full instructions: which books go into which box.
 >
-> The call numbers are loaded as `book_ids`. Pack them into boxes and store the boxes in `boxes`, a list with one tuple or list of call numbers per box.
+> The call numbers are loaded as `book_ids`. Write a function `pack(ids)` that returns the boxes, one tuple or list of call numbers per box, and store `boxes = pack(book_ids)`.
+>
+> The lift is old: it tips over if it carries a part-full box. So `pack` must refuse a pile whose last box isn't full, with an error, instead of sending a short box. The lift tests `pack` on tomorrow's pile before it moves.
 
 <details><summary>Starter code</summary>
 
@@ -91,7 +94,12 @@ print(cart)
 # book_ids is loaded: call numbers like "K-0412".
 print(len(book_ids), book_ids[:3])
 
-boxes = []
+
+def pack(ids):
+    ...  # return the boxes
+
+
+boxes = pack(book_ids)
 ```
 
 </details>
@@ -101,14 +109,19 @@ boxes = []
 ```python
 from itertools import batched
 
-boxes = list(batched(sorted(book_ids), 7))
+
+def pack(ids):
+    return list(batched(sorted(ids), 7, strict=True))
+
+
+boxes = pack(book_ids)
 print(len(boxes), boxes[-1])
 ```
 
-**Checked result** (`[list(b) for b in boxes]`):
+**Checked result** (`_pack_check(pack, boxes)`):
 
 ```json
-[["K-0017", "K-0026", "K-0083", "K-0108", "K-0125", "K-0194", "K-0251"], ["K-0277", "K-0312", "K-0349", "K-0372", "K-0412", "K-0487", "K-0561"], ["K-0590", "K-0640", "K-0698", "K-0733", "K-0759", "K-0815", "K-0866"], ["K-0904", "K-0938"]]
+[["K-0013", "K-0045", "K-0075", "K-0095", "K-0105", "K-0132", "K-0152"], ["K-0220", "K-0247", "K-0277", "K-0366", "K-0381", "K-0388", "K-0466"], ["K-0490", "K-0499", "K-0582", "K-0696", "K-0699", "K-0773", "K-0777"], ["K-0782", "K-0827", "K-0867", "K-0874", "K-0892", "K-0900", "K-0930"]]
 ```
 
 **Reveals when solved:**
@@ -118,12 +131,12 @@ print(len(boxes), boxes[-1])
 **Hints:**
 
 1. The label on the archive boxes says how to pack them. Open `itertools` from the module index. The tables at the top of its page list every function with a one-line description; one of them makes groups of a fixed size.
-2. `itertools.batched(iterable, n)` gives tuples of `n` items; the last one may be shorter. It returns an iterator, so wrap it in `list(...)`. And the label wants call-number order first.
-3. `from itertools import batched` and `boxes = list(batched(sorted(book_ids), 7))`
+2. `itertools.batched(iterable, n, *, strict=False)`: read what the keyword-only `strict` does on its entry (it was added in 3.13). `batched` is lazy, so wrap it in `list(...)` inside `pack`, or the error comes up too late. And the label wants call-number order first.
+3. `from itertools import batched`, then `def pack(ids): return list(batched(sorted(ids), 7, strict=True))` and `boxes = pack(book_ids)`
 
 ### 3. Late-fees ledger
 
-**Practises:** Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`, `quantize`, rounding modes).  
+**Practises:** Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`: building numbers from strings, `quantize`, rounding modes).  
 **Needs:** 🔎 Fee rules  
 **Data:** [fees.py](../../content/rooms/python-docs/data/fees.py)
 
@@ -131,7 +144,9 @@ print(len(boxes), boxes[-1])
 
 > The late-fees ledger never balanced: Margarete's fee script always came out a few cents off. A pencil note in the margin: "Why my script is wrong is written under `round()` in the built-in functions. Follow the docs from there."
 >
-> The ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee to the cent and store the sum in `total`.
+> The ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee to the cent. Store the fees in `fees`, one per book in ledger order, and their sum in `total`.
+>
+> The ledger book only takes exact decimal numbers to the cent, like 0.50, never floats.
 
 <details><summary>Starter code</summary>
 
@@ -139,11 +154,12 @@ print(len(boxes), boxes[-1])
 # Margarete's fee script. ledger is loaded: (title, days overdue) pairs.
 RATE = 0.0  # euros per day
 
-total = 0
+fees = []
 for title, days in ledger:
     fee = round(days * RATE, 2)
-    total += fee
-print(total)
+    fees.append(fee)
+total = sum(fees)
+print(fees, total)
 ```
 
 </details>
@@ -155,17 +171,17 @@ from decimal import Decimal, ROUND_HALF_UP
 
 RATE = Decimal("0.045")  # 4.5 cents per day
 
-total = 0
+fees = []
 for title, days in ledger:
-    fee = (days * RATE).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    total += fee
-print(total)
+    fees.append((days * RATE).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+total = sum(fees)
+print(fees, total)
 ```
 
-**Checked result** (`str(total)`):
+**Checked result** (`[type(total).__name__, str(total), [(type(f).__name__, str(f)) for f in fees]]`):
 
 ```json
-"6.30"
+["Decimal", "6.30", [["Decimal", "0.05"], ["Decimal", "0.14"], ["Decimal", "0.32"], ["Decimal", "0.41"], ["Decimal", "0.50"], ["Decimal", "0.63"], ["Decimal", "0.68"], ["Decimal", "0.95"], ["Decimal", "1.13"], ["Decimal", "1.49"]]]
 ```
 
 **Reveals when solved:**
@@ -176,7 +192,7 @@ print(total)
 
 1. The library's fee rules give the rate and how to round. Under `round()` the docs say two things: ties are rounded toward the even choice, and a float like `2.675` can't be stored exactly. The note there names the module for exact decimal arithmetic.
 2. On the `decimal` page: build numbers from strings, `Decimal("0.045")`, not from floats; round each fee with `.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)`.
-3. `from decimal import Decimal, ROUND_HALF_UP`, then in the loop `fee = (days * Decimal("0.045")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)`.
+3. `from decimal import Decimal, ROUND_HALF_UP`, then `fees = []` and in the loop `fees.append((days * Decimal("0.045")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))`, and `total = sum(fees)`.
 
 ### 4. The old terminal
 
@@ -284,10 +300,11 @@ print(stamps)
 *Used by: 1. Returns cart*
 
 > Shelving order:
-> shelves from A to Z,
-> and within a shelf, titles from Z to A. (Don't ask.)
+> shelves from A to Z;
+> within a shelf, authors from Z to A;
+> within an author, titles from A to Z. (Don't ask.)
 >
-> The sorting HOWTO in the Python docs shows how to do it with two sorts. Read the part about stability. Which sort comes first is written there too. — M. H.
+> The sorting HOWTO in the Python docs shows how to do it with several sorts. Read the part about stability. Which sort comes first is written there too. — M. H.
 
 ### 🔎 Label on an archive box
 

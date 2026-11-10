@@ -14,9 +14,9 @@
 
 | # | Station | Übt | Braucht |
 |---|---|---|---|
-| 1 | Rückgabewagen | Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach zwei Schlüsseln in entgegengesetzten Richtungen zu zwei Sortierungen, der zweite Schlüssel zuerst. | 🔎 Zettel am Rückgabewagen |
-| 2 | Packtisch | Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur. | 🔎 Etikett auf einem Archivkarton |
-| 3 | Mahngebühren-Buch | Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`, `quantize`, Rundungsarten). | 🔎 Gebührenordnung |
+| 1 | Rückgabewagen | Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach mehreren Schlüsseln in verschiedenen Richtungen zu mehreren Sortierungen, der unwichtigste Schlüssel zuerst. | 🔎 Zettel am Rückgabewagen |
+| 2 | Packtisch | Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur, und die Schlüsselwort-Parameter einer Signatur lesen und was sie ändern. | 🔎 Etikett auf einem Archivkarton |
+| 3 | Mahngebühren-Buch | Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`: Zahlen aus Strings bauen, `quantize`, Rundungsarten). | 🔎 Gebührenordnung |
 | 4 | Das alte Terminal | Versionshinweise: Jeder Eintrag in der Doku sagt, wann er hinzukam oder sich geändert hat („Added in version 3.x“), damit du weißt, ob Code auf einem älteren Python läuft. | 🔎 Margaretes Skriptliste |
 | 5 | Datumsstempel-Maschine | Eine Tabelle in der Doku lesen, samt der Hinweise darunter: die Formatcodes von `strftime`, und warum ISO-Wochendaten `%G` mit `%V` und `%u` brauchen. | 🔒 4. Das alte Terminal, 🔎 Anleitung der Stempelmaschine |
 | 6 | Archivtür (Abschluss-Schloss) | Die Ergebnisse des Raums zusammensetzen. | 1. Rückgabewagen (sein Ergebnis), 2. Packtisch (sein Ergebnis), 3. Mahngebühren-Buch (sein Ergebnis), 5. Datumsstempel-Maschine (sein Ergebnis), 🔎 Karte im Zettelkatalog |
@@ -27,7 +27,7 @@
 
 ### 1. Rückgabewagen
 
-**Übt:** Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach zwei Schlüsseln in entgegengesetzten Richtungen zu zwei Sortierungen, der zweite Schlüssel zuerst.  
+**Übt:** Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach mehreren Schlüsseln in verschiedenen Richtungen zu mehreren Sortierungen, der unwichtigste Schlüssel zuerst.  
 **Braucht:** 🔎 Zettel am Rückgabewagen  
 **Daten:** [cart.py](../../content/rooms/python-docs/data/cart.py)
 
@@ -35,12 +35,12 @@
 
 > Ein Wagen voller zurückgegebener Bücher steht bei den Regalen, seine Bremse bleibt fest, bis die Bücher in Margaretes Einräumreihenfolge liegen.
 >
-> Die Bücher sind als `returns` geladen, eine Liste von Dictionaries mit `"title"` und `"shelf"`. Speichere die Titel in Einräumreihenfolge in `cart`, einer Liste von Strings.
+> Die Bücher sind als `returns` geladen, eine Liste von Dictionaries mit `"title"`, `"author"` und `"shelf"`. Speichert die Titel in Einräumreihenfolge in `cart`, einer Liste von Strings.
 
 <details><summary>Startcode</summary>
 
 ```python
-# returns ist geladen: eine Liste von Dicts mit "title" und "shelf".
+# returns ist geladen: eine Liste von Dicts mit "title", "author" und "shelf".
 print(returns[0])
 
 cart = []  # die Titel, in Einräumreihenfolge
@@ -51,8 +51,9 @@ cart = []  # die Titel, in Einräumreihenfolge
 **Musterlösung:**
 
 ```python
-by_title = sorted(returns, key=lambda b: b["title"], reverse=True)
-by_shelf = sorted(by_title, key=lambda b: b["shelf"])
+by_title = sorted(returns, key=lambda b: b["title"])
+by_author = sorted(by_title, key=lambda b: b["author"], reverse=True)
+by_shelf = sorted(by_author, key=lambda b: b["shelf"])
 cart = [b["title"] for b in by_shelf]
 print(cart)
 ```
@@ -60,7 +61,7 @@ print(cart)
 **Geprüftes Ergebnis** (`cart`):
 
 ```json
-["Winter Birds", "Apples of the Valley", "A Short History of Rain", "Kleeberg in Old Photographs", "Bridges", "Salt Roads", "Moss and Lichen", "Field Notes", "Paper Boats", "Northern Lights", "The Lantern Keeper", "The Clockmaker"]
+["Salt Roads", "Moss and Lichen", "Northern Lights", "Paper Boats", "Field Notes", "Kleeberg in Old Photographs", "A Short History of Rain", "Apples of the Valley", "Bridges", "Orchard Year", "The Ferryman", "Glass and Ash", "Harbour Songs", "Winter Birds", "The Clockmaker", "The Lantern Keeper", "Owls", "The Weaver's Daughter", "Quiet Hours", "The Map Room", "Bees of Kleeberg", "Night Trains", "Stone Walls", "Copper Kettles", "River Atlas", "Chalk Hills", "Small Gardens", "The Long Road", "Old Mills", "The Tin Soldier", "Lighthouses", "Mushrooms of the North", "Tidewater", "Clouds", "Morning Market", "A Year of Bread", "The Glassblower", "Wild Herbs", "Feathers", "Ice Roads"]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -70,12 +71,12 @@ print(cart)
 **Hinweise:**
 
 1. Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“.
-2. Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem zweiten Schlüssel (Titel, `reverse=True`), dann nach dem ersten (Regal).
-3. `by_title = sorted(returns, key=lambda b: b["title"], reverse=True)`, dann `sorted(by_title, key=lambda b: b["shelf"])`, dann die Titel herausziehen.
+2. Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem unwichtigsten Schlüssel (Titel), dann nach dem nächsten (Autor, `reverse=True`), dann nach dem wichtigsten (Regal). Ein einzelner Tupel-Schlüssel kann nicht nur einen von mehreren String-Schlüsseln umkehren.
+3. `by_title = sorted(returns, key=lambda b: b["title"])`, dann `by_author = sorted(by_title, key=lambda b: b["author"], reverse=True)`, dann `sorted(by_author, key=lambda b: b["shelf"])`, dann die Titel herausziehen.
 
 ### 2. Packtisch
 
-**Übt:** Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur.  
+**Übt:** Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur, und die Schlüsselwort-Parameter einer Signatur lesen und was sie ändern.  
 **Braucht:** 🔎 Etikett auf einem Archivkarton  
 **Daten:** [boxes.py](../../content/rooms/python-docs/data/boxes.py)
 
@@ -83,7 +84,9 @@ print(cart)
 
 > Auf dem Packtisch wartet ein Stapel Bücher darauf, in den Keller zu kommen, daneben ein Stapel leerer Archivkartons. Der Kelleraufzug nimmt nur vollständige Anweisungen: welche Bücher in welchen Karton kommen.
 >
-> Die Signaturen sind als `book_ids` geladen. Packe sie in Kartons und speichere die Kartons in `boxes`, einer Liste mit einem Tupel oder einer Liste von Signaturen pro Karton.
+> Die Signaturen sind als `book_ids` geladen. Schreibt eine Funktion `pack(ids)`, die die Kartons zurückgibt, pro Karton ein Tupel oder eine Liste von Signaturen, und speichert `boxes = pack(book_ids)`.
+>
+> Der Aufzug ist alt: Er kippt um, wenn er einen nicht vollen Karton trägt. `pack` muss also einen Stapel, dessen letzter Karton nicht voll ist, mit einem Fehler ablehnen, statt einen kurzen Karton zu schicken. Der Aufzug testet `pack` am Stapel von morgen, bevor er losfährt.
 
 <details><summary>Startcode</summary>
 
@@ -91,7 +94,12 @@ print(cart)
 # book_ids ist geladen: Signaturen wie "K-0412".
 print(len(book_ids), book_ids[:3])
 
-boxes = []
+
+def pack(ids):
+    ...  # gib die Kartons zurück
+
+
+boxes = pack(book_ids)
 ```
 
 </details>
@@ -101,14 +109,19 @@ boxes = []
 ```python
 from itertools import batched
 
-boxes = list(batched(sorted(book_ids), 7))
+
+def pack(ids):
+    return list(batched(sorted(ids), 7, strict=True))
+
+
+boxes = pack(book_ids)
 print(len(boxes), boxes[-1])
 ```
 
-**Geprüftes Ergebnis** (`[list(b) for b in boxes]`):
+**Geprüftes Ergebnis** (`_pack_check(pack, boxes)`):
 
 ```json
-[["K-0017", "K-0026", "K-0083", "K-0108", "K-0125", "K-0194", "K-0251"], ["K-0277", "K-0312", "K-0349", "K-0372", "K-0412", "K-0487", "K-0561"], ["K-0590", "K-0640", "K-0698", "K-0733", "K-0759", "K-0815", "K-0866"], ["K-0904", "K-0938"]]
+[["K-0013", "K-0045", "K-0075", "K-0095", "K-0105", "K-0132", "K-0152"], ["K-0220", "K-0247", "K-0277", "K-0366", "K-0381", "K-0388", "K-0466"], ["K-0490", "K-0499", "K-0582", "K-0696", "K-0699", "K-0773", "K-0777"], ["K-0782", "K-0827", "K-0867", "K-0874", "K-0892", "K-0900", "K-0930"]]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -118,12 +131,12 @@ print(len(boxes), boxes[-1])
 **Hinweise:**
 
 1. Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe.
-2. `itertools.batched(iterable, n)` liefert Tupel mit `n` Elementen; das letzte darf kürzer sein. Es gibt einen Iterator zurück, also pack es in `list(...)`. Und das Etikett will zuerst die Reihenfolge der Signaturen.
-3. `from itertools import batched` und `boxes = list(batched(sorted(book_ids), 7))`
+2. `itertools.batched(iterable, n, *, strict=False)`: Lies im Eintrag, was der Schlüsselwort-Parameter `strict` macht (neu in 3.13). `batched` arbeitet lazy, also pack es in `pack` in `list(...)`, sonst kommt der Fehler zu spät. Und das Etikett will zuerst die Reihenfolge der Signaturen.
+3. `from itertools import batched`, dann `def pack(ids): return list(batched(sorted(ids), 7, strict=True))` und `boxes = pack(book_ids)`
 
 ### 3. Mahngebühren-Buch
 
-**Übt:** Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`, `quantize`, Rundungsarten).  
+**Übt:** Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`: Zahlen aus Strings bauen, `quantize`, Rundungsarten).  
 **Braucht:** 🔎 Gebührenordnung  
 **Daten:** [fees.py](../../content/rooms/python-docs/data/fees.py)
 
@@ -131,7 +144,9 @@ print(len(boxes), boxes[-1])
 
 > Das Mahngebühren-Buch ging nie auf: Margaretes Gebührenskript lag immer ein paar Cent daneben. Eine Bleistiftnotiz am Rand: „Warum mein Skript falsch ist, steht unter `round()` bei den eingebauten Funktionen. Folgt der Doku von dort aus.“
 >
-> Das Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechne jede Gebühr auf den Cent genau und speichere die Summe in `total`.
+> Das Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechnet jede Gebühr auf den Cent genau. Speichert die Gebühren in `fees`, eine pro Buch in der Reihenfolge des Buchs, und ihre Summe in `total`.
+>
+> Das Gebührenbuch nimmt nur exakte Dezimalzahlen auf den Cent genau, wie 0.50, niemals Floats.
 
 <details><summary>Startcode</summary>
 
@@ -139,11 +154,12 @@ print(len(boxes), boxes[-1])
 # Margaretes Gebührenskript. ledger ist geladen: Paare (Titel, Tage überfällig).
 RATE = 0.0  # Euro pro Tag
 
-total = 0
+fees = []
 for title, days in ledger:
     fee = round(days * RATE, 2)
-    total += fee
-print(total)
+    fees.append(fee)
+total = sum(fees)
+print(fees, total)
 ```
 
 </details>
@@ -155,17 +171,17 @@ from decimal import Decimal, ROUND_HALF_UP
 
 RATE = Decimal("0.045")  # 4.5 cents per day
 
-total = 0
+fees = []
 for title, days in ledger:
-    fee = (days * RATE).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    total += fee
-print(total)
+    fees.append((days * RATE).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+total = sum(fees)
+print(fees, total)
 ```
 
-**Geprüftes Ergebnis** (`str(total)`):
+**Geprüftes Ergebnis** (`[type(total).__name__, str(total), [(type(f).__name__, str(f)) for f in fees]]`):
 
 ```json
-"6.30"
+["Decimal", "6.30", [["Decimal", "0.05"], ["Decimal", "0.14"], ["Decimal", "0.32"], ["Decimal", "0.41"], ["Decimal", "0.50"], ["Decimal", "0.63"], ["Decimal", "0.68"], ["Decimal", "0.95"], ["Decimal", "1.13"], ["Decimal", "1.49"]]]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -176,7 +192,7 @@ print(total)
 
 1. Die Gebührenordnung der Bibliothek nennt den Satz und wie gerundet wird. Unter `round()` sagt die Doku zwei Dinge: Gleichstände werden zur geraden Zahl gerundet, und ein Float wie `2.675` lässt sich nicht exakt speichern. Der Hinweis dort nennt das Modul für exaktes Rechnen mit Dezimalzahlen.
 2. Auf der Seite zu `decimal`: Zahlen aus Strings bauen, `Decimal("0.045")`, nicht aus Floats; jede Gebühr mit `.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)` runden.
-3. `from decimal import Decimal, ROUND_HALF_UP`, dann in der Schleife `fee = (days * Decimal("0.045")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)`.
+3. `from decimal import Decimal, ROUND_HALF_UP`, dann `fees = []` und in der Schleife `fees.append((days * Decimal("0.045")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))`, und `total = sum(fees)`.
 
 ### 4. Das alte Terminal
 
@@ -284,10 +300,11 @@ print(stamps)
 *Gebraucht von: 1. Rückgabewagen*
 
 > Einräumreihenfolge:
-> Regale von A bis Z,
-> innerhalb eines Regals Titel von Z bis A. (Fragt nicht.)
+> Regale von A bis Z;
+> innerhalb eines Regals Autoren von Z bis A;
+> innerhalb eines Autors Titel von A bis Z. (Fragt nicht.)
 >
-> Das Sortier-HOWTO in der Python-Doku zeigt, wie das mit zwei Sortierungen geht. Lest den Teil über Stabilität. Welche Sortierung zuerst kommt, steht dort auch. — M. H.
+> Das Sortier-HOWTO in der Python-Doku zeigt, wie das mit mehreren Sortierungen geht. Lest den Teil über Stabilität. Welche Sortierung zuerst kommt, steht dort auch. — M. H.
 
 ### 🔎 Etikett auf einem Archivkarton
 

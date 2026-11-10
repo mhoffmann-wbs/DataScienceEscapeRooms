@@ -34,23 +34,23 @@
         "de": "Rückgabewagen"
       },
       "text": {
-        "en": "A cart full of returned books stands by the shelves, its brake locked until the books are in Margarete's shelving order.\n\nThe books are loaded as `returns`, a list of dictionaries with `\"title\"` and `\"shelf\"`. Store the titles in shelving order in `cart`, a list of strings.",
-        "de": "Ein Wagen voller zurückgegebener Bücher steht bei den Regalen, seine Bremse bleibt fest, bis die Bücher in Margaretes Einräumreihenfolge liegen.\n\nDie Bücher sind als `returns` geladen, eine Liste von Dictionaries mit `\"title\"` und `\"shelf\"`. Speichere die Titel in Einräumreihenfolge in `cart`, einer Liste von Strings."
+        "en": "A cart full of returned books stands by the shelves, its brake locked until the books are in Margarete's shelving order.\n\nThe books are loaded as `returns`, a list of dictionaries with `\"title\"`, `\"author\"` and `\"shelf\"`. Store the titles in shelving order in `cart`, a list of strings.",
+        "de": "Ein Wagen voller zurückgegebener Bücher steht bei den Regalen, seine Bremse bleibt fest, bis die Bücher in Margaretes Einräumreihenfolge liegen.\n\nDie Bücher sind als `returns` geladen, eine Liste von Dictionaries mit `\"title\"`, `\"author\"` und `\"shelf\"`. Speichert die Titel in Einräumreihenfolge in `cart`, einer Liste von Strings."
       },
       "workspace": "python",
       "starter": {
-        "en": "# returns is loaded: a list of dicts with \"title\" and \"shelf\".\nprint(returns[0])\n\ncart = []  # the titles, in shelving order\n",
-        "de": "# returns ist geladen: eine Liste von Dicts mit \"title\" und \"shelf\".\nprint(returns[0])\n\ncart = []  # die Titel, in Einräumreihenfolge\n"
+        "en": "# returns is loaded: a list of dicts with \"title\", \"author\" and \"shelf\".\nprint(returns[0])\n\ncart = []  # the titles, in shelving order\n",
+        "de": "# returns ist geladen: eine Liste von Dicts mit \"title\", \"author\" und \"shelf\".\nprint(returns[0])\n\ncart = []  # die Titel, in Einräumreihenfolge\n"
       },
       "data": "cart.py",
       "check": {
         "type": "python",
         "expr": "cart",
-        "hash": "3ade8cb7f55bf35631d4bc30f1c1afae567cc5efea5c331500f326ecf19d5176"
+        "hash": "a9d708e047ca837e91996d1a5b722ec667f60742ba61b1efc8b0a043050f0f60"
       },
       "practises": {
-        "en": "Reading a HOWTO: Python's sort is stable, so a sort on two keys in opposite directions is two sorts, the secondary key first.",
-        "de": "Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach zwei Schlüsseln in entgegengesetzten Richtungen zu zwei Sortierungen, der zweite Schlüssel zuerst."
+        "en": "Reading a HOWTO: Python's sort is stable, so a sort on several keys in different directions is several sorts, the least important key first.",
+        "de": "Ein HOWTO lesen: Pythons Sortierung ist stabil, also wird eine Sortierung nach mehreren Schlüsseln in verschiedenen Richtungen zu mehreren Sortierungen, der unwichtigste Schlüssel zuerst."
       },
       "clues": [
         "cart-note"
@@ -61,12 +61,12 @@
           "de": "Margaretes Zettel am Wagen nennt die Einräumreihenfolge. Die HOWTOs sind auf der Startseite der Doku und im Handbuch verlinkt. Lies in „Sorting Techniques“ den Abschnitt „Sort Stability and Complex Sorts“."
         },
         {
-          "en": "Sorts are stable: records with the same key keep their order. So sort by the secondary key first (title, `reverse=True`), then by the primary key (shelf).",
-          "de": "Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem zweiten Schlüssel (Titel, `reverse=True`), dann nach dem ersten (Regal)."
+          "en": "Sorts are stable: records with the same key keep their order. So sort by the least important key first (title), then by the next one (author, `reverse=True`), then by the most important (shelf). A single tuple key can't reverse just one of several string keys.",
+          "de": "Sortierungen sind stabil: Einträge mit gleichem Schlüssel behalten ihre Reihenfolge. Sortiere also zuerst nach dem unwichtigsten Schlüssel (Titel), dann nach dem nächsten (Autor, `reverse=True`), dann nach dem wichtigsten (Regal). Ein einzelner Tupel-Schlüssel kann nicht nur einen von mehreren String-Schlüsseln umkehren."
         },
         {
-          "en": "`by_title = sorted(returns, key=lambda b: b[\"title\"], reverse=True)`, then `sorted(by_title, key=lambda b: b[\"shelf\"])`, then take the titles.",
-          "de": "`by_title = sorted(returns, key=lambda b: b[\"title\"], reverse=True)`, dann `sorted(by_title, key=lambda b: b[\"shelf\"])`, dann die Titel herausziehen."
+          "en": "`by_title = sorted(returns, key=lambda b: b[\"title\"])`, then `by_author = sorted(by_title, key=lambda b: b[\"author\"], reverse=True)`, then `sorted(by_author, key=lambda b: b[\"shelf\"])`, then take the titles.",
+          "de": "`by_title = sorted(returns, key=lambda b: b[\"title\"])`, dann `by_author = sorted(by_title, key=lambda b: b[\"author\"], reverse=True)`, dann `sorted(by_author, key=lambda b: b[\"shelf\"])`, dann die Titel herausziehen."
         }
       ],
       "reveal": {
@@ -81,23 +81,23 @@
         "de": "Packtisch"
       },
       "text": {
-        "en": "A pile of books waits on the packing table to go down to the cellar, next to a stack of empty archive boxes. The cellar lift only takes full instructions: which books go into which box.\n\nThe call numbers are loaded as `book_ids`. Pack them into boxes and store the boxes in `boxes`, a list with one tuple or list of call numbers per box.",
-        "de": "Auf dem Packtisch wartet ein Stapel Bücher darauf, in den Keller zu kommen, daneben ein Stapel leerer Archivkartons. Der Kelleraufzug nimmt nur vollständige Anweisungen: welche Bücher in welchen Karton kommen.\n\nDie Signaturen sind als `book_ids` geladen. Packe sie in Kartons und speichere die Kartons in `boxes`, einer Liste mit einem Tupel oder einer Liste von Signaturen pro Karton."
+        "en": "A pile of books waits on the packing table to go down to the cellar, next to a stack of empty archive boxes. The cellar lift only takes full instructions: which books go into which box.\n\nThe call numbers are loaded as `book_ids`. Write a function `pack(ids)` that returns the boxes, one tuple or list of call numbers per box, and store `boxes = pack(book_ids)`.\n\nThe lift is old: it tips over if it carries a part-full box. So `pack` must refuse a pile whose last box isn't full, with an error, instead of sending a short box. The lift tests `pack` on tomorrow's pile before it moves.",
+        "de": "Auf dem Packtisch wartet ein Stapel Bücher darauf, in den Keller zu kommen, daneben ein Stapel leerer Archivkartons. Der Kelleraufzug nimmt nur vollständige Anweisungen: welche Bücher in welchen Karton kommen.\n\nDie Signaturen sind als `book_ids` geladen. Schreibt eine Funktion `pack(ids)`, die die Kartons zurückgibt, pro Karton ein Tupel oder eine Liste von Signaturen, und speichert `boxes = pack(book_ids)`.\n\nDer Aufzug ist alt: Er kippt um, wenn er einen nicht vollen Karton trägt. `pack` muss also einen Stapel, dessen letzter Karton nicht voll ist, mit einem Fehler ablehnen, statt einen kurzen Karton zu schicken. Der Aufzug testet `pack` am Stapel von morgen, bevor er losfährt."
       },
       "workspace": "python",
       "starter": {
-        "en": "# book_ids is loaded: call numbers like \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\nboxes = []\n",
-        "de": "# book_ids ist geladen: Signaturen wie \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\nboxes = []\n"
+        "en": "# book_ids is loaded: call numbers like \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\n\ndef pack(ids):\n    ...  # return the boxes\n\n\nboxes = pack(book_ids)\n",
+        "de": "# book_ids ist geladen: Signaturen wie \"K-0412\".\nprint(len(book_ids), book_ids[:3])\n\n\ndef pack(ids):\n    ...  # gib die Kartons zurück\n\n\nboxes = pack(book_ids)\n"
       },
       "data": "boxes.py",
       "check": {
         "type": "python",
-        "expr": "[list(b) for b in boxes]",
-        "hash": "496c718f74ae26828db848231ee0ed3e4a65ee7427e9ccb5c5bb7e6c54c54346"
+        "expr": "_pack_check(pack, boxes)",
+        "hash": "b044b20c4c26098f7e8548b6168211e0fd016a5a76964e2d7b59c9b72d6eb328"
       },
       "practises": {
-        "en": "Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters.",
-        "de": "Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur."
+        "en": "Finding a function from a description: the module index, the overview at the top of a module's page, a signature's parameters, and reading a signature's keyword-only parameters and what they change.",
+        "de": "Eine Funktion nach ihrer Beschreibung finden: der Modulindex, die Übersicht oben auf der Seite eines Moduls, die Parameter einer Signatur, und die Schlüsselwort-Parameter einer Signatur lesen und was sie ändern."
       },
       "clues": [
         "box-label"
@@ -108,12 +108,12 @@
           "de": "Das Etikett auf den Archivkartons sagt, wie gepackt wird. Öffne `itertools` über den Modulindex. Die Tabellen oben auf der Seite nennen jede Funktion mit einer Beschreibung in einer Zeile; eine davon bildet Gruppen fester Größe."
         },
         {
-          "en": "`itertools.batched(iterable, n)` gives tuples of `n` items; the last one may be shorter. It returns an iterator, so wrap it in `list(...)`. And the label wants call-number order first.",
-          "de": "`itertools.batched(iterable, n)` liefert Tupel mit `n` Elementen; das letzte darf kürzer sein. Es gibt einen Iterator zurück, also pack es in `list(...)`. Und das Etikett will zuerst die Reihenfolge der Signaturen."
+          "en": "`itertools.batched(iterable, n, *, strict=False)`: read what the keyword-only `strict` does on its entry (it was added in 3.13). `batched` is lazy, so wrap it in `list(...)` inside `pack`, or the error comes up too late. And the label wants call-number order first.",
+          "de": "`itertools.batched(iterable, n, *, strict=False)`: Lies im Eintrag, was der Schlüsselwort-Parameter `strict` macht (neu in 3.13). `batched` arbeitet lazy, also pack es in `pack` in `list(...)`, sonst kommt der Fehler zu spät. Und das Etikett will zuerst die Reihenfolge der Signaturen."
         },
         {
-          "en": "`from itertools import batched` and `boxes = list(batched(sorted(book_ids), 7))`",
-          "de": "`from itertools import batched` und `boxes = list(batched(sorted(book_ids), 7))`"
+          "en": "`from itertools import batched`, then\n`def pack(ids):\n    return list(batched(sorted(ids), 7, strict=True))`\nand `boxes = pack(book_ids)`",
+          "de": "`from itertools import batched`, dann\n`def pack(ids):\n    return list(batched(sorted(ids), 7, strict=True))`\nund `boxes = pack(book_ids)`"
         }
       ],
       "reveal": {
@@ -128,23 +128,23 @@
         "de": "Mahngebühren-Buch"
       },
       "text": {
-        "en": "The late-fees ledger never balanced: Margarete's fee script always came out a few cents off. A pencil note in the margin: \"Why my script is wrong is written under `round()` in the built-in functions. Follow the docs from there.\"\n\nThe ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee to the cent and store the sum in `total`.",
-        "de": "Das Mahngebühren-Buch ging nie auf: Margaretes Gebührenskript lag immer ein paar Cent daneben. Eine Bleistiftnotiz am Rand: „Warum mein Skript falsch ist, steht unter `round()` bei den eingebauten Funktionen. Folgt der Doku von dort aus.“\n\nDas Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechne jede Gebühr auf den Cent genau und speichere die Summe in `total`."
+        "en": "The late-fees ledger never balanced: Margarete's fee script always came out a few cents off. A pencil note in the margin: \"Why my script is wrong is written under `round()` in the built-in functions. Follow the docs from there.\"\n\nThe ledger is loaded as `ledger`, a list of `(title, days overdue)` pairs. Work out every book's fee to the cent. Store the fees in `fees`, one per book in ledger order, and their sum in `total`.\n\nThe ledger book only takes exact decimal numbers to the cent, like 0.50, never floats.",
+        "de": "Das Mahngebühren-Buch ging nie auf: Margaretes Gebührenskript lag immer ein paar Cent daneben. Eine Bleistiftnotiz am Rand: „Warum mein Skript falsch ist, steht unter `round()` bei den eingebauten Funktionen. Folgt der Doku von dort aus.“\n\nDas Buch ist als `ledger` geladen, eine Liste von Paaren `(Titel, Tage überfällig)`. Berechnet jede Gebühr auf den Cent genau. Speichert die Gebühren in `fees`, eine pro Buch in der Reihenfolge des Buchs, und ihre Summe in `total`.\n\nDas Gebührenbuch nimmt nur exakte Dezimalzahlen auf den Cent genau, wie 0.50, niemals Floats."
       },
       "workspace": "python",
       "starter": {
-        "en": "# Margarete's fee script. ledger is loaded: (title, days overdue) pairs.\nRATE = 0.0  # euros per day\n\ntotal = 0\nfor title, days in ledger:\n    fee = round(days * RATE, 2)\n    total += fee\nprint(total)\n",
-        "de": "# Margaretes Gebührenskript. ledger ist geladen: Paare (Titel, Tage überfällig).\nRATE = 0.0  # Euro pro Tag\n\ntotal = 0\nfor title, days in ledger:\n    fee = round(days * RATE, 2)\n    total += fee\nprint(total)\n"
+        "en": "# Margarete's fee script. ledger is loaded: (title, days overdue) pairs.\nRATE = 0.0  # euros per day\n\nfees = []\nfor title, days in ledger:\n    fee = round(days * RATE, 2)\n    fees.append(fee)\ntotal = sum(fees)\nprint(fees, total)\n",
+        "de": "# Margaretes Gebührenskript. ledger ist geladen: Paare (Titel, Tage überfällig).\nRATE = 0.0  # Euro pro Tag\n\nfees = []\nfor title, days in ledger:\n    fee = round(days * RATE, 2)\n    fees.append(fee)\ntotal = sum(fees)\nprint(fees, total)\n"
       },
       "data": "fees.py",
       "check": {
         "type": "python",
-        "expr": "str(total)",
-        "hash": "36841db671eb96f12710fafc0dd513dddbe1981b77c9146162e0c46635130217"
+        "expr": "[type(total).__name__, str(total), [(type(f).__name__, str(f)) for f in fees]]",
+        "hash": "bfc74ac64885f315724eea50d0b06450958a278782b7b4ceee864da45100652a"
       },
       "practises": {
-        "en": "Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`, `quantize`, rounding modes).",
-        "de": "Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`, `quantize`, Rundungsarten)."
+        "en": "Reading the notes under a function (`round()` rounds ties to even, floats aren't exact) and following the docs to another module (`decimal`: building numbers from strings, `quantize`, rounding modes).",
+        "de": "Die Hinweise unter einer Funktion lesen (`round()` rundet Gleichstände zur geraden Zahl, Floats sind nicht exakt) und der Doku zu einem anderen Modul folgen (`decimal`: Zahlen aus Strings bauen, `quantize`, Rundungsarten)."
       },
       "clues": [
         "fee-rules"
@@ -159,8 +159,8 @@
           "de": "Auf der Seite zu `decimal`: Zahlen aus Strings bauen, `Decimal(\"0.045\")`, nicht aus Floats; jede Gebühr mit `.quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)` runden."
         },
         {
-          "en": "`from decimal import Decimal, ROUND_HALF_UP`, then in the loop `fee = (days * Decimal(\"0.045\")).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)`.",
-          "de": "`from decimal import Decimal, ROUND_HALF_UP`, dann in der Schleife `fee = (days * Decimal(\"0.045\")).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)`."
+          "en": "`from decimal import Decimal, ROUND_HALF_UP`, then `fees = []` and in the loop `fees.append((days * Decimal(\"0.045\")).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP))`, and `total = sum(fees)`.",
+          "de": "`from decimal import Decimal, ROUND_HALF_UP`, dann `fees = []` und in der Schleife `fees.append((days * Decimal(\"0.045\")).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP))`, und `total = sum(fees)`."
         }
       ],
       "reveal": {
@@ -320,8 +320,8 @@
         "de": "Zettel am Rückgabewagen"
       },
       "text": {
-        "en": "Shelving order:\nshelves from A to Z,\nand within a shelf, titles from Z to A. (Don't ask.)\n\nThe sorting HOWTO in the Python docs shows how to do it with two sorts. Read the part about stability. Which sort comes first is written there too. — M. H.",
-        "de": "Einräumreihenfolge:\nRegale von A bis Z,\ninnerhalb eines Regals Titel von Z bis A. (Fragt nicht.)\n\nDas Sortier-HOWTO in der Python-Doku zeigt, wie das mit zwei Sortierungen geht. Lest den Teil über Stabilität. Welche Sortierung zuerst kommt, steht dort auch. — M. H."
+        "en": "Shelving order:\nshelves from A to Z;\nwithin a shelf, authors from Z to A;\nwithin an author, titles from A to Z. (Don't ask.)\n\nThe sorting HOWTO in the Python docs shows how to do it with several sorts. Read the part about stability. Which sort comes first is written there too. — M. H.",
+        "de": "Einräumreihenfolge:\nRegale von A bis Z;\ninnerhalb eines Regals Autoren von Z bis A;\ninnerhalb eines Autors Titel von A bis Z. (Fragt nicht.)\n\nDas Sortier-HOWTO in der Python-Doku zeigt, wie das mit mehreren Sortierungen geht. Lest den Teil über Stabilität. Welche Sortierung zuerst kommt, steht dort auch. — M. H."
       }
     },
     {

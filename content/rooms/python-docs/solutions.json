@@ -1,7 +1,7 @@
 {
-  "cart": "by_title = sorted(returns, key=lambda b: b[\"title\"], reverse=True)\nby_shelf = sorted(by_title, key=lambda b: b[\"shelf\"])\ncart = [b[\"title\"] for b in by_shelf]\nprint(cart)\n",
-  "boxes": "from itertools import batched\n\nboxes = list(batched(sorted(book_ids), 7))\nprint(len(boxes), boxes[-1])\n",
-  "fees": "from decimal import Decimal, ROUND_HALF_UP\n\nRATE = Decimal(\"0.045\")  # 4.5 cents per day\n\ntotal = 0\nfor title, days in ledger:\n    fee = (days * RATE).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)\n    total += fee\nprint(total)\n",
+  "cart": "by_title = sorted(returns, key=lambda b: b[\"title\"])\nby_author = sorted(by_title, key=lambda b: b[\"author\"], reverse=True)\nby_shelf = sorted(by_author, key=lambda b: b[\"shelf\"])\ncart = [b[\"title\"] for b in by_shelf]\nprint(cart)\n",
+  "boxes": "from itertools import batched\n\n\ndef pack(ids):\n    return list(batched(sorted(ids), 7, strict=True))\n\n\nboxes = pack(book_ids)\nprint(len(boxes), boxes[-1])\n",
+  "fees": "from decimal import Decimal, ROUND_HALF_UP\n\nRATE = Decimal(\"0.045\")  # 4.5 cents per day\n\nfees = []\nfor title, days in ledger:\n    fees.append((days * RATE).quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP))\ntotal = sum(fees)\nprint(fees, total)\n",
   "terminal": "91012",
   "stamps": "from datetime import date\n\nstamps = []\nfor text in returned:\n    day = date.fromisoformat(text)\n    stamps.append(day.strftime(\"%G-W%V-%u\"))\nprint(stamps)\n",
   "stamps#lock": "5318",
