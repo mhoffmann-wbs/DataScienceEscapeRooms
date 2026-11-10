@@ -50,9 +50,9 @@ flowchart LR
   handheld ==>|"📤 no-show cards C2-23, C5-52"| till
 
   speed ==>|"🔒 code 214 = km of the brake halt"| radio
-  cards ==>|"📤 C5-52 walked into car 3 at 01:46"| radio
+  cards ==>|"📤 C5-52 and C5-55 both walked towards car 3"| radio
   till ==>|"📤 C5-52 paid by Ines Hartmann"| radio
-  handheld -.->|"📤 Paul Brenner never boarded"| radio
+  handheld ==>|"📤 only C5-52 is a no-show card; Leonie Sauer (C5-55) boarded"| radio
   doors -.->|"📤 car 3, 01:53"| radio
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
@@ -74,13 +74,13 @@ flowchart LR
 | `-->` solid | A clue or data file the station can't be solved without |
 | `-.->` dotted | Context only: the value is also in the task text or the data, or it only helps to judge a result that isn't checked |
 
-All six stations load the same `train.sql`, so the room has one data node; the edges name the tables each station needs. The room has no `requires`: the radio is behind a code lock, and the card reader server and the till need results from the door panel and the handheld (`uses`).
+All six stations load the same `train.sql`, so the room has one data node; the edges name the tables each station needs. The room has no `requires`: the radio is behind a code lock, and the card reader server, the till and the radio need results from the door panel and the handheld (`uses`).
 
 ## Phases
 
 - **Start:** 3 stations at once (handheld, speed recorder, door panel), each about 4–6 minutes. Enough for a team of 3; in a team of 4–5 the others read the clues and the handbook, which matters more here than in the beginner rooms (window functions are new to most).
 - **Second wave:** the card reader server needs the door time (01:53), the till needs the two no-show cards. Both open as soon as the door panel and the handheld are solved, so the room stays about 3 wide, then 2.
-- **Final:** the radio opens with 214 (speed recorder + driver's log), then needs a name that only cards + till give together.
+- **Final:** the radio opens with 214 (speed recorder + driver's log), then needs a name that only cards + handheld + till give together.
 
 ## Chains
 
@@ -90,7 +90,7 @@ All six stations load the same `train.sql`, so the room has one data node; the e
 
 ## Hand-offs
 
-- Between stations: 7 edges, 5 hard (door time, no-show cards, lock code, C5-52 into car 3, C5-52's payer) and 2 soft (Brenner never boarded, which rules out the booked name; car 3 at 01:53).
+- Between stations: 8 edges, 7 hard (door time, no-show cards, lock code, the two walkers, the no-show list for the radio, C5-52's payer) and 1 soft (car 3 at 01:53).
 - From clues: 8 clue edges from 6 clues, 2 of them hard (the door sign's release rule, the driver's log that tells the brake halt from the red signal).
 
 ## Where things are
@@ -104,6 +104,12 @@ The room is three carriages side by side, joined by gangways over the track: the
 
 ## Findings
 
+Fixed in the shortcut review (what a team could skip, and what changed):
+
+- **The final needed only the card reader server and the till's table.** The last tap into car 3 was C5-52 alone, so `SELECT payer FROM orders WHERE card = 'C5-52'` gave Ines Hartmann and the handheld and the till were never needed. Now a second booked, boarded passenger (Leonie Sauer, `C5-55`) also falls silent at gangway 3|4 at 01:41, with a tab paid by her brother Jonas Sauer, who has no booking. The radio asks for the one who left with him from a compartment that should have stayed empty, so the handheld's no-show list is needed to drop Leonie, and the till's payer names Ines.
+- **The door time could be guessed from the speed recorder.** The halt at 01:52 plus the driver's log (alarm from car 3) gave a window 01:22 to 01:52 that passed the card reader check. Ben Okoro (`C1-15`) now has a last tap at 01:22, so that window returns an extra row and only the door panel's 01:53 passes.
+- Tested and fine: the handheld's anti-join variants, the speed recorder's `kmh = 0` without LAG (lists 17 rows, fails), the till without the no-show filter or without the SUM per payer (fails), the lock code from the route map (five posts between Felsach and Marienhall, needs the speed recorder to choose).
+
 Checked in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station), nothing to change:
 
 - **No task, starter or reveal points at a clue.** Where to look is only in the hints (the sign by the door panel, the door control panel's time, the conductor's handheld for the till).
@@ -114,7 +120,7 @@ Earlier findings:
 
 - **The handheld and the till have no hard clue.** The handheld's rule ("never scanned = never boarded") is in the task text too; the till only needs the handheld's result. For an advanced room the SQL carries these stations, which seems right, but a playtest should show whether the conductor's note gets read at all.
 - **The attendant's report is soft:** it explains why a gangway tap means walking into the next car, which a team needs to read the card reader result, but the check passes without it.
-- **The trap in the final:** `C5-52` belongs to Paul Brenner's booking, so a team that skips the handheld or the till will likely answer "Paul Brenner". The handheld says he never boarded; the till names Ines Hartmann.
+- **The trap in the final:** `C5-52` belongs to Paul Brenner's booking, so a team that skips the till will likely answer "Paul Brenner". The handheld says he never boarded; the till names Ines Hartmann.
 - **The lock can't be guessed from the clues alone:** the route map lists five kilometre posts between Felsach and Marienhall, so 214 needs the speed recorder.
 - **Every station shares one database**, so the card reader server could re-derive 01:53 by repeating the door query, and the till could redo the anti-join; the hand-offs save work rather than make it impossible. The till's hint suggests reusing the handheld's query as a CTE on purpose.
 - **The newspaper is flavour** (Weber's motive), by design.

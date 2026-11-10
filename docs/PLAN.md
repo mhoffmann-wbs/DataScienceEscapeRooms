@@ -234,9 +234,9 @@ Behind the 🗄️ door, after The Blue Index, which it builds on: subqueries, C
 1. **Conductor's handheld** (`LEFT JOIN … IS NULL`; open): two tickets never scanned: Hanna Vogt (`C2-23`), Paul Brenner (`C5-52`). An inner `JOIN` returns nothing.
 2. **Speed recorder** (`LAG` through a CTE; open): halts since Kleeberg at km 88.0, 131.4, 176.2, 214.3. `kmh = 0` gives every standing row; `kmh < 10` catches the building site's 6 km/h.
 3. **Door control panel** (`NOT EXISTS`, correlated scalar subquery; open): door 3B opened at 01:53 and closed at 01:55, after Felsach. The door sign gives the release rule.
-4. **Card reader server** (`ROW_NUMBER` per card; uses 3): cards last tapped 01:23–01:53: `C4-45` (own door, asleep), `C5-52` (gangway into car 3, 01:46), `C3-34` (Weber). Night owls tap inside the window but again later, so a plain time filter is wrong.
+4. **Card reader server** (`ROW_NUMBER` per card; uses 3): cards last tapped 01:23–01:53: `C4-45` (own door, asleep), `C5-55` (Leonie Sauer, boarded, gangway 3|4 at 01:41), `C5-52` (gangway 3|4, 01:46), `C3-34` (Weber). A last tap at 01:22 (`C1-15`) breaks a window guessed from the 01:52 halt. Night owls tap inside the window but again later, so a plain time filter is wrong.
 5. **Dining car till** (CTE in `IN`, `GROUP BY` + `SUM`; uses 1): the no-show cards' tabs: Bernd Kessler €11.40 (`C2-23`, a fare dodger still on board), Ines Hartmann €14.10 and Konstantin Weber €7.20 (`C5-52`).
-6. **Train radio** (final; lock 214 from 2 + driver's log, which explains the km 131 halt as a red signal): who left with Weber? Ines Hartmann. Trap: `C5-52` is booked for Paul Brenner.
+6. **Train radio** (final; lock 214 from 2 + driver's log, which explains the km 131 halt as a red signal): who left with Weber from a compartment that should have stayed empty? Ines Hartmann. Needs 4 (two walkers), 1 (only `C5-52` is a no-show, not `C5-55`) and 5 (the payer). Trap: `C5-52` is booked for Paul Brenner.
 
 **Handbook:** "The onboard computer's binder": `LEFT JOIN`, `IS NULL`, `IN`/`EXISTS`, scalar and correlated subqueries, `WITH`, `OVER`, `PARTITION BY`, `LAG`/`LEAD`, `ROW_NUMBER`, why window functions can't go in `WHERE`, `SUM`, text times across midnight. Assumes the Blue Index's basics.
 

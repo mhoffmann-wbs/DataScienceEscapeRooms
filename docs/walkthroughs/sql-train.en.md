@@ -17,7 +17,7 @@
 | 3 | The door control panel | `NOT EXISTS` and a correlated scalar subquery | 🔎 A sign by the door panel |
 | 4 | The card reader server | `ROW_NUMBER() OVER (PARTITION BY … ORDER BY …)`: the latest row of every group | 3. The door control panel (its result), 🔎 The attendant's report |
 | 5 | The dining car till | A CTE reused in a subquery (`IN (SELECT …)`), `GROUP BY` over two columns with `SUM` | 1. The conductor's handheld (its result) |
-| 6 | The train radio (Final lock) | Combining the results of several queries | 2. The speed recorder (its result), 4. The card reader server (its result), 5. The dining car till (its result), 🔒 2. The speed recorder, 🔎 The driver's log |
+| 6 | The train radio (Final lock) | Combining the results of several queries | 2. The speed recorder (its result), 4. The card reader server (its result), 5. The dining car till (its result), 1. The conductor's handheld (its result), 🔒 2. The speed recorder, 🔎 The driver's log |
 
 **Final code:** `Ines Hartmann`
 
@@ -222,12 +222,12 @@ ORDER BY time;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["C4-45","2026-11-14 01:31","door 45"],["C5-52","2026-11-14 01:46","gangway 3|4"],["C3-34","2026-11-14 01:49","door 34"]]
+[["C4-45","2026-11-14 01:31","door 45"],["C5-55","2026-11-14 01:41","gangway 3|4"],["C5-52","2026-11-14 01:46","gangway 3|4"],["C3-34","2026-11-14 01:49","door 34"]]
 ```
 
 **Reveals when solved:**
 
-> Three cards fall silent shortly before the door opened: `C4-45` at its own compartment door at 01:31, `C5-52` at the gangway into car 3 at 01:46, and Weber's `C3-34` at his compartment door at 01:49.
+> Four cards fall silent shortly before the door opened: `C4-45` at its own compartment door at 01:31, `C5-55` at the gangway between cars 3 and 4 at 01:41, `C5-52` at the same gangway at 01:46, and Weber's `C3-34` at his compartment door at 01:49.
 
 **Hints:**
 
@@ -292,7 +292,7 @@ GROUP BY card, payer;
 ### 6. The train radio (Final lock)
 
 **Practises:** Combining the results of several queries  
-**Needs:** 2. The speed recorder (its result), 4. The card reader server (its result), 5. The dining car till (its result), 🔒 2. The speed recorder, 🔎 The driver's log  
+**Needs:** 2. The speed recorder (its result), 4. The card reader server (its result), 5. The dining car till (its result), 1. The conductor's handheld (its result), 🔒 2. The speed recorder, 🔎 The driver's log  
 **Data:** [train.sql](../../content/rooms/sql-train/data/train.sql)
 
 **Code lock** (opens with `214`):
@@ -303,7 +303,7 @@ GROUP BY card, payer;
 
 > The federal police at Marienhall answer. They are sending a patrol to the level crossing at kilometre 214 at once.
 >
-> One more question before the train arrives: Konstantin Weber did not leave the train alone. Who left with him? Give the full name.
+> One more question before the train arrives: Konstantin Weber did not leave the train alone. The police want the name of the one who left with him and was travelling in a compartment that should have stayed empty. Give the full name.
 >
 > You can still query the database here.
 
@@ -331,20 +331,27 @@ gone AS (
   FROM ranked
   WHERE rn = 1
     AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53'
+),
+no_shows AS (
+  SELECT p.card
+  FROM passengers AS p
+  LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id
+  WHERE s.scan_id IS NULL
 )
 SELECT DISTINCT o.card, o.payer
 FROM orders AS o
-JOIN gone AS g ON g.card = o.card
-WHERE o.payer NOT IN (SELECT name FROM passengers);
+WHERE o.card IN (SELECT card FROM gone)
+  AND o.card IN (SELECT card FROM no_shows)
+  AND o.payer NOT IN (SELECT name FROM passengers);
 ```
 
 **Answer:** `Ines Hartmann`
 
 **Hints:**
 
-1. Besides Weber's own card, two cards fell silent just before the door in car 3 opened (card reader server). One went to bed at its own compartment door; the other walked into car 3.
-2. The card that crossed into car 3 is `C5-52`. It belongs to Paul Brenner's booking, but Brenner never boarded (conductor's handheld). The dining car till says who really used compartment 52.
-3. Compartment 52's tab was paid by Ines Hartmann, who has no booking, and Weber bought hot chocolate on it. Her card crossed into car 3 at 01:46, and she left with him through door 3B.
+1. Besides Weber's own card, three cards fell silent just before the door in car 3 opened (card reader server). One went to bed at its own compartment door; two walked towards car 3.
+2. Only one of those two cards belongs to a compartment that should have stayed empty: the conductor's handheld lists the passengers who never boarded. The other belongs to a passenger who is on board.
+3. The card is `C5-52`, Paul Brenner's booking, but Brenner never boarded. The dining car till says who paid for compartment 52: Ines Hartmann, who has no booking (Weber bought hot chocolate on it too). She crossed into car 3 at 01:46 and left with him through door 3B.
 
 ## Clues in the room
 

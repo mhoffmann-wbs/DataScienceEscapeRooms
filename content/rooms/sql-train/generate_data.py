@@ -203,7 +203,13 @@ def tap_rows():
         (minutes("02:05"), "C3-33", 3, "door 33"),
         (minutes("01:27"), "C1-14", 1, "washroom 1"),
         (minutes("02:31"), "C1-14", 1, "washroom 1"),
+        # Ben Okoro's last tap is at 01:22, one minute before the half hour that ends at the door.
+        (minutes("01:22"), "C1-15", 1, "washroom 1"),
     ]
+    # Leonie Sauer, compartment 55, booked and on board: she walks towards car 3 as well,
+    # and falls silent at the gangway. Only the conductor's list rules her out.
+    taps.append((minutes("01:39"), "C5-55", 5, "gangway 4|5"))
+    taps.append((minutes("01:41"), "C5-55", 4, "gangway 3|4"))
     # Konstantin Weber, compartment 34.
     taps.append((minutes("21:22"), "C3-34", 3, "door 34"))
     t = walk(taps, "C3-34", "22:12", 3, 6)
@@ -251,7 +257,7 @@ def tap_rows():
     for t, cid, _, _ in taps:
         last[cid] = max(last.get(cid, 0), t)
     quiet = [cid for cid, t in last.items() if minutes("01:10") <= t <= minutes("02:00")]
-    assert sorted(quiet) == ["C3-34", "C4-45", "C5-52"], quiet
+    assert sorted(quiet) == ["C1-15", "C3-34", "C4-45", "C5-52", "C5-55"], quiet
     taps.sort()
     return [(i + 1, ts(hhmm(t)), cid, car, reader) for i, (t, cid, car, reader) in enumerate(taps)]
 
@@ -271,6 +277,11 @@ def order_rows():
             rows.append((ts(hhmm(rng.randint(minutes("21:50"), minutes("00:25")))), card(c, comp), item, price, name))
     # Johanna pays for Kwame's beer.
     rows.append((ts("22:47"), "C2-22", "beer", 4.50, "Johanna Beck"))
+    # Leonie Sauer's tab in compartment 55 is paid by her brother, who is not on the train.
+    rows += [
+        (ts("22:58"), "C5-55", "beer", 4.50, "Jonas Sauer"),
+        (ts("23:20"), "C5-55", "pretzel", 2.40, "Jonas Sauer"),
+    ]
     # Compartment 52.
     rows += [
         (ts("22:24"), "C5-52", "goulash soup", 7.90, "Ines Hartmann"),

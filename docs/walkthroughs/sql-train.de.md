@@ -17,7 +17,7 @@
 | 3 | Die Türsteuerung | `NOT EXISTS` und eine korrelierte skalare Unterabfrage | 🔎 Ein Schild an der Türsteuerung |
 | 4 | Der Kartenleser-Server | `ROW_NUMBER() OVER (PARTITION BY … ORDER BY …)`: die neueste Zeile jeder Gruppe | 3. Die Türsteuerung (sein Ergebnis), 🔎 Der Bericht der Schlafwagenbetreuerin |
 | 5 | Die Speisewagenkasse | Eine CTE in einer Unterabfrage wiederverwenden (`IN (SELECT …)`), `GROUP BY` über zwei Spalten mit `SUM` | 1. Das Handgerät des Zugbegleiters (sein Ergebnis) |
-| 6 | Der Zugfunk (Abschluss-Schloss) | Die Ergebnisse mehrerer Abfragen kombinieren | 2. Der Fahrtenschreiber (sein Ergebnis), 4. Der Kartenleser-Server (sein Ergebnis), 5. Die Speisewagenkasse (sein Ergebnis), 🔒 2. Der Fahrtenschreiber, 🔎 Das Fahrtenbuch des Lokführers |
+| 6 | Der Zugfunk (Abschluss-Schloss) | Die Ergebnisse mehrerer Abfragen kombinieren | 2. Der Fahrtenschreiber (sein Ergebnis), 4. Der Kartenleser-Server (sein Ergebnis), 5. Die Speisewagenkasse (sein Ergebnis), 1. Das Handgerät des Zugbegleiters (sein Ergebnis), 🔒 2. Der Fahrtenschreiber, 🔎 Das Fahrtenbuch des Lokführers |
 
 **Abschluss-Code:** `Ines Hartmann`
 
@@ -222,12 +222,12 @@ ORDER BY time;
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["C4-45","2026-11-14 01:31","door 45"],["C5-52","2026-11-14 01:46","gangway 3|4"],["C3-34","2026-11-14 01:49","door 34"]]
+[["C4-45","2026-11-14 01:31","door 45"],["C5-55","2026-11-14 01:41","gangway 3|4"],["C5-52","2026-11-14 01:46","gangway 3|4"],["C3-34","2026-11-14 01:49","door 34"]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Drei Karten verstummen kurz bevor sich die Tür öffnete: `C4-45` an der eigenen Abteiltür um 01:31, `C5-52` am Übergang in Wagen 3 um 01:46 und Webers `C3-34` an seiner Abteiltür um 01:49.
+> Vier Karten verstummen kurz bevor sich die Tür öffnete: `C4-45` an der eigenen Abteiltür um 01:31, `C5-55` am Übergang zwischen Wagen 3 und 4 um 01:41, `C5-52` am selben Übergang um 01:46 und Webers `C3-34` an seiner Abteiltür um 01:49.
 
 **Hinweise:**
 
@@ -292,7 +292,7 @@ GROUP BY card, payer;
 ### 6. Der Zugfunk (Abschluss-Schloss)
 
 **Übt:** Die Ergebnisse mehrerer Abfragen kombinieren  
-**Braucht:** 2. Der Fahrtenschreiber (sein Ergebnis), 4. Der Kartenleser-Server (sein Ergebnis), 5. Die Speisewagenkasse (sein Ergebnis), 🔒 2. Der Fahrtenschreiber, 🔎 Das Fahrtenbuch des Lokführers  
+**Braucht:** 2. Der Fahrtenschreiber (sein Ergebnis), 4. Der Kartenleser-Server (sein Ergebnis), 5. Die Speisewagenkasse (sein Ergebnis), 1. Das Handgerät des Zugbegleiters (sein Ergebnis), 🔒 2. Der Fahrtenschreiber, 🔎 Das Fahrtenbuch des Lokführers  
 **Daten:** [train.sql](../../content/rooms/sql-train/data/train.sql)
 
 **Zahlenschloss** (öffnet mit `214`):
@@ -303,7 +303,7 @@ GROUP BY card, payer;
 
 > Die Bundespolizei in Marienhall meldet sich. Sie schickt sofort eine Streife zum Bahnübergang bei Kilometer 214.
 >
-> Noch eine Frage, bevor der Zug ankommt: Konstantin Weber hat den Zug nicht allein verlassen. Wer ist mit ihm ausgestiegen? Nennt den vollständigen Namen.
+> Noch eine Frage, bevor der Zug ankommt: Konstantin Weber hat den Zug nicht allein verlassen. Die Polizei will den Namen dessen, der mit ihm ausgestiegen ist und in einem Abteil reiste, das hätte leer bleiben sollen. Nennt den vollständigen Namen.
 >
 > Ihr könnt die Datenbank hier weiter abfragen.
 
@@ -331,20 +331,27 @@ gone AS (
   FROM ranked
   WHERE rn = 1
     AND time BETWEEN '2026-11-14 01:23' AND '2026-11-14 01:53'
+),
+no_shows AS (
+  SELECT p.card
+  FROM passengers AS p
+  LEFT JOIN scans AS s ON s.ticket_id = p.ticket_id
+  WHERE s.scan_id IS NULL
 )
 SELECT DISTINCT o.card, o.payer
 FROM orders AS o
-JOIN gone AS g ON g.card = o.card
-WHERE o.payer NOT IN (SELECT name FROM passengers);
+WHERE o.card IN (SELECT card FROM gone)
+  AND o.card IN (SELECT card FROM no_shows)
+  AND o.payer NOT IN (SELECT name FROM passengers);
 ```
 
 **Antwort:** `Ines Hartmann`
 
 **Hinweise:**
 
-1. Außer Webers eigener Karte sind kurz vor dem Öffnen der Tür in Wagen 3 zwei Karten verstummt (Kartenleser-Server). Eine ging an der eigenen Abteiltür schlafen, die andere lief in Wagen 3.
-2. Die Karte, die in Wagen 3 hinüberging, ist `C5-52`. Sie gehört zur Buchung von Paul Brenner, aber Brenner ist nie eingestiegen (Handgerät des Zugbegleiters). Die Speisewagenkasse verrät, wer Abteil 52 wirklich genutzt hat.
-3. Die Rechnung von Abteil 52 hat Ines Hartmann bezahlt, die keine Buchung hat, und Weber hat darauf heiße Schokolade gekauft. Ihre Karte ging um 01:46 in Wagen 3 hinüber, und sie ist mit ihm durch Tür 3B ausgestiegen.
+1. Außer Webers eigener Karte sind kurz vor dem Öffnen der Tür in Wagen 3 drei Karten verstummt (Kartenleser-Server). Eine ging an der eigenen Abteiltür schlafen, zwei liefen Richtung Wagen 3.
+2. Nur eine dieser beiden Karten gehört zu einem Abteil, das leer hätte bleiben sollen: Das Handgerät des Zugbegleiters nennt die Fahrgäste, die nie eingestiegen sind. Die andere gehört zu einem Fahrgast, der an Bord ist.
+3. Die Karte ist `C5-52`, die Buchung von Paul Brenner, aber Brenner ist nie eingestiegen. Die Speisewagenkasse verrät, wer Abteil 52 bezahlt hat: Ines Hartmann, die keine Buchung hat (Weber hat darauf auch heiße Schokolade gekauft). Sie ging um 01:46 in Wagen 3 hinüber und ist mit ihm durch Tür 3B ausgestiegen.
 
 ## Hinweise im Raum
 

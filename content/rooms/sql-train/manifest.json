@@ -184,11 +184,11 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "9a40abf572d299898c77d8f3c0d4a9998dd80b098490c5e25a81dfa0bdfc54e3"
+        "hash": "21e492b69e1b148b275e870c9367f06dd94dcd9f9d35c9f0a79296c009c99943"
       },
       "reveal": {
-        "en": "Three cards fall silent shortly before the door opened: `C4-45` at its own compartment door at 01:31, `C5-52` at the gangway into car 3 at 01:46, and Weber's `C3-34` at his compartment door at 01:49.",
-        "de": "Drei Karten verstummen kurz bevor sich die Tür öffnete: `C4-45` an der eigenen Abteiltür um 01:31, `C5-52` am Übergang in Wagen 3 um 01:46 und Webers `C3-34` an seiner Abteiltür um 01:49."
+        "en": "Four cards fall silent shortly before the door opened: `C4-45` at its own compartment door at 01:31, `C5-55` at the gangway between cars 3 and 4 at 01:41, `C5-52` at the same gangway at 01:46, and Weber's `C3-34` at his compartment door at 01:49.",
+        "de": "Vier Karten verstummen kurz bevor sich die Tür öffnete: `C4-45` an der eigenen Abteiltür um 01:31, `C5-55` am Übergang zwischen Wagen 3 und 4 um 01:41, `C5-52` am selben Übergang um 01:46 und Webers `C3-34` an seiner Abteiltür um 01:49."
       },
       "practises": {
         "en": "`ROW_NUMBER() OVER (PARTITION BY … ORDER BY …)`: the latest row of every group",
@@ -269,8 +269,8 @@
         "de": "Der Zugfunk"
       },
       "text": {
-        "en": "The federal police at Marienhall answer. They are sending a patrol to the level crossing at kilometre 214 at once.\n\nOne more question before the train arrives: Konstantin Weber did not leave the train alone. Who left with him? Give the full name.\n\nYou can still query the database here.",
-        "de": "Die Bundespolizei in Marienhall meldet sich. Sie schickt sofort eine Streife zum Bahnübergang bei Kilometer 214.\n\nNoch eine Frage, bevor der Zug ankommt: Konstantin Weber hat den Zug nicht allein verlassen. Wer ist mit ihm ausgestiegen? Nennt den vollständigen Namen.\n\nIhr könnt die Datenbank hier weiter abfragen."
+        "en": "The federal police at Marienhall answer. They are sending a patrol to the level crossing at kilometre 214 at once.\n\nOne more question before the train arrives: Konstantin Weber did not leave the train alone. The police want the name of the one who left with him and was travelling in a compartment that should have stayed empty. Give the full name.\n\nYou can still query the database here.",
+        "de": "Die Bundespolizei in Marienhall meldet sich. Sie schickt sofort eine Streife zum Bahnübergang bei Kilometer 214.\n\nNoch eine Frage, bevor der Zug ankommt: Konstantin Weber hat den Zug nicht allein verlassen. Die Polizei will den Namen dessen, der mit ihm ausgestiegen ist und in einem Abteil reiste, das hätte leer bleiben sollen. Nennt den vollständigen Namen.\n\nIhr könnt die Datenbank hier weiter abfragen."
       },
       "workspace": "sql",
       "data": "train.sql",
@@ -295,7 +295,8 @@
       "uses": [
         "speed",
         "cards",
-        "till"
+        "till",
+        "handheld"
       ],
       "final": true,
       "practises": {
@@ -307,16 +308,16 @@
       ],
       "hints": [
         {
-          "en": "Besides Weber's own card, two cards fell silent just before the door in car 3 opened (card reader server). One went to bed at its own compartment door; the other walked into car 3.",
-          "de": "Außer Webers eigener Karte sind kurz vor dem Öffnen der Tür in Wagen 3 zwei Karten verstummt (Kartenleser-Server). Eine ging an der eigenen Abteiltür schlafen, die andere lief in Wagen 3."
+          "en": "Besides Weber's own card, three cards fell silent just before the door in car 3 opened (card reader server). One went to bed at its own compartment door; two walked towards car 3.",
+          "de": "Außer Webers eigener Karte sind kurz vor dem Öffnen der Tür in Wagen 3 drei Karten verstummt (Kartenleser-Server). Eine ging an der eigenen Abteiltür schlafen, zwei liefen Richtung Wagen 3."
         },
         {
-          "en": "The card that crossed into car 3 is `C5-52`. It belongs to Paul Brenner's booking, but Brenner never boarded (conductor's handheld). The dining car till says who really used compartment 52.",
-          "de": "Die Karte, die in Wagen 3 hinüberging, ist `C5-52`. Sie gehört zur Buchung von Paul Brenner, aber Brenner ist nie eingestiegen (Handgerät des Zugbegleiters). Die Speisewagenkasse verrät, wer Abteil 52 wirklich genutzt hat."
+          "en": "Only one of those two cards belongs to a compartment that should have stayed empty: the conductor's handheld lists the passengers who never boarded. The other belongs to a passenger who is on board.",
+          "de": "Nur eine dieser beiden Karten gehört zu einem Abteil, das leer hätte bleiben sollen: Das Handgerät des Zugbegleiters nennt die Fahrgäste, die nie eingestiegen sind. Die andere gehört zu einem Fahrgast, der an Bord ist."
         },
         {
-          "en": "Compartment 52's tab was paid by Ines Hartmann, who has no booking, and Weber bought hot chocolate on it. Her card crossed into car 3 at 01:46, and she left with him through door 3B.",
-          "de": "Die Rechnung von Abteil 52 hat Ines Hartmann bezahlt, die keine Buchung hat, und Weber hat darauf heiße Schokolade gekauft. Ihre Karte ging um 01:46 in Wagen 3 hinüber, und sie ist mit ihm durch Tür 3B ausgestiegen."
+          "en": "The card is `C5-52`, Paul Brenner's booking, but Brenner never boarded. The dining car till says who paid for compartment 52: Ines Hartmann, who has no booking (Weber bought hot chocolate on it too). She crossed into car 3 at 01:46 and left with him through door 3B.",
+          "de": "Die Karte ist `C5-52`, die Buchung von Paul Brenner, aber Brenner ist nie eingestiegen. Die Speisewagenkasse verrät, wer Abteil 52 bezahlt hat: Ines Hartmann, die keine Buchung hat (Weber hat darauf auch heiße Schokolade gekauft). Sie ging um 01:46 in Wagen 3 hinüber und ist mit ihm durch Tür 3B ausgestiegen."
         }
       ]
     }
