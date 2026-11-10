@@ -213,7 +213,7 @@ show_plot(pd.Series(search.cv_results_["mean_test_score"], index=range(1, 32, 2)
 
 **Reveals when solved:**
 
-> **k = 5.** With every feature scaled, five neighbours give the best F1 on the training folds (about 0.62); fewer copy the noise of single inspections, more drown the rare smugglers in clean neighbours.
+> **k = 5.** With every feature scaled, five neighbours give the best F1 on the training folds (0.62, so 62 %); fewer copy the noise of single inspections, more drown the rare smugglers in clean neighbours.
 >
 > Without scaling, the neighbours were simply the containers with the most similar price per kg: a difference of 100 € outweighed any weight gap or X-ray image, and the best F1 was about 0.34. KNN measures distances, so it needs the scaler, and inside a pipeline the scaler is fitted on each training fold only.
 
@@ -403,9 +403,9 @@ opened = int((p >= threshold).sum())
 **Needs:** 4. The overgrown tree (its result), 3. The neighbours (its result), 5. The odds board (its result), 🔒 5. The odds board, 🔎 Tonight's crane schedule  
 **Data:** [inspections.py](../../content/rooms/ml-customs/data/inspections.py)
 
-**Code lock** (opens with `3576`):
+**Code lock** (opens with `36276`):
 
-> The crane console is locked with a four-digit PIN. The chief's note next to it: "PIN = the overgrown tree's best depth, then the neighbours' best k, then how many test containers the odds board opens."
+> The crane console is locked with a five-digit PIN. The chief's note next to it: "PIN = the overgrown tree's best depth, then the neighbours' best F1 score in whole percent, then how many test containers the odds board opens."
 
 **Task:**
 

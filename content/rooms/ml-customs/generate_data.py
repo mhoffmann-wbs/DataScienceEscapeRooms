@@ -144,10 +144,11 @@ assert all(scores[n, l] < SEALED_NEEDED - 5 for n in bad for l in ("train", "all
 
 # --- Tonight's arrivals: 40 containers on the MV Kestrel ------------------------------------------
 # Four smugglers, clear on every count; decoys that fool one rule each (the old scanner's density,
-# a risky route, a heavy but plain cargo, expensive goods); the rest ordinary.
-SMUGGLERS = [(15, 160, 38, 5, 1.28), (13, 95, 34, 4, 1.22), (16, 60, 41, 5, 1.31), (14, 130, 36, 4, 1.25)]
+# a risky route, heavy but plain cargo, expensive goods); the rest ordinary. The smugglers' weight
+# gaps are not the largest on the manifest, so sorting by one column does not find them.
+SMUGGLERS = [(12, 160, 38, 5, 1.28), (11, 95, 34, 4, 1.22), (13, 60, 41, 5, 1.31), (12, 130, 36, 4, 1.25)]
 DECOYS = [(1, 140, 20, 2, 1.36), (3, 80, 46, 5, 0.86), (7, 70, 24, 3, 0.9), (2, 8400, 18, 1, 0.78),
-          (9, 210, 12, 1, 0.72), (5, 120, 30, 4, 1.02)]
+          (9, 210, 12, 1, 0.72), (5, 120, 30, 4, 1.02), (16, 45, 22, 1, 0.74), (15, 230, 14, 2, 0.8)]
 ordinary = []
 while len(ordinary) < 40 - len(SMUGGLERS) - len(DECOYS):
     row, label = inspections_like(1, rate=0, flip=0)
@@ -261,6 +262,8 @@ def _neighbours_check(search):
     problems = []
     if not any("scaler" in s for s in _steps(est)):
         problems.append("The pipeline doesn't scale: value_per_kg (up to thousands of euros) rules every distance. Put a StandardScaler before the KNN. / Die Pipeline skaliert nicht: value_per_kg (bis zu Tausenden Euro) bestimmt jeden Abstand. Setzt einen StandardScaler vor das KNN.")
+    elif not any(type(est.named_steps[s]).__name__ == "StandardScaler" for s in _steps(est)):
+        problems.append("Use the StandardScaler (mean 0, spread 1): other scalers give other best values of k. / Nehmt den StandardScaler (Mittelwert 0, Streuung 1): Andere Skalierer liefern andere beste Werte für k.")
     elif search.scoring != "f1":
         problems.append("The search doesn't judge k by the right score. / Die Suche bewertet k nicht mit dem richtigen Maß.")
     else:
@@ -287,13 +290,15 @@ def _depth_check(train_scores, test_scores, depth):
     if len(tr) != 15 or len(te) != 15:
         return _problems_or([f"Both lists need 15 scores, one per depth from 1 to 15; you have {{len(tr)}} and {{len(te)}}. / Beide Listen brauchen 15 Werte, einen pro Tiefe von 1 bis 15; ihr habt {{len(tr)}} und {{len(te)}}."], "")
     X_train, X_test, y_train, y_test = _split()
-    ref = [DecisionTreeClassifier(max_depth=d, random_state=0).fit(X_train, y_train).score(X_test, y_test) for d in range(1, 16)]
+    trees = [DecisionTreeClassifier(max_depth=d, random_state=0).fit(X_train, y_train) for d in range(1, 16)]
+    ref = [t.score(X_test, y_test) for t in trees]
+    ref_train = [t.score(X_train, y_train) for t in trees]
     problems = []
     # Trees with another random_state differ by about 0.001 on average, another split by 0.003 or more.
     if np.abs(np.array(te) - ref).mean() > 0.0028:
         problems.append("The test scores don't match the audit split. Check the split's arguments, and leave old_flag out of the features. / Die Testwerte passen nicht zum Prüfsplit. Prüft die Argumente des Splits und lasst old_flag aus den Features.")
-    elif tr[-1] < 0.99:
-        problems.append("At depth 15 the tree should know its training data almost by heart (train accuracy near 1.0). Is max_depth set from the loop? / Bei Tiefe 15 sollte der Baum seine Trainingsdaten fast auswendig kennen (Trainingsgenauigkeit nahe 1.0). Wird max_depth aus der Schleife gesetzt?")
+    elif np.abs(np.array(tr) - ref_train).mean() > 0.003:
+        problems.append("The training scores don't match the training part of the audit split: score every tree on X_train and y_train, depth 1 first. At depth 15 it should know its training data almost by heart (near 1.0). / Die Trainingswerte passen nicht zum Trainingsteil des Prüfsplits: Bewertet jeden Baum auf X_train und y_train, Tiefe 1 zuerst. Bei Tiefe 15 sollte er seine Trainingsdaten fast auswendig kennen (nahe 1.0).")
     elif depth != _BEST_DEPTH:
         problems.append("depth isn't the depth where the test score peaks. The training score always climbs; the test score decides. / depth ist nicht die Tiefe, bei der der Testwert am höchsten ist. Der Trainingswert steigt immer; der Testwert entscheidet.")
     return _problems_or(problems, "pruned")
@@ -306,7 +311,11 @@ def _odds_check(model, riskiest, threshold, opened):
         return _problems_or(["model must be a fitted pipeline with a StandardScaler and a LogisticRegression. / model muss eine trainierte Pipeline mit StandardScaler und LogisticRegression sein."], "")
     if not any("scaler" in s for s in _steps(model)):
         problems.append("Standardise the features first: only then can coefficients be compared. / Standardisiert die Features zuerst: Nur dann lassen sich Koeffizienten vergleichen.")
-    if riskiest != "weight_gap_pct":
+    try:
+        own = list(getattr(model, "feature_names_in_", _FEATURES))[int(np.argmax(model.steps[-1][1].coef_[0]))]
+    except Exception:
+        own = None
+    if riskiest != "weight_gap_pct" or own != riskiest:
         problems.append("riskiest isn't the feature with the largest coefficient. Use the column name, e.g. \\"route_risk\\". / riskiest ist nicht das Feature mit dem größten Koeffizienten. Nehmt den Spaltennamen, z. B. \\"route_risk\\".")
     t, n = _number(threshold), _number(opened)
     if t is None or n is None:
@@ -353,6 +362,15 @@ def _arrivals_check(model, opened):
         problems.append("opened must hold container numbers from the manifest (its index), not row positions. / opened muss Containernummern aus dem Manifest enthalten (sein Index), keine Zeilenpositionen.")
     elif got != _SMUGGLERS:
         problems.append(f"Only {{len(set(got) & set(_SMUGGLERS))}} of your four are among the four riskiest arrivals. Rank all 40 by predict_proba. / Nur {{len(set(got) & set(_SMUGGLERS))}} eurer vier gehören zu den vier riskantesten Ankünften. Ordnet alle 40 nach predict_proba.")
+    else:
+        try:
+            r = model.predict_proba(arrivals[_FEATURES])[:, 1]
+        except Exception:
+            problems.append("model can't score the manifest: its columns are the same five, in another order. / model kann das Manifest nicht bewerten: Es hat dieselben fünf Spalten, in anderer Reihenfolge.")
+        else:
+            chosen = np.isin(arrivals.index, got)
+            if r[chosen].min() < r[~chosen].max():
+                problems.append("opened isn't what your model ranks riskiest: score the 40 arrivals with it and take the top four. / opened ist nicht das, was euer Modell am riskantesten bewertet: Bewertet die 40 Ankünfte damit und nehmt die obersten vier.")
     return _problems_or(problems, "opened")
 ''')
 
@@ -365,4 +383,4 @@ print("logistic coefficients:", {k: round(v, 2) for k, v in coef.items()})
 print("odds board:", step, "opens", opened, "of", len(yte))
 print("sealed: smuggling cases", int(sealed_y.sum()), "found in top 100:", {f"{n} ({l})": v for (n, l), v in scores.items()})
 print("arrivals smugglers:", smugglers)
-print("final lock:", f"{best_depth}{best_k}{opened}")
+print("final lock:", f"{best_depth}{round(scaled.best_score_ * 100)}{opened}")

@@ -25,7 +25,7 @@ flowchart LR
   end
 
   subgraph p3["Final lock"]
-    arrivals{{"6 · The crane console 🔒<br/>open 4365, 4537, 4643, 4761"}}
+    arrivals{{"6 · The crane console 🔒<br/>open 4365, 4537, 4643, 4761,<br/>PIN 36276"}}
   end
 
   d_all --> rules
@@ -48,8 +48,8 @@ flowchart LR
   rules -.->|"📤 how to fit and read a tree"| pruning
   dashboard ==>|"🔒 182 smugglers missed"| odds
   pruning ==>|"🔒 PIN digit 1: depth 3"| arrivals
-  neighbours ==>|"🔒 PIN digit 2: k = 5"| arrivals
-  odds ==>|"🔒 PIN digits 3–4: 76 opened"| arrivals
+  neighbours ==>|"🔒 PIN digits 2–3: best F1 62 %"| arrivals
+  odds ==>|"🔒 PIN digits 4–5: 76 opened"| arrivals
   pruning -.->|"📤 a pruned tree"| arrivals
   neighbours -.->|"📤 a scaled KNN"| arrivals
   odds -.->|"📤 a logistic model, ranking by probability"| arrivals
@@ -76,7 +76,7 @@ flowchart LR
 
 - **Start:** 3 stations open at once (rule card, dashboard, neighbours), each independent: right for a team of 3, pairs in a team of 5. The neighbours station is the longest (split, pipeline, grid search) and holds a PIN digit, so it shouldn't be left for last.
 - **Second wave:** the overgrown tree opens with the rule card's 85, the odds board with the dashboard's 182. Both need the audit rule, which the neighbours' team will already have read.
-- **Final:** the crane console's PIN 3576 joins the best depth, the best k and the odds board's count. The final itself only needs a decent model and the reordered columns.
+- **Final:** the crane console's PIN 36276 joins the best depth, the neighbours' best F1 in percent (62) and the odds board's count. The final itself needs a decent model, the reordered columns, and that `opened` is what the team's own model ranks riskiest.
 
 ## Chains
 
@@ -85,7 +85,7 @@ flowchart LR
 
 ## Hand-offs
 
-- Between stations: 2 lock codes (85, 182) and the final's PIN from 3 stations (3, 5, 76), plus soft model lessons into the final.
+- Between stations: 2 lock codes (85, 182) and the final's PIN from 3 stations (3, 62, 76), plus soft model lessons into the final.
 - From clues: 6 clues, 3 hard (the audit rule, needed by 3 stations; Jonas's note; the chief's order) and 3 soft (Hanne's card, the poster, the crane schedule).
 
 ## Where things are
@@ -95,6 +95,16 @@ flowchart LR
 - Away from their station: the audit rule hangs on the north wall by the exit, while the overgrown tree's filing cabinet stands in Hanne's records room next door; the chief's order lies on a desk three tiles below the odds board. The crane console is out on the quay at the foot of the container yard, a walk from the office.
 
 ## Findings
+
+Fixed in the shortcut review:
+
+- **The four smugglers could be read off the manifest.** They had the four largest weight gaps (13 to 16), so sorting `arrivals` by one column found them with no model. Two heavy decoys (gaps 16 and 15, plain cargo, a dull X-ray) and smugglers at gaps 11 to 13 now put two decoys on top of that sort; the density sort gets one decoy (1.36) in its top four. Tested: trees of depth 3 and 4 (random_state 0 to 20 and None), scaled KNN, logistic regression (scaled or not), a forest and gradient boosting still rank the four first. A hand rule on two columns (heavy and dense) still finds them, which is the lesson of the tree station, and the final now also checks that `opened` is what the team's own `model` ranks riskiest on `arrivals`.
+- **The PIN's k digit was the KNN default.** `n_neighbors=5` is the default and sits in the starter, so "3, 5, then 76" could be typed without the neighbours' station. The PIN is now 36276: the depth, the search's best F1 in whole percent (62, which the station's check pins to the audit split) and 76.
+- **The overgrown tree's training scores were unchecked** beyond the last one being at least 0.99: `[0] * 14 + [1.0]` passed. They are now compared with the reference trees' training scores (tolerance 0.003, every tree seed tested passes).
+- **The odds board's `riskiest` could be typed** (the rule card's root column) without reading the model. It must now equal the largest coefficient of the team's own `model`.
+- **Other scalers got a misleading message.** A MinMaxScaler or RobustScaler pipeline is honest but finds another best k; the check said the split was wrong. It now says to use the StandardScaler.
+
+Left as it is: the poster prints the dashboard's accuracy (93.5 %), but `missed`, `recall` and the verdict still need the matrix; Hanne's card gives depth 3 (the lock and the PIN's first digit), but the curves still have to be computed and pass the check; a tree of depth 5 or more ties the four on top with other containers, so it cannot name the four (the hints send teams to the pruned depth).
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
@@ -106,5 +116,5 @@ Earlier findings:
 
 - **Soft clues.** Hanne's card only confirms what the tree prints (depth 3 is in the task, dropping the columns in the hints); the poster's claim only gives the dashboard something to test; the crane schedule's chief's test is also run by the grader. All three carry story and support, so they stay.
 - **The dashboard and the rule card matter through locks only.** Their reveals feed no task, just the combinations 182 and 85; without the locks both could be skipped.
-- **Depth and k are hard only through the PIN.** The final accepts any model that passes the chief's test, so the overgrown tree and the neighbours feed it as lessons (soft) and as PIN digits (hard).
+- **Depth and the best F1 are hard only through the PIN.** The final accepts any model that passes the chief's test, so the overgrown tree and the neighbours feed it as lessons (soft) and as PIN digits (hard).
 - **The audit rule is the room's busiest clue.** Three graders reject any other split; a team that misses it gets a message to check the split's arguments, and the first hint names the rule.

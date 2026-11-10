@@ -3014,46 +3014,46 @@ inspections = pd.read_csv(_io.StringIO("""inspection,weight_gap_pct,value_per_kg
 """), index_col="inspection")
 
 arrivals = pd.read_csv(_io.StringIO("""container,route_risk,xray_density,transit_days,value_per_kg,weight_gap_pct
-4104,3,0.65,28,256.22,5
-4111,2,0.68,26,14.93,3
-4118,3,0.92,19,55.6,0
-4123,1,0.99,19,173.31,-1
-4137,3,0.89,17,335.96,2
-4168,1,0.59,26,181.09,5
-4198,2,0.46,20,103.53,5
-4229,1,0.89,13,84.06,-3
-4234,1,0.44,26,14.86,-4
+4104,3,0.89,19,140.8,2
+4111,2,0.63,18,47.45,5
+4118,3,0.85,35,96.28,-1
+4123,1,0.73,12,154.13,4
+4137,2,0.76,36,520.75,-1
+4168,2,0.46,20,103.53,5
+4198,2,0.61,36,119.75,-1
+4229,3,0.61,29,296.67,1
+4234,2,0.68,26,14.93,3
 4239,1,0.72,12,210.0,9
 4258,4,1.02,30,120.0,5
-4269,3,0.89,25,47.08,4
-4282,1,0.73,12,154.13,4
-4283,5,0.89,24,12.43,5
+4269,1,0.99,19,173.31,-1
+4282,3,0.92,19,55.6,0
+4283,3,0.49,12,52.72,2
 4286,5,0.86,46,80.0,3
-4365,4,1.25,36,130.0,14
-4370,3,0.61,29,296.67,1
-4372,2,0.73,24,241.38,-2
-4421,3,0.85,35,96.28,-1
-4424,2,0.78,15,615.5,3
-4457,2,0.61,36,119.75,-1
-4461,3,0.87,16,1132.47,2
-4508,3,0.65,25,267.78,2
-4521,3,0.73,15,430.83,1
-4537,5,1.31,41,60.0,16
-4565,2,0.7,38,525.92,5
-4573,2,0.63,18,47.45,5
+4365,4,1.25,36,130.0,12
+4370,3,0.73,15,430.83,1
+4372,2,0.83,11,364.12,-1
+4421,2,0.8,14,230.0,15
+4424,1,0.74,22,45.0,16
+4457,5,0.91,26,5.75,2
+4461,3,0.65,28,256.22,5
+4508,5,0.89,24,12.43,5
+4521,3,0.89,34,402.03,1
+4537,5,1.31,41,60.0,13
+4565,1,0.44,26,14.86,-4
+4573,2,0.73,24,241.38,-2
 4585,3,0.9,24,70.0,7
-4639,2,0.76,36,520.75,-1
+4639,3,0.65,25,267.78,2
 4642,1,0.78,18,8400.0,2
-4643,4,1.22,34,95.0,13
-4738,2,0.83,11,364.12,-1
-4761,5,1.28,38,160.0,15
+4643,4,1.22,34,95.0,11
+4738,1,0.79,40,95.12,2
+4761,5,1.28,38,160.0,12
 4789,2,1.36,20,140.0,1
-4882,5,0.91,26,5.75,2
-4912,3,0.49,12,52.72,2
-4923,3,0.89,34,402.03,1
-4926,1,0.64,26,214.63,1
-4936,3,0.89,19,140.8,2
-4967,1,0.79,40,95.12,2
+4882,2,0.7,38,525.92,5
+4912,1,0.64,26,214.63,1
+4923,3,0.89,17,335.96,2
+4926,3,0.89,25,47.08,4
+4936,1,0.59,26,181.09,5
+4967,2,0.78,15,615.5,3
 """), index_col="container")
 
 _FEATURES = ['weight_gap_pct', 'value_per_kg', 'transit_days', 'route_risk', 'xray_density']
@@ -4140,6 +4140,8 @@ def _neighbours_check(search):
     problems = []
     if not any("scaler" in s for s in _steps(est)):
         problems.append("The pipeline doesn't scale: value_per_kg (up to thousands of euros) rules every distance. Put a StandardScaler before the KNN. / Die Pipeline skaliert nicht: value_per_kg (bis zu Tausenden Euro) bestimmt jeden Abstand. Setzt einen StandardScaler vor das KNN.")
+    elif not any(type(est.named_steps[s]).__name__ == "StandardScaler" for s in _steps(est)):
+        problems.append("Use the StandardScaler (mean 0, spread 1): other scalers give other best values of k. / Nehmt den StandardScaler (Mittelwert 0, Streuung 1): Andere Skalierer liefern andere beste Werte für k.")
     elif search.scoring != "f1":
         problems.append("The search doesn't judge k by the right score. / Die Suche bewertet k nicht mit dem richtigen Maß.")
     else:
@@ -4166,13 +4168,15 @@ def _depth_check(train_scores, test_scores, depth):
     if len(tr) != 15 or len(te) != 15:
         return _problems_or([f"Both lists need 15 scores, one per depth from 1 to 15; you have {len(tr)} and {len(te)}. / Beide Listen brauchen 15 Werte, einen pro Tiefe von 1 bis 15; ihr habt {len(tr)} und {len(te)}."], "")
     X_train, X_test, y_train, y_test = _split()
-    ref = [DecisionTreeClassifier(max_depth=d, random_state=0).fit(X_train, y_train).score(X_test, y_test) for d in range(1, 16)]
+    trees = [DecisionTreeClassifier(max_depth=d, random_state=0).fit(X_train, y_train) for d in range(1, 16)]
+    ref = [t.score(X_test, y_test) for t in trees]
+    ref_train = [t.score(X_train, y_train) for t in trees]
     problems = []
     # Trees with another random_state differ by about 0.001 on average, another split by 0.003 or more.
     if np.abs(np.array(te) - ref).mean() > 0.0028:
         problems.append("The test scores don't match the audit split. Check the split's arguments, and leave old_flag out of the features. / Die Testwerte passen nicht zum Prüfsplit. Prüft die Argumente des Splits und lasst old_flag aus den Features.")
-    elif tr[-1] < 0.99:
-        problems.append("At depth 15 the tree should know its training data almost by heart (train accuracy near 1.0). Is max_depth set from the loop? / Bei Tiefe 15 sollte der Baum seine Trainingsdaten fast auswendig kennen (Trainingsgenauigkeit nahe 1.0). Wird max_depth aus der Schleife gesetzt?")
+    elif np.abs(np.array(tr) - ref_train).mean() > 0.003:
+        problems.append("The training scores don't match the training part of the audit split: score every tree on X_train and y_train, depth 1 first. At depth 15 it should know its training data almost by heart (near 1.0). / Die Trainingswerte passen nicht zum Trainingsteil des Prüfsplits: Bewertet jeden Baum auf X_train und y_train, Tiefe 1 zuerst. Bei Tiefe 15 sollte er seine Trainingsdaten fast auswendig kennen (nahe 1.0).")
     elif depth != _BEST_DEPTH:
         problems.append("depth isn't the depth where the test score peaks. The training score always climbs; the test score decides. / depth ist nicht die Tiefe, bei der der Testwert am höchsten ist. Der Trainingswert steigt immer; der Testwert entscheidet.")
     return _problems_or(problems, "pruned")
@@ -4185,7 +4189,11 @@ def _odds_check(model, riskiest, threshold, opened):
         return _problems_or(["model must be a fitted pipeline with a StandardScaler and a LogisticRegression. / model muss eine trainierte Pipeline mit StandardScaler und LogisticRegression sein."], "")
     if not any("scaler" in s for s in _steps(model)):
         problems.append("Standardise the features first: only then can coefficients be compared. / Standardisiert die Features zuerst: Nur dann lassen sich Koeffizienten vergleichen.")
-    if riskiest != "weight_gap_pct":
+    try:
+        own = list(getattr(model, "feature_names_in_", _FEATURES))[int(np.argmax(model.steps[-1][1].coef_[0]))]
+    except Exception:
+        own = None
+    if riskiest != "weight_gap_pct" or own != riskiest:
         problems.append("riskiest isn't the feature with the largest coefficient. Use the column name, e.g. \"route_risk\". / riskiest ist nicht das Feature mit dem größten Koeffizienten. Nehmt den Spaltennamen, z. B. \"route_risk\".")
     t, n = _number(threshold), _number(opened)
     if t is None or n is None:
@@ -4232,4 +4240,13 @@ def _arrivals_check(model, opened):
         problems.append("opened must hold container numbers from the manifest (its index), not row positions. / opened muss Containernummern aus dem Manifest enthalten (sein Index), keine Zeilenpositionen.")
     elif got != _SMUGGLERS:
         problems.append(f"Only {len(set(got) & set(_SMUGGLERS))} of your four are among the four riskiest arrivals. Rank all 40 by predict_proba. / Nur {len(set(got) & set(_SMUGGLERS))} eurer vier gehören zu den vier riskantesten Ankünften. Ordnet alle 40 nach predict_proba.")
+    else:
+        try:
+            r = model.predict_proba(arrivals[_FEATURES])[:, 1]
+        except Exception:
+            problems.append("model can't score the manifest: its columns are the same five, in another order. / model kann das Manifest nicht bewerten: Es hat dieselben fünf Spalten, in anderer Reihenfolge.")
+        else:
+            chosen = np.isin(arrivals.index, got)
+            if r[chosen].min() < r[~chosen].max():
+                problems.append("opened isn't what your model ranks riskiest: score the 40 arrivals with it and take the top four. / opened ist nicht das, was euer Modell am riskantesten bewertet: Bewertet die 40 Ankünfte damit und nehmt die obersten vier.")
     return _problems_or(problems, "opened")

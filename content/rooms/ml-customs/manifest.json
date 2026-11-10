@@ -147,8 +147,8 @@
         "hash": "4ef3c770b0c8e55bc66a873263233492b0088040f3ca99f6f431b4a3daba3ab2"
       },
       "reveal": {
-        "en": "**k = 5.** With every feature scaled, five neighbours give the best F1 on the training folds (about 0.62); fewer copy the noise of single inspections, more drown the rare smugglers in clean neighbours.\n\nWithout scaling, the neighbours were simply the containers with the most similar price per kg: a difference of 100 € outweighed any weight gap or X-ray image, and the best F1 was about 0.34. KNN measures distances, so it needs the scaler, and inside a pipeline the scaler is fitted on each training fold only.",
-        "de": "**k = 5.** Mit allen Features skaliert geben fünf Nachbarn den besten F1-Wert auf den Trainings-Folds (etwa 0,62); weniger kopieren das Rauschen einzelner Kontrollen, mehr ertränken die seltenen Schmuggler in sauberen Nachbarn.\n\nOhne Skalierung waren die Nachbarn einfach die Container mit dem ähnlichsten Preis pro kg: Ein Unterschied von 100 € wog mehr als jede Gewichtsabweichung oder jedes Röntgenbild, und der beste F1-Wert lag bei etwa 0,34. KNN misst Abstände, braucht also den Scaler, und in einer Pipeline wird der Scaler nur auf dem jeweiligen Trainings-Fold trainiert."
+        "en": "**k = 5.** With every feature scaled, five neighbours give the best F1 on the training folds (0.62, so 62 %); fewer copy the noise of single inspections, more drown the rare smugglers in clean neighbours.\n\nWithout scaling, the neighbours were simply the containers with the most similar price per kg: a difference of 100 € outweighed any weight gap or X-ray image, and the best F1 was about 0.34. KNN measures distances, so it needs the scaler, and inside a pipeline the scaler is fitted on each training fold only.",
+        "de": "**k = 5.** Mit allen Features skaliert geben fünf Nachbarn den besten F1-Wert auf den Trainings-Folds (0,62, also 62 %); weniger kopieren das Rauschen einzelner Kontrollen, mehr ertränken die seltenen Schmuggler in sauberen Nachbarn.\n\nOhne Skalierung waren die Nachbarn einfach die Container mit dem ähnlichsten Preis pro kg: Ein Unterschied von 100 € wog mehr als jede Gewichtsabweichung oder jedes Röntgenbild, und der beste F1-Wert lag bei etwa 0,34. KNN misst Abstände, braucht also den Scaler, und in einer Pipeline wird der Scaler nur auf dem jeweiligen Trainings-Fold trainiert."
       },
       "practises": {
         "en": "k-nearest neighbours: scaling in a Pipeline, GridSearchCV over n_neighbors with cross-validation, choosing a metric (F1) for a rare class",
@@ -312,12 +312,12 @@
       },
       "lock": {
         "text": {
-          "en": "The crane console is locked with a four-digit PIN. The chief's note next to it: \"PIN = the overgrown tree's best depth, then the neighbours' best k, then how many test containers the odds board opens.\"",
-          "de": "Das Kranpult ist mit einer vierstelligen PIN gesperrt. Daneben die Notiz des Chefs: „PIN = die beste Tiefe des wuchernden Baums, dann das beste k der Nachbarn, dann wie viele Testcontainer die Quotentafel öffnet.“"
+          "en": "The crane console is locked with a five-digit PIN. The chief's note next to it: \"PIN = the overgrown tree's best depth, then the neighbours' best F1 score in whole percent, then how many test containers the odds board opens.\"",
+          "de": "Das Kranpult ist mit einer fünfstelligen PIN gesperrt. Daneben die Notiz des Chefs: „PIN = die beste Tiefe des wuchernden Baums, dann der beste F1-Wert der Nachbarn in ganzen Prozent, dann wie viele Testcontainer die Quotentafel öffnet.“"
         },
         "from": "odds",
         "mode": "number",
-        "hash": "bc0fd3a2a6e3af6a72ab08c0f11b166b97604748ceea49cdf405c16855373dad"
+        "hash": "b0d29d2ace5af141ff214cabad485d805978f5c8ab6d4dd10545a8fedfd08f7c"
       },
       "final": true,
       "uses": [

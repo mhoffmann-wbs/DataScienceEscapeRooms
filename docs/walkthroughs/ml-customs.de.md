@@ -213,7 +213,7 @@ show_plot(pd.Series(search.cv_results_["mean_test_score"], index=range(1, 32, 2)
 
 **Zeigt nach dem Lösen:**
 
-> **k = 5.** Mit allen Features skaliert geben fünf Nachbarn den besten F1-Wert auf den Trainings-Folds (etwa 0,62); weniger kopieren das Rauschen einzelner Kontrollen, mehr ertränken die seltenen Schmuggler in sauberen Nachbarn.
+> **k = 5.** Mit allen Features skaliert geben fünf Nachbarn den besten F1-Wert auf den Trainings-Folds (0,62, also 62 %); weniger kopieren das Rauschen einzelner Kontrollen, mehr ertränken die seltenen Schmuggler in sauberen Nachbarn.
 >
 > Ohne Skalierung waren die Nachbarn einfach die Container mit dem ähnlichsten Preis pro kg: Ein Unterschied von 100 € wog mehr als jede Gewichtsabweichung oder jedes Röntgenbild, und der beste F1-Wert lag bei etwa 0,34. KNN misst Abstände, braucht also den Scaler, und in einer Pipeline wird der Scaler nur auf dem jeweiligen Trainings-Fold trainiert.
 
@@ -403,9 +403,9 @@ opened = int((p >= threshold).sum())
 **Braucht:** 4. Der wuchernde Baum (sein Ergebnis), 3. Die Nachbarn (sein Ergebnis), 5. Die Quotentafel (sein Ergebnis), 🔒 5. Die Quotentafel, 🔎 Der Kranplan für heute Nacht  
 **Daten:** [inspections.py](../../content/rooms/ml-customs/data/inspections.py)
 
-**Zahlenschloss** (öffnet mit `3576`):
+**Zahlenschloss** (öffnet mit `36276`):
 
-> Das Kranpult ist mit einer vierstelligen PIN gesperrt. Daneben die Notiz des Chefs: „PIN = die beste Tiefe des wuchernden Baums, dann das beste k der Nachbarn, dann wie viele Testcontainer die Quotentafel öffnet.“
+> Das Kranpult ist mit einer fünfstelligen PIN gesperrt. Daneben die Notiz des Chefs: „PIN = die beste Tiefe des wuchernden Baums, dann der beste F1-Wert der Nachbarn in ganzen Prozent, dann wie viele Testcontainer die Quotentafel öffnet.“
 
 **Aufgabe:**
 
