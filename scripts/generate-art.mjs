@@ -138,10 +138,10 @@ function png({ w, h, px }) {
   ]);
 }
 
-// --- Tileset: 8 columns x 90 rows of 32px tiles ---------------------------------
+// --- Tileset: 8 columns x 94 rows of 32px tiles ---------------------------------
 // Tiles 0-207 are the original set; from 208 on, each room's restyle has a block of 32 (see ROOM_BLOCKS below).
 const TILESET_COLUMNS = 8;
-const TILESET_ROWS = 90;
+const TILESET_ROWS = 94;
 const tiles = canvas(TILESET_COLUMNS * T, TILESET_ROWS * T);
 
 /**
@@ -2777,6 +2777,7 @@ solid(
 const ROOM_BLOCKS = [
   'python-lab', 'sql-hotel', 'sql-cinema', 'sql-train', 'pandas-market', 'ts-nordlys', 'ts-festival', 'python-docs',
   'python-debug', 'stats-fair', 'stats-ab', 'nn-post', 'nn-tablets', 'ml-seeds', 'ml-customs', 'ml-auction',
+  'ml-courier',
 ];
 /** The first tile index of a room's block. */
 const blockOf = (roomId) => 208 + 32 * ROOM_BLOCKS.indexOf(roomId);
@@ -8259,6 +8260,401 @@ function onWall(index, src, wall, seed = 3) {
   solid(B + 15, B + 17, B + 19, B + 20, B + 21, B + 22, B + 23, B + 24, B + 25, B + 26, B + 28, B + 29, B + 30, B + 31);
 }
 // --- end ml-auction ---
+
+// --- ml-courier restyle (tiles 720-751) ---
+// Rush Hour: the Blitzkurier depot on a stormy marathon Sunday night. A wet entrance hall with the exit, the
+// map room, a break room with the radio desk and Jonas's laptop, the dispatch office with its wall of screens
+// and the dispatcher's console, and the garage and charging bay with cargo bikes, scooters and the telemetry rack.
+{
+  const B = blockOf('ml-courier');
+  const SLATE = [40, 48, 70];
+  const ORANGE = [255, 176, 32];
+  const NEON = [60, 220, 255];
+  const PINK = [255, 80, 160];
+  const RAIN = [150, 190, 255];
+  const STEELB = [96, 106, 126];
+  /** The depot's wall face: dark blue concrete panels, a rain-streaked sheen and a brand-orange stripe above the skirting. */
+  const depotWall = (g) => {
+    g.rect(0, 0, T, T, SLATE);
+    g.noise(0, 0, T, T, 0.07, B);
+    g.rect(0, 0, T, 2, sh(SLATE, 0.6));
+    g.rect(0, 2, T, 1, sh(SLATE, 1.25));
+    g.rect(15, 3, 1, 17, sh(SLATE, 0.8));
+    g.rect(16, 3, 1, 17, sh(SLATE, 1.15));
+    g.rect(0, 22, T, 3, ORANGE);
+    g.rect(0, 22, T, 1, sh(ORANGE, 1.3));
+    g.rect(0, 25, T, 7, sh(SLATE, 0.7));
+    g.rect(0, 25, T, 1, sh(SLATE, 1.1));
+    g.rect(0, T - 1, T, 1, sh(SLATE, 0.5));
+  };
+  drawTile(B, depotWall);
+  drawTile(B + 1, turned(depotWall, 'ccw'));
+  drawTile(B + 2, turned(depotWall, 'cw'));
+  // B+3 garage floor: dark concrete with oil stains and a hairline joint
+  drawTile(B + 3, (g) => {
+    const c = [72, 76, 86];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.12, B + 3);
+    g.rect(0, 0, T, 1, sh(c, 0.75));
+    g.rect(0, 0, 1, T, sh(c, 0.75));
+    const r = rng(B + 33);
+    for (let i = 0; i < 3; i++) g.ellipse(4 + r() * 24, 4 + r() * 24, 2 + r() * 3, 1 + r() * 2, [30, 32, 40, 90]);
+    g.rect(0, 20, T, 1, [140, 160, 200, 25]);
+  });
+  // B+4 dispatch office: dark blue carpet tiles
+  drawTile(B + 4, (g) => {
+    const c = [48, 56, 92];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.14, B + 4);
+    for (let y = 0; y < T; y += 2) for (let x = (y / 2) % 2; x < T; x += 4) g.set(x, y, sh(c, 1.25));
+    g.rect(0, 0, T, 1, sh(c, 0.7));
+    g.rect(0, 0, 1, T, sh(c, 0.7));
+    g.rect(0, 31, T, 1, sh(c, 0.85));
+    g.rect(31, 0, 1, T, sh(c, 0.85));
+  });
+  // B+5 entrance hall: pale grey tiles, wet and shiny, with puddle highlights
+  drawTile(B + 5, (g) => {
+    const c = [150, 158, 172];
+    g.rect(0, 0, T, T, c);
+    g.noise(0, 0, T, T, 0.07, B + 5);
+    g.rect(0, 15, T, 2, sh(c, 0.78));
+    g.rect(15, 0, 2, T, sh(c, 0.78));
+    g.rect(0, 0, T, 1, sh(c, 1.2));
+    g.rect(4, 4, 6, 2, [210, 230, 255, 120]);
+    g.set(20, 22, [230, 245, 255]);
+    g.set(21, 22, [230, 245, 255]);
+    g.rect(21, 23, 4, 1, [210, 230, 255, 90]);
+  });
+  // B+6 yellow and black hazard stripes (decor), for the edge of the charging bay
+  drawTile(B + 6, (g) => {
+    for (let y = 0; y < 8; y++) for (let x = 0; x < T; x++) g.set(x, 12 + y, ((x + y) >> 2) % 2 ? [34, 34, 40] : ORANGE);
+    g.rect(0, 12, T, 1, [0, 0, 0, 60]);
+    g.rect(0, 19, T, 1, [0, 0, 0, 80]);
+  });
+  // B+7 break room: warm lino in cream and sage squares
+  drawTile(B + 7, (g) => {
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) g.set(x, y, (Math.floor(x / 16) + Math.floor(y / 16)) % 2 ? [150, 170, 140] : [214, 204, 176]);
+    g.noise(0, 0, T, T, 0.07, B + 7);
+    for (const v of [0, 16]) {
+      g.rect(0, v, T, 1, [120, 120, 100, 150]);
+      g.rect(v, 0, 1, T, [120, 120, 100, 150]);
+    }
+  });
+  // B+8 a window onto the storm: neon-lit rooftops, rain running down the glass
+  drawTile(B + 8, (g) => {
+    depotWall(g);
+    const o = canvas(T, T);
+    o.box(4, 2, 24, 20, STEELB, 1.2, 0.7);
+    o.rect(6, 4, 20, 16, [16, 20, 40]);
+    for (let j = 0; j < 16; j++) o.rect(6, 4 + j, 20, 1, [50, 40, 90, Math.round(j * 7)]);
+    o.rect(6, 14, 20, 6, [12, 14, 26]);
+    o.rect(8, 11, 4, 3, [12, 14, 26]);
+    o.rect(18, 12, 5, 2, [12, 14, 26]);
+    for (const [x, y, c] of [[9, 16, ORANGE], [14, 17, NEON], [20, 15, PINK], [10, 12, [255, 240, 150]], [21, 13, NEON], [17, 6, [255, 240, 150]]]) o.set(x, y, c);
+    o.rect(15, 4, 1, 16, STEELB);
+    const r = rng(B + 8);
+    for (let i = 0; i < 14; i++) {
+      const x = 6 + Math.floor(r() * 20), y = 4 + Math.floor(r() * 11);
+      o.rect(x, y, 1, 3 + Math.floor(r() * 3), [RAIN[0], RAIN[1], RAIN[2], 200]);
+    }
+    o.outline();
+    g.paste(o);
+  });
+  /** A wall of monitors: `shows` paints each of three screens (x, y, w, h). */
+  const screens = (index, shows) =>
+    drawTile(index, (g) => {
+      depotWall(g);
+      const o = canvas(T, T);
+      o.box(1, 3, 30, 17, [20, 22, 30], 1.4);
+      shows.forEach((show, i) => {
+        const x = 3 + i * 9;
+        o.rect(x, 5, 8, 12, [8, 12, 20]);
+        show(o, x, 5);
+        o.rect(x - 1, 5, 1, 12, [60, 64, 80]);
+      });
+      o.outline();
+      g.paste(o);
+      for (let j = 0; j < 6; j++) g.rect(0, 20 + j, T, 1, [60, 200, 255, 14 - j * 2]);
+    });
+  const bars = (c, hs) => (o, x, y) => hs.forEach((h, i) => o.rect(x + 1 + i * 2, y + 11 - h, 1, h, c));
+  const line = (c, ys) => (o, x, y) => ys.forEach((v, i) => o.set(x + i, y + v, c));
+  const text = (c) => (o, x, y) => [2, 4, 6, 8, 10].forEach((v, i) => o.rect(x + 1, y + v, 3 + ((i * 3) % 4), 1, c));
+  // B+9 screens: orders list, delivery bars, a wobbly line; B+10: heat map, red alert, text
+  screens(B + 9, [text([80, 255, 150]), bars(ORANGE, [3, 6, 4, 8, 5, 9]), line(NEON, [8, 6, 7, 3, 5, 2, 4, 1])]);
+  screens(B + 10, [(o, x, y) => { for (let j = 0; j < 5; j++) for (let i = 0; i < 4; i++) o.rect(x + 1 + i * 2, y + 1 + j * 2, 2, 2, ((i * 7 + j * 3) % 5 < 2) ? PINK : [60, 80, 140]); }, text([255, 90, 90]), bars([80, 255, 150], [8, 7, 5, 6, 3, 2])]);
+  solid(B, B + 1, B + 2, B + 8, B + 9, B + 10);
+  /** A framed thing hung on the depot wall: `draw` gets a layer to paint on. */
+  const hung = (index, draw) =>
+    drawTile(index, (g) => {
+      depotWall(g);
+      const o = canvas(T, T);
+      draw(o);
+      o.outline();
+      g.paste(o);
+      g.rect(5, 22, 22, 1, [0, 0, 0, 50]);
+    });
+  // B+11 the city street map: a grid of streets round a river and a park, one orange route (clue city-map)
+  hung(B + 11, (o) => {
+    o.box(2, 2, 28, 20, [236, 232, 214], 1.1, 0.7);
+    o.rect(4, 4, 24, 16, [214, 220, 206]);
+    o.rect(4, 12, 24, 2, [120, 170, 230]);
+    o.rect(18, 4, 2, 8, [120, 170, 230]);
+    o.rect(5, 5, 6, 4, [130, 190, 120]);
+    for (const x of [8, 12, 22, 26]) o.rect(x, 4, 1, 16, [250, 250, 244]);
+    for (const y of [8, 16, 18]) o.rect(4, y, 24, 1, [250, 250, 244]);
+    for (const [x, y] of [[6, 18], [10, 18], [12, 16], [12, 12], [12, 8], [16, 8], [22, 8], [22, 6]]) o.rect(x, y, 3, 2, ORANGE);
+    o.rect(5, 17, 2, 3, PINK);
+    o.rect(23, 5, 2, 2, [255, 255, 255]);
+    o.rect(23, 5, 2, 1, PINK);
+  });
+  // B+12 the shift plan: a whiteboard grid of riders and hours with coloured blocks (clue shift-plan)
+  hung(B + 12, (o) => {
+    o.box(2, 3, 28, 19, [240, 242, 246], 1.05, 0.75);
+    for (const y of [8, 12, 16]) o.rect(3, y, 26, 1, [170, 176, 190]);
+    for (const x of [8, 14, 20, 25]) o.rect(x, 4, 1, 17, [170, 176, 190]);
+    o.rect(3, 4, 26, 3, ORANGE);
+    for (const [x, y, w, c] of [[9, 9, 5, [90, 150, 230]], [15, 9, 10, [90, 190, 130]], [4, 13, 10, PINK], [15, 13, 5, [90, 150, 230]], [9, 17, 12, ORANGE], [21, 17, 7, PINK]]) o.rect(x, y, w, 2, c);
+  });
+  // B+13 the customer promise poster: orange, a clock face and a big tick (clue promise-poster)
+  hung(B + 13, (o) => {
+    o.box(4, 2, 24, 20, ORANGE, 1.2, 0.7);
+    o.rect(6, 4, 20, 3, [34, 34, 44]);
+    o.rect(8, 5, 16, 1, ORANGE);
+    o.ellipse(16, 14, 6, 6, [250, 248, 240]);
+    o.ellipse(16, 14, 5, 5, [34, 34, 44]);
+    o.rect(16, 10, 1, 4, ORANGE);
+    o.rect(16, 14, 3, 1, ORANGE);
+    o.rect(6, 20, 20, 1, [34, 34, 44]);
+  });
+  // B+14 the weather service's scale poster: a thermometer and a coloured rain and wind scale (clue weather-scale)
+  hung(B + 14, (o) => {
+    o.box(3, 2, 26, 20, [226, 236, 248], 1.05, 0.75);
+    o.rect(5, 4, 22, 2, [40, 90, 170]);
+    [[60, 150, 230], [60, 200, 160], [240, 220, 60], [255, 150, 40], [230, 60, 60]].forEach((c, i) => o.rect(6, 8 + i * 3, 4 + i * 4, 2, c));
+    o.rect(22, 8, 3, 10, [250, 250, 250]);
+    o.rect(23, 11, 1, 7, [230, 60, 60]);
+    o.ellipse(23, 19, 2, 2, [230, 60, 60]);
+    o.rect(6, 8, 1, 14, [0, 0, 0, 0]);
+  });
+  // B+15 a wall shelf with a fat binder and a printout hanging out: Jonas's data dictionary (clue data-dictionary)
+  hung(B + 15, (o) => {
+    o.rect(2, 20, 28, 3, WOOD);
+    o.box(4, 6, 6, 14, [40, 100, 170], 1.3);
+    o.box(11, 4, 7, 16, [220, 70, 60], 1.3);
+    o.box(19, 8, 7, 12, [60, 150, 90], 1.3);
+    o.rect(5, 9, 4, 1, [240, 240, 240]);
+    o.rect(12, 8, 5, 1, [240, 240, 240]);
+    o.box(24, 3, 7, 13, [248, 246, 238], 1, 0.85);
+    for (const y of [5, 7, 9, 11, 13]) o.rect(25, y, 5, 1, [120, 120, 140]);
+  });
+  // B+16 a yellow note pinned on a cork square: the test rule (clue test-rule)
+  hung(B + 16, (o) => {
+    o.box(4, 3, 24, 18, [186, 140, 90], 1.15, 0.7);
+    o.box(8, 5, 16, 13, [255, 238, 120], 1.1, 0.8);
+    for (const y of [8, 10, 12, 14]) o.rect(10, y, 9 + (y % 3), 1, [130, 110, 50]);
+    o.ellipse(16, 6, 1.5, 1.5, [220, 50, 50]);
+    o.rect(23, 4, 3, 3, [120, 200, 240]);
+  });
+  solid(B + 11, B + 12, B + 13, B + 14, B + 15, B + 16);
+  /** A desk with something on it, drawn by `top`. */
+  const deskWith = (index, colour, top) =>
+    drawTile(index, (g, { obj, shadow }) => {
+      shadow(16, 29, 14, 2);
+      obj((o) => {
+        deskBase(o, colour);
+        top(o);
+      });
+    });
+  // B+17 the order log terminal: an amber screen of scrolling lines
+  deskWith(B + 17, [90, 96, 116], (o) => {
+    o.box(7, 2, 18, 12, [24, 26, 34], 1.4);
+    o.rect(9, 4, 14, 8, [20, 30, 24]);
+    [4, 6, 8, 10].forEach((y, i) => o.rect(10, y, 9 + (i % 2) * 3, 1, ORANGE));
+    o.rect(10, 11, 2, 1, [255, 255, 255]);
+    o.rect(14, 14, 4, 1, [60, 60, 70]);
+    o.box(9, 15, 14, 3, [200, 204, 214], 1.1);
+  });
+  // B+18 the street terminal: a tablet in a stand showing the street grid, a pen beside it
+  deskWith(B + 18, [96, 100, 124], (o) => {
+    o.box(6, 3, 20, 11, [30, 32, 40], 1.4);
+    o.rect(8, 5, 16, 7, [210, 220, 200]);
+    for (const x of [11, 16, 21]) o.rect(x, 5, 1, 7, [255, 255, 255]);
+    o.rect(8, 8, 16, 1, [255, 255, 255]);
+    o.rect(12, 6, 5, 1, ORANGE);
+    o.rect(16, 6, 1, 3, ORANGE);
+    o.rect(24, 15, 5, 1, PINK);
+  });
+  // B+19 the weather radio desk: a ham radio with an antenna, dials and a headset
+  deskWith(B + 19, [120, 100, 80], (o) => {
+    o.rect(22, 0, 1, 8, [200, 200, 210]);
+    o.box(5, 5, 20, 10, [60, 66, 76], 1.35);
+    o.rect(7, 7, 8, 4, [90, 220, 255]);
+    o.rect(8, 8, 6, 1, [20, 60, 90]);
+    o.ellipse(19, 9, 2, 2, [220, 220, 230]);
+    o.ellipse(19, 9, 1, 1, [40, 40, 50]);
+    o.rect(7, 12, 3, 1, [255, 90, 90]);
+    o.box(26, 8, 4, 6, [40, 44, 54], 1.3);
+  });
+  // B+20 Jonas's desk: a laptop with stickers, a mug and a pile of sticky notes
+  deskWith(B + 20, WOOD, (o) => {
+    o.box(7, 3, 17, 10, [200, 204, 214], 1.15);
+    o.rect(9, 5, 13, 6, [30, 40, 60]);
+    for (const [x, y, c] of [[10, 6, ORANGE], [14, 8, NEON], [18, 6, PINK], [12, 9, [255, 255, 255]]]) o.rect(x, y, 3, 1, c);
+    o.box(5, 13, 20, 2, [150, 154, 166]);
+    o.box(26, 8, 4, 5, [60, 150, 90], 1.2);
+    o.box(2, 9, 4, 4, [255, 238, 120], 1.05);
+  });
+  // B+21 the telemetry rack: a tall cabinet of blinking boxes, a status screen and cables
+  drawTile(B + 21, (g, { obj, shadow }) => {
+    shadow(16, 29, 12, 2);
+    obj((o) => {
+      o.box(5, 1, 22, 28, [44, 48, 62], 1.3, 0.7);
+      o.rect(7, 3, 18, 7, [8, 12, 20]);
+      o.rect(8, 4, 4, 5, ORANGE);
+      o.rect(13, 6, 4, 3, NEON);
+      o.rect(18, 5, 5, 4, PINK);
+      for (const y of [12, 16, 20]) {
+        o.box(7, y, 18, 3, [70, 76, 96], 1.2);
+        for (const x of [9, 12, 15]) o.set(x, y + 1, (x + y) % 2 ? [80, 255, 150] : ORANGE);
+        o.rect(20, y + 1, 4, 1, [30, 32, 40]);
+      }
+      o.rect(8, 24, 16, 1, [120, 220, 255]);
+      for (const x of [10, 14, 18, 22]) o.rect(x, 25, 1, 4, x % 8 ? PINK : NEON);
+    });
+  });
+  // B+22, B+23 the dispatcher's console: a long desk with three monitors, a headset and a microphone
+  drawPiece([[B + 22, B + 23]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(1, 14, 62, 11, [70, 76, 100], 1.25, 0.7);
+      o.rect(1, 17, 62, 1, [40, 44, 60]);
+      for (const x of [4, 57]) o.rect(x, 25, 3, 5, [40, 44, 60]);
+      for (const [x, c] of [[4, NEON], [24, ORANGE], [44, PINK]]) {
+        o.box(x, 2, 16, 11, [20, 22, 30], 1.4);
+        o.rect(x + 2, 4, 12, 7, [10, 14, 24]);
+        for (const y of [5, 7, 9]) o.rect(x + 3, y, 6 + ((x + y) % 5), 1, c);
+        o.rect(x + 7, 13, 2, 1, [20, 22, 30]);
+      }
+      o.ellipse(40, 12, 3, 2, [200, 200, 210]);
+      o.rect(40, 7, 1, 5, [200, 200, 210]);
+      o.box(10, 16, 14, 4, [30, 32, 40], 1.3);
+      o.box(50, 15, 6, 6, [255, 90, 90], 1.3);
+    });
+  });
+  // B+24 the fax machine on a little stand, paper curling out of it (clue network-fax)
+  drawTile(B + 24, (g, { obj, shadow }) => {
+    shadow(16, 29, 11, 2);
+    obj((o) => {
+      o.rect(8, 20, 2, 9, [90, 96, 110]);
+      o.rect(22, 20, 2, 9, [90, 96, 110]);
+      o.box(5, 17, 22, 4, [120, 126, 140], 1.2);
+      o.box(7, 8, 18, 10, [214, 216, 222], 1.1);
+      o.rect(9, 10, 8, 3, [30, 40, 60]);
+      o.rect(10, 11, 5, 1, [90, 220, 150]);
+      for (let i = 0; i < 4; i++) o.set(19 + i, 11, [90, 96, 110]);
+      o.box(9, 2, 14, 7, [248, 246, 238], 1, 0.85);
+      o.box(10, 15, 12, 6, [248, 246, 238], 1, 0.85);
+      for (const y of [4, 6]) o.rect(11, y, 9, 1, [120, 120, 140]);
+      for (const y of [17, 19]) o.rect(12, y, 7, 1, [120, 120, 140]);
+    });
+  });
+  // B+25 a pegboard of tools with the telemetry manual hung on a hook (clue telemetry-manual)
+  hung(B + 25, (o) => {
+    o.box(2, 2, 28, 20, [150, 120, 84], 1.15, 0.7);
+    for (let y = 4; y < 21; y += 3) for (let x = 4; x < 29; x += 3) o.set(x, y, [90, 66, 44]);
+    o.rect(5, 5, 2, 10, [190, 196, 210]);
+    o.rect(5, 15, 2, 3, [214, 64, 48]);
+    o.rect(26, 5, 2, 10, [190, 196, 210]);
+    o.ellipse(8, 17, 2, 2, [50, 54, 66]);
+    o.box(11, 4, 12, 16, [30, 90, 160], 1.3, 0.7);
+    o.rect(13, 7, 8, 1, ORANGE);
+    o.rect(13, 9, 6, 1, [240, 240, 240]);
+    o.rect(13, 11, 7, 1, [240, 240, 240]);
+    o.ellipse(17, 4, 1.5, 1.5, [210, 210, 220]);
+  });
+  solid(B + 17, B + 18, B + 19, B + 20, B + 21, B + 22, B + 23, B + 24, B + 25);
+  // B+26, B+27 a cargo bike: a long frame with a big front box in orange, the brand name stripe on it
+  drawPiece([[B + 26, B + 27]], (g, { obj, shadow }) => {
+    shadow(32, 29, 30, 3);
+    obj((o) => {
+      o.box(2, 8, 24, 14, ORANGE, 1.25, 0.7);
+      o.rect(4, 14, 20, 3, [34, 34, 44]);
+      o.rect(6, 15, 3, 1, ORANGE);
+      o.rect(11, 15, 6, 1, ORANGE);
+      for (const x of [10, 52]) {
+        o.ellipse(x, 24, 6, 6, [30, 30, 36]);
+        o.ellipse(x, 24, 4, 4, [150, 156, 170]);
+        o.ellipse(x, 24, 1.5, 1.5, [60, 64, 76]);
+      }
+      o.rect(10, 20, 36, 2, [60, 66, 80]);
+      o.rect(34, 12, 3, 9, [60, 66, 80]);
+      o.rect(46, 10, 1, 12, [60, 66, 80]);
+      o.rect(43, 9, 8, 2, [50, 54, 66]);
+      o.box(32, 10, 8, 3, [50, 54, 66]);
+    });
+  });
+  // B+28 an e-scooter plugged into its charger: a green light and a cable
+  drawTile(B + 28, (g, { obj, shadow }) => {
+    shadow(16, 29, 11, 2);
+    obj((o) => {
+      o.rect(21, 4, 2, 20, [60, 66, 80]);
+      o.rect(18, 4, 8, 2, [50, 54, 66]);
+      o.box(7, 20, 18, 4, [34, 160, 120], 1.3);
+      for (const x of [9, 22]) {
+        o.ellipse(x, 26, 3, 3, [30, 30, 36]);
+        o.ellipse(x, 26, 1.5, 1.5, [150, 156, 170]);
+      }
+      o.box(3, 12, 8, 10, [50, 54, 66], 1.3);
+      o.rect(5, 14, 4, 1, [90, 255, 150]);
+      o.rect(10, 16, 3, 1, [90, 255, 150]);
+    });
+  });
+  // B+29 a dispatcher's swivel chair seen from behind (a seat, not solid)
+  drawTile(B + 29, (g, { obj, shadow }) => {
+    shadow(16, 29, 10, 2);
+    obj((o) => {
+      o.rect(15, 20, 2, 7, [60, 64, 76]);
+      o.rect(9, 27, 14, 2, [60, 64, 76]);
+      o.box(8, 15, 16, 6, [60, 70, 110], 1.2, 0.7);
+      o.box(9, 3, 14, 13, [50, 58, 96], 1.25, 0.7);
+      o.rect(11, 5, 10, 1, ORANGE);
+    });
+  });
+  // B+30 the break-room counter: a coffee machine and a stack of cups, a kettle
+  drawTile(B + 30, (g, { obj, shadow }) => {
+    shadow(16, 29, 14, 2);
+    obj((o) => {
+      o.box(1, 14, 30, 15, [196, 190, 176], 1.15, 0.75);
+      o.rect(1, 14, 30, 3, [90, 96, 110]);
+      o.rect(3, 20, 12, 1, [140, 136, 124]);
+      o.rect(17, 20, 12, 1, [140, 136, 124]);
+      o.box(5, 3, 10, 12, [40, 44, 56], 1.3);
+      o.rect(7, 5, 6, 2, [90, 255, 150]);
+      o.rect(8, 11, 4, 4, [250, 250, 240]);
+      o.box(19, 9, 6, 6, [200, 204, 214], 1.2);
+      o.rect(25, 10, 3, 1, [200, 204, 214]);
+      o.box(26, 11, 3, 4, ORANGE, 1.2);
+    });
+  });
+  // B+31 a rack of courier helmets and rain capes by the door, a puddle underneath
+  drawTile(B + 31, (g, { obj, shadow }) => {
+    shadow(16, 29, 13, 2);
+    g.ellipse(16, 28, 9, 2, [140, 180, 255, 80]);
+    obj((o) => {
+      o.rect(4, 6, 24, 2, STEELB);
+      o.rect(5, 6, 2, 22, STEELB);
+      o.rect(25, 6, 2, 22, STEELB);
+      for (const x of [9, 17]) {
+        o.ellipse(x + 3, 12, 4, 4, ORANGE);
+        o.rect(x - 1, 14, 9, 1, sh(ORANGE, 0.7));
+      }
+      o.box(21, 8, 4, 14, [230, 200, 50], 1.2);
+      o.box(8, 18, 12, 9, [40, 60, 110], 1.2);
+    });
+  });
+  solid(B + 26, B + 27, B + 28, B + 30, B + 31);
+}
+// --- end ml-courier ---
 
 // --- Avatar parts: one template row per hair style x shirt style, then one overlay row per accessory
 // Columns = direction x 3 frames (idle, step, step), directions in order down, left, right, up.

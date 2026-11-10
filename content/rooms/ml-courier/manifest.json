@@ -1,0 +1,643 @@
+{
+ "version": 1,
+ "salt": "6fce1ed0707d8bc2",
+ "title": {
+  "en": "Rush Hour",
+  "de": "Stoßzeit"
+ },
+ "category": "ml",
+ "difficulty": "advanced",
+ "about": {
+  "tools": [
+   "Python",
+   "pandas",
+   "scikit-learn"
+  ],
+  "practises": {
+   "en": "Feature engineering and selection: date features, distances, encoding categories, ColumnTransformer and pipelines, data leakage, and picking the few columns that matter.",
+   "de": "Feature Engineering und Feature-Auswahl: Datumsmerkmale, Distanzen, Kategorien kodieren, ColumnTransformer und Pipelines, Data Leakage und die wenigen Spalten finden, die zählen."
+  },
+  "story": {
+   "en": "A courier service must promise delivery times on marathon night, from a messy order log.",
+   "de": "Ein Kurierdienst muss in der Marathonnacht Lieferzeiten versprechen, aus einem unordentlichen Auftragsprotokoll."
+  }
+ },
+ "intro": {
+  "en": "Sunday, 15 November, 16:40, the Blitzkurier depot. The city marathon closed the streets all day, and tonight everyone who ran, watched or got stuck orders dinner. A storm is rolling in.\n\nSince the new app went live last week, the delivery-time model can't promise anything for a new order, and Jonas, who built it, is on a boat with no signal. Every order needs a promise before it is accepted, and the first ones come in at 17:00. What dispatch has: two months of raw orders, Jonas's notes and Ilse, the night dispatcher, who knows the city.\n\nBuild a model that can promise tonight. This room loads Python with pandas and scikit-learn, so the first puzzle you open takes a little while.",
+  "de": "Sonntag, 15. November, 16:40, das Depot von Blitzkurier. Der Stadtmarathon hat den ganzen Tag die Straßen gesperrt, und heute Abend bestellen alle, die gelaufen sind, zugeschaut haben oder festsaßen, ihr Abendessen. Ein Sturm zieht auf.\n\nSeit letzte Woche die neue App live ging, kann das Modell für Lieferzeiten für einen neuen Auftrag nichts mehr versprechen, und Jonas, der es gebaut hat, sitzt auf einem Boot ohne Empfang. Jeder Auftrag braucht ein Versprechen, bevor er angenommen wird, und die ersten kommen um 17:00. Was die Zentrale hat: zwei Monate rohe Aufträge, Jonas' Notizen und Ilse, die Nachtdisponentin, die die Stadt kennt.\n\nBaut ein Modell, das heute Nacht versprechen kann. Dieser Raum lädt Python mit pandas und scikit-learn, das erste Rätsel, das ihr öffnet, braucht also einen Moment."
+ },
+ "packages": [
+  "pandas",
+  "scikit-learn"
+ ],
+ "puzzles": [
+  {
+   "id": "raw-log",
+   "title": {
+    "en": "The raw log",
+    "de": "Das rohe Protokoll"
+   },
+   "text": {
+    "en": "The dispatch terminal shows the order log as it was exported: `orders` has one row per order of September and October, indexed by order number, with the minutes from order to door in `minutes`. Its `ordered_at` column is plain text, and Jonas's model only ever read numbers. Does the time of day cost minutes, and how many?\n\n1. Turn `ordered_at` into timestamps and take the hour and the weekday from them.\n2. Fit a `LinearRegression` on the items and the hour as a number, and one on the items and a 0/1 column `rush` that marks dispatch's rush hours. Fit each on dispatch's training part, and store their test MAE in minutes as `mae_hour` and `mae_rush`.\n3. Store what the rush flag adds, in minutes, as `rush_minutes`.",
+    "de": "Das Terminal der Zentrale zeigt das Auftragsprotokoll so, wie es exportiert wurde: `orders` hat eine Zeile pro Auftrag aus September und Oktober, indiziert nach Auftragsnummer, mit den Minuten von der Bestellung bis zur Tür in `minutes`. Die Spalte `ordered_at` ist reiner Text, und Jonas' Modell hat immer nur Zahlen gelesen. Kostet die Tageszeit Minuten, und wie viele?\n\n1. Macht aus `ordered_at` Zeitstempel und nehmt daraus die Stunde und den Wochentag.\n2. Trainiert eine `LinearRegression` auf den Artikeln und der Stunde als Zahl, und eine auf den Artikeln und einer 0/1-Spalte `rush`, die die Stoßzeiten der Zentrale markiert. Trainiert jede auf dem Trainingsteil der Zentrale und speichert ihren Test-MAE in Minuten als `mae_hour` und `mae_rush`.\n3. Speichert, was das Rush-Flag dazurechnet, in Minuten, als `rush_minutes`."
+   },
+   "workspace": "python",
+   "data": "orders.py",
+   "starter": {
+    "en": "import pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\nprint(orders[[\"ordered_at\", \"items\", \"minutes\"]].head())\nprint(orders[\"ordered_at\"].dtype)   # text, not a time\n\ny = orders[\"minutes\"]\n\nmae_hour = None       # test MAE: the items and the hour as a number\nmae_rush = None       # test MAE: the items and the rush flag\nrush_minutes = None   # what the rush flag adds, in minutes\n",
+    "de": "import pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\nprint(orders[[\"ordered_at\", \"items\", \"minutes\"]].head())\nprint(orders[\"ordered_at\"].dtype)   # Text, keine Zeit\n\ny = orders[\"minutes\"]\n\nmae_hour = None       # Test-MAE: die Artikel und die Stunde als Zahl\nmae_rush = None       # Test-MAE: die Artikel und das Rush-Flag\nrush_minutes = None   # was das Rush-Flag dazurechnet, in Minuten\n"
+   },
+   "check": {
+    "type": "python",
+    "expr": "_raw_log_check(mae_hour, mae_rush, rush_minutes)",
+    "hash": "ddec88debc598b4d166eb62157a9d50b49d06394e0054d415020d48f947ac92b"
+   },
+   "reveal": {
+    "en": "Rush hour adds **9 minutes** (8.9) to an order. The hour as a number can't show it: a straight line in the hour can only rise or fall all day, but the minutes go up at lunch, down in the afternoon and up again in the evening. A flag built from what dispatch knows about its own city beats the raw number, and on a Sunday the lunch rush simply doesn't happen.",
+    "de": "Die Stoßzeit rechnet **9 Minuten** (8,9) auf einen Auftrag. Die Stunde als Zahl kann das nicht zeigen: Eine Gerade in der Stunde kann den ganzen Tag nur steigen oder fallen, aber die Minuten gehen mittags hoch, nachmittags runter und abends wieder hoch. Ein Flag aus dem, was die Zentrale über ihre eigene Stadt weiß, schlägt die rohe Zahl, und an einem Sonntag fällt die Mittagsspitze einfach aus."
+   },
+   "practises": {
+    "en": "Datetime features: pd.to_datetime, .dt.hour and .dt.dayofweek, a rush-hour flag from domain knowledge instead of the raw hour",
+    "de": "Datumsmerkmale: pd.to_datetime, .dt.hour und .dt.dayofweek, ein Stoßzeit-Flag aus Fachwissen statt der rohen Stunde"
+   },
+   "clues": [
+    "shift-plan",
+    "test-rule"
+   ],
+   "hints": [
+    {
+     "en": "The shift plan on the wall says when dispatch has every courier on the road, and the note by the server says how dispatch tests its models. `pd.to_datetime(orders[\"ordered_at\"])` gives timestamps; `.dt.hour` and `.dt.dayofweek` (Monday = 0) take them apart.",
+     "de": "Der Schichtplan an der Wand sagt, wann die Zentrale alle Kuriere auf der Straße hat, und der Zettel am Server sagt, wie die Zentrale ihre Modelle testet. `pd.to_datetime(orders[\"ordered_at\"])` gibt Zeitstempel; `.dt.hour` und `.dt.dayofweek` (Montag = 0) nehmen sie auseinander."
+    },
+    {
+     "en": "`rush = ((hour.between(12, 13) & (weekday < 5)) | hour.between(17, 19)).astype(int)`. Split once with dispatch's rule, then fit both models on the same training rows.",
+     "de": "`rush = ((hour.between(12, 13) & (weekday < 5)) | hour.between(17, 19)).astype(int)`. Teilt einmal nach der Regel der Zentrale und trainiert dann beide Modelle auf denselben Trainingszeilen."
+    },
+    {
+     "en": "`X = pd.DataFrame({\"items\": orders[\"items\"], \"rush\": rush})`, `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=4)`, `m = LinearRegression().fit(X_train, y_train)`, `mae_rush = mean_absolute_error(y_test, m.predict(X_test))`, `rush_minutes = m.coef_[1]`. The same with `hour` instead of `rush` gives `mae_hour`.",
+     "de": "`X = pd.DataFrame({\"items\": orders[\"items\"], \"rush\": rush})`, `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=4)`, `m = LinearRegression().fit(X_train, y_train)`, `mae_rush = mean_absolute_error(y_test, m.predict(X_test))`, `rush_minutes = m.coef_[1]`. Dasselbe mit `hour` statt `rush` gibt `mae_hour`."
+    }
+   ]
+  },
+  {
+   "id": "street",
+   "title": {
+    "en": "Couriers can't fly",
+    "de": "Kuriere können nicht fliegen"
+   },
+   "text": {
+    "en": "The map room's terminal still has Jonas's half-finished routing sheet open. `orders` has every pickup and drop-off as grid coordinates (`pickup_x`, `pickup_y`, `drop_x`, `drop_y`). How long does a courier need per block?\n\n1. Compute the straight-line distance between pickup and drop-off, and the distance a courier really rides.\n2. Fit a `LinearRegression` on each distance alone, on dispatch's training part, and store their test MAE in minutes as `mae_straight` and `mae_street`.\n3. Store what one more block adds in the model on the distance a courier rides, in seconds, as `seconds_per_block`.",
+    "de": "Am Terminal im Kartenraum ist noch Jonas' halb fertige Routentabelle offen. `orders` hat jede Abholung und Abgabe als Gitterkoordinaten (`pickup_x`, `pickup_y`, `drop_x`, `drop_y`). Wie lange braucht ein Kurier pro Block?\n\n1. Berechnet die Luftlinie zwischen Abholung und Abgabe und die Strecke, die ein Kurier wirklich fährt.\n2. Trainiert eine `LinearRegression` auf jeder Distanz allein, auf dem Trainingsteil der Zentrale, und speichert ihren Test-MAE in Minuten als `mae_straight` und `mae_street`.\n3. Speichert, was ein Block mehr im Modell auf der gefahrenen Strecke dazurechnet, in Sekunden, als `seconds_per_block`."
+   },
+   "workspace": "python",
+   "data": "orders.py",
+   "starter": {
+    "en": "import numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\nprint(orders[[\"pickup_x\", \"pickup_y\", \"drop_x\", \"drop_y\", \"minutes\"]].head())\n\ndx = orders[\"drop_x\"] - orders[\"pickup_x\"]\ndy = orders[\"drop_y\"] - orders[\"pickup_y\"]\n\nmae_straight = None        # test MAE: the straight-line distance alone\nmae_street = None          # test MAE: the distance a courier rides, alone\nseconds_per_block = None   # what one more block adds, in seconds\n",
+    "de": "import numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\nprint(orders[[\"pickup_x\", \"pickup_y\", \"drop_x\", \"drop_y\", \"minutes\"]].head())\n\ndx = orders[\"drop_x\"] - orders[\"pickup_x\"]\ndy = orders[\"drop_y\"] - orders[\"pickup_y\"]\n\nmae_straight = None        # Test-MAE: nur die Luftlinie\nmae_street = None          # Test-MAE: nur die Strecke, die ein Kurier fährt\nseconds_per_block = None   # was ein Block mehr dazurechnet, in Sekunden\n"
+   },
+   "check": {
+    "type": "python",
+    "expr": "_street_check(mae_straight, mae_street, seconds_per_block)",
+    "hash": "ac7e87e3fe2b95b59ed56eefe4ef28a9b0f0fb35320bc4c1810f8a7a46a7d247"
+   },
+   "reveal": {
+    "en": "A courier needs **85 seconds per block**. The straight line is shorter than any real route, and by how much depends on the direction: a trip straight along one street is as long as the crow flies, a diagonal one up to 41 % longer. The street distance, `abs(dx) + abs(dy)`, is what the bike actually rides, and alone it already beats the straight line. A feature that matches how the world works is worth more than any model tuning.",
+    "de": "Ein Kurier braucht **85 Sekunden pro Block**. Die Luftlinie ist kürzer als jede echte Route, und um wie viel, hängt von der Richtung ab: Eine Fahrt eine Straße entlang ist so lang wie die Luftlinie, eine schräge bis zu 41 % länger. Die Straßenstrecke, `abs(dx) + abs(dy)`, ist das, was das Rad wirklich fährt, und schon allein schlägt sie die Luftlinie. Ein Merkmal, das zeigt, wie die Welt funktioniert, ist mehr wert als jedes Feintuning am Modell."
+   },
+   "practises": {
+    "en": "An engineered feature: Euclidean vs Manhattan distance from coordinates, reading a coefficient in other units",
+    "de": "Ein konstruiertes Merkmal: euklidische vs. Manhattan-Distanz aus Koordinaten, einen Koeffizienten in anderen Einheiten lesen"
+   },
+   "clues": [
+    "city-map",
+    "test-rule"
+   ],
+   "hints": [
+    {
+     "en": "Look at the city map on the wall: how do the streets run? The split follows the note by the server. `np.hypot(dx, dy)` is the straight line.",
+     "de": "Schaut euch den Stadtplan an der Wand an: Wie verlaufen die Straßen? Der Split folgt dem Zettel am Server. `np.hypot(dx, dy)` ist die Luftlinie."
+    },
+    {
+     "en": "With no diagonal streets, a courier rides all of `dx` along one street and all of `dy` along another: `dx.abs() + dy.abs()` blocks. Fit each distance as a one-column table, e.g. `pd.DataFrame({\"blocks\": blocks})`.",
+     "de": "Ohne schräge Straßen fährt ein Kurier das ganze `dx` eine Straße entlang und das ganze `dy` eine andere: `dx.abs() + dy.abs()` Blöcke. Trainiert jede Distanz als Tabelle mit einer Spalte, z. B. `pd.DataFrame({\"blocks\": blocks})`."
+    },
+    {
+     "en": "`X_train, X_test, y_train, y_test = train_test_split(pd.DataFrame({\"blocks\": blocks}), orders[\"minutes\"], test_size=0.25, random_state=4)`, `m = LinearRegression().fit(X_train, y_train)`, `mae_street = mean_absolute_error(y_test, m.predict(X_test))`, `seconds_per_block = m.coef_[0] * 60`. The same with `np.hypot(dx, dy)` gives `mae_straight`.",
+     "de": "`X_train, X_test, y_train, y_test = train_test_split(pd.DataFrame({\"blocks\": blocks}), orders[\"minutes\"], test_size=0.25, random_state=4)`, `m = LinearRegression().fit(X_train, y_train)`, `mae_street = mean_absolute_error(y_test, m.predict(X_test))`, `seconds_per_block = m.coef_[0] * 60`. Dasselbe mit `np.hypot(dx, dy)` gibt `mae_straight`."
+    }
+   ]
+  },
+  {
+   "id": "weather",
+   "title": {
+    "en": "Weather and vehicles",
+    "de": "Wetter und Fahrzeuge"
+   },
+   "text": {
+    "en": "At the radio desk, the trainee has started a model that reads the vehicle (`bike`, `scooter`, `cargo`) and the weather as words. Tonight a storm is coming. How many minutes does a storm add over a dry evening?\n\n1. Fix the trainee's pipeline: the vehicle one-hot encoded, the weather turned into its level, the items kept, then a `LinearRegression`, fitted on all orders. Keep it as `model`.\n2. Store how many minutes your model adds for a storm instead of dry weather, everything else equal, as `storm_minutes`.",
+    "de": "Am Funktisch hat der Azubi ein Modell angefangen, das das Fahrzeug (`bike`, `scooter`, `cargo`) und das Wetter als Wörter liest. Heute Nacht kommt ein Sturm. Wie viele Minuten rechnet ein Sturm gegenüber einem trockenen Abend dazu?\n\n1. Repariert die Pipeline des Azubis: das Fahrzeug one-hot-kodiert, das Wetter in seine Stufe verwandelt, die Artikel behalten, dann eine `LinearRegression`, trainiert auf allen Aufträgen. Behaltet sie als `model`.\n2. Speichert, wie viele Minuten euer Modell bei sonst Gleichem für einen Sturm statt trockenem Wetter dazurechnet, als `storm_minutes`."
+   },
+   "workspace": "python",
+   "data": "orders.py",
+   "starter": {
+    "en": "import pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, OrdinalEncoder\n\nprint(orders[\"weather\"].value_counts())\nprint(orders[\"vehicle\"].value_counts())\n\n# The trainee's model\nencode = ColumnTransformer([\n    (\"vehicle\", OneHotEncoder(), [\"vehicle\"]),\n    (\"weather\", OrdinalEncoder(), [\"weather\"]),\n], remainder=\"passthrough\")\nmodel = make_pipeline(encode, LinearRegression())\nmodel.fit(orders[[\"vehicle\", \"weather\", \"items\"]], orders[\"minutes\"])\n\nevening = pd.DataFrame({\"vehicle\": [\"bike\", \"bike\"], \"weather\": [\"dry\", \"storm\"], \"items\": [3, 3]})\nprint(model.predict(evening))\n\nstorm_minutes = None   # what a storm adds over a dry evening, in minutes\n",
+    "de": "import pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, OrdinalEncoder\n\nprint(orders[\"weather\"].value_counts())\nprint(orders[\"vehicle\"].value_counts())\n\n# Das Modell des Azubis\nencode = ColumnTransformer([\n    (\"vehicle\", OneHotEncoder(), [\"vehicle\"]),\n    (\"weather\", OrdinalEncoder(), [\"weather\"]),\n], remainder=\"passthrough\")\nmodel = make_pipeline(encode, LinearRegression())\nmodel.fit(orders[[\"vehicle\", \"weather\", \"items\"]], orders[\"minutes\"])\n\nevening = pd.DataFrame({\"vehicle\": [\"bike\", \"bike\"], \"weather\": [\"dry\", \"storm\"], \"items\": [3, 3]})\nprint(model.predict(evening))\n\nstorm_minutes = None   # was ein Sturm gegenüber einem trockenen Abend dazurechnet, in Minuten\n"
+   },
+   "check": {
+    "type": "python",
+    "expr": "_weather_check(model, storm_minutes)",
+    "hash": "d87b3fac035bed8e1452aa07517e3aa00b05522762f8fcfecd7606a3b31fce11"
+   },
+   "reveal": {
+    "en": "A storm adds **12 minutes** (11.9) over a dry evening: about 4 minutes per level. The log has never seen a storm, so no encoder can learn one from it. One-hot encoding either refuses the unknown word or, with `handle_unknown=\"ignore\"`, quietly prices a storm like a dry night. The service's scale puts the weather in order, and a level on that scale lets a linear model carry on past the last level it has seen. The default `OrdinalEncoder` sorts words alphabetically, which puts drizzle before dry.",
+    "de": "Ein Sturm rechnet **12 Minuten** (11,9) gegenüber einem trockenen Abend dazu: etwa 4 Minuten pro Stufe. Das Protokoll hat noch nie einen Sturm gesehen, also kann kein Encoder ihn daraus lernen. One-Hot-Encoding lehnt das unbekannte Wort entweder ab oder bewertet einen Sturm mit `handle_unknown=\"ignore\"` stillschweigend wie eine trockene Nacht. Die Skala des Wetterdiensts bringt das Wetter in eine Reihenfolge, und eine Stufe auf dieser Skala lässt ein lineares Modell über die letzte gesehene Stufe hinaus weiterrechnen. Der `OrdinalEncoder` sortiert Wörter von sich aus alphabetisch, und dann kommt Nieselregen vor trocken."
+   },
+   "practises": {
+    "en": "Encoding categories: OneHotEncoder for unordered ones, OrdinalEncoder with an explicit order, a ColumnTransformer in a pipeline, a category the training data has never seen",
+    "de": "Kategorien kodieren: OneHotEncoder für ungeordnete, OrdinalEncoder mit vorgegebener Reihenfolge, ein ColumnTransformer in einer Pipeline, eine Kategorie, die die Trainingsdaten nie gesehen haben"
+   },
+   "clues": [
+    "weather-scale"
+   ],
+   "hints": [
+    {
+     "en": "The weather service's poster by the radio shows its scale. Run the starter: what does the encoder say about `'storm'`? And print `encode.named_transformers_[\"weather\"].categories_` to see the order it chose.",
+     "de": "Das Plakat des Wetterdiensts am Funkgerät zeigt seine Skala. Lasst den Starter laufen: Was sagt der Encoder zu `'storm'`? Und gebt `encode.named_transformers_[\"weather\"].categories_` aus, um die Reihenfolge zu sehen, die er gewählt hat."
+    },
+    {
+     "en": "`OrdinalEncoder(categories=[[\"dry\", \"drizzle\", \"rain\", \"storm\"]])` turns the words into 0 to 3, in that order, and knows a storm even though the log has none.",
+     "de": "`OrdinalEncoder(categories=[[\"dry\", \"drizzle\", \"rain\", \"storm\"]])` macht aus den Wörtern 0 bis 3, in dieser Reihenfolge, und kennt einen Sturm, obwohl das Protokoll keinen hat."
+    },
+    {
+     "en": "With that encoder in the `ColumnTransformer`, fit again, then `p = model.predict(evening)` and `storm_minutes = p[1] - p[0]`.",
+     "de": "Mit diesem Encoder im `ColumnTransformer` trainiert neu, dann `p = model.predict(evening)` und `storm_minutes = p[1] - p[0]`."
+    }
+   ]
+  },
+  {
+   "id": "leaks",
+   "title": {
+    "en": "Too good to be true",
+    "de": "Zu gut, um wahr zu sein"
+   },
+   "text": {
+    "en": "Jonas's laptop holds the model that promised every delivery until the new app went live last week. On his test part it scores an R² of almost 1. Since the switch, it can't promise anything for a new order. Is it as good as it looks?\n\n1. Run Jonas's code. Find every column that dispatch doesn't know yet when an order comes in, and store their names as `leaks`.\n2. Fit the same model on the remaining number columns, on dispatch's split, and store its test MAE in minutes as `honest_mae`.\n3. Store how many of the test orders the honest model would have had to refund as `refunds`.",
+    "de": "Auf Jonas' Laptop liegt das Modell, das jede Lieferung versprochen hat, bis letzte Woche die neue App live ging. Auf seinem Testteil erreicht es ein R² von fast 1. Seit der Umstellung kann es für einen neuen Auftrag nichts mehr versprechen. Ist es so gut, wie es aussieht?\n\n1. Lasst Jonas' Code laufen. Findet jede Spalte, die die Zentrale noch nicht kennt, wenn ein Auftrag eingeht, und speichert ihre Namen als `leaks`.\n2. Trainiert dasselbe Modell auf den übrigen Zahlenspalten, mit dem Split der Zentrale, und speichert seinen Test-MAE in Minuten als `honest_mae`.\n3. Speichert, wie viele der Testaufträge das ehrliche Modell hätte erstatten müssen, als `refunds`."
+   },
+   "workspace": "python",
+   "data": "orders.py",
+   "starter": {
+    "en": "import pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error, r2_score\nfrom sklearn.model_selection import train_test_split\n\n# Jonas's model: every number column of the log\ny = orders[\"minutes\"]\nnumbers = orders.select_dtypes(\"number\").drop(columns=\"minutes\")\nX_train, X_test, y_train, y_test = train_test_split(numbers, y)\njonas = LinearRegression().fit(X_train, y_train)\nprint(\"R²\", r2_score(y_test, jonas.predict(X_test)))\nprint(\"MAE\", mean_absolute_error(y_test, jonas.predict(X_test)))\n\nleaks = []           # the columns dispatch doesn't know yet when an order comes in\nhonest_mae = None    # test MAE of the same model without them\nrefunds = None       # test orders the honest model would have had to refund\n",
+    "de": "import pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error, r2_score\nfrom sklearn.model_selection import train_test_split\n\n# Jonas' Modell: jede Zahlenspalte des Protokolls\ny = orders[\"minutes\"]\nnumbers = orders.select_dtypes(\"number\").drop(columns=\"minutes\")\nX_train, X_test, y_train, y_test = train_test_split(numbers, y)\njonas = LinearRegression().fit(X_train, y_train)\nprint(\"R²\", r2_score(y_test, jonas.predict(X_test)))\nprint(\"MAE\", mean_absolute_error(y_test, jonas.predict(X_test)))\n\nleaks = []           # die Spalten, die die Zentrale noch nicht kennt, wenn ein Auftrag eingeht\nhonest_mae = None    # Test-MAE desselben Modells ohne sie\nrefunds = None       # Testaufträge, die das ehrliche Modell hätte erstatten müssen\n"
+   },
+   "check": {
+    "type": "python",
+    "expr": "_leak_check(leaks, honest_mae, refunds)",
+    "hash": "455680d24b6fab0cc787a8b1a727bb859b3bcbce834253c88ba30a5fa2feae97"
+   },
+   "lock": {
+    "text": {
+     "en": "Jonas's laptop is locked. On a sticky note under the keyboard: \"PIN = what rush hour adds, then what a storm adds, both in whole minutes.\"",
+     "de": "Jonas' Laptop ist gesperrt. Auf einem Klebezettel unter der Tastatur: „PIN = was die Stoßzeit dazurechnet, dann was ein Sturm dazurechnet, beides in ganzen Minuten.“"
+    },
+    "from": "raw-log",
+    "mode": "number",
+    "hash": "c81ebbd696216edb8d6dc4e168494cee29ef8b6f62707f6e875308fbabdb7af3"
+   },
+   "uses": [
+    "raw-log",
+    "weather"
+   ],
+   "reveal": {
+    "en": "Without `kitchen_wait`, `gps_pings` and `rating`, Jonas's model misses by 5.8 minutes, not 0.6, and **48** of the 500 test orders would have been free. The GPS pings count the minutes on the road, the kitchen wait is only known at pickup, and the stars come after the door: each was known only once the answer was. That is data leakage. A test score is only honest if the model sees exactly what it will see when it is used, and for a new order the app has none of these yet.",
+    "de": "Ohne `kitchen_wait`, `gps_pings` und `rating` liegt Jonas' Modell 5,8 Minuten daneben, nicht 0,6, und **48** der 500 Testaufträge wären gratis gewesen. Die GPS-Pings zählen die Minuten auf der Straße, die Wartezeit in der Küche kennt man erst bei der Abholung, und die Sterne kommen nach der Tür: Jede war erst bekannt, als die Antwort schon feststand. Das ist Data Leakage. Ein Testwert ist nur ehrlich, wenn das Modell genau das sieht, was es beim Einsatz sehen wird, und für einen neuen Auftrag hat die App nichts davon."
+   },
+   "practises": {
+    "en": "Data leakage: columns known only after the target, a suspiciously good score, an honest test MAE, a business metric from the predictions",
+    "de": "Data Leakage: Spalten, die erst nach dem Ziel bekannt sind, ein verdächtig guter Wert, ein ehrlicher Test-MAE, eine Geschäftskennzahl aus den Vorhersagen"
+   },
+   "clues": [
+    "data-dictionary",
+    "promise-poster",
+    "test-rule"
+   ],
+   "hints": [
+    {
+     "en": "The data dictionary next to the laptop says when each column is filled in. The poster on the wall says when a delivery is free. And Jonas's split doesn't follow the note by the server yet.",
+     "de": "Das Datenwörterbuch neben dem Laptop sagt, wann jede Spalte ausgefüllt wird. Das Plakat an der Wand sagt, wann eine Lieferung gratis ist. Und Jonas' Split folgt noch nicht dem Zettel am Server."
+    },
+    {
+     "en": "Anything filled in after the order (at pickup, on the road, after the door) is a leak. `numbers.drop(columns=leaks)`, then the split with `test_size=0.25, random_state=4`. A refund is a test order that took more than 10 minutes longer than the model promised: `(y_test - prediction) > 10`.",
+     "de": "Alles, was nach der Bestellung ausgefüllt wird (bei der Abholung, unterwegs, nach der Tür), ist ein Leck. `numbers.drop(columns=leaks)`, dann der Split mit `test_size=0.25, random_state=4`. Eine Erstattung ist ein Testauftrag, der mehr als 10 Minuten länger gedauert hat, als das Modell versprochen hat: `(y_test - prediction) > 10`."
+    },
+    {
+     "en": "`leaks = [\"kitchen_wait\", \"gps_pings\", \"rating\"]`, `honest = numbers.drop(columns=leaks)`, split, fit, `p = model.predict(X_test)`, `honest_mae = mean_absolute_error(y_test, p)`, `refunds = int(((y_test - p) > 10).sum())`.",
+     "de": "`leaks = [\"kitchen_wait\", \"gps_pings\", \"rating\"]`, `honest = numbers.drop(columns=leaks)`, Split, trainieren, `p = model.predict(X_test)`, `honest_mae = mean_absolute_error(y_test, p)`, `refunds = int(((y_test - p) > 10).sum())`."
+    }
+   ]
+  },
+  {
+   "id": "channels",
+   "title": {
+    "en": "Forty sensors",
+    "de": "Vierzig Sensoren"
+   },
+   "text": {
+    "en": "Every courier box sends 40 telemetry channels when an order is dispatched, `s01` to `s40` in `orders`. Ilse has already run a filter over them at the telemetry rack. Which channels should dispatch stream tonight?\n\n1. Run Ilse's filter and look at the channels it ranks highest.\n2. Start from a `LinearRegression` on the distance a courier rides and the items, and find the channels that lower its test MAE most on dispatch's split. Store their numbers as a list, `channels`.\n3. Store the test MAE of the distance, the items and your channels as `mae_best`.",
+    "de": "Jede Kurierbox sendet 40 Telemetriekanäle, wenn ein Auftrag vergeben wird, `s01` bis `s40` in `orders`. Ilse hat am Telemetrie-Rack schon einen Filter darüber laufen lassen. Welche Kanäle soll die Zentrale heute Nacht empfangen?\n\n1. Lasst Ilses Filter laufen und schaut euch die Kanäle an, die er am höchsten einstuft.\n2. Geht von einer `LinearRegression` auf der gefahrenen Strecke und den Artikeln aus, und findet die Kanäle, die ihren Test-MAE mit dem Split der Zentrale am meisten senken. Speichert ihre Nummern als Liste, `channels`.\n3. Speichert den Test-MAE von Strecke, Artikeln und euren Kanälen als `mae_best`."
+   },
+   "workspace": "python",
+   "data": "orders.py",
+   "starter": {
+    "en": "import pandas as pd\nfrom sklearn.feature_selection import SelectKBest, f_regression\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\ntelemetry = orders[[f\"s{i:02d}\" for i in range(1, 41)]]\ny = orders[\"minutes\"]\n\n# Ilse's filter: the channels that go best with the minutes on their own\nselector = SelectKBest(f_regression, k=5).fit(telemetry, y)\nprint(telemetry.columns[selector.get_support()].tolist())\n\nchannels = []     # the numbers of the channels dispatch streams tonight\nmae_best = None   # test MAE: street distance, items and those channels\n",
+    "de": "import pandas as pd\nfrom sklearn.feature_selection import SelectKBest, f_regression\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\ntelemetry = orders[[f\"s{i:02d}\" for i in range(1, 41)]]\ny = orders[\"minutes\"]\n\n# Ilses Filter: die Kanäle, die für sich allein am besten zu den Minuten passen\nselector = SelectKBest(f_regression, k=5).fit(telemetry, y)\nprint(telemetry.columns[selector.get_support()].tolist())\n\nchannels = []     # die Nummern der Kanäle, die die Zentrale heute Nacht empfängt\nmae_best = None   # Test-MAE: Straßenstrecke, Artikel und diese Kanäle\n"
+   },
+   "check": {
+    "type": "python",
+    "expr": "_channels_check(channels, mae_best)",
+    "hash": "9a58cc76d24807b28dbfcac70a2552ae332d18f29b2b91607b26ce321e004371"
+   },
+   "lock": {
+    "text": {
+     "en": "The telemetry rack is behind a cage with a two-digit lock. Scratched into the frame: \"Code = how many seconds a courier needs per block.\"",
+     "de": "Das Telemetrie-Rack steht hinter einem Gitter mit einem zweistelligen Schloss. In den Rahmen geritzt: „Code = wie viele Sekunden ein Kurier pro Block braucht.“"
+    },
+    "from": "street",
+    "mode": "number",
+    "hash": "da127e1f21222238064ece31e3839690662b64f9bdd916f7d887f14049e575f5"
+   },
+   "uses": [
+    "street"
+   ],
+   "reveal": {
+    "en": "Dispatch streams channels **14** (the battery) and **31** (the load). Ilse's filter ranks channel 9 near the top because it goes well with the minutes, but it is the nav unit's planned route length: the street distance again, with noise. Next to the distance it adds nothing, and it would take one of the two places. A filter scores each column alone; to know what a column adds to the ones you have, test it inside the model, by adding it (forward selection), by taking it away, or with `permutation_importance`.",
+    "de": "Die Zentrale empfängt die Kanäle **14** (der Akku) und **31** (die Ladung). Ilses Filter stuft Kanal 9 weit oben ein, weil er gut zu den Minuten passt, aber er ist die geplante Routenlänge des Navis: noch einmal die Straßenstrecke, mit Rauschen. Neben der Strecke bringt er nichts, und er würde einen der zwei Plätze belegen. Ein Filter bewertet jede Spalte allein; um zu wissen, was eine Spalte zu den vorhandenen beiträgt, testet sie im Modell, indem ihr sie hinzufügt (Vorwärtsauswahl), wegnehmt oder mit `permutation_importance`."
+   },
+   "practises": {
+    "en": "Feature selection: a univariate filter (SelectKBest, f_regression) vs testing a feature inside the model, redundant features, forward selection",
+    "de": "Feature-Auswahl: ein univariater Filter (SelectKBest, f_regression) vs. ein Merkmal im Modell testen, redundante Merkmale, Vorwärtsauswahl"
+   },
+   "clues": [
+    "network-fax",
+    "telemetry-manual",
+    "test-rule"
+   ],
+   "hints": [
+    {
+     "en": "The fax by the dispatch console says how many channels come through tonight, and the manual on the rack says what some channels measure. Look up channel 9 there.",
+     "de": "Das Fax an der Konsole der Zentrale sagt, wie viele Kanäle heute Nacht durchkommen, und das Handbuch am Rack sagt, was einige Kanäle messen. Schlagt dort Kanal 9 nach."
+    },
+    {
+     "en": "Loop over the 40 channels: add each one to the table of street distance and items, fit, and note the test MAE. The two lowest win. `SequentialFeatureSelector` does the same, but it may also drop the distance.",
+     "de": "Geht in einer Schleife durch die 40 Kanäle: Fügt jeden zur Tabelle aus Straßenstrecke und Artikeln hinzu, trainiert und notiert den Test-MAE. Die zwei niedrigsten gewinnen. `SequentialFeatureSelector` macht dasselbe, kann aber auch die Strecke rauswerfen."
+    },
+    {
+     "en": "`base = pd.DataFrame({\"blocks\": blocks, \"items\": orders[\"items\"]})`; for each `c` in `telemetry.columns`, split `base.assign(**{c: orders[c]})` with `test_size=0.25, random_state=4`, fit and store the MAE in a dict; `sorted(maes, key=maes.get)[:2]` gives `s14` and `s31`. Then the same with both for `mae_best`.",
+     "de": "`base = pd.DataFrame({\"blocks\": blocks, \"items\": orders[\"items\"]})`; für jedes `c` in `telemetry.columns` teilt `base.assign(**{c: orders[c]})` mit `test_size=0.25, random_state=4`, trainiert und speichert den MAE in einem Dict; `sorted(maes, key=maes.get)[:2]` gibt `s14` und `s31`. Dann dasselbe mit beiden für `mae_best`."
+    }
+   ]
+  },
+  {
+   "id": "promises",
+   "title": {
+    "en": "Tonight's promises",
+    "de": "Die Versprechen für heute Nacht"
+   },
+   "text": {
+    "en": "The orders are coming in. `tonight` holds the first eight, with the same columns as `orders` but no `minutes`; whatever only the delivery tells is still empty. The manager will only switch a model on if dispatch can feed it raw orders as they arrive, and if it misses old orders it has never seen by less than 2.4 minutes on average. What does Blitzkurier promise tonight?\n\n1. Build one pipeline that takes raw order rows, the columns of `tonight`, turns them into everything you learned tonight and ends in a regressor. A `FunctionTransformer` runs your own function as a step. Fit it on the log and keep it as `model`.\n2. Store its promises for tonight's eight orders, in whole minutes, as `promises`.",
+    "de": "Die Aufträge gehen ein. `tonight` enthält die ersten acht, mit denselben Spalten wie `orders`, aber ohne `minutes`; was erst die Lieferung verrät, ist noch leer. Die Leitung schaltet ein Modell nur ein, wenn die Zentrale es mit rohen Aufträgen füttern kann, so wie sie eingehen, und wenn es bei alten Aufträgen, die es nie gesehen hat, im Schnitt weniger als 2,4 Minuten danebenliegt. Was verspricht Blitzkurier heute Nacht?\n\n1. Baut eine Pipeline, die rohe Auftragszeilen nimmt, die Spalten von `tonight`, daraus alles macht, was ihr heute Nacht gelernt habt, und in einem Regressor endet. Ein `FunctionTransformer` führt eure eigene Funktion als Schritt aus. Trainiert sie auf dem Protokoll und behaltet sie als `model`.\n2. Speichert ihre Versprechen für die acht Aufträge von heute Nacht, in ganzen Minuten, als `promises`."
+   },
+   "workspace": "python",
+   "data": "orders.py",
+   "starter": {
+    "en": "import numpy as np\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import FunctionTransformer, OneHotEncoder, OrdinalEncoder\n\nprint(tonight)   # tonight's first eight orders, as they come in\n\n\ndef features(df):\n    \"\"\"Raw order rows in, model features out.\"\"\"\n    out = pd.DataFrame(index=df.index)\n    out[\"items\"] = df[\"items\"]\n    return out\n\n\nmodel = make_pipeline(FunctionTransformer(features), LinearRegression())\nmodel.fit(orders.drop(columns=\"minutes\"), orders[\"minutes\"])\n\npromises = None   # one promise per order of tonight, in whole minutes\n",
+    "de": "import numpy as np\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import FunctionTransformer, OneHotEncoder, OrdinalEncoder\n\nprint(tonight)   # die ersten acht Aufträge von heute Nacht, so wie sie eingehen\n\n\ndef features(df):\n    \"\"\"Rohe Auftragszeilen rein, Merkmale fürs Modell raus.\"\"\"\n    out = pd.DataFrame(index=df.index)\n    out[\"items\"] = df[\"items\"]\n    return out\n\n\nmodel = make_pipeline(FunctionTransformer(features), LinearRegression())\nmodel.fit(orders.drop(columns=\"minutes\"), orders[\"minutes\"])\n\npromises = None   # ein Versprechen pro Auftrag von heute Nacht, in ganzen Minuten\n"
+   },
+   "check": {
+    "type": "python",
+    "expr": "_promises_check(model, promises)",
+    "hash": "1da3a4cdaf01c4b1bd3e01a6abd5dc0ca89c45476ecf9034020482389d59ff1d"
+   },
+   "lock": {
+    "text": {
+     "en": "The dispatch console asks for a six-digit PIN. The manager's sticky note: \"PIN = the channels we stream tonight, smaller number first, then how many refunds Jonas's model would have cost if it had been honest.\"",
+     "de": "Die Konsole der Zentrale verlangt eine sechsstellige PIN. Der Klebezettel der Leitung: „PIN = die Kanäle, die wir heute Nacht empfangen, die kleinere Nummer zuerst, dann wie viele Erstattungen Jonas' Modell gekostet hätte, wenn es ehrlich gewesen wäre.“"
+    },
+    "from": "channels",
+    "mode": "number",
+    "hash": "29b94dac18b0474ff7e95d838c5e65c9891ecae332a6823a1eb0ff7f35dd4690"
+   },
+   "final": true,
+   "uses": [
+    "raw-log",
+    "street",
+    "weather",
+    "leaks",
+    "channels"
+   ],
+   "reveal": {
+    "en": "The console goes green at 17:02. The first promise goes out: 40 minutes for order 52001, a bike in the storm with the evening rush. On orders it has never seen, your pipeline misses by about 2.2 minutes, and it reads nothing the app doesn't have yet.\n\nEvery step went into it: the rush flag from a text column, the street distance from four coordinates, the storm on the weather service's scale, the leaks left out, and two channels chosen inside the model. The model itself is a plain linear regression. Its features do the work.",
+    "de": "Die Konsole wird um 17:02 grün. Das erste Versprechen geht raus: 40 Minuten für Auftrag 52001, ein Fahrrad im Sturm zur Abendspitze. Bei Aufträgen, die sie nie gesehen hat, liegt eure Pipeline etwa 2,2 Minuten daneben, und sie liest nichts, was die App noch nicht hat.\n\nJeder Schritt steckt darin: das Rush-Flag aus einer Textspalte, die Straßenstrecke aus vier Koordinaten, der Sturm auf der Skala des Wetterdiensts, die Lecks weggelassen und zwei Kanäle, im Modell ausgewählt. Das Modell selbst ist eine schlichte lineare Regression. Die Arbeit machen seine Merkmale."
+   },
+   "practises": {
+    "en": "Putting it together: a Pipeline with a FunctionTransformer and a ColumnTransformer that takes raw rows, scored on unseen data, no leaky columns, a limited set of features",
+    "de": "Alles zusammen: eine Pipeline mit FunctionTransformer und ColumnTransformer, die rohe Zeilen nimmt, bewertet auf ungesehenen Daten, ohne undichte Spalten, mit begrenzter Auswahl an Merkmalen"
+   },
+   "clues": [
+    "network-fax"
+   ],
+   "hints": [
+    {
+     "en": "Go through the room's other stations: each one found a feature, an encoding or a column to leave out. The fax by this console says how many channels come through tonight.",
+     "de": "Geht die anderen Stationen des Raums durch: Jede hat ein Merkmal, eine Kodierung oder eine wegzulassende Spalte gefunden. Das Fax an dieser Konsole sagt, wie viele Kanäle heute Nacht durchkommen."
+    },
+    {
+     "en": "In `features(df)`, build `rush` from `ordered_at`, `blocks` from the coordinates, and keep `items`, `vehicle`, `weather`, `s14` and `s31`. Then a `ColumnTransformer` with `OneHotEncoder()` on `vehicle`, `OrdinalEncoder` with the service's scale on `weather`, and `remainder=\"passthrough\"`.",
+     "de": "Baut in `features(df)` `rush` aus `ordered_at`, `blocks` aus den Koordinaten und behaltet `items`, `vehicle`, `weather`, `s14` und `s31`. Dann einen `ColumnTransformer` mit `OneHotEncoder()` auf `vehicle`, `OrdinalEncoder` mit der Skala des Diensts auf `weather` und `remainder=\"passthrough\"`."
+    },
+    {
+     "en": "`model = make_pipeline(FunctionTransformer(features), encode, LinearRegression())`, `model.fit(orders.drop(columns=\"minutes\"), orders[\"minutes\"])`, `promises = model.predict(tonight).round()`.",
+     "de": "`model = make_pipeline(FunctionTransformer(features), encode, LinearRegression())`, `model.fit(orders.drop(columns=\"minutes\"), orders[\"minutes\"])`, `promises = model.predict(tonight).round()`."
+    }
+   ]
+  }
+ ],
+ "clues": [
+  {
+   "id": "shift-plan",
+   "title": {
+    "en": "The shift plan",
+    "de": "Der Schichtplan"
+   },
+   "text": {
+    "en": "A laminated sheet on the dispatch wall, coffee rings on it.\n\n**SHIFT PLAN, AUTUMN**\n**Lunch rush**, Monday to Friday, 12:00 to 13:59: every courier on the road.\n**Evening rush**, every day, 17:00 to 19:59: every courier on the road.\nAll other hours: half the fleet, the rest on call.\n\nScribbled underneath: \"Weekends the offices are shut, nobody orders lunch to their desk. — Ilse\"",
+    "de": "Ein laminiertes Blatt an der Wand der Zentrale, mit Kaffeerändern.\n\n**SCHICHTPLAN, HERBST**\n**Mittagsspitze**, Montag bis Freitag, 12:00 bis 13:59: alle Kuriere auf der Straße.\n**Abendspitze**, jeden Tag, 17:00 bis 19:59: alle Kuriere auf der Straße.\nAlle anderen Stunden: die halbe Flotte, der Rest in Bereitschaft.\n\nDarunter gekritzelt: „Am Wochenende sind die Büros zu, da bestellt keiner Mittagessen an den Schreibtisch. — Ilse“"
+   }
+  },
+  {
+   "id": "test-rule",
+   "title": {
+    "en": "The note by the server",
+    "de": "Der Zettel am Server"
+   },
+   "text": {
+    "en": "Taped to the server cabinet, in Jonas's handwriting:\n\n\"Every model gets tested the same way, so we can compare: a quarter of the orders held back, `test_size=0.25`, and `random_state=4`, our depot number. Scores on the training rows don't count.\"",
+    "de": "An den Serverschrank geklebt, in Jonas' Handschrift:\n\n„Jedes Modell wird gleich getestet, damit wir vergleichen können: ein Viertel der Aufträge zurückgehalten, `test_size=0.25`, und `random_state=4`, unsere Depotnummer. Werte auf den Trainingszeilen zählen nicht.“"
+   }
+  },
+  {
+   "id": "city-map",
+   "title": {
+    "en": "The city map",
+    "de": "Der Stadtplan"
+   },
+   "text": {
+    "en": "A huge map of the city covers the wall, drawn as a grid: 31 streets run north to south, numbered 0 to 30 along the bottom edge (x), and 31 run west to east, numbered 0 to 30 up the side (y). Between them, block after block of houses, yards and parks. Not one street runs diagonally.\n\nA courier's sticker in the corner: \"Couriers can't fly.\"",
+    "de": "Ein riesiger Stadtplan bedeckt die Wand, als Gitter gezeichnet: 31 Straßen laufen von Nord nach Süd, entlang der Unterkante von 0 bis 30 nummeriert (x), und 31 von West nach Ost, an der Seite hoch von 0 bis 30 nummeriert (y). Dazwischen Block um Block aus Häusern, Höfen und Parks. Keine einzige Straße verläuft schräg.\n\nEin Kurier-Aufkleber in der Ecke: „Kuriere können nicht fliegen.“"
+   }
+  },
+  {
+   "id": "weather-scale",
+   "title": {
+    "en": "The weather service's poster",
+    "de": "Das Plakat des Wetterdiensts"
+   },
+   "text": {
+    "en": "A poster from the city's weather service, pinned above the radio:\n\n**WEATHER WARNING LEVELS FOR ROAD TRAFFIC**\n0 dry\n1 drizzle\n2 rain\n3 storm\n\nIn red marker, across the bottom: \"Sunday 15 Nov, from 16:00: level 3.\"",
+    "de": "Ein Plakat des städtischen Wetterdiensts über dem Funkgerät:\n\n**WETTERWARNSTUFEN FÜR DEN STRASSENVERKEHR**\n0 dry (trocken)\n1 drizzle (Nieselregen)\n2 rain (Regen)\n3 storm (Sturm)\n\nMit rotem Marker quer darunter: „Sonntag, 15. Nov., ab 16:00: Stufe 3.“"
+   }
+  },
+  {
+   "id": "data-dictionary",
+   "title": {
+    "en": "The data dictionary",
+    "de": "Das Datenwörterbuch"
+   },
+   "text": {
+    "en": "A stapled printout next to Jonas's laptop: what each column of the order log means, and when the app fills it in.\n\n`ordered_at`: when the order was placed. Filled in at the order.\n`pickup_x`, `pickup_y`, `drop_x`, `drop_y`: restaurant and door on the city grid. At the order.\n`weather`: the weather service's level. At the order.\n`vehicle`: the courier dispatch assigns. At the order.\n`items`: dishes in the bag. At the order.\n`kitchen_wait`: minutes the courier waited at the restaurant. When the courier picks up.\n`gps_pings`: one ping per minute on the road. During the ride.\n`rating`: the customer's stars. After the delivery.\n`s01` to `s40`: the courier box's telemetry. At the order, when dispatch assigns the courier.\n`minutes`: order to door. At the door.",
+    "de": "Ein zusammengehefteter Ausdruck neben Jonas' Laptop: was jede Spalte des Auftragsprotokolls bedeutet und wann die App sie ausfüllt.\n\n`ordered_at`: wann bestellt wurde. Ausgefüllt bei der Bestellung.\n`pickup_x`, `pickup_y`, `drop_x`, `drop_y`: Restaurant und Haustür im Stadtgitter. Bei der Bestellung.\n`weather`: die Stufe des Wetterdiensts. Bei der Bestellung.\n`vehicle`: der Kurier, den die Zentrale zuteilt. Bei der Bestellung.\n`items`: Gerichte in der Tasche. Bei der Bestellung.\n`kitchen_wait`: Minuten, die der Kurier im Restaurant gewartet hat. Bei der Abholung.\n`gps_pings`: ein Ping pro Minute auf der Straße. Während der Fahrt.\n`rating`: die Sterne der Kundschaft. Nach der Lieferung.\n`s01` bis `s40`: die Telemetrie der Kurierbox. Bei der Bestellung, wenn die Zentrale den Kurier zuteilt.\n`minutes`: von der Bestellung bis zur Tür. An der Tür."
+   }
+  },
+  {
+   "id": "promise-poster",
+   "title": {
+    "en": "The Blitzkurier poster",
+    "de": "Das Blitzkurier-Plakat"
+   },
+   "text": {
+    "en": "A bright orange poster, the same one that hangs in every tram in the city:\n\n**BLITZKURIER. WE PROMISE, WE DELIVER.**\nMore than 10 minutes later than we promised? Your order is on us.",
+    "de": "Ein knallorangefarbenes Plakat, dasselbe, das in jeder Straßenbahn der Stadt hängt:\n\n**BLITZKURIER. VERSPROCHEN IST VERSPROCHEN.**\nMehr als 10 Minuten später als versprochen? Dann geht eure Bestellung auf uns."
+   }
+  },
+  {
+   "id": "network-fax",
+   "title": {
+    "en": "The fax from the network operator",
+    "de": "Das Fax vom Netzbetreiber"
+   },
+   "text": {
+    "en": "A fax, still curled, in the tray next to the dispatch console:\n\n\"To all fleet customers. Marathon day: the mobile network along the course is overloaded from 16:00 until midnight. Each vehicle box can stream **two** telemetry channels to your server during that time. Please tell us which two before 17:00. — CityNet Operations\"",
+    "de": "Ein Fax, noch eingerollt, im Fach neben der Konsole der Zentrale:\n\n„An alle Flottenkunden. Marathontag: Das Mobilfunknetz entlang der Strecke ist von 16:00 bis Mitternacht überlastet. Jede Fahrzeugbox kann in dieser Zeit **zwei** Telemetriekanäle an euren Server senden. Bitte teilt uns vor 17:00 mit, welche zwei. — CityNet Betrieb“"
+   }
+  },
+  {
+   "id": "telemetry-manual",
+   "title": {
+    "en": "The courier box manual",
+    "de": "Das Handbuch der Kurierbox"
+   },
+   "text": {
+    "en": "A greasy manual hanging on a chain from the rack, open at \"Telemetry channels\":\n\n`s02` cabin temperature\n`s09` nav unit: planned route length\n`s14` battery charge\n`s17` tyre pressure\n`s22` signal strength\n`s31` load sensor\n`s38` GPS satellites in view\nAll other channels: internal diagnostics.",
+    "de": "Ein schmieriges Handbuch an einer Kette am Rack, aufgeschlagen bei „Telemetriekanäle“:\n\n`s02` Innentemperatur\n`s09` Navi: geplante Routenlänge\n`s14` Akkuladung\n`s17` Reifendruck\n`s22` Signalstärke\n`s31` Lastsensor\n`s38` sichtbare GPS-Satelliten\nAlle anderen Kanäle: interne Diagnose."
+   }
+  }
+ ],
+ "reference": {
+  "title": {
+   "en": "The dispatch wiki",
+   "de": "Das Wiki der Zentrale"
+  },
+  "intro": {
+   "en": "A printout of Blitzkurier's internal wiki, on a lectern by the door: the pandas and scikit-learn dispatch uses to turn raw orders into features, with a link to the official documentation for each entry.",
+   "de": "Ein Ausdruck aus Blitzkuriers internem Wiki auf einem Pult an der Tür: das pandas und scikit-learn, mit dem die Zentrale aus rohen Aufträgen Merkmale macht, mit einem Link zur offiziellen Dokumentation bei jedem Eintrag."
+  },
+  "sections": [
+   {
+    "title": {
+     "en": "Dates and times",
+     "de": "Datum und Uhrzeit"
+    },
+    "entries": [
+     {
+      "name": "pd.to_datetime(s)",
+      "text": {
+       "en": "Turns text such as `\"2026-03-02 08:15\"` into timestamps you can calculate with.",
+       "de": "Macht aus Text wie `\"2026-03-02 08:15\"` Zeitstempel, mit denen man rechnen kann."
+      },
+      "link": "https://pandas.pydata.org/docs/reference/api/pandas.to_datetime.html"
+     },
+     {
+      "name": "s.dt.hour  s.dt.dayofweek",
+      "text": {
+       "en": "Take a timestamp column apart: `.dt.hour` is 0 to 23, `.dt.dayofweek` 0 (Monday) to 6 (Sunday). `.dt.month` and `.dt.day` work the same way.",
+       "de": "Nehmen eine Zeitstempel-Spalte auseinander: `.dt.hour` ist 0 bis 23, `.dt.dayofweek` 0 (Montag) bis 6 (Sonntag). `.dt.month` und `.dt.day` gehen genauso."
+      },
+      "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.dt.dayofweek.html"
+     },
+     {
+      "name": "s.between(a, b)  s.isin([...])",
+      "text": {
+       "en": "True where a value lies between `a` and `b` (both included) or is in the list. Combine conditions with `&` (and) and `|` (or), each in brackets, and `.astype(int)` turns True/False into 1/0.",
+       "de": "True, wo ein Wert zwischen `a` und `b` liegt (beide eingeschlossen) oder in der Liste steht. Bedingungen verbindet man mit `&` (und) und `|` (oder), jede in Klammern, und `.astype(int)` macht aus True/False 1/0."
+      },
+      "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.between.html"
+     }
+    ]
+   },
+   {
+    "title": {
+     "en": "Distances",
+     "de": "Distanzen"
+    },
+    "entries": [
+     {
+      "name": "np.hypot(dx, dy)",
+      "text": {
+       "en": "The straight-line distance `√(dx² + dy²)`, element by element.",
+       "de": "Die Luftlinie `√(dx² + dy²)`, Element für Element."
+      },
+      "link": "https://numpy.org/doc/stable/reference/generated/numpy.hypot.html"
+     },
+     {
+      "name": "s.abs()",
+      "text": {
+       "en": "The absolute value of every element: how far, no matter in which direction.",
+       "de": "Der Betrag jedes Elements: wie weit, egal in welche Richtung."
+      },
+      "link": "https://pandas.pydata.org/docs/reference/api/pandas.Series.abs.html"
+     }
+    ]
+   },
+   {
+    "title": {
+     "en": "Encoding categories",
+     "de": "Kategorien kodieren"
+    },
+    "entries": [
+     {
+      "name": "OneHotEncoder(handle_unknown=…)",
+      "text": {
+       "en": "One 0/1 column per category, for categories without an order. A category it didn't see in `fit` raises an error, or with `handle_unknown=\"ignore\"` becomes all zeros.",
+       "de": "Eine 0/1-Spalte pro Kategorie, für Kategorien ohne Reihenfolge. Eine Kategorie, die es bei `fit` nicht gesehen hat, gibt einen Fehler, oder mit `handle_unknown=\"ignore\"` lauter Nullen."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html"
+     },
+     {
+      "name": "OrdinalEncoder(categories=[[…]])",
+      "text": {
+       "en": "One column of 0, 1, 2, … per category, for categories with an order. Without `categories` it sorts them alphabetically; with a list per column it uses your order, and it knows every category in the list even if `fit` never saw it.",
+       "de": "Eine Spalte mit 0, 1, 2, … pro Kategorie, für Kategorien mit Reihenfolge. Ohne `categories` sortiert es sie alphabetisch; mit einer Liste pro Spalte nimmt es eure Reihenfolge, und es kennt jede Kategorie der Liste, auch wenn `fit` sie nie gesehen hat."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OrdinalEncoder.html"
+     },
+     {
+      "name": "ColumnTransformer([(name, transformer, columns), …], remainder=…)",
+      "text": {
+       "en": "Applies each transformer to its own columns and puts the results side by side. `remainder=\"passthrough\"` keeps the columns you didn't name, `\"drop\"` (the default) throws them away. `named_transformers_[name]` gives a fitted part back.",
+       "de": "Wendet jeden Transformer auf seine eigenen Spalten an und stellt die Ergebnisse nebeneinander. `remainder=\"passthrough\"` behält die Spalten, die ihr nicht genannt habt, `\"drop\"` (der Standard) wirft sie weg. `named_transformers_[name]` gibt einen trainierten Teil zurück."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html"
+     }
+    ]
+   },
+   {
+    "title": {
+     "en": "Pipelines",
+     "de": "Pipelines"
+    },
+    "entries": [
+     {
+      "name": "make_pipeline(step, …, model)",
+      "text": {
+       "en": "Chains steps into one estimator: `fit` fits each step on the output of the one before, `predict` sends new rows through the same fitted steps. So everything learned from data is learned on the training rows only.",
+       "de": "Verkettet Schritte zu einem Schätzer: `fit` trainiert jeden Schritt auf der Ausgabe des vorigen, `predict` schickt neue Zeilen durch dieselben trainierten Schritte. So wird alles, was aus Daten gelernt wird, nur auf den Trainingszeilen gelernt."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.make_pipeline.html"
+     },
+     {
+      "name": "FunctionTransformer(func)",
+      "text": {
+       "en": "A pipeline step that calls your own function on the table, e.g. one that builds new columns from raw ones. It learns nothing, so the same function runs on training rows and on new rows.",
+       "de": "Ein Pipeline-Schritt, der eure eigene Funktion auf die Tabelle anwendet, z. B. eine, die aus rohen Spalten neue baut. Er lernt nichts, also läuft dieselbe Funktion auf Trainingszeilen und auf neuen Zeilen."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.FunctionTransformer.html"
+     }
+    ]
+   },
+   {
+    "title": {
+     "en": "Leakage",
+     "de": "Leakage"
+    },
+    "entries": [
+     {
+      "name": "Data leakage",
+      "text": {
+       "en": "A feature that carries information the model won't have when it is used, often because it is filled in after the target is known. It makes test scores look far better than the model can ever be in use. Ask of every column: do we know this at the moment we predict?",
+       "de": "Ein Merkmal, das Information trägt, die das Modell beim Einsatz nicht haben wird, oft weil es erst ausgefüllt wird, wenn das Ziel schon bekannt ist. Es lässt Testwerte viel besser aussehen, als das Modell im Einsatz je sein kann. Fragt bei jeder Spalte: Wissen wir das in dem Moment, in dem wir vorhersagen?"
+      },
+      "link": "https://scikit-learn.org/stable/common_pitfalls.html#data-leakage"
+     },
+     {
+      "name": "df.select_dtypes(\"number\")",
+      "text": {
+       "en": "Keeps only the number columns of a table. Handy, and dangerous: it keeps every number column, whatever it means.",
+       "de": "Behält nur die Zahlenspalten einer Tabelle. Praktisch und gefährlich: Es behält jede Zahlenspalte, egal was sie bedeutet."
+      },
+      "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.select_dtypes.html"
+     }
+    ]
+   },
+   {
+    "title": {
+     "en": "Choosing features",
+     "de": "Merkmale auswählen"
+    },
+    "entries": [
+     {
+      "name": "SelectKBest(f_regression, k=…)",
+      "text": {
+       "en": "A filter: scores every column on its own by how well it goes with the target in a straight line, and keeps the `k` best. `get_support()` says which. Fast, but it can't see that two columns tell the same thing.",
+       "de": "Ein Filter: Bewertet jede Spalte für sich danach, wie gut sie in einer Geraden zum Ziel passt, und behält die `k` besten. `get_support()` sagt, welche. Schnell, aber er sieht nicht, dass zwei Spalten dasselbe sagen."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectKBest.html"
+     },
+     {
+      "name": "SequentialFeatureSelector(model, n_features_to_select=…)",
+      "text": {
+       "en": "Forward selection: starts with no columns and adds, one at a time, the column that improves the model's cross-validated score most. A loop that tries each candidate next to the columns you already have does the same by hand.",
+       "de": "Vorwärtsauswahl: Beginnt ohne Spalten und fügt nacheinander die Spalte hinzu, die den kreuzvalidierten Wert des Modells am meisten verbessert. Eine Schleife, die jeden Kandidaten neben den Spalten probiert, die ihr schon habt, macht dasselbe von Hand."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SequentialFeatureSelector.html"
+     },
+     {
+      "name": "permutation_importance(model, X, y)",
+      "text": {
+       "en": "How much a fitted model's score drops when one column is shuffled: what that column adds next to all the others.",
+       "de": "Wie stark der Wert eines trainierten Modells sinkt, wenn man eine Spalte durchmischt: was diese Spalte neben allen anderen beiträgt."
+      },
+      "link": "https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html"
+     },
+     {
+      "name": "df.assign(name=values)",
+      "text": {
+       "en": "A copy of the table with a column added, handy in a loop: `base.assign(**{c: df[c]})` adds the column named in `c`.",
+       "de": "Eine Kopie der Tabelle mit einer zusätzlichen Spalte, praktisch in einer Schleife: `base.assign(**{c: df[c]})` fügt die Spalte hinzu, deren Name in `c` steht."
+      },
+      "link": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.assign.html"
+     }
+    ]
+   }
+  ]
+ }
+}

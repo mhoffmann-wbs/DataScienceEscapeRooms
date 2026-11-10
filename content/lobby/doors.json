@@ -69,31 +69,10 @@
       "order": [
         "ml-seeds",
         "ml-customs",
-        "ml-auction"
+        "ml-auction",
+        "ml-courier"
       ],
       "upcoming": [
-        {
-          "title": {
-            "en": "Rush Hour",
-            "de": "Stoßzeit"
-          },
-          "difficulty": "advanced",
-          "about": {
-            "tools": [
-              "Python",
-              "pandas",
-              "scikit-learn"
-            ],
-            "practises": {
-              "en": "Feature engineering and selection: date features, distances, encoding categories, ColumnTransformer and pipelines, data leakage, and picking the few columns that matter.",
-              "de": "Feature Engineering und Feature-Auswahl: Datumsmerkmale, Distanzen, Kategorien kodieren, ColumnTransformer und Pipelines, Data Leakage und die wenigen Spalten finden, die zählen."
-            },
-            "story": {
-              "en": "A courier service must promise delivery times on marathon night, from a messy order log.",
-              "de": "Ein Kurierdienst muss in der Marathonnacht Lieferzeiten versprechen, aus einem unordentlichen Auftragsprotokoll."
-            }
-          }
-        },
         {
           "title": {
             "en": "The Pass Road",
