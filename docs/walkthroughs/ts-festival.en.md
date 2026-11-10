@@ -475,7 +475,7 @@ print(round(mae_model), round(opening_2026))
 show_plot(df.set_index("ds")["y"]["2025"], forecast["yhat"]["2025":], labels=["visitors", "forecast"])
 ```
 
-**Checked result** (`_order_check(df, best_baseline, mae_model, opening_2026)`):
+**Checked result** (`_order_check(df, best_baseline, mae_model, opening_2026, globals().get('model'))`):
 
 ```json
 "ok"

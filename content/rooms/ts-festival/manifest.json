@@ -299,7 +299,7 @@
       },
       "check": {
         "type": "python",
-        "expr": "_order_check(df, best_baseline, mae_model, opening_2026)",
+        "expr": "_order_check(df, best_baseline, mae_model, opening_2026, globals().get('model'))",
         "hash": "a67fc07f6272b5803cb9a75e7f48c08d68ff233a8c6cd3e3d014dc7f05168b57"
       },
       "final": true,

@@ -32,7 +32,7 @@ flowchart LR
   end
 
   subgraph p3["Final lock"]
-    stages{{"6 · The stage order<br/>final check: best_baseline 422,<br/>mae_model below it, opening_2026 ≈ 19078"}}
+    stages{{"6 · The stage order<br/>final check: best_baseline 422,<br/>mae_model 150–260, opening_2026 ≈ 19078,<br/>model() has the tram changepoint"}}
   end
 
   d_gate --> gate
@@ -114,6 +114,12 @@ The map is 30 × 20 tiles: an office wing in the west (planning office, the gate
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **The tram counter's changepoint was not needed for the final.** A model with the automatic changepoints gave 19335 for the opening weekend (within the 5 % tolerance of 19078), and the changepoint position moved the figure by under 1 %. The stage order's check now also calls the starter's `model()` and rejects it unless its changepoints include one within 45 days of Line 7's opening, so the tram's hand-off is checked directly.
+- **`mae_model` was any number from 100 to 422.** A typed constant passed. It must now be 150 to 260 (a sound fit gives 204), so it has to come from a real fit; the lighting desk's 293 no longer passes.
+- Tried and not shortcuts: a typed or last-year-based `opening_2026` (last year's weekend sums to 15274, rejected; it would need a guessed growth factor of about 1.25 and a real `mae_model` and changepoint besides), a default, additive, events-only or multiplicative-only model, wrong event windows, `best_baseline` guessed (±1 of 422).
+
 Fixed in the second review (every clue once, no pointers to clues or other stations outside the hints, a clear goal per station):
 
 - **No task, starter or check message names a clue or another station.** Gone: "as the IT note says", "the other desks all start from your `df`", "(see the newspaper)", "the way the planning notebook says", "(see her notebook)", "from the event calendar on the noticeboard", "the mode that won at the lighting desk", "from the planner's rule", "the figure the stage order form asks for", "Copy your code from the gate scanner log here", and in the graders "copy your df from the gate scanner log", "(see the calendar)", "the lighting desk's seasonality mode", "Is it the figure the stage order form asks for?" and "Check the settings from the tram counter, the lighting desk and the events desk". Each station's hint 1 now says where to look.
@@ -133,6 +139,7 @@ Fixed (the first review):
 Left on purpose:
 
 - The stage order can rebuild `events` from the event calendar without the events desk. The windows have to be worked out from the calendar's wording either way, and the events desk is where its check explains them; forcing the hand-off would need a lock or an extra variable for little gain.
+- The tram counter's own check can't tell a hand-set changepoint from an automatic one (the automatic fit finds 13 April 2023 and gives growth 90 and 565, inside the tolerances), and the date it needs is on the City Courier. A tighter check would reject sound answers; the final now does enforce the changepoint.
 - The tram counter needs nothing from other stations, only the City Courier. It is one of the two stations that have to be open from the start.
 - The whiteboard's "swings that grow with the level: multiplicative" hints at the lighting desk's winner; that is the clue the lighting desk is built on, and the desk still has to show it on the holdout.
 - The gate is a bottleneck: four stations need its `df`. It is the shortest station, the tram counter runs alongside it, and the other stations' preparation (reading clues, writing forecasts and the `events` table) doesn't need it.

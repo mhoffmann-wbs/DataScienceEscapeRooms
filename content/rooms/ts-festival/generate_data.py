@@ -133,7 +133,7 @@ def _events_check(df, events, saturday_effect):
     return _verdict(problems)
 
 
-def _order_check(df, best_baseline, mae_model, opening_2026):
+def _order_check(df, best_baseline, mae_model, opening_2026, model=None):
     \"\"\"The stage order: the best baseline's error, a model that beats it, and its opening weekend forecast.\"\"\"
     problems = _gate_problems(df)
     base = _number(best_baseline)
@@ -142,6 +142,15 @@ def _order_check(df, best_baseline, mae_model, opening_2026):
     mae = _number(mae_model)
     if mae is None or not 100 < mae < 422:
         problems.append("Order refused: the model doesn't beat the best simple rule (check mae_model). / Bestellung abgelehnt: Das Modell schlägt die beste einfache Regel nicht (mae_model prüfen).")
+    elif not 150 < mae < 260:
+        problems.append("Order refused: mae_model isn't the holdout error of model() fitted on train. / Bestellung abgelehnt: mae_model ist nicht der Holdout-Fehler von model(), angepasst auf train.")
+    try:
+        cps = model().changepoints
+        ok = cps is not None and len(cps) > 0 and min(abs((pd.Timestamp(c) - pd.Timestamp("2023-04-01")).days) for c in cps) <= 45
+    except Exception:
+        ok = False
+    if not ok:
+        problems.append("Order refused: model() doesn't bend the trend where the festival's growth changed. Set the changepoint by hand. / Bestellung abgelehnt: model() knickt den Trend nicht dort, wo sich das Wachstum des Festivals geändert hat. Setzt den Changepoint von Hand.")
     total = _number(opening_2026)
     if total is None:
         problems.append("opening_2026 is not a number yet. / opening_2026 ist noch keine Zahl.")
