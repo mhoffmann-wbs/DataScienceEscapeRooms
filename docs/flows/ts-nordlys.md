@@ -26,7 +26,7 @@ flowchart LR
   end
 
   subgraph p2["Final lock"]
-    supply{{"6 · The supply terminal 🔒<br/>final check: mae_chief 602, MAE ≈ 269 l, Jan 2026 ≈ 7220 l"}}
+    supply{{"6 · The supply terminal 🔒<br/>final check: mae_chief 602, MAE ≈ 269 l, Jan 2026 ≈ 7220 l, fuel_filled = time fill"}}
   end
 
   d_logbook --> logbook
@@ -45,12 +45,12 @@ flowchart LR
   intro -.->|"📜 a model must beat the chief's rule of thumb"| supply
 
   logbook ==>|"📤 interpolate method=time"| gauge
-  logbook -.->|"📤 interpolate method=time;<br/>the AIC winner is the same on the gappy log"| echo
+  logbook ==>|"📤 interpolate method=time<br/>(echo checks `stationary`)"| echo
   logbook ==>|"📤 interpolate method=time"| supply
-  gauge ==>|"📤 log → diff 12 → diff 1<br/>(echo team turns it into d = 1, D = 1)"| echo
+  gauge ==>|"📤 log → diff 12 → diff 1<br/>(echo checks `stationary`; team turns it into d = 1, D = 1)"| echo
   chief ==>|"📤 mae_chief 602;<br/>test period 2024–2025"| supply
   echo ==>|"📤 (0,1,1)(0,1,1,12)"| supply
-  freezer ==>|"🔒 PIN 4711"| supply
+  freezer ==>|"🔒 PIN 3068"| supply
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
   classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
@@ -71,7 +71,7 @@ flowchart LR
 | `-->` solid | A clue or data file the station can't be solved without |
 | `-.->` dotted | Context only: the value is also in the task text or starter code, or it only helps to judge a result that isn't checked |
 
-The room has no `requires` any more. The supply terminal is the `final` Python check and sits behind a code `lock` (PIN 4711 from the freezer's reveal). Its grader `_supply_check(mae_chief, mae_sarima, jan_2026)` in `fuel.py` wants the chief's 602 without stating it, and accepts only the airline model's numbers (holdout MAE within 10 l of 269, January within 15 l of 7220). The frosted window (aurora) is flavour and feeds no station.
+The room has no `requires` any more. The supply terminal is the `final` Python check and sits behind a code `lock` (PIN 3068 from the freezer's reveal). Its grader `_supply_check(mae_chief, mae_sarima, jan_2026, fuel_filled)` in `fuel.py` wants the chief's 602 without stating it, accepts only the airline model's numbers (holdout MAE within 10 l of 269, January within 15 l of 7220) and a `fuel_filled` that matches `interpolate(method="time")` within 0.5 l (a linear fill passes the model numbers but not this). The frosted window (aurora) is flavour and feeds no station.
 
 ## Phases
 
@@ -86,7 +86,7 @@ The room has no `requires` any more. The supply terminal is the `final` Python c
 
 ## Hand-offs
 
-- Between stations: 7 edges, 6 hard (logbook → gauge, logbook → supply, gauge → echo, chief → supply, echo → supply, freezer PIN → supply lock), 1 soft (logbook → echo: SARIMAX copes with the gaps and picks the same winner).
+- Between stations: 7 edges, all hard (logbook → gauge, logbook → echo, logbook → supply, gauge → echo, chief → supply, echo → supply, freezer PIN → supply lock).
 - From clues: 7 clues; 5 hard (logbook page, technician's note, chief's notebook, gauge panel, order form), 1 soft (echo manual), 1 flavour (frosted window).
 
 ## Where things are
@@ -100,6 +100,17 @@ Tiles are 32 px; the map is 30 × 20 tiles: a boot room at the airlock (west), a
 
 ## Findings
 
+Fixed in the shortcut review:
+
+- **The final no longer accepts any fill.** A linear `interpolate()` passed the model numbers (MAE 270 vs 269, January 7220), so the logbook's time interpolation was not needed for the escape. `_supply_check` now also takes `fuel_filled` and wants it within 0.5 l of the time fill (ffill, bfill, linear, mean and unfilled all fail).
+- **The echo chamber's check now includes `stationary`** (length and standard deviation, as the gauge checks it). Before, only the orders were checked, and a team that guessed d = D = 1 skipped the gauge and the log step (the AIC winner is the same on a linear fill, an unfilled log and even on levels). Now it needs the logbook's fill and the gauge's log → diff(12) → diff(1).
+- **The PIN is 3068, not 4711** (a well-known stand-in PIN a team could try at the order form).
+- Tested and fine: a wrong test period (2025 only, 2024 only) fails the chief; no log, log + diff(12) only, log + diff(1) only, linear or forward fill fail the gauge; d or D = 0 makes the AIC pick another model; for the freezer, raw AR(2) gives 91 and the differenced and demeaned variants fail (`trend="ct"` also gives 63, the same reasoning as detrending); models next to the airline model, an unfilled or forward-filled log, levels instead of log and a guessed 600 for the chief are rejected by the supply grader.
+
+Left as it is:
+
+- **A team that knows the airline model can skip the echo chamber's reasoning for the final.** `SARIMAX(order=(0,1,1), seasonal_order=(0,1,1,12))` on the time-filled log passes the supply check (it still needs the logbook's fill, the chief's 602 and the freezer's PIN). The airline model is the textbook default for monthly data, so only a team that already knows it gets here. A bigger fix would regenerate the fuel data so the true model is not the airline one (for example (1,1,1)(0,1,1,12), whose January differs by 25 l from the airline's) with tighter tolerances, which also changes the 602, the hints and the ACF/PACF reading.
+
 Fixed in the second review (every clue once, no pointers to clues or other stations outside the hints, a clear goal per station):
 
 - **No task, starter or check message names a clue or another station.** Gone: "the way the logbook page describes", "the technician's note explains how to read it", "named in the chief's notebook", "as the gauge panel describes", "repair them as the logbook station does", "the series that turned the gauge green", "the differencing the gauge needed", "the winner from the echo chamber", "as the order form asks", and the supply check's "Ask at the chief's desk", "the echo chamber's winner" and "Read the order form". Each station's hint 1 now says where to look.
@@ -112,7 +123,7 @@ Fixed in the first review:
 
 - `requires` everywhere → gone. The gauge, echo and supply starters no longer contain `interpolate(method="time")` or the log/diff transform; the gauge's check fails with any other fill (linear changes the std, dropping gaps changes the length), the echo candidates come as (p, q)(P, Q) and need d = D = 1 from the gauge (with d = D = 0 the AIC picks (1,0,0)(1,0,0,12)), and the supply check rejects an unfilled or forward-filled log.
 - The echo chamber's result is now needed: the supply check accepts only the airline model; the next-best candidates miss by 25 l on January ((1,1,1)(0,1,1,12)) or 23 l on the MAE ((2,1,0)(0,1,1,12)).
-- Freezer → supply is a code lock (PIN 4711); the `pin` variable is gone.
+- Freezer → supply is a code lock (PIN 3068); the `pin` variable is gone.
 - The check's messages no longer state 602 or hint at the log scale; the team brings `mae_chief` from the chief's station.
 - Soft clues: the chief's notebook is now the only source of the rule and the test period (task, starter and supply text no longer give them); the order form is the only place that asks for litres instead of log units.
 - 5 stations open from the start instead of 2.

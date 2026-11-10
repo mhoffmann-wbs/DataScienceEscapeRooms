@@ -99,8 +99,8 @@
         "hash": "d2044d684ef7664b5a50e7fafa83021b47153fda573fd4cf60f97b905a54a7df"
       },
       "reveal": {
-        "en": "The freezer clicks open. Taped to the inside of the door: **Supply terminal PIN: 4711**",
-        "de": "Der Gefrierschrank springt auf. Innen an der Tür klebt: **PIN Versorgungsterminal: 4711**"
+        "en": "The freezer clicks open. Taped to the inside of the door: **Supply terminal PIN: 3068**",
+        "de": "Der Gefrierschrank springt auf. Innen an der Tür klebt: **PIN Versorgungsterminal: 3068**"
       },
       "practises": {
         "en": "Deterministic trend vs. stochastic trend: detrending with a fitted line, then an AR(2) model with statsmodels",
@@ -228,8 +228,8 @@
         "de": "Die Echokammer"
       },
       "text": {
-        "en": "Which of the echo sounder's candidate models fits the fuel log best? The sounder shows how strongly each month still echoes earlier months: the ACF and PACF of the stationary fuel log.\n\nThe candidates only list their AR and MA terms. Add the differencing that made the series stationary, fit each candidate on the log training data, and store the winner's orders in `order` and `seasonal_order`.",
-        "de": "Welches Kandidatenmodell des Echolots passt am besten zum Heizöl-Logbuch? Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF des stationären Heizöl-Logbuchs.\n\nDie Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, mit denen die Reihe stationär wurde, passt jeden Kandidaten auf die logarithmierten Trainingsdaten an und speichert die Ordnungen des Gewinners in `order` und `seasonal_order`."
+        "en": "Which of the echo sounder's candidate models fits the fuel log best? The sounder shows how strongly each month still echoes earlier months: the ACF and PACF of the stationary fuel log.\n\nThe candidates only list their AR and MA terms. Add the differencing that made the series stationary, fit each candidate on the log training data, and store the stationary series in `stationary` and the winner's orders in `order` and `seasonal_order`.",
+        "de": "Welches Kandidatenmodell des Echolots passt am besten zum Heizöl-Logbuch? Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF des stationären Heizöl-Logbuchs.\n\nDie Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, mit denen die Reihe stationär wurde, passt jeden Kandidaten auf die logarithmierten Trainingsdaten an und speichert die stationäre Reihe in `stationary` und die Ordnungen des Gewinners in `order` und `seasonal_order`."
       },
       "workspace": "python",
       "data": "fuel.py",
@@ -239,8 +239,8 @@
       },
       "check": {
         "type": "python",
-        "expr": "[list(order), list(seasonal_order)]",
-        "hash": "eb6799665aa56c200c31893aa97f11f9ead8e828f6e0e76fa06e110f83b11e87"
+        "expr": "[list(order), list(seasonal_order), len(stationary), round(float(stationary.std()), 4)]",
+        "hash": "28906d355702835e99af98a59ba74d1fd96a4f6f5a088d1f9d9d9efbcd442524"
       },
       "uses": [
         "logbook",
@@ -279,8 +279,8 @@
         "de": "Das Versorgungsterminal"
       },
       "text": {
-        "en": "The heating comes back once the station orders January's fuel. The terminal only accepts an order from the station's model, and only if that model beats the chief on her own test period.\n\nSet `mae_chief` (the chief's error, in litres), `mae_sarima` (your model's error on the same test period, in litres) and `jan_2026` (the January 2026 order). The terminal tells you what it doesn't like.",
-        "de": "Die Heizung läuft wieder, sobald die Station das Heizöl für Januar bestellt. Das Terminal nimmt nur eine Bestellung vom Modell der Station an, und nur, wenn dieses Modell die Leiterin auf ihrem eigenen Testzeitraum schlägt.\n\nSetzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026). Das Terminal sagt euch, was ihm nicht passt."
+        "en": "The heating comes back once the station orders January's fuel. The terminal only accepts an order from the station's model, and only if that model beats the chief on her own test period.\n\nSet `mae_chief` (the chief's error, in litres), `mae_sarima` (your model's error on the same test period, in litres) and `jan_2026` (the January 2026 order), and keep the repaired log in `fuel_filled`. The terminal tells you what it doesn't like.",
+        "de": "Die Heizung läuft wieder, sobald die Station das Heizöl für Januar bestellt. Das Terminal nimmt nur eine Bestellung vom Modell der Station an, und nur, wenn dieses Modell die Leiterin auf ihrem eigenen Testzeitraum schlägt.\n\nSetzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026) und behaltet das reparierte Logbuch in `fuel_filled`. Das Terminal sagt euch, was ihm nicht passt."
       },
       "workspace": "python",
       "data": "fuel.py",
@@ -290,7 +290,7 @@
       },
       "check": {
         "type": "python",
-        "expr": "_supply_check(mae_chief, mae_sarima, jan_2026)",
+        "expr": "_supply_check(mae_chief, mae_sarima, jan_2026, fuel_filled)",
         "hash": "4d14df9bc78e04442cb50122974be30453010224ad96d8cc502fcd55a83f3e85"
       },
       "uses": [
@@ -305,7 +305,7 @@
         },
         "from": "freezer",
         "mode": "number",
-        "hash": "ebea7b063b5c64f09918d265677f18541d8733da6d99838c8bffc94ae26fd3bf"
+        "hash": "f1f760ed25f3945cee57e8dd8f79e794202d50dfbbdc609d12adbfbedf171445"
       },
       "final": true,
       "practises": {

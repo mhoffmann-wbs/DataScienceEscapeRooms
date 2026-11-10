@@ -117,7 +117,7 @@ print(f"{abs(round(ar1 * 10))}{abs(round(ar2 * 10))}")
 
 **Zeigt nach dem Lösen:**
 
-> Der Gefrierschrank springt auf. Innen an der Tür klebt: **PIN Versorgungsterminal: 4711**
+> Der Gefrierschrank springt auf. Innen an der Tür klebt: **PIN Versorgungsterminal: 3068**
 
 **Hinweise:**
 
@@ -257,7 +257,7 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 
 > Welches Kandidatenmodell des Echolots passt am besten zum Heizöl-Logbuch? Das Echolot zeigt, wie stark jeder Monat noch frühere Monate widerspiegelt: ACF und PACF des stationären Heizöl-Logbuchs.
 >
-> Die Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, mit denen die Reihe stationär wurde, passt jeden Kandidaten auf die logarithmierten Trainingsdaten an und speichert die Ordnungen des Gewinners in `order` und `seasonal_order`.
+> Die Kandidaten nennen nur ihre AR- und MA-Terme. Ergänzt die Differenzen, mit denen die Reihe stationär wurde, passt jeden Kandidaten auf die logarithmierten Trainingsdaten an und speichert die stationäre Reihe in `stationary` und die Ordnungen des Gewinners in `order` und `seasonal_order`.
 
 <details><summary>Startcode</summary>
 
@@ -311,10 +311,10 @@ for (p, q), (P, Q) in candidates:
 order, seasonal_order = best[1], best[2]
 ```
 
-**Geprüftes Ergebnis** (`[list(order), list(seasonal_order)]`):
+**Geprüftes Ergebnis** (`[list(order), list(seasonal_order), len(stationary), round(float(stationary.std()), 4)]`):
 
 ```json
-[[0, 1, 1], [0, 1, 1, 12]]
+[[0, 1, 1], [0, 1, 1, 12], 179, 0.0365]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -333,7 +333,7 @@ order, seasonal_order = best[1], best[2]
 **Braucht:** 1. Das erfrorene Logbuch (sein Ergebnis), 3. Die Methode der Leiterin (sein Ergebnis), 5. Die Echokammer (sein Ergebnis), 🔒 2. Der driftende Gefriersensor, 🔎 Das Bestellformular  
 **Daten:** [fuel.py](../../content/rooms/ts-nordlys/data/fuel.py)
 
-**Zahlenschloss** (öffnet mit `4711`):
+**Zahlenschloss** (öffnet mit `3068`):
 
 > Das Versorgungsterminal ist gesperrt. Der Bildschirm verlangt eine vierstellige PIN.
 
@@ -341,7 +341,7 @@ order, seasonal_order = best[1], best[2]
 
 > Die Heizung läuft wieder, sobald die Station das Heizöl für Januar bestellt. Das Terminal nimmt nur eine Bestellung vom Modell der Station an, und nur, wenn dieses Modell die Leiterin auf ihrem eigenen Testzeitraum schlägt.
 >
-> Setzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026). Das Terminal sagt euch, was ihm nicht passt.
+> Setzt `mae_chief` (den Fehler der Leiterin, in Litern), `mae_sarima` (den Fehler eures Modells auf demselben Testzeitraum, in Litern) und `jan_2026` (die Bestellung für Januar 2026) und behaltet das reparierte Logbuch in `fuel_filled`. Das Terminal sagt euch, was ihm nicht passt.
 
 <details><summary>Startcode</summary>
 
@@ -382,7 +382,7 @@ print(round(mae_sarima), round(jan_2026))
 show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 ```
 
-**Geprüftes Ergebnis** (`_supply_check(mae_chief, mae_sarima, jan_2026)`):
+**Geprüftes Ergebnis** (`_supply_check(mae_chief, mae_sarima, jan_2026, fuel_filled)`):
 
 ```json
 "approved"

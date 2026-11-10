@@ -40,8 +40,12 @@ fuel = pd.Series([
 ], index=pd.date_range("2010-01-01", periods=192, freq="MS"), name="fuel", dtype="float64")
 
 
-def _supply_check(chief_mae, holdout_mae, litres):
-    """The supply terminal's check: the chief's error, the model's holdout error and the January 2026 order.
+_fuel_raw = fuel.copy()
+
+
+def _supply_check(chief_mae, holdout_mae, litres, repaired):
+    """The supply terminal's check: the chief's error, the model's holdout error, the January 2026 order and
+    the repaired log it was built on (gaps filled in proportion to time).
     The model must be the station's airline model (holdout MAE about 269 l, January about 7220 l)."""
     def number(x):
         try:
@@ -58,6 +62,12 @@ def _supply_check(chief_mae, holdout_mae, litres):
         problems.append("Order refused: mae_sarima doesn't match the station's model on the repaired log, on the chief's test period. / Bestellung abgelehnt: mae_sarima passt nicht zum Modell der Station auf dem reparierten Logbuch, auf dem Testzeitraum der Leiterin.")
     if litres is None or abs(litres - 7220) > 15:
         problems.append("Order refused: that January order doesn't match the station's model on the repaired log. / Bestellung abgelehnt: Diese Januar-Bestellung passt nicht zum Modell der Station auf dem reparierten Logbuch.")
+    try:
+        repaired_ok = len(repaired) == len(_fuel_raw) and bool(((repaired - _fuel_raw.interpolate(method="time")).abs() < 0.5).all())
+    except Exception:
+        repaired_ok = False
+    if not repaired_ok:
+        problems.append("The terminal doesn't accept fuel_filled as the repaired log. / Das Terminal erkennt fuel_filled nicht als repariertes Logbuch an.")
     for p in problems:
         print(p)
     return "approved" if not problems else "rejected"

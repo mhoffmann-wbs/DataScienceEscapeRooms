@@ -117,7 +117,7 @@ print(f"{abs(round(ar1 * 10))}{abs(round(ar2 * 10))}")
 
 **Reveals when solved:**
 
-> The freezer clicks open. Taped to the inside of the door: **Supply terminal PIN: 4711**
+> The freezer clicks open. Taped to the inside of the door: **Supply terminal PIN: 3068**
 
 **Hints:**
 
@@ -257,7 +257,7 @@ show_plot(stationary, title="log, diff(12), diff(1)")
 
 > Which of the echo sounder's candidate models fits the fuel log best? The sounder shows how strongly each month still echoes earlier months: the ACF and PACF of the stationary fuel log.
 >
-> The candidates only list their AR and MA terms. Add the differencing that made the series stationary, fit each candidate on the log training data, and store the winner's orders in `order` and `seasonal_order`.
+> The candidates only list their AR and MA terms. Add the differencing that made the series stationary, fit each candidate on the log training data, and store the stationary series in `stationary` and the winner's orders in `order` and `seasonal_order`.
 
 <details><summary>Starter code</summary>
 
@@ -311,10 +311,10 @@ for (p, q), (P, Q) in candidates:
 order, seasonal_order = best[1], best[2]
 ```
 
-**Checked result** (`[list(order), list(seasonal_order)]`):
+**Checked result** (`[list(order), list(seasonal_order), len(stationary), round(float(stationary.std()), 4)]`):
 
 ```json
-[[0, 1, 1], [0, 1, 1, 12]]
+[[0, 1, 1], [0, 1, 1, 12], 179, 0.0365]
 ```
 
 **Reveals when solved:**
@@ -333,7 +333,7 @@ order, seasonal_order = best[1], best[2]
 **Needs:** 1. The frost-damaged logbook (its result), 3. The chief's method (its result), 5. The echo chamber (its result), 🔒 2. The drifting freezer sensor, 🔎 The supply order form  
 **Data:** [fuel.py](../../content/rooms/ts-nordlys/data/fuel.py)
 
-**Code lock** (opens with `4711`):
+**Code lock** (opens with `3068`):
 
 > The supply terminal is locked. Its screen asks for a four-digit PIN.
 
@@ -341,7 +341,7 @@ order, seasonal_order = best[1], best[2]
 
 > The heating comes back once the station orders January's fuel. The terminal only accepts an order from the station's model, and only if that model beats the chief on her own test period.
 >
-> Set `mae_chief` (the chief's error, in litres), `mae_sarima` (your model's error on the same test period, in litres) and `jan_2026` (the January 2026 order). The terminal tells you what it doesn't like.
+> Set `mae_chief` (the chief's error, in litres), `mae_sarima` (your model's error on the same test period, in litres) and `jan_2026` (the January 2026 order), and keep the repaired log in `fuel_filled`. The terminal tells you what it doesn't like.
 
 <details><summary>Starter code</summary>
 
@@ -382,7 +382,7 @@ print(round(mae_sarima), round(jan_2026))
 show_plot(fuel_filled["2022":], forecast, labels=["actual", "forecast"])
 ```
 
-**Checked result** (`_supply_check(mae_chief, mae_sarima, jan_2026)`):
+**Checked result** (`_supply_check(mae_chief, mae_sarima, jan_2026, fuel_filled)`):
 
 ```json
 "approved"
