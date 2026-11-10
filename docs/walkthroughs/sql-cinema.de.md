@@ -125,7 +125,7 @@ ORDER BY t.ticket_no;
 
 **Zeigt nach dem Lösen:**
 
-> Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken am 6., 7. und 14. November, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht.
+> Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken an drei Abenden, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht.
 
 **Hinweise:**
 
@@ -286,7 +286,7 @@ ORDER BY day, s.name;
 
 **Zeigt nach dem Lösen:**
 
-> In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend. Tobias Rehm hat an diesen Tagen auch Snacks verkauft, aber nur nachmittags: Nach 18:15 hat er keinen einzigen verkauft.
+> In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend.
 
 **Hinweise:**
 
@@ -385,7 +385,7 @@ ORDER BY r.day;
 
 *Gebraucht von: 5. Die Snackkasse*
 
-> Edith, bevor du fragst: Am 6., 7. und 14. habe ich an der Snackbar gearbeitet, nicht mal in der Nähe der Kasse. Schau in die Snackkasse, wenn du mir nicht glaubst. — Tobias
+> Erinnerung für alle, die die Snackbar übernehmen: Die Kasse bucht jeden Verkauf auf den Namen, der angemeldet ist. Meldet euch mit eurem eigenen an. — Tobias
 
 ### 🔎 Eine Zeitung
 

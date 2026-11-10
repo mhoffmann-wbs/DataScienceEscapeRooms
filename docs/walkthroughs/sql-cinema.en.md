@@ -125,7 +125,7 @@ ORDER BY t.ticket_no;
 
 **Reveals when solved:**
 
-> Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of 6, 7 and 14 November, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.
+> Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of three evenings, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.
 
 **Hints:**
 
@@ -286,7 +286,7 @@ ORDER BY day, s.name;
 
 **Reveals when solved:**
 
-> In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night. Tobias Rehm sold snacks on those days too, but only in the afternoon: after 18:15 he didn't sell a single one.
+> In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night.
 
 **Hints:**
 
@@ -385,7 +385,7 @@ ORDER BY r.day;
 
 *Used by: 5. The snack till*
 
-> Edith, before you ask: on the 6th, the 7th and the 14th I worked the snack bar, nowhere near the box office. Check the snack till if you don't believe me. — Tobias
+> Reminder for whoever takes over the snack bar: the till books every sale under the name that is signed in. Sign in with your own. — Tobias
 
 ### 🔎 A newspaper
 

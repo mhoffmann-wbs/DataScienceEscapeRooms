@@ -94,8 +94,8 @@
         "hash": "6680986e3872cb84421c489b7be9cfd6d4f8598192285c52b3726627a7615921"
       },
       "reveal": {
-        "en": "Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of 6, 7 and 14 November, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.",
-        "de": "Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken am 6., 7. und 14. November, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht."
+        "en": "Twelve gaps, all on **till 2**'s roll, 57 missing numbers in all: four gaps on each of three evenings, between 21:03 and 21:29, just before the Studio's late show. Somebody at till 2 sold tickets, kept the cash and deleted the sales.",
+        "de": "Zwölf Lücken, alle auf der Rolle von **Kasse 2**, insgesamt 57 fehlende Nummern: je vier Lücken an drei Abenden, zwischen 21:03 und 21:29, kurz vor der Spätvorstellung im Studio. Jemand an Kasse 2 hat Tickets verkauft, das Geld behalten und die Verkäufe gelöscht."
       },
       "practises": {
         "en": "Finding gaps in a sequence: `NOT EXISTS` with `ticket_no + 1`, and correlated subqueries with `MIN` and `MAX`",
@@ -234,8 +234,8 @@
         "hash": "201541e93f1242a234dc4b954a94437e66b87f9c910e71359ffdfe4e922ed2b4"
       },
       "reveal": {
-        "en": "In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night. Tobias Rehm sold snacks on those days too, but only in the afternoon: after 18:15 he didn't sell a single one.",
-        "de": "In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend. Tobias Rehm hat an diesen Tagen auch Snacks verkauft, aber nur nachmittags: Nach 18:15 hat er keinen einzigen verkauft."
+        "en": "In the evening shift the snack till was signed in to **Lukas Feld** on 6 and 7 November and to **Selin Aydın** on 14 November, 95 to 102 sales a night.",
+        "de": "In der Abendschicht war an der Snackkasse am 6. und 7. November **Lukas Feld** angemeldet und am 14. November **Selin Aydın**, mit 95 bis 102 Verkäufen pro Abend."
       },
       "practises": {
         "en": "`date()` and `time()` on timestamps; `GROUP BY` over two columns",
@@ -375,8 +375,8 @@
         "de": "Ein Zettel an der Snackbar"
       },
       "text": {
-        "en": "Edith, before you ask: on the 6th, the 7th and the 14th I worked the snack bar, nowhere near the box office. Check the snack till if you don't believe me. — Tobias",
-        "de": "Edith, bevor du fragst: Am 6., 7. und 14. habe ich an der Snackbar gearbeitet, nicht mal in der Nähe der Kasse. Schau in die Snackkasse, wenn du mir nicht glaubst. — Tobias"
+        "en": "Reminder for whoever takes over the snack bar: the till books every sale under the name that is signed in. Sign in with your own. — Tobias",
+        "de": "Erinnerung für alle, die die Snackbar übernehmen: Die Kasse bucht jeden Verkauf auf den Namen, der angemeldet ist. Meldet euch mit eurem eigenen an. — Tobias"
       }
     },
     {

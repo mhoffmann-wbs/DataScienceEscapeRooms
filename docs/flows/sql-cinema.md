@@ -41,7 +41,7 @@ flowchart LR
   firenotice -->|"🔎 limit = the Studio's seats"| clicker
   officenote -->|"🔎 code = most people in the Studio at once"| office
   edithnote -.->|"🔎 rota is a plan; snack till knows who was there"| office
-  tobiasnote -.->|"🔎 Tobias: I was at the snack bar"| snacks
+  tobiasnote -.->|"🔎 the snack till books sales under the signed-in name"| snacks
   newspaper -.->|"🔎 bank decides Monday"| office
   intro -.->|"📜 two tills, one roll each"| printer
 
@@ -100,9 +100,17 @@ The room is the cinema's ground floor: the dark Studio with its screen and seats
 - Ben's clipboard (224, 320) hangs beside his tally podium (256, 352), and the fire notice (384, 320) beside the clicker (352, 352), both on the Studio's back wall.
 - The tally's dates have to travel from the Studio door (256, 352) to the rota computer in the staff room (800, 64), about 610 px, and to the snack bar (96, 384), about 160 px.
 - Edith's note on the rota board (736, 32) is about 70 px from the rota computer and next to the office.
-- Tobias's note (128, 384) is taped to the end of the snack bar, beside the snack till (96, 384).
+- Tobias's reminder about signing in (128, 384) is taped to the end of the snack bar, beside the snack till (96, 384).
 
 ## Findings
+
+Fixed in the shortcut review:
+
+- **The snack till's reveal named the culprit.** It said that Tobias sold snacks only in the afternoon, which with the rota is the whole answer; it now names only the evening sellers, so the office has to join the rota and the snack till itself.
+- **Tobias's note was an alibi that pointed at him** (he alone says he worked the snack bar, "nowhere near the box office"). It is now a neutral reminder to sign in at the snack till.
+- **The printers' reveal gave the dates** (6, 7 and 14 Nov), so the rota and the snack till didn't need Ben's tally. It now says "three evenings"; the dates come from the tally.
+
+Left as is: the printers are a soft link. A team that reads the rota and the snack till can reason that Tobias swapped away from his post without knowing the gaps are on till 2, and the same person being at the snack bar on all three evenings points at him too. Making the printers decisive would need a redesign (for example a decoy swap that only the till of the gaps can rule out).
 
 Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
