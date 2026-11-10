@@ -17,7 +17,7 @@
 | 3 | Das Kartencodiergerät | Einen Wert in einer Abfrage nachschlagen und in der nächsten danach filtern, `WHERE` auf Text, `ORDER BY … DESC` | 2. Der Türschloss-Server (sein Ergebnis) |
 | 4 | Der Sicherheits-PC | `GROUP BY` mit `COUNT(*)`, vor dem Gruppieren filtern, nach einer Anzahl sortieren | 2. Der Türschloss-Server (sein Ergebnis), 3. Das Kartencodiergerät (sein Ergebnis), 🔎 Das Logbuch der Rezeption |
 | 5 | Die Barkasse | `JOIN` kombiniert mit `WHERE` und `ORDER BY` | 🔎 Notizen des Nachtwächters, 🔎 Eine Zeitung |
-| 6 | Das Telefon des Managers (Abschluss-Schloss) | Hinweise aus mehreren Abfragen kombinieren | 4. Der Sicherheits-PC (sein Ergebnis), 1. Der Rezeptionscomputer (sein Ergebnis), 🔒 4. Der Sicherheits-PC |
+| 6 | Das Telefon des Managers (Abschluss-Schloss) | Hinweise aus mehreren Abfragen kombinieren | 4. Der Sicherheits-PC (sein Ergebnis), 1. Der Rezeptionscomputer (sein Ergebnis), 5. Die Barkasse (sein Ergebnis), 🔒 4. Der Sicherheits-PC |
 
 **Abschluss-Code:** `Nora Quill`
 
@@ -33,7 +33,7 @@
 
 > Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Wer hat in der Nacht des Diebstahls in dem Flügel geschlafen, in den der Dieb davongelaufen ist?
 >
-> Listet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer.
+> Listet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer, dann nach Name.
 
 <details><summary>Startcode</summary>
 
@@ -54,24 +54,24 @@ FROM bookings
 WHERE room BETWEEN 405 AND 412
   AND check_in <= '2026-03-14'
   AND check_out > '2026-03-14'
-ORDER BY room;
+ORDER BY room, guest_name;
 ```
 
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["Nora Quill",406],["Priya Nand",409],["Ada Okafor",411]]
+[["Nora Quill",406],["Theo Lambert",406],["Priya Nand",409],["Ada Okafor",411]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Der Drucker rattert die Liste heraus, und ihr pinnt sie an die Wand. Drei Gäste haben in dieser Nacht im Ostflügel des 4. Stocks geschlafen: **Nora Quill (406), Priya Nand (409) und Ada Okafor (411).**
+> Der Drucker rattert die Liste heraus, und ihr pinnt sie an die Wand. Vier Gäste haben in dieser Nacht im Ostflügel des 4. Stocks geschlafen: **Nora Quill und Theo Lambert, die sich 406 teilen, Priya Nand (409) und Ada Okafor (411).**
 
 **Hinweise:**
 
 1. Die Notizen des Nachtwächters beim Schreibtisch des Managers verraten, welcher Flügel. Der Grundriss neben der Tür zeigt, welche Zimmer dazugehören, und die Zeitung in der Lounge nennt das Datum des Diebstahls.
-2. Der Ostflügel des 4. Stocks sind die Zimmer 405–412 (`room BETWEEN 405 AND 412`). Ein Gast hat in dieser Nacht hier geschlafen, wenn er am 14. oder früher angekommen ist (`check_in <= '2026-03-14'`) und am 15. oder später abgereist ist (`check_out > '2026-03-14'`).
-3. `SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`
+2. Der Ostflügel des 4. Stocks sind die Zimmer 405–412 (`room BETWEEN 405 AND 412`). Ein Gast hat in dieser Nacht hier geschlafen, wenn er am 14. oder früher angekommen ist (`check_in <= '2026-03-14'`) und am 15. oder später abgereist ist (`check_out > '2026-03-14'`). Zwei Gäste können sich ein Zimmer teilen, sortiert also mit `ORDER BY room, guest_name`.
+3. `SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room, guest_name;`
 
 ### 2. Der Türschloss-Server
 
@@ -259,12 +259,12 @@ ORDER BY r.time;
 **Geprüftes Ergebnis** (Zeilen, Spaltennamen egal, in dieser Reihenfolge):
 
 ```json
-[["2026-03-15 02:41","Victor Hale","card room"],["2026-03-15 02:44","Mia Lund","room service"],["2026-03-15 02:45","Otto Brandt","reception"],["2026-03-15 02:50","Priya Nand","room service"]]
+[["2026-03-15 02:41","Victor Hale","card room"],["2026-03-15 02:44","Mia Lund","room service"],["2026-03-15 02:45","Otto Brandt","reception"],["2026-03-15 02:48","Theo Lambert","night bar"],["2026-03-15 02:50","Priya Nand","room service"]]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Zur Zeit des Diebstahls haben **Victor Hale, Mia Lund, Otto Brandt und Priya Nand** anderswo im Hotel Belege unterschrieben. Keiner von ihnen hat um 02:47 Zimmer 404 geöffnet.
+> Zur Zeit des Diebstahls haben **Victor Hale, Mia Lund, Otto Brandt, Theo Lambert und Priya Nand** anderswo im Hotel Belege unterschrieben. Keiner von ihnen hat um 02:47 Zimmer 404 geöffnet.
 
 **Hinweise:**
 
@@ -275,7 +275,7 @@ ORDER BY r.time;
 ### 6. Das Telefon des Managers (Abschluss-Schloss)
 
 **Übt:** Hinweise aus mehreren Abfragen kombinieren  
-**Braucht:** 4. Der Sicherheits-PC (sein Ergebnis), 1. Der Rezeptionscomputer (sein Ergebnis), 🔒 4. Der Sicherheits-PC  
+**Braucht:** 4. Der Sicherheits-PC (sein Ergebnis), 1. Der Rezeptionscomputer (sein Ergebnis), 5. Die Barkasse (sein Ergebnis), 🔒 4. Der Sicherheits-PC  
 **Daten:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Zahlenschloss** (öffnet mit `406`):
@@ -304,16 +304,17 @@ LIMIT 5;
 **Musterlösung:**
 
 ```sql
-SELECT b.guest_name, d.room, COUNT(*) AS openings
-FROM door_log AS d
-JOIN bookings AS b ON b.room = d.room
-WHERE d.card_id = 'M-02'
-  AND d.event = 'open'
-  AND d.time >= '2026-03-14 21:05'
-  AND b.check_in <= '2026-03-14'
-  AND b.check_out > '2026-03-14'
-GROUP BY b.guest_name, d.room
-ORDER BY openings DESC;
+SELECT guest_name
+FROM bookings
+WHERE room = 406
+  AND check_in <= '2026-03-14'
+  AND check_out > '2026-03-14'
+  AND guest_name NOT IN (
+    SELECT k.holder
+    FROM receipts AS r
+    JOIN keycards AS k ON r.card_id = k.card_id
+    WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'
+  );
 ```
 
 **Antwort:** `Nora Quill`
@@ -321,8 +322,8 @@ ORDER BY openings DESC;
 **Hinweise:**
 
 1. Der Dieb hat die gestohlene Generalkarte benutzt. Zu welchem Gästezimmer ist sie immer wieder zurückgekehrt, und wer hat dort geschlafen?
-2. Das Zimmer ist der Code, mit dem ihr dieses Telefon entsperrt habt. Die Gästeliste von der Rezeption verrät, wer darin geschlafen hat. Die Barkasse schließt den Karteninhaber Otto aus.
-3. Die Generalkarte hat Zimmer 406 zweimal geöffnet. Die Gästeliste von der Rezeption verrät, wer in 406 geschlafen hat.
+2. Das Zimmer ist der Code, mit dem ihr dieses Telefon geöffnet habt. Die Gästeliste von der Rezeption zeigt zwei Gäste darin, und die Bar-Kasse zeigt, wer von beiden unten war, als der Dieb davonlief.
+3. Nora Quill und Theo Lambert teilen sich Zimmer 406. Theo hat um 02:48 an der Nachtbar einen Beleg unterschrieben, eine Minute nachdem Zimmer 404 geöffnet wurde.
 
 ## Hinweise im Raum
 

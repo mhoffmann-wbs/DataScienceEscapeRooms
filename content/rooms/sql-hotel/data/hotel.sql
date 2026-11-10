@@ -26,7 +26,8 @@ INSERT INTO bookings (booking_id, guest_name, room, check_in, check_out) VALUES
   (14, 'Bruno Costa', 412, '2026-03-16', '2026-03-19'),
   (15, 'Ingrid Holm', 204, '2026-03-13', '2026-03-16'),
   (16, 'Felix Grau', 310, '2026-03-14', '2026-03-15'),
-  (17, 'Rosa Martín', 403, '2026-03-09', '2026-03-14');
+  (17, 'Rosa Martín', 403, '2026-03-09', '2026-03-14'),
+  (18, 'Theo Lambert', 406, '2026-03-12', '2026-03-15');
 
 CREATE TABLE keycards (
   card_id TEXT PRIMARY KEY,
@@ -44,6 +45,7 @@ INSERT INTO keycards (card_id, holder, role, issued) VALUES
   ('P-01', 'Leo Marek', 'porter', '2025-12-01 07:30'),
   ('C-402', 'Tom Berger', 'guest', '2026-03-11 15:10'),
   ('C-406', 'Nora Quill', 'guest', '2026-03-12 16:40'),
+  ('C-406B', 'Theo Lambert', 'guest', '2026-03-12 16:40'),
   ('C-411', 'Ada Okafor', 'guest', '2026-03-10 14:20'),
   ('C-401', 'Henrik Sol', 'guest', '2026-03-13 17:55'),
   ('C-404', 'Victor Hale', 'guest', '2026-03-14 15:25'),
@@ -135,4 +137,5 @@ INSERT INTO receipts (receipt_id, time, place, card_id, amount) VALUES
   (13, '2026-03-15 02:50', 'room service', 'C-409', 12.00),
   (14, '2026-03-15 03:02', 'night bar', 'C-401', 11.00),
   (15, '2026-03-15 03:05', 'card room', 'C-404', 90.00),
-  (16, '2026-03-15 06:30', 'breakfast', 'C-207', 19.00);
+  (16, '2026-03-15 06:30', 'breakfast', 'C-207', 19.00),
+  (17, '2026-03-15 02:48', 'night bar', 'C-406B', 8.00);

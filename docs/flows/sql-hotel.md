@@ -52,8 +52,8 @@ flowchart LR
   cardholders ==>|"📤 Otto's new card M-03 written 21:05"| mastercard
 
   mastercard ==>|"🔒 code 406 = room opened twice"| accusation
-  reception ==>|"📤 406 = Nora Quill"| accusation
-  alibis -.->|"📤 Otto, Priya and others ruled out"| accusation
+  reception ==>|"📤 406 = Nora Quill and Theo Lambert"| accusation
+  alibis ==>|"📤 Theo at the night bar at 02:48"| accusation
 
   classDef station fill:#8fb8de,stroke:#2b5d8a,color:#10263b
   classDef locked fill:#e0b36a,stroke:#8a5a12,color:#3a2504
@@ -80,17 +80,17 @@ All six stations load the same `hotel.sql`, so the room has one data node; the e
 
 - **Start:** 3 stations can be solved at once (reception, door-lock server, bar till), and reception needs three clues from three corners of the room. Enough for a team of 3; in a team of 5 the others fetch clues.
 - **Second wave:** the key-card encoder and the security PC are open, but their tasks name "the card that opened room 404 in the middle of the night", which only the door-lock server's result gives. The security PC also needs the encoder's 21:05, so the second wave is a short chain (encoder, then PC) next to the reception and bar till work. The door-lock server and encoder are short stations (about 4 minutes each), so the room is about 3 wide, then 4.
-- **Final:** the phone opens with the code 406 from the security PC, then needs one name from the reception list.
+- **Final:** the phone opens with the code 406 from the security PC. The reception list shows two guests in 406, and the bar till rules out Theo, so the name needs both.
 
 ## Chains
 
 - Door-lock server → key-card encoder → security PC → phone: 4 stations, the longest path and the decisive one for the code.
 - Reception → phone: 2 stations, needed for the name.
-- Bar till → phone: 2 stations, context (rules out Otto, the card's owner and obvious suspect).
+- Bar till → phone: 2 stations, needed for the name (Theo has an alibi; it also clears Otto, the card's owner).
 
 ## Hand-offs
 
-- Between stations: 6 edges. Hard: card M-02 into the encoder and the security PC, the encoder's 21:05 into the security PC, the lock code 406, and 406 = Nora Quill. Soft: the bar till's alibis for the phone.
+- Between stations: 6 edges. All hard: card M-02 into the encoder and the security PC, the encoder's 21:05 into the security PC, the lock code 406, the two guests of 406, and Theo's alibi.
 - From clues: 7 clue edges from 5 clues, 6 of them hard. The newspaper feeds three stations (the date), the guard's notes two (the wing for reception, the time for the bar till), Victor's statement, the floor plan and the logbook one each. The encoder needs no clue. The portrait stays flavour.
 
 ## Where things are
@@ -103,6 +103,11 @@ The room is a hotel ground floor: the marble lobby with the reception counter an
 - The floor plan on the back-office wall (96, 32) is about 430 px from reception.
 
 ## Findings
+
+Fixed in the fourth review (the bar till is needed to escape):
+
+- **Room 406 has a second guest, Theo Lambert** (booking 18, card C-406B), so the code 406 points at two people. Theo signed a receipt at the night bar at 02:48, inside the bar till's window, so only Nora is left. The phone's `uses` now names the bar till.
+- Reception now sorts by room, then by name (`ORDER BY room, guest_name`), because its check is ordered and 406 has two rows.
 
 Fixed in the third review (each station of the card chain adds one piece the security PC needs):
 
@@ -129,7 +134,7 @@ Fixed in the first review:
 
 Left as they are:
 
-- **The bar till is not needed to escape.** Its result only explains the case (Otto and Priya have alibis). A team that skips it can still open the phone and name Nora; the debrief shows skipped stations.
+- **A team that skips the bar till could still guess between Nora and Theo** at the phone. The answer box doesn't limit tries; the debrief shows the skipped station.
 - **A team that queries M-02 freely at the security PC sees 406 right after 404 at 02:52.** That is the station meant to find it, so this is fine.
 - **Every station shares one database**, so a team could re-derive M-02 at any station by repeating the door-lock query; the hand-off saves that work rather than making it impossible.
 - **The portrait is flavour only**, by design.

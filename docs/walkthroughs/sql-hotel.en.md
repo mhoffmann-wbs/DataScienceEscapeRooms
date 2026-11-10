@@ -17,7 +17,7 @@
 | 3 | The key-card encoder | Looking up a value in one query and filtering on it in the next, `WHERE` on text, `ORDER BY … DESC` | 2. The door-lock server (its result) |
 | 4 | The security PC | `GROUP BY` with `COUNT(*)`, filtering before grouping, sorting by a count | 2. The door-lock server (its result), 3. The key-card encoder (its result), 🔎 The front-desk logbook |
 | 5 | The bar till | `JOIN` combined with `WHERE` and `ORDER BY` | 🔎 The night guard's notes, 🔎 A newspaper |
-| 6 | The manager's phone (Final lock) | Combining evidence from several queries | 4. The security PC (its result), 1. The reception computer (its result), 🔒 4. The security PC |
+| 6 | The manager's phone (Final lock) | Combining evidence from several queries | 4. The security PC (its result), 1. The reception computer (its result), 5. The bar till (its result), 🔒 4. The security PC |
 
 **Final code:** `Nora Quill`
 
@@ -33,7 +33,7 @@
 
 > The reception computer is connected to the hotel database. Who slept in the wing the thief ran off into, on the night of the theft?
 >
-> List the guest name and room of everyone staying in that wing that night, ordered by room.
+> List the guest name and room of everyone staying in that wing that night, ordered by room, then by name.
 
 <details><summary>Starter code</summary>
 
@@ -54,24 +54,24 @@ FROM bookings
 WHERE room BETWEEN 405 AND 412
   AND check_in <= '2026-03-14'
   AND check_out > '2026-03-14'
-ORDER BY room;
+ORDER BY room, guest_name;
 ```
 
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["Nora Quill",406],["Priya Nand",409],["Ada Okafor",411]]
+[["Nora Quill",406],["Theo Lambert",406],["Priya Nand",409],["Ada Okafor",411]]
 ```
 
 **Reveals when solved:**
 
-> The printer rattles out the list, and you pin it to the wall. Three guests slept in the east wing of the 4th floor that night: **Nora Quill (406), Priya Nand (409) and Ada Okafor (411).**
+> The printer rattles out the list, and you pin it to the wall. Four guests slept in the east wing of the 4th floor that night: **Nora Quill and Theo Lambert, who share 406, Priya Nand (409) and Ada Okafor (411).**
 
 **Hints:**
 
 1. The night guard's notes by the manager's desk say which wing. The floor plan next to the door says which rooms are in it, and the newspaper in the lounge gives the date of the theft.
-2. The east wing of the 4th floor is rooms 405–412 (`room BETWEEN 405 AND 412`). A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`).
-3. `SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`
+2. The east wing of the 4th floor is rooms 405–412 (`room BETWEEN 405 AND 412`). A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`). Two guests can share a room, so sort with `ORDER BY room, guest_name`.
+3. `SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room, guest_name;`
 
 ### 2. The door-lock server
 
@@ -259,12 +259,12 @@ ORDER BY r.time;
 **Checked result** (rows, column names ignored, in this order):
 
 ```json
-[["2026-03-15 02:41","Victor Hale","card room"],["2026-03-15 02:44","Mia Lund","room service"],["2026-03-15 02:45","Otto Brandt","reception"],["2026-03-15 02:50","Priya Nand","room service"]]
+[["2026-03-15 02:41","Victor Hale","card room"],["2026-03-15 02:44","Mia Lund","room service"],["2026-03-15 02:45","Otto Brandt","reception"],["2026-03-15 02:48","Theo Lambert","night bar"],["2026-03-15 02:50","Priya Nand","room service"]]
 ```
 
 **Reveals when solved:**
 
-> At the time of the theft, **Victor Hale, Mia Lund, Otto Brandt and Priya Nand** were signing receipts elsewhere in the hotel. None of them opened room 404 at 02:47.
+> At the time of the theft, **Victor Hale, Mia Lund, Otto Brandt, Theo Lambert and Priya Nand** were signing receipts elsewhere in the hotel. None of them opened room 404 at 02:47.
 
 **Hints:**
 
@@ -275,7 +275,7 @@ ORDER BY r.time;
 ### 6. The manager's phone (Final lock)
 
 **Practises:** Combining evidence from several queries  
-**Needs:** 4. The security PC (its result), 1. The reception computer (its result), 🔒 4. The security PC  
+**Needs:** 4. The security PC (its result), 1. The reception computer (its result), 5. The bar till (its result), 🔒 4. The security PC  
 **Data:** [hotel.sql](../../content/rooms/sql-hotel/data/hotel.sql)
 
 **Code lock** (opens with `406`):
@@ -304,16 +304,17 @@ LIMIT 5;
 **Model solution:**
 
 ```sql
-SELECT b.guest_name, d.room, COUNT(*) AS openings
-FROM door_log AS d
-JOIN bookings AS b ON b.room = d.room
-WHERE d.card_id = 'M-02'
-  AND d.event = 'open'
-  AND d.time >= '2026-03-14 21:05'
-  AND b.check_in <= '2026-03-14'
-  AND b.check_out > '2026-03-14'
-GROUP BY b.guest_name, d.room
-ORDER BY openings DESC;
+SELECT guest_name
+FROM bookings
+WHERE room = 406
+  AND check_in <= '2026-03-14'
+  AND check_out > '2026-03-14'
+  AND guest_name NOT IN (
+    SELECT k.holder
+    FROM receipts AS r
+    JOIN keycards AS k ON r.card_id = k.card_id
+    WHERE r.time BETWEEN '2026-03-15 02:40' AND '2026-03-15 03:00'
+  );
 ```
 
 **Answer:** `Nora Quill`
@@ -321,8 +322,8 @@ ORDER BY openings DESC;
 **Hints:**
 
 1. The thief used the stolen master card. Which guest room did it keep going back to, and who slept there?
-2. The room is the code you opened this phone with. The guest list from reception says who slept in it. The bar till rules out the card's owner, Otto.
-3. The master card opened room 406 twice. The guest list from reception says who slept in 406.
+2. The room is the code you opened this phone with. The guest list from reception shows two guests in it, and the bar till shows which of them was downstairs when the thief got away.
+3. Nora Quill and Theo Lambert share room 406. Theo signed a receipt at the night bar at 02:48, one minute after room 404 was opened.
 
 ## Clues in the room
 

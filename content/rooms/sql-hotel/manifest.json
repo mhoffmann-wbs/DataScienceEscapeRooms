@@ -32,8 +32,8 @@
         "de": "Der Rezeptionscomputer"
       },
       "text": {
-        "en": "The reception computer is connected to the hotel database. Who slept in the wing the thief ran off into, on the night of the theft?\n\nList the guest name and room of everyone staying in that wing that night, ordered by room.",
-        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Wer hat in der Nacht des Diebstahls in dem Flügel geschlafen, in den der Dieb davongelaufen ist?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer."
+        "en": "The reception computer is connected to the hotel database. Who slept in the wing the thief ran off into, on the night of the theft?\n\nList the guest name and room of everyone staying in that wing that night, ordered by room, then by name.",
+        "de": "Der Rezeptionscomputer ist mit der Hoteldatenbank verbunden. Wer hat in der Nacht des Diebstahls in dem Flügel geschlafen, in den der Dieb davongelaufen ist?\n\nListet Gastname und Zimmer aller Gäste, die in dieser Nacht in diesem Flügel wohnten, sortiert nach Zimmer, dann nach Name."
       },
       "workspace": "sql",
       "data": "hotel.sql",
@@ -44,11 +44,11 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "9059342c041621d5ee7ae76afcaa8b713a43980a3f57aef0a793cef7b54f5b43"
+        "hash": "37b3c5f5cd6723afe874dcc48fc40b6cb4c89c8aef86cfa9487629984a41aa39"
       },
       "reveal": {
-        "en": "The printer rattles out the list, and you pin it to the wall. Three guests slept in the east wing of the 4th floor that night: **Nora Quill (406), Priya Nand (409) and Ada Okafor (411).**",
-        "de": "Der Drucker rattert die Liste heraus, und ihr pinnt sie an die Wand. Drei Gäste haben in dieser Nacht im Ostflügel des 4. Stocks geschlafen: **Nora Quill (406), Priya Nand (409) und Ada Okafor (411).**"
+        "en": "The printer rattles out the list, and you pin it to the wall. Four guests slept in the east wing of the 4th floor that night: **Nora Quill and Theo Lambert, who share 406, Priya Nand (409) and Ada Okafor (411).**",
+        "de": "Der Drucker rattert die Liste heraus, und ihr pinnt sie an die Wand. Vier Gäste haben in dieser Nacht im Ostflügel des 4. Stocks geschlafen: **Nora Quill und Theo Lambert, die sich 406 teilen, Priya Nand (409) und Ada Okafor (411).**"
       },
       "practises": {
         "en": "`SELECT` and `WHERE` with several conditions (`AND`, `BETWEEN`), comparing dates, `ORDER BY`",
@@ -65,12 +65,12 @@
           "de": "Die Notizen des Nachtwächters beim Schreibtisch des Managers verraten, welcher Flügel. Der Grundriss neben der Tür zeigt, welche Zimmer dazugehören, und die Zeitung in der Lounge nennt das Datum des Diebstahls."
         },
         {
-          "en": "The east wing of the 4th floor is rooms 405–412 (`room BETWEEN 405 AND 412`). A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`).",
-          "de": "Der Ostflügel des 4. Stocks sind die Zimmer 405–412 (`room BETWEEN 405 AND 412`). Ein Gast hat in dieser Nacht hier geschlafen, wenn er am 14. oder früher angekommen ist (`check_in <= '2026-03-14'`) und am 15. oder später abgereist ist (`check_out > '2026-03-14'`)."
+          "en": "The east wing of the 4th floor is rooms 405–412 (`room BETWEEN 405 AND 412`). A guest slept here that night if they arrived on the 14th or earlier (`check_in <= '2026-03-14'`) and left on the 15th or later (`check_out > '2026-03-14'`). Two guests can share a room, so sort with `ORDER BY room, guest_name`.",
+          "de": "Der Ostflügel des 4. Stocks sind die Zimmer 405–412 (`room BETWEEN 405 AND 412`). Ein Gast hat in dieser Nacht hier geschlafen, wenn er am 14. oder früher angekommen ist (`check_in <= '2026-03-14'`) und am 15. oder später abgereist ist (`check_out > '2026-03-14'`). Zwei Gäste können sich ein Zimmer teilen, sortiert also mit `ORDER BY room, guest_name`."
         },
         {
-          "en": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`",
-          "de": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room;`"
+          "en": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room, guest_name;`",
+          "de": "`SELECT guest_name, room FROM bookings WHERE room BETWEEN 405 AND 412 AND check_in <= '2026-03-14' AND check_out > '2026-03-14' ORDER BY room, guest_name;`"
         }
       ]
     },
@@ -240,11 +240,11 @@
       "check": {
         "type": "sql",
         "ordered": true,
-        "hash": "e2acd990fe03620898a51430d71057d11a929b0d465873bae582c8a4b045bcc9"
+        "hash": "4214f630023c1464c23ba983ace73400fe9033c6f4236d25f6d63ee5e63d006f"
       },
       "reveal": {
-        "en": "At the time of the theft, **Victor Hale, Mia Lund, Otto Brandt and Priya Nand** were signing receipts elsewhere in the hotel. None of them opened room 404 at 02:47.",
-        "de": "Zur Zeit des Diebstahls haben **Victor Hale, Mia Lund, Otto Brandt und Priya Nand** anderswo im Hotel Belege unterschrieben. Keiner von ihnen hat um 02:47 Zimmer 404 geöffnet."
+        "en": "At the time of the theft, **Victor Hale, Mia Lund, Otto Brandt, Theo Lambert and Priya Nand** were signing receipts elsewhere in the hotel. None of them opened room 404 at 02:47.",
+        "de": "Zur Zeit des Diebstahls haben **Victor Hale, Mia Lund, Otto Brandt, Theo Lambert und Priya Nand** anderswo im Hotel Belege unterschrieben. Keiner von ihnen hat um 02:47 Zimmer 404 geöffnet."
       },
       "practises": {
         "en": "`JOIN` combined with `WHERE` and `ORDER BY`",
@@ -301,7 +301,8 @@
       },
       "uses": [
         "master-card",
-        "reception"
+        "reception",
+        "alibis"
       ],
       "final": true,
       "practises": {
@@ -315,12 +316,12 @@
           "de": "Der Dieb hat die gestohlene Generalkarte benutzt. Zu welchem Gästezimmer ist sie immer wieder zurückgekehrt, und wer hat dort geschlafen?"
         },
         {
-          "en": "The room is the code you opened this phone with. The guest list from reception says who slept in it. The bar till rules out the card's owner, Otto.",
-          "de": "Das Zimmer ist der Code, mit dem ihr dieses Telefon entsperrt habt. Die Gästeliste von der Rezeption verrät, wer darin geschlafen hat. Die Barkasse schließt den Karteninhaber Otto aus."
+          "en": "The room is the code you opened this phone with. The guest list from reception shows two guests in it, and the bar till shows which of them was downstairs when the thief got away.",
+          "de": "Das Zimmer ist der Code, mit dem ihr dieses Telefon geöffnet habt. Die Gästeliste von der Rezeption zeigt zwei Gäste darin, und die Bar-Kasse zeigt, wer von beiden unten war, als der Dieb davonlief."
         },
         {
-          "en": "The master card opened room 406 twice. The guest list from reception says who slept in 406.",
-          "de": "Die Generalkarte hat Zimmer 406 zweimal geöffnet. Die Gästeliste von der Rezeption verrät, wer in 406 geschlafen hat."
+          "en": "Nora Quill and Theo Lambert share room 406. Theo signed a receipt at the night bar at 02:48, one minute after room 404 was opened.",
+          "de": "Nora Quill und Theo Lambert teilen sich Zimmer 406. Theo hat um 02:48 an der Nachtbar einen Beleg unterschrieben, eine Minute nachdem Zimmer 404 geöffnet wurde."
         }
       ]
     }
