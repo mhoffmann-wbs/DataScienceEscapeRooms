@@ -23,3 +23,14 @@ events = [
     ("hatched", "zebra longwing"),
     ("hatched", "blue morpho"),
 ]
+
+# Another evening. The check runs evening() on it too.
+_counts2 = {"postman": 1, "monarch": 1, "glasswing": 4, "paper kite": 0, "blue morpho": 6}
+_events2 = [
+    ("died", "postman"),
+    ("died", "monarch"),
+    ("hatched", "paper kite"),
+    ("died", "paper kite"),
+    ("hatched", "glasswing"),
+    ("released", "blue morpho"),
+]

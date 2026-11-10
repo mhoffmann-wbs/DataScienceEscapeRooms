@@ -14,3 +14,13 @@ log = [
     "18:55;air;--",
     "19:00;air;23.9",
 ]
+
+# The log of the next night. The check runs air_readings() on it too.
+_night_log = [
+    "18:00;air;21,5",
+    "18:05;door;open",
+    "18:10;air;--",
+    "18:15;air;29.0",
+    "18:20;door;--",
+    "18:25;air;26,25",
+]

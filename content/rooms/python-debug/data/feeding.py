@@ -5,3 +5,6 @@ census = {
     "feeder 3": {"Glasswing": "31", "Blue Morpho": "6", "Postman": "8"},
     "feeder 4": {"Owl Butterfly": "12", "Zebra Longwing": "5"},
 }
+
+# A feeder of the evening shift. The check runs feeder_total() on it too.
+_late_feeder = {"Zebra Longwing ": "10", "GLASSWING": "4", "owl butterfly": "3"}

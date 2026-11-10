@@ -32,19 +32,19 @@
         "de": "Klimasteuerung"
       },
       "text": {
-        "en": "The climate controller crashed when Finn's clean-up went live, and every zone of the house is cooling down. Ole's script sets a heater level and a mister level for each zone, but it doesn't even start.\n\nRun it, read the error, fix it, run it again. When it works, `heater` and `misters` hold one level per zone, and the script prints the sensor hub's PIN.",
-        "de": "Die Klimasteuerung ist abgestürzt, als Finns Aufräumaktion live ging, und jede Zone des Hauses kühlt aus. Oles Skript stellt für jede Zone eine Heizstufe und eine Sprühstufe ein, aber es startet nicht einmal.\n\nLasst es laufen, lest den Fehler, behebt ihn, lasst es wieder laufen. Wenn es funktioniert, enthalten `heater` und `misters` eine Stufe pro Zone, und das Skript gibt die PIN der Sensorzentrale aus."
+        "en": "The climate controller crashed when Finn's clean-up went live, and every zone of the house is cooling down. Ole's script sets a heater level and a mister level for each zone, but it doesn't even start.\n\nRun it, read the error, fix it, run it again. When it works, `heater` and `misters` hold one level per zone, and the script prints the sensor hub's PIN. The check also calls `levels` with the readings of a later hour, so keep that function.",
+        "de": "Die Klimasteuerung ist abgestürzt, als Finns Aufräumaktion live ging, und jede Zone des Hauses kühlt aus. Oles Skript stellt für jede Zone eine Heizstufe und eine Sprühstufe ein, aber es startet nicht einmal.\n\nLasst es laufen, lest den Fehler, behebt ihn, lasst es wieder laufen. Wenn es funktioniert, enthalten `heater` und `misters` eine Stufe pro Zone, und das Skript gibt die PIN der Sensorzentrale aus. Die Prüfung ruft `levels` außerdem mit den Messwerten einer späteren Stunde auf, behaltet die Funktion also."
       },
       "workspace": "python",
       "data": "climate.py",
       "starter": {
-        "en": "# Ole's climate controller: a heater level and a mister level for every zone.\n# zones is loaded: {\"rainforest\": {\"temp\": 23.4, \"humidity\": 71}, ...}\nTARGETS = {\n    \"rainforest\": (27.0, 85),\n    \"cloud forest\": (21.0, 90),\n    \"meadow\": (25.0, 70),\n    \"nursery\": (26.0, 80),\n}\n\nheater = {}\nmisters = {}\nfor name, reading in zones.items():\n    target_temp, target_humidity = TARGETS[name]\n    heat = round((target_temp - reading[\"temp\"]) * 10)\n    if heat < 0\n        heat = 0\n    heater[name] = heat\n    misters[name] = max(target_humidty - reading[\"humidity\"], 0)\n\nprint(\"Heater levels:\", heater)\nprint(\"Mister levels:\" misters)\npin = sum(heater.values()) * 100 + sum(misters.values())\nprint(\"Sensor hub PIN:\", pin)\n",
-        "de": "# Oles Klimasteuerung: eine Heizstufe und eine Sprühstufe für jede Zone.\n# zones ist geladen: {\"rainforest\": {\"temp\": 23.4, \"humidity\": 71}, ...}\nTARGETS = {\n    \"rainforest\": (27.0, 85),\n    \"cloud forest\": (21.0, 90),\n    \"meadow\": (25.0, 70),\n    \"nursery\": (26.0, 80),\n}\n\nheater = {}\nmisters = {}\nfor name, reading in zones.items():\n    target_temp, target_humidity = TARGETS[name]\n    heat = round((target_temp - reading[\"temp\"]) * 10)\n    if heat < 0\n        heat = 0\n    heater[name] = heat\n    misters[name] = max(target_humidty - reading[\"humidity\"], 0)\n\nprint(\"Heizstufen:\", heater)\nprint(\"Sprühstufen:\" misters)\npin = sum(heater.values()) * 100 + sum(misters.values())\nprint(\"PIN der Sensorzentrale:\", pin)\n"
+        "en": "# Ole's climate controller: a heater level and a mister level for every zone.\n# zones is loaded: {\"rainforest\": {\"temp\": 23.4, \"humidity\": 71}, ...}\nTARGETS = {\n    \"rainforest\": (27.0, 85),\n    \"cloud forest\": (21.0, 90),\n    \"meadow\": (25.0, 70),\n    \"nursery\": (26.0, 80),\n}\n\n\ndef levels(zones):\n    \"\"\"Heater and mister level for every zone.\"\"\"\n    heater = {}\n    misters = {}\n    for name, reading in zones.items():\n        target_temp, target_humidity = TARGETS[name]\n        heat = round((target_temp - reading[\"temp\"]) * 10)\n        if heat < 0\n            heat = 0\n        heater[name] = heat\n        misters[name] = max(target_humidty - reading[\"humidity\"], 0)\n    return heater, misters\n\n\nheater, misters = levels(zones)\nprint(\"Heater levels:\", heater)\nprint(\"Mister levels:\" misters)\npin = sum(heater.values()) * 100 + sum(misters.values())\nprint(\"Sensor hub PIN:\", pin)\n",
+        "de": "# Oles Klimasteuerung: eine Heizstufe und eine Sprühstufe für jede Zone.\n# zones ist geladen: {\"rainforest\": {\"temp\": 23.4, \"humidity\": 71}, ...}\nTARGETS = {\n    \"rainforest\": (27.0, 85),\n    \"cloud forest\": (21.0, 90),\n    \"meadow\": (25.0, 70),\n    \"nursery\": (26.0, 80),\n}\n\n\ndef levels(zones):\n    \"\"\"Heiz- und Sprühstufe für jede Zone.\"\"\"\n    heater = {}\n    misters = {}\n    for name, reading in zones.items():\n        target_temp, target_humidity = TARGETS[name]\n        heat = round((target_temp - reading[\"temp\"]) * 10)\n        if heat < 0\n            heat = 0\n        heater[name] = heat\n        misters[name] = max(target_humidty - reading[\"humidity\"], 0)\n    return heater, misters\n\n\nheater, misters = levels(zones)\nprint(\"Heizstufen:\", heater)\nprint(\"Sprühstufen:\" misters)\npin = sum(heater.values()) * 100 + sum(misters.values())\nprint(\"PIN der Sensorzentrale:\", pin)\n"
       },
       "check": {
         "type": "python",
-        "expr": "[heater, misters]",
-        "hash": "71d6a9beedf83484df69671d29f259d29df3d2044e72b87a3ab5e9ca3dc172df"
+        "expr": "[heater, misters, levels(_later_zones)]",
+        "hash": "228d6cacdd0963f4e839eddd2e2309038e43c79590143161e1f0541e5864a22a"
       },
       "practises": {
         "en": "Reading error messages: a `SyntaxError` and its caret `^`, fixing one error at a time, `KeyError`, and `NameError` with its \"Did you mean\".",
@@ -79,8 +79,8 @@
         "de": "Futterstation"
       },
       "text": {
-        "en": "The nectar dishes are empty, and the feeding script crashes before it mixes a single drop. It works out how much nectar each feeder needs from this morning's count, `census`, which the volunteers typed into their tablet.\n\nEvery error is raised in the same function. That doesn't mean every bug is there. Fix the script so that `refill` holds the ml of nectar for each feeder.",
-        "de": "Die Nektarschalen sind leer, und das Futterskript stürzt ab, bevor es einen einzigen Tropfen anrührt. Es berechnet aus der heutigen Morgenzählung, `census`, die die Freiwilligen in ihr Tablet getippt haben, wie viel Nektar jede Futterstelle braucht.\n\nJeder Fehler tritt in derselben Funktion auf. Das heißt nicht, dass dort auch jeder Fehler steckt. Repariert das Skript, sodass `refill` die ml Nektar für jede Futterstelle enthält."
+        "en": "The nectar dishes are empty, and the feeding script crashes before it mixes a single drop. It works out how much nectar each feeder needs from this morning's count, `census`, which the volunteers typed into their tablet.\n\nEvery error is raised in the same function. That doesn't mean every bug is there. Fix the script so that `refill` holds the ml of nectar for each feeder. The check also hands `feeder_total` a feeder from the evening shift.",
+        "de": "Die Nektarschalen sind leer, und das Futterskript stürzt ab, bevor es einen einzigen Tropfen anrührt. Es berechnet aus der heutigen Morgenzählung, `census`, die die Freiwilligen in ihr Tablet getippt haben, wie viel Nektar jede Futterstelle braucht.\n\nJeder Fehler tritt in derselben Funktion auf. Das heißt nicht, dass dort auch jeder Fehler steckt. Repariert das Skript, sodass `refill` die ml Nektar für jede Futterstelle enthält. Die Prüfung übergibt `feeder_total` außerdem eine Futterstelle der Abendschicht."
       },
       "workspace": "python",
       "data": "feeding.py",
@@ -90,8 +90,8 @@
       },
       "check": {
         "type": "python",
-        "expr": "refill",
-        "hash": "8099064cbb9929d545b2f53ecf9fb691d743f608164629d7b8f9bf8fad97b14c"
+        "expr": "[refill, feeder_total(_late_feeder)]",
+        "hash": "8dfb4fb264989277db171b3179a5128fb5c62b50fa9f626f31b8a32c8264b96e"
       },
       "practises": {
         "en": "Reading a traceback through several functions: the crash is in `portion()`, the cause in the data that reaches it. `repr()` shows spaces and numbers stored as text; `strip()`, `lower()`, `int()`.",
@@ -126,8 +126,8 @@
         "de": "Schlupfkasten"
       },
       "text": {
-        "en": "Butterflies about to hatch need extra humidity, and the emergence cabinet learns which ones from the hatchery script. Finn \"improved\" its two functions, and now Ole's tests fail.\n\nMake the tests pass. Then `tonight` lists the chrysalises that hatch today, and `this_week` those that hatch within the next 7 days, today included.",
-        "de": "Schmetterlinge kurz vor dem Schlüpfen brauchen mehr Feuchtigkeit, und der Schlupfkasten erfährt vom Schlupf-Skript, welche das sind. Finn hat die beiden Funktionen „verbessert“, und jetzt schlagen Oles Tests fehl.\n\nBringt die Tests zum Laufen. Dann listet `tonight` die Puppen, die heute schlüpfen, und `this_week` die, die in den nächsten 7 Tagen schlüpfen, heute eingeschlossen."
+        "en": "Butterflies about to hatch need extra humidity, and the emergence cabinet learns which ones from the hatchery script. Finn \"improved\" its two functions, and now Ole's tests fail.\n\nMake the tests pass. Then `tonight` lists the chrysalises that hatch today, and `this_week` those that hatch within the next 7 days, today included. The check also asks `due` about other days.",
+        "de": "Schmetterlinge kurz vor dem Schlüpfen brauchen mehr Feuchtigkeit, und der Schlupfkasten erfährt vom Schlupf-Skript, welche das sind. Finn hat die beiden Funktionen „verbessert“, und jetzt schlagen Oles Tests fehl.\n\nBringt die Tests zum Laufen. Dann listet `tonight` die Puppen, die heute schlüpfen, und `this_week` die, die in den nächsten 7 Tagen schlüpfen, heute eingeschlossen. Die Prüfung fragt `due` außerdem nach anderen Tagen."
       },
       "workspace": "python",
       "data": "hatchery.py",
@@ -137,8 +137,8 @@
       },
       "check": {
         "type": "python",
-        "expr": "[tonight, this_week]",
-        "hash": "75d75bdba322a0cc87237d6ec6d2447511f7f1fed51bba7058881687600a405e"
+        "expr": "[tonight, this_week, due(chrysalises, today + 4, 3), due(chrysalises, today - 3, 5)]",
+        "hash": "cc28fb44506c0c05cbf91ac8ed0d54f1926e560dedbf904b6091edc604e0c0bd"
       },
       "practises": {
         "en": "Tests with `assert`: when a test fails, print what the function really returns and work out by hand what it should return. A sign error, a `return` inside a loop, a missing lower bound.",
@@ -173,19 +173,19 @@
         "de": "Zähl-Tablet"
       },
       "text": {
-        "en": "Every evening the volunteers count the butterflies. Their tablet compares the count with yesterday's and orders new butterflies from the breeder for every species that has none left. Finn shortened the script. It runs without a single error. Look at what it prints.\n\nFix it so that `changes` holds the change per species since yesterday, and `order` the species with no butterflies left.",
-        "de": "Jeden Abend zählen die Freiwilligen die Schmetterlinge. Ihr Tablet vergleicht die Zählung mit der von gestern und bestellt bei der Zucht neue Schmetterlinge für jede Art, von der keiner mehr da ist. Finn hat das Skript gekürzt. Es läuft ohne einen einzigen Fehler. Seht euch an, was es ausgibt.\n\nRepariert es, sodass `changes` die Veränderung pro Art seit gestern enthält und `order` die Arten, von denen keine Schmetterlinge mehr da sind."
+        "en": "Every evening the volunteers count the butterflies. Their tablet compares the count with yesterday's and orders new butterflies from the breeder for every species that has none left. Finn shortened the script. It runs without a single error. Look at what it prints.\n\nFix it so that `changes` holds the change per species since yesterday, and `order` the species with no butterflies left. The check also runs `evening` on another evening's log.",
+        "de": "Jeden Abend zählen die Freiwilligen die Schmetterlinge. Ihr Tablet vergleicht die Zählung mit der von gestern und bestellt bei der Zucht neue Schmetterlinge für jede Art, von der keiner mehr da ist. Finn hat das Skript gekürzt. Es läuft ohne einen einzigen Fehler. Seht euch an, was es ausgibt.\n\nRepariert es, sodass `changes` die Veränderung pro Art seit gestern enthält und `order` die Arten, von denen keine Schmetterlinge mehr da sind. Die Prüfung lässt `evening` außerdem mit dem Protokoll eines anderen Abends laufen."
       },
       "workspace": "python",
       "data": "census.py",
       "starter": {
-        "en": "# counts (yesterday's count per species) and events (today's log) are loaded.\nyesterday = counts\n\nfor event, species in events:\n    if event == \"hatched\":\n        counts[species] += 1\n    else:  # died or released\n        counts[species] -= 1\n\nchanges = {}\nfor species in counts:\n    changes[species] = counts[species] - yesterday[species]\n\n# Species with no butterflies left go on the order list for the breeder.\norder = list(counts)\nfor species in order:\n    if counts[species] > 0:\n        order.remove(species)\n\nprint(\"Yesterday:\", sum(yesterday.values()), \"butterflies\")\nprint(\"Tonight:  \", sum(counts.values()), \"butterflies\")\nprint(\"Changes:\", changes)\nprint(\"Order from the breeder:\", order)\n",
-        "de": "# counts (gestrige Zählung pro Art) und events (das heutige Protokoll) sind geladen.\nyesterday = counts\n\nfor event, species in events:\n    if event == \"hatched\":\n        counts[species] += 1\n    else:  # gestorben oder freigelassen\n        counts[species] -= 1\n\nchanges = {}\nfor species in counts:\n    changes[species] = counts[species] - yesterday[species]\n\n# Arten ohne Schmetterlinge kommen auf die Bestellliste für die Zucht.\norder = list(counts)\nfor species in order:\n    if counts[species] > 0:\n        order.remove(species)\n\nprint(\"Gestern:\", sum(yesterday.values()), \"Schmetterlinge\")\nprint(\"Heute:  \", sum(counts.values()), \"Schmetterlinge\")\nprint(\"Veränderungen:\", changes)\nprint(\"Bei der Zucht bestellen:\", order)\n"
+        "en": "# counts (yesterday's count per species) and events (today's log) are loaded.\n\n\ndef evening(counts, events):\n    \"\"\"Applies today's events to counts. Returns yesterday's counts, the change per species and the species to order.\"\"\"\n    yesterday = counts\n\n    for event, species in events:\n        if event == \"hatched\":\n            counts[species] += 1\n        else:  # died or released\n            counts[species] -= 1\n\n    changes = {}\n    for species in counts:\n        changes[species] = counts[species] - yesterday[species]\n\n    # Species with no butterflies left go on the order list for the breeder.\n    order = list(counts)\n    for species in order:\n        if counts[species] > 0:\n            order.remove(species)\n\n    return yesterday, changes, order\n\n\nyesterday, changes, order = evening(counts, events)\nprint(\"Yesterday:\", sum(yesterday.values()), \"butterflies\")\nprint(\"Tonight:  \", sum(counts.values()), \"butterflies\")\nprint(\"Changes:\", changes)\nprint(\"Order from the breeder:\", order)\n",
+        "de": "# counts (gestrige Zählung pro Art) und events (das heutige Protokoll) sind geladen.\n\n\ndef evening(counts, events):\n    \"\"\"Wendet die heutigen Ereignisse auf counts an. Gibt die gestrige Zählung, die Veränderung pro Art und die Arten zum Bestellen zurück.\"\"\"\n    yesterday = counts\n\n    for event, species in events:\n        if event == \"hatched\":\n            counts[species] += 1\n        else:  # gestorben oder freigelassen\n            counts[species] -= 1\n\n    changes = {}\n    for species in counts:\n        changes[species] = counts[species] - yesterday[species]\n\n    # Arten ohne Schmetterlinge kommen auf die Bestellliste für die Zucht.\n    order = list(counts)\n    for species in order:\n        if counts[species] > 0:\n            order.remove(species)\n\n    return yesterday, changes, order\n\n\nyesterday, changes, order = evening(counts, events)\nprint(\"Gestern:\", sum(yesterday.values()), \"Schmetterlinge\")\nprint(\"Heute:  \", sum(counts.values()), \"Schmetterlinge\")\nprint(\"Veränderungen:\", changes)\nprint(\"Bei der Zucht bestellen:\", order)\n"
       },
       "check": {
         "type": "python",
-        "expr": "[changes, order]",
-        "hash": "6eaf1a196cea0924d77a01eabc129c6c2d4dc5a107a7399f9c84006b08f280fa"
+        "expr": "[changes, order, evening(dict(_counts2), list(_events2))[1:]]",
+        "hash": "94dba2dd64f8a29661cc200032609ab060e04dd962b1c609c9b0d3c9431d9805"
       },
       "practises": {
         "en": "Bugs without an error message: checking output against a known value; `b = a` doesn't copy a dict; removing items from a list while looping over it skips items.",
@@ -220,19 +220,19 @@
         "de": "Sensorzentrale der Schleuse"
       },
       "text": {
-        "en": "Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock: may the door open? Finn made its script \"crash-proof\". Now it never crashes, and it never finds a single reading.\n\nFix it so that `readings` holds every valid air temperature from the log as a float, `average` their mean, and `door_opens` (`True` or `False`) whether the inner door may open.",
-        "de": "Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse: Darf die Tür aufgehen? Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.\n\nRepariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält, `average` ihren Mittelwert und `door_opens` (`True` oder `False`), ob sich die innere Tür öffnen darf."
+        "en": "Before the inner airlock door may open, the sensor hub checks the air temperature inside the airlock: may the door open? Finn made its script \"crash-proof\". Now it never crashes, and it never finds a single reading.\n\nFix it so that `readings` holds every valid air temperature from the log as a float, `average` their mean, and `door_opens` (`True` or `False`) whether the inner door may open. The check also runs `air_readings` on the log of the next night.",
+        "de": "Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse: Darf die Tür aufgehen? Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.\n\nRepariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält, `average` ihren Mittelwert und `door_opens` (`True` oder `False`), ob sich die innere Tür öffnen darf. Die Prüfung lässt `air_readings` außerdem mit dem Protokoll der nächsten Nacht laufen."
       },
       "workspace": "python",
       "data": "airlock.py",
       "starter": {
-        "en": "# log is loaded: one line per sensor reading.\n# Finn: crash-proof now, no more errors! :)\nreadings = []\nfor line in log:\n    try:\n        time, sensor, value = line.split(\",\")\n        if sensor == \"air\":\n            readings.append(float(value))\n    except:\n        pass\n\naverage = sum(readings) / len(readings) if readings else 0\nprint(\"Valid readings:\", len(readings))\nprint(\"Average temperature:\", round(average, 2))\n",
-        "de": "# log ist geladen: eine Zeile pro Sensormessung.\n# Finn: jetzt absturzsicher, keine Fehler mehr! :)\nreadings = []\nfor line in log:\n    try:\n        time, sensor, value = line.split(\",\")\n        if sensor == \"air\":\n            readings.append(float(value))\n    except:\n        pass\n\naverage = sum(readings) / len(readings) if readings else 0\nprint(\"Gültige Messungen:\", len(readings))\nprint(\"Durchschnittstemperatur:\", round(average, 2))\n"
+        "en": "# log is loaded: one line per sensor reading.\n# Finn: crash-proof now, no more errors! :)\ndef air_readings(log):\n    \"\"\"Every air temperature in the log, as floats.\"\"\"\n    readings = []\n    for line in log:\n        try:\n            time, sensor, value = line.split(\",\")\n            if sensor == \"air\":\n                readings.append(float(value))\n        except:\n            pass\n    return readings\n\n\nreadings = air_readings(log)\naverage = sum(readings) / len(readings) if readings else 0\nprint(\"Valid readings:\", len(readings))\nprint(\"Average temperature:\", round(average, 2))\n",
+        "de": "# log ist geladen: eine Zeile pro Sensormessung.\n# Finn: jetzt absturzsicher, keine Fehler mehr! :)\ndef air_readings(log):\n    \"\"\"Jede Lufttemperatur aus dem Protokoll, als float.\"\"\"\n    readings = []\n    for line in log:\n        try:\n            time, sensor, value = line.split(\",\")\n            if sensor == \"air\":\n                readings.append(float(value))\n        except:\n            pass\n    return readings\n\n\nreadings = air_readings(log)\naverage = sum(readings) / len(readings) if readings else 0\nprint(\"Gültige Messungen:\", len(readings))\nprint(\"Durchschnittstemperatur:\", round(average, 2))\n"
       },
       "check": {
         "type": "python",
-        "expr": "[len(readings), round(average, 2), door_opens]",
-        "hash": "d534327ff6dbacd90ce1057b060d720bbbbf91f430c0c7682cd9d5065da114c2"
+        "expr": "[len(readings), round(average, 2), door_opens, air_readings(_night_log)]",
+        "hash": "346b54a661278db03af53a6e4457083fca829e1f2599133b46e709c72f611e48"
       },
       "practises": {
         "en": "Why `except: pass` hides bugs: taking it out to see the real error, then fixing it: `split()` with the right separator, decimal commas, leaving out missing readings instead of counting them as 0.",

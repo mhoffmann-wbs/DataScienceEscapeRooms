@@ -35,7 +35,7 @@
 
 > Die Klimasteuerung ist abgestürzt, als Finns Aufräumaktion live ging, und jede Zone des Hauses kühlt aus. Oles Skript stellt für jede Zone eine Heizstufe und eine Sprühstufe ein, aber es startet nicht einmal.
 >
-> Lasst es laufen, lest den Fehler, behebt ihn, lasst es wieder laufen. Wenn es funktioniert, enthalten `heater` und `misters` eine Stufe pro Zone, und das Skript gibt die PIN der Sensorzentrale aus.
+> Lasst es laufen, lest den Fehler, behebt ihn, lasst es wieder laufen. Wenn es funktioniert, enthalten `heater` und `misters` eine Stufe pro Zone, und das Skript gibt die PIN der Sensorzentrale aus. Die Prüfung ruft `levels` außerdem mit den Messwerten einer späteren Stunde auf, behaltet die Funktion also.
 
 <details><summary>Startcode</summary>
 
@@ -49,16 +49,22 @@ TARGETS = {
     "nursery": (26.0, 80),
 }
 
-heater = {}
-misters = {}
-for name, reading in zones.items():
-    target_temp, target_humidity = TARGETS[name]
-    heat = round((target_temp - reading["temp"]) * 10)
-    if heat < 0
-        heat = 0
-    heater[name] = heat
-    misters[name] = max(target_humidty - reading["humidity"], 0)
 
+def levels(zones):
+    """Heiz- und Sprühstufe für jede Zone."""
+    heater = {}
+    misters = {}
+    for name, reading in zones.items():
+        target_temp, target_humidity = TARGETS[name]
+        heat = round((target_temp - reading["temp"]) * 10)
+        if heat < 0
+            heat = 0
+        heater[name] = heat
+        misters[name] = max(target_humidty - reading["humidity"], 0)
+    return heater, misters
+
+
+heater, misters = levels(zones)
 print("Heizstufen:", heater)
 print("Sprühstufen:" misters)
 pin = sum(heater.values()) * 100 + sum(misters.values())
@@ -77,26 +83,32 @@ TARGETS = {
     "nursery": (26.0, 80),
 }
 
-heater = {}
-misters = {}
-for name, reading in zones.items():
-    target_temp, target_humidity = TARGETS[name]
-    heat = round((target_temp - reading["temp"]) * 10)
-    if heat < 0:
-        heat = 0
-    heater[name] = heat
-    misters[name] = max(target_humidity - reading["humidity"], 0)
 
+def levels(zones):
+    """Heater and mister level for every zone."""
+    heater = {}
+    misters = {}
+    for name, reading in zones.items():
+        target_temp, target_humidity = TARGETS[name]
+        heat = round((target_temp - reading["temp"]) * 10)
+        if heat < 0:
+            heat = 0
+        heater[name] = heat
+        misters[name] = max(target_humidity - reading["humidity"], 0)
+    return heater, misters
+
+
+heater, misters = levels(zones)
 print("Heater levels:", heater)
 print("Mister levels:", misters)
 pin = sum(heater.values()) * 100 + sum(misters.values())
 print("Sensor hub PIN:", pin)
 ```
 
-**Geprüftes Ergebnis** (`[heater, misters]`):
+**Geprüftes Ergebnis** (`[heater, misters, levels(_later_zones)]`):
 
 ```json
-[{"cloud_forest": 12, "meadow": 0, "nursery": 31, "rainforest": 36}, {"cloud_forest": 8, "meadow": 6, "nursery": 14, "rainforest": 14}]
+[{"cloud_forest": 12, "meadow": 0, "nursery": 31, "rainforest": 36}, {"cloud_forest": 8, "meadow": 6, "nursery": 14, "rainforest": 14}, [{"cloud_forest": 8, "meadow": 9, "nursery": 5, "rainforest": 0}, {"cloud_forest": 5, "meadow": 15, "nursery": 0, "rainforest": 0}]]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -119,7 +131,7 @@ print("Sensor hub PIN:", pin)
 
 > Die Nektarschalen sind leer, und das Futterskript stürzt ab, bevor es einen einzigen Tropfen anrührt. Es berechnet aus der heutigen Morgenzählung, `census`, die die Freiwilligen in ihr Tablet getippt haben, wie viel Nektar jede Futterstelle braucht.
 >
-> Jeder Fehler tritt in derselben Funktion auf. Das heißt nicht, dass dort auch jeder Fehler steckt. Repariert das Skript, sodass `refill` die ml Nektar für jede Futterstelle enthält.
+> Jeder Fehler tritt in derselben Funktion auf. Das heißt nicht, dass dort auch jeder Fehler steckt. Repariert das Skript, sodass `refill` die ml Nektar für jede Futterstelle enthält. Die Prüfung übergibt `feeder_total` außerdem eine Futterstelle der Abendschicht.
 
 <details><summary>Startcode</summary>
 
@@ -189,10 +201,10 @@ print("Refill (ml):", refill)
 print("Total nectar to mix:", round(sum(refill.values()), 1), "ml")
 ```
 
-**Geprüftes Ergebnis** (`refill`):
+**Geprüftes Ergebnis** (`[refill, feeder_total(_late_feeder)]`):
 
 ```json
-{"feeder 1": 22.0, "feeder 2": 17.8, "feeder 3": 18.1, "feeder 4": 16.4}
+[{"feeder 1": 22.0, "feeder 2": 17.8, "feeder 3": 18.1, "feeder 4": 16.4}, 8.8]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -215,7 +227,7 @@ print("Total nectar to mix:", round(sum(refill.values()), 1), "ml")
 
 > Schmetterlinge kurz vor dem Schlüpfen brauchen mehr Feuchtigkeit, und der Schlupfkasten erfährt vom Schlupf-Skript, welche das sind. Finn hat die beiden Funktionen „verbessert“, und jetzt schlagen Oles Tests fehl.
 >
-> Bringt die Tests zum Laufen. Dann listet `tonight` die Puppen, die heute schlüpfen, und `this_week` die, die in den nächsten 7 Tagen schlüpfen, heute eingeschlossen.
+> Bringt die Tests zum Laufen. Dann listet `tonight` die Puppen, die heute schlüpfen, und `this_week` die, die in den nächsten 7 Tagen schlüpfen, heute eingeschlossen. Die Prüfung fragt `due` außerdem nach anderen Tagen.
 
 <details><summary>Startcode</summary>
 
@@ -315,10 +327,10 @@ print("Hatching tonight:", tonight)
 print("Hatching this week:", this_week)
 ```
 
-**Geprüftes Ergebnis** (`[tonight, this_week]`):
+**Geprüftes Ergebnis** (`[tonight, this_week, due(chrysalises, today + 4, 3), due(chrysalises, today - 3, 5)]`):
 
 ```json
-[["C12"], ["C02", "C03", "C05", "C06", "C08", "C09", "C10", "C12"]]
+[["C12"], ["C02", "C03", "C05", "C06", "C08", "C09", "C10", "C12"], ["C02", "C08", "C09", "C10"], ["C04", "C06", "C07", "C11", "C12"]]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -341,30 +353,38 @@ print("Hatching this week:", this_week)
 
 > Jeden Abend zählen die Freiwilligen die Schmetterlinge. Ihr Tablet vergleicht die Zählung mit der von gestern und bestellt bei der Zucht neue Schmetterlinge für jede Art, von der keiner mehr da ist. Finn hat das Skript gekürzt. Es läuft ohne einen einzigen Fehler. Seht euch an, was es ausgibt.
 >
-> Repariert es, sodass `changes` die Veränderung pro Art seit gestern enthält und `order` die Arten, von denen keine Schmetterlinge mehr da sind.
+> Repariert es, sodass `changes` die Veränderung pro Art seit gestern enthält und `order` die Arten, von denen keine Schmetterlinge mehr da sind. Die Prüfung lässt `evening` außerdem mit dem Protokoll eines anderen Abends laufen.
 
 <details><summary>Startcode</summary>
 
 ```python
 # counts (gestrige Zählung pro Art) und events (das heutige Protokoll) sind geladen.
-yesterday = counts
 
-for event, species in events:
-    if event == "hatched":
-        counts[species] += 1
-    else:  # gestorben oder freigelassen
-        counts[species] -= 1
 
-changes = {}
-for species in counts:
-    changes[species] = counts[species] - yesterday[species]
+def evening(counts, events):
+    """Wendet die heutigen Ereignisse auf counts an. Gibt die gestrige Zählung, die Veränderung pro Art und die Arten zum Bestellen zurück."""
+    yesterday = counts
 
-# Arten ohne Schmetterlinge kommen auf die Bestellliste für die Zucht.
-order = list(counts)
-for species in order:
-    if counts[species] > 0:
-        order.remove(species)
+    for event, species in events:
+        if event == "hatched":
+            counts[species] += 1
+        else:  # gestorben oder freigelassen
+            counts[species] -= 1
 
+    changes = {}
+    for species in counts:
+        changes[species] = counts[species] - yesterday[species]
+
+    # Arten ohne Schmetterlinge kommen auf die Bestellliste für die Zucht.
+    order = list(counts)
+    for species in order:
+        if counts[species] > 0:
+            order.remove(species)
+
+    return yesterday, changes, order
+
+
+yesterday, changes, order = evening(counts, events)
 print("Gestern:", sum(yesterday.values()), "Schmetterlinge")
 print("Heute:  ", sum(counts.values()), "Schmetterlinge")
 print("Veränderungen:", changes)
@@ -377,34 +397,42 @@ print("Bei der Zucht bestellen:", order)
 
 ```python
 # counts (yesterday's count per species) and events (today's log) are loaded.
-yesterday = counts.copy()
 
-for event, species in events:
-    if event == "hatched":
-        counts[species] += 1
-    else:  # died or released
-        counts[species] -= 1
 
-changes = {}
-for species in counts:
-    changes[species] = counts[species] - yesterday[species]
+def evening(counts, events):
+    """Applies today's events to counts. Returns yesterday's counts, the change per species and the species to order."""
+    yesterday = counts.copy()
 
-# Species with no butterflies left go on the order list for the breeder.
-order = []
-for species in counts:
-    if counts[species] == 0:
-        order.append(species)
+    for event, species in events:
+        if event == "hatched":
+            counts[species] += 1
+        else:  # died or released
+            counts[species] -= 1
 
+    changes = {}
+    for species in counts:
+        changes[species] = counts[species] - yesterday[species]
+
+    # Species with no butterflies left go on the order list for the breeder.
+    order = []
+    for species in counts:
+        if counts[species] == 0:
+            order.append(species)
+
+    return yesterday, changes, order
+
+
+yesterday, changes, order = evening(counts, events)
 print("Yesterday:", sum(yesterday.values()), "butterflies")
 print("Tonight:  ", sum(counts.values()), "butterflies")
 print("Changes:", changes)
 print("Order from the breeder:", order)
 ```
 
-**Geprüftes Ergebnis** (`[changes, order]`):
+**Geprüftes Ergebnis** (`[changes, order, evening(dict(_counts2), list(_events2))[1:]]`):
 
 ```json
-[{"blue morpho": 3, "glasswing": -1, "monarch": -1, "owl butterfly": 1, "paper kite": -1, "postman": -2, "zebra longwing": 2}, ["postman", "glasswing", "paper kite"]]
+[{"blue morpho": 3, "glasswing": -1, "monarch": -1, "owl butterfly": 1, "paper kite": -1, "postman": -2, "zebra longwing": 2}, ["postman", "glasswing", "paper kite"], [{"blue morpho": -1, "glasswing": 1, "monarch": -1, "paper kite": 0, "postman": -1}, ["postman", "monarch", "paper kite"]]]
 ```
 
 **Zeigt nach dem Lösen:**
@@ -431,22 +459,27 @@ print("Order from the breeder:", order)
 
 > Bevor sich die innere Schleusentür öffnen darf, prüft die Sensorzentrale die Lufttemperatur in der Schleuse: Darf die Tür aufgehen? Finn hat ihr Skript „absturzsicher“ gemacht. Jetzt stürzt es nie mehr ab, und es findet auch nie eine einzige Messung.
 >
-> Repariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält, `average` ihren Mittelwert und `door_opens` (`True` oder `False`), ob sich die innere Tür öffnen darf.
+> Repariert es, sodass `readings` jede gültige Lufttemperatur aus dem Protokoll als float enthält, `average` ihren Mittelwert und `door_opens` (`True` oder `False`), ob sich die innere Tür öffnen darf. Die Prüfung lässt `air_readings` außerdem mit dem Protokoll der nächsten Nacht laufen.
 
 <details><summary>Startcode</summary>
 
 ```python
 # log ist geladen: eine Zeile pro Sensormessung.
 # Finn: jetzt absturzsicher, keine Fehler mehr! :)
-readings = []
-for line in log:
-    try:
-        time, sensor, value = line.split(",")
-        if sensor == "air":
-            readings.append(float(value))
-    except:
-        pass
+def air_readings(log):
+    """Jede Lufttemperatur aus dem Protokoll, als float."""
+    readings = []
+    for line in log:
+        try:
+            time, sensor, value = line.split(",")
+            if sensor == "air":
+                readings.append(float(value))
+        except:
+            pass
+    return readings
 
+
+readings = air_readings(log)
 average = sum(readings) / len(readings) if readings else 0
 print("Gültige Messungen:", len(readings))
 print("Durchschnittstemperatur:", round(average, 2))
@@ -457,12 +490,16 @@ print("Durchschnittstemperatur:", round(average, 2))
 **Musterlösung:**
 
 ```python
-readings = []
-for line in log:
-    time, sensor, value = line.split(";")
-    if sensor == "air" and value != "--":
-        readings.append(float(value.replace(",", ".")))
+def air_readings(log):
+    readings = []
+    for line in log:
+        time, sensor, value = line.split(";")
+        if sensor == "air" and value != "--":
+            readings.append(float(value.replace(",", ".")))
+    return readings
 
+
+readings = air_readings(log)
 average = sum(readings) / len(readings)
 print("Valid readings:", len(readings))
 print("Average temperature:", round(average, 2))
@@ -470,10 +507,10 @@ door_opens = 22 <= average <= 28
 print("Door opens:", door_opens)
 ```
 
-**Geprüftes Ergebnis** (`[len(readings), round(average, 2), door_opens]`):
+**Geprüftes Ergebnis** (`[len(readings), round(average, 2), door_opens, air_readings(_night_log)]`):
 
 ```json
-[7, 23.84, true]
+[7, 23.84, true, [21.5, 29.0, 26.25]]
 ```
 
 **Zeigt nach dem Lösen:**

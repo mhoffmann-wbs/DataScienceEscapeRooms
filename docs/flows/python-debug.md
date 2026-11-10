@@ -104,7 +104,19 @@ flowchart LR
 
 ## Findings
 
-Fixed in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
+Fixed in the shortcut review:
+
+- **A station could be passed without fixing anything.** All checks only compared the final variables, so typing the expected `heater`, `misters`, `changes`, `order`, `tonight` or `this_week` as literals (worked out by hand from the printout) passed. Now the starters put the logic in functions (`levels`, `evening`, `air_readings`; `feeder_total` and `due` already were) and every check also calls that function on a second input defined in the data file (`_later_zones`, `_counts2`/`_events2`, `_night_log`, `_late_feeder`, `due` on other days). A hard-coded answer fails with a `NameError`, and a function that is only fixed for the first input fails too. The task texts say that the check calls the function.
+- **The census check alone was easy to half-fix:** `yesterday = counts.copy()` with the `remove` loop kept already gave the right `changes`. The second evening has two adjacent empty species, so the skipping loop is caught on its own (and the first input already caught it through the order list).
+- Tried and failed as intended: counting `--` as 0 (door `False`), skipping the comma readings, `NECTAR.get(..., 0)` instead of adding glasswing, dropping the `0 <=` in `due` (the room's own tests catch it), fixing only the alias in `census`, renaming the zones in `zones` instead of `TARGETS` (the later hour still has `cloud_forest`).
+
+Still open:
+
+- **A digit can still be computed by hand** from the small data (the census order, the valid air readings), but not the results the checks verify, and every final digit is only shown in a reveal. A bigger fix would be a longer data set per station.
+- **`except: pass` station:** deleting the `try` and fixing by trial is the intended route.
+
+
+Fixed earlier, in the second review (every clue once, no pointers to clues outside the hints, a clear goal per station):
 
 - **The sensor hub ends in a verdict:** the task asks whether the inner door may open, and the check now verifies `door_opens` (`True`) next to the readings and the mean. The manual's 22–28 °C rule used to be read only in the reveal; a team that counts `--` as 0 °C gets a mean of 16.7 °C and `False`.
 - **Every clue says its thing once.** The feeding whiteboard no longer repeats the four nectar values from the starter's `NECTAR` (only the new glasswing); the tally sheet no longer repeats the census task (only "47 yesterday"); the cabinet note no longer repeats the starter's "they all passed before"; the checklist no longer repeats the intro ("every system shows a number") or the climate task (its PIN opens the sensor hub).
