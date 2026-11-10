@@ -12,12 +12,12 @@
 
 | # | Station | Practises | Needs |
 |---|---|---|---|
-| 1 | The market register | Loading a CSV with `read_csv`, looking at a DataFrame (`head`, `columns`), filtering rows with a condition, selecting columns | 🔎 A complaint, 🔎 Market plan |
+| 1 | The market register | Loading a CSV with `read_csv`, looking at a DataFrame (`head`, `columns`), filtering rows with a condition, selecting columns | 🔎 A note at the market office, 🔎 Market plan |
 | 2 | Price tags | Cleaning a text column with `.str.replace` and `.str.strip`, converting it with `astype(float)`, computing a new column, `sum` | 🔎 Price board |
 | 3 | The card terminal | Finding inconsistent labels with `value_counts` and `nunique`, normalising text (`.str.strip`, `.str.lower`, `.str.upper`), renaming values with `replace`, counting with a condition | 🔎 Market rules |
 | 4 | The cash ledger | Filtering before aggregating, `groupby` with `sum`, `idxmax` | 2. Price tags (its result), 3. The card terminal (its result), 🔎 Market rules |
 | 5 | The envelope table | Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern | 4. The cash ledger (its result) |
-| 6 | Greta's report (Final lock) | Combining the results of several analyses, and checking a suspicion against the data | 🔒 5. The envelope table, 🔎 Helper rota |
+| 6 | Greta's report (Final lock) | Combining the results of several analyses, and ruling out a shortfall with evidence from another table | 1. The market register (its result), 5. The envelope table (its result), 🔒 5. The envelope table, 🔎 Helper rota |
 
 **Final code:** `Tobi`
 
@@ -26,7 +26,7 @@
 ### 1. The market register
 
 **Practises:** Loading a CSV with `read_csv`, looking at a DataFrame (`head`, `columns`), filtering rows with a condition, selecting columns  
-**Needs:** 🔎 A complaint, 🔎 Market plan  
+**Needs:** 🔎 A note at the market office, 🔎 Market plan  
 **Data:** [market.py](../../content/rooms/pandas-market/data/market.py)
 
 **Task:**
@@ -35,7 +35,7 @@
 >
 > How many stalls sell vegetables? Store the number in `n_veg`.
 >
-> One stall is suspected of short-changing a customer. Find it and store its `stall_id` in `suspect`.
+> One stall gave a customer far too much change, and the customer brought the money back. Find that stall and store its `stall_id` in `change_stall`.
 
 <details><summary>Starter code</summary>
 
@@ -46,7 +46,7 @@ stalls = pd.read_csv("stalls.csv")
 print(stalls.head())
 
 n_veg = None     # how many stalls sell vegetables?
-suspect = None   # stall_id of the suspected stall, e.g. "S01"
+change_stall = None   # stall_id of the stall that gave too much change, e.g. "S01"
 ```
 
 </details>
@@ -62,11 +62,11 @@ n_veg = len(stalls[stalls["product"] == "vegetables"])
 honey = stalls[stalls["product"] == "honey"]
 print(honey[["stall_id", "stall", "pitch"]])
 # The fountain stands between pitches 4 and 5 (market plan).
-suspect = honey[honey["pitch"].isin([4, 5])]["stall_id"].iloc[0]
-print(n_veg, suspect)
+change_stall = honey[honey["pitch"].isin([4, 5])]["stall_id"].iloc[0]
+print(n_veg, change_stall)
 ```
 
-**Checked result** (`[int(n_veg), str(suspect).strip().upper()]`):
+**Checked result** (`[int(n_veg), str(change_stall).strip().upper()]`):
 
 ```json
 [2, "S04"]
@@ -74,13 +74,13 @@ print(n_veg, suspect)
 
 **Reveals when solved:**
 
-> Suspect: **S04**, Imkerei Sommer, run by Lena Sommer. But a complaint isn't proof. Follow the money.
+> The stall is **S04**, Imkerei Sommer, run by Lena Sommer. Her envelope will be €80 short, but the customer brought the money back to the office: that shortfall isn't theft.
 
 **Hints:**
 
-1. A complaint lies on the little table by the fountain, and the market plan hangs on the wall. For the vegetables: `stalls[stalls["product"] == "vegetables"]` keeps only the matching rows, and `len(...)` counts them.
+1. A note lies on the little table by the fountain, and the market plan hangs on the wall. For the vegetables: `stalls[stalls["product"] == "vegetables"]` keeps only the matching rows, and `len(...)` counts them.
 2. Two stalls sell honey. Which of them has a pitch right next to the fountain? Filter by `product`, then look at `pitch`.
-3. `stalls[stalls["product"] == "honey"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the suspect is `"S04"`.
+3. `stalls[stalls["product"] == "honey"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the stall is `"S04"`.
 
 ### 2. Price tags
 
@@ -253,7 +253,7 @@ print(top_stall)
 
 **Reveals when solved:**
 
-> The envelopes should hold **€1,110.00** in cash. The most cash went to **S04**, Imkerei Sommer: €161.20. The honey stall again…
+> The envelopes should hold **€1,110.00** in cash. The most cash went to **S04**, Imkerei Sommer: €161.20.
 
 **Hints:**
 
@@ -271,7 +271,7 @@ print(top_stall)
 
 > The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id; `stalls.csv` has both.
 >
-> Merge the tables, work out how much each envelope is short (what should be in it minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.
+> Merge the tables and work out how much each envelope is short (what should be in it minus what was in it). Add up the shortfall per badge and store it in `by_badge` (a Series with one total per `badge`). Store the total missing over all envelopes in `missing`.
 
 <details><summary>Starter code</summary>
 
@@ -286,8 +286,8 @@ print(handover.head())
 
 # connect handover, stalls and what should be in each envelope, then compare
 
-badge = None     # badge number with the largest total shortfall
-missing = None   # that badge's total shortfall in euros
+by_badge = None   # total shortfall per badge number
+missing = None    # total shortfall over all envelopes, in euros
 ```
 
 </details>
@@ -313,33 +313,33 @@ df["short"] = df["expected"] - df["envelope_eur"]
 print(df[["stall_id", "badge", "expected", "envelope_eur", "short"]].round(2))
 
 by_badge = df.groupby("badge")["short"].sum()
-badge = by_badge.idxmax()
-missing = by_badge.max()
-print(badge, round(missing, 2))
+missing = df["short"].sum()
+print(by_badge.round(2))
+print(round(missing, 2))
 ```
 
-**Checked result** (`[int(badge), round(float(missing), 2)]`):
+**Checked result** (`[round(float(missing), 2)] + [round(float(by_badge[b]), 2) for b in sorted(by_badge.index)]`):
 
 ```json
-[7, 145.0]
+[160.0, -0.5, 0.0, 80.0, 80.0, 0.5]
 ```
 
 **Reveals when solved:**
 
-> Badge **7** carried four envelopes, and every one of them is short: **€145.00** in total. Badge 12 is 50 cents short and badge 3 a euro over: coins, not theft. Imkerei Sommer's envelope matches to the cent.
+> **€160.00** is missing in all. Badges **7** and **9** are each **€80.00** short, each from a single envelope. Badge 12 is 50 cents short and badge 3 is 50 cents over: coins, not theft.
 
 **Hints:**
 
 1. What should be in each envelope is the cash ledger's `expected`: paste its whole code (with the cleaning) at the top. `pd.merge(handover, stalls, on="stall")` adds the `stall_id` to each envelope, and `expected.reset_index(name="expected")` turns `expected` into a table you can merge `on="stall_id"`.
-2. Then `df["short"] = df["expected"] - df["envelope_eur"]` and `df.groupby("badge")["short"].sum()`. A few cents either way are coins; look for the badge where it really adds up.
-3. `by_badge = df.groupby("badge")["short"].sum()`, then `badge = by_badge.idxmax()` and `missing = by_badge.max()`.
+2. Then `df["short"] = df["expected"] - df["envelope_eur"]` and `df.groupby("badge")["short"].sum()`. A few cents either way are coins; look for the badges where it really adds up.
+3. `by_badge = df.groupby("badge")["short"].sum()`, then `missing = df["short"].sum()`.
 
 ### 6. Greta's report (Final lock)
 
-**Practises:** Combining the results of several analyses, and checking a suspicion against the data  
-**Needs:** 🔒 5. The envelope table, 🔎 Helper rota
+**Practises:** Combining the results of several analyses, and ruling out a shortfall with evidence from another table  
+**Needs:** 1. The market register (its result), 5. The envelope table (its result), 🔒 5. The envelope table, 🔎 Helper rota
 
-**Code lock** (opens with `145`):
+**Code lock** (opens with `160`):
 
 > Greta's report folder has a three-digit number lock. Her note on it: "Code = the euros missing in total."
 
@@ -353,9 +353,9 @@ print(badge, round(missing, 2))
 
 **Hints:**
 
-1. The complaint pointed at the honey stall. Do the envelopes agree?
-2. Lena Sommer's envelope matches to the cent. The money went missing on the way from the stalls to the office, so look at who carried the short envelopes.
-3. Badge 7 carried all four short envelopes. The helper rota on the wall says who wears badge 7.
+1. Two badges are €80 short, each from one envelope. Which envelopes are they?
+2. One of them belongs to the honey stall next to the fountain, whose €80 the customer brought back (see the market register).
+3. Badge 9 carried Imkerei Sommer's envelope: that shortfall is explained. Badge 7 carried Bienenhaus Okafor's envelope, €80 short with no explanation. The helper rota on the wall says who wears badge 7.
 
 ## Clues in the room
 
@@ -371,13 +371,13 @@ print(badge, round(missing, 2))
 >
 > Market office: south-east corner.
 
-### 🔎 A complaint
+### 🔎 A note at the market office
 
 *Used by: 1. The market register*
 
 > To the market office!
 >
-> The woman at the **honey stall right next to the fountain** gave me change for a twenty, but I paid with a fifty! I want my thirty euros back.
+> The woman at the **honey stall right next to the fountain** gave me change for a hundred, but I had only paid with a twenty! I have brought the 80 euros back to you.
 >
 > H. Albers
 

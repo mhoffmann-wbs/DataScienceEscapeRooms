@@ -36,18 +36,18 @@
         "de": "Das Marktregister"
       },
       "text": {
-        "en": "Greta's register of today's stalls is in `stalls.csv`. Load it with pandas and have a look around.\n\nHow many stalls sell vegetables? Store the number in `n_veg`.\n\nOne stall is suspected of short-changing a customer. Find it and store its `stall_id` in `suspect`.",
-        "de": "Gretas Register der heutigen Stände steht in `stalls.csv`. Ladet es mit pandas und schaut es euch an.\n\nWie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.\n\nEin Stand steht im Verdacht, eine Kundin um ihr Wechselgeld gebracht zu haben. Findet ihn und speichert seine `stall_id` in `suspect`."
+        "en": "Greta's register of today's stalls is in `stalls.csv`. Load it with pandas and have a look around.\n\nHow many stalls sell vegetables? Store the number in `n_veg`.\n\nOne stall gave a customer far too much change, and the customer brought the money back. Find that stall and store its `stall_id` in `change_stall`.",
+        "de": "Gretas Register der heutigen Stände steht in `stalls.csv`. Ladet es mit pandas und schaut es euch an.\n\nWie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.\n\nEin Stand hat einer Kundin viel zu viel Wechselgeld herausgegeben, und die Kundin hat das Geld zurückgebracht. Findet diesen Stand und speichert seine `stall_id` in `change_stall`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # how many stalls sell vegetables?\nsuspect = None   # stall_id of the suspected stall, e.g. \"S01\"\n",
-        "de": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # wie viele Stände verkaufen Gemüse?\nsuspect = None   # stall_id des verdächtigen Stands, z. B. \"S01\"\n"
+        "en": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # how many stalls sell vegetables?\nchange_stall = None   # stall_id of the stall that gave too much change, e.g. \"S01\"\n",
+        "de": "import pandas as pd\n\nstalls = pd.read_csv(\"stalls.csv\")\nprint(stalls.head())\n\nn_veg = None     # wie viele Stände verkaufen Gemüse?\nchange_stall = None   # stall_id des Stands, der zu viel Wechselgeld gab, z. B. \"S01\"\n"
       },
       "check": {
         "type": "python",
-        "expr": "[int(n_veg), str(suspect).strip().upper()]",
+        "expr": "[int(n_veg), str(change_stall).strip().upper()]",
         "hash": "8ddf00e79daa4a9f5a39428eb9fa199d7c87223c5091dc3af0cabe8ee59459ee"
       },
       "practises": {
@@ -60,21 +60,21 @@
       ],
       "hints": [
         {
-          "en": "A complaint lies on the little table by the fountain, and the market plan hangs on the wall. For the vegetables: `stalls[stalls[\"product\"] == \"vegetables\"]` keeps only the matching rows, and `len(...)` counts them.",
-          "de": "Am Tischchen beim Brunnen liegt eine Beschwerde, und an der Wand hängt der Marktplan. Für das Gemüse: `stalls[stalls[\"product\"] == \"vegetables\"]` behält nur die passenden Zeilen, und `len(...)` zählt sie."
+          "en": "A note lies on the little table by the fountain, and the market plan hangs on the wall. For the vegetables: `stalls[stalls[\"product\"] == \"vegetables\"]` keeps only the matching rows, and `len(...)` counts them.",
+          "de": "Am Tischchen beim Brunnen liegt ein Zettel, und an der Wand hängt der Marktplan. Für das Gemüse: `stalls[stalls[\"product\"] == \"vegetables\"]` behält nur die passenden Zeilen, und `len(...)` zählt sie."
         },
         {
           "en": "Two stalls sell honey. Which of them has a pitch right next to the fountain? Filter by `product`, then look at `pitch`.",
           "de": "Zwei Stände verkaufen Honig. Welcher von beiden hat einen Platz direkt neben dem Brunnen? Filtert nach `product` und schaut dann auf `pitch`."
         },
         {
-          "en": "`stalls[stalls[\"product\"] == \"honey\"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the suspect is `\"S04\"`.",
-          "de": "`stalls[stalls[\"product\"] == \"honey\"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist `\"S04\"` verdächtig."
+          "en": "`stalls[stalls[\"product\"] == \"honey\"]` shows S04 at pitch 4 and S07 at pitch 9. The fountain stands between pitches 4 and 5, so the stall is `\"S04\"`.",
+          "de": "`stalls[stalls[\"product\"] == \"honey\"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist es `\"S04\"`."
         }
       ],
       "reveal": {
-        "en": "Suspect: **S04**, Imkerei Sommer, run by Lena Sommer. But a complaint isn't proof. Follow the money.",
-        "de": "Verdächtig: **S04**, die Imkerei Sommer von Lena Sommer. Eine Beschwerde ist aber kein Beweis. Folgt dem Geld."
+        "en": "The stall is **S04**, Imkerei Sommer, run by Lena Sommer. Her envelope will be €80 short, but the customer brought the money back to the office: that shortfall isn't theft.",
+        "de": "Der Stand ist **S04**, die Imkerei Sommer von Lena Sommer. In ihrem Umschlag werden 80 € fehlen, aber die Kundin hat das Geld ins Büro zurückgebracht: Dieser Fehlbetrag ist kein Diebstahl."
       }
     },
     {
@@ -214,8 +214,8 @@
         }
       ],
       "reveal": {
-        "en": "The envelopes should hold **€1,110.00** in cash. The most cash went to **S04**, Imkerei Sommer: €161.20. The honey stall again…",
-        "de": "In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €. Schon wieder der Honigstand …"
+        "en": "The envelopes should hold **€1,110.00** in cash. The most cash went to **S04**, Imkerei Sommer: €161.20.",
+        "de": "In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €."
       },
       "uses": [
         "price-tags",
@@ -229,19 +229,19 @@
         "de": "Der Umschlagtisch"
       },
       "text": {
-        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id; `stalls.csv` has both.\n\nMerge the tables, work out how much each envelope is short (what should be in it minus what was in it), and add up the shortfall per badge. Store the badge with the largest total shortfall in `badge` and that total in `missing`.",
-        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID; `stalls.csv` hat beides.\n\nVerbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`."
+        "en": "The office counted every envelope. `handover.csv` lists the stall, the euros found in its envelope (`envelope_eur`) and the badge number of the helper who carried it. It names stalls by name, not by id; `stalls.csv` has both.\n\nMerge the tables and work out how much each envelope is short (what should be in it minus what was in it). Add up the shortfall per badge and store it in `by_badge` (a Series with one total per `badge`). Store the total missing over all envelopes in `missing`.",
+        "de": "Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID; `stalls.csv` hat beides.\n\nVerbindet die Tabellen mit `merge` und berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt). Addiert die Fehlbeträge pro Ausweis und speichert sie in `by_badge` (eine Series mit einer Summe pro `badge`). Speichert den fehlenden Gesamtbetrag über alle Umschläge in `missing`."
       },
       "workspace": "python",
       "data": "market.py",
       "starter": {
-        "en": "import pandas as pd\n\n# first: what should be in each envelope, one total per stall_id\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and what should be in each envelope, then compare\n\nbadge = None     # badge number with the largest total shortfall\nmissing = None   # that badge's total shortfall in euros\n",
-        "de": "import pandas as pd\n\n# zuerst: was in jedem Umschlag sein müsste, eine Summe pro stall_id\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und das Soll jedes Umschlags und vergleicht dann\n\nbadge = None     # Ausweisnummer mit dem größten Fehlbetrag\nmissing = None   # dessen Fehlbetrag insgesamt, in Euro\n"
+        "en": "import pandas as pd\n\n# first: what should be in each envelope, one total per stall_id\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# connect handover, stalls and what should be in each envelope, then compare\n\nby_badge = None   # total shortfall per badge number\nmissing = None    # total shortfall over all envelopes, in euros\n",
+        "de": "import pandas as pd\n\n# zuerst: was in jedem Umschlag sein müsste, eine Summe pro stall_id\n\nstalls = pd.read_csv(\"stalls.csv\")\nhandover = pd.read_csv(\"handover.csv\")\nprint(handover.head())\n\n# verbindet handover, stalls und das Soll jedes Umschlags und vergleicht dann\n\nby_badge = None   # Fehlbetrag pro Ausweisnummer\nmissing = None    # Fehlbetrag über alle Umschläge, in Euro\n"
       },
       "check": {
         "type": "python",
-        "expr": "[int(badge), round(float(missing), 2)]",
-        "hash": "45c967c02ef48cd760d973873ba7a79d3307a2630e3669535e0b07e82361258c"
+        "expr": "[round(float(missing), 2)] + [round(float(by_badge[b]), 2) for b in sorted(by_badge.index)]",
+        "hash": "5528915a896765b52e88a71f31ecaca25794d4d6806a0ad3e971e59f75defeb0"
       },
       "practises": {
         "en": "Joining tables with `merge` on a shared key, turning a Series into a table with `reset_index`, comparing columns, `groupby` to find a pattern",
@@ -254,17 +254,17 @@
           "de": "Was in jedem Umschlag sein müsste, ist `expected` vom Kassenbuch: Fügt dessen ganzen Code (mit der Bereinigung) oben ein. `pd.merge(handover, stalls, on=\"stall\")` ergänzt jeden Umschlag um die `stall_id`, und `expected.reset_index(name=\"expected\")` macht aus `expected` eine Tabelle, die ihr `on=\"stall_id\"` verbinden könnt."
         },
         {
-          "en": "Then `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` and `df.groupby(\"badge\")[\"short\"].sum()`. A few cents either way are coins; look for the badge where it really adds up.",
-          "de": "Dann `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` und `df.groupby(\"badge\")[\"short\"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt."
+          "en": "Then `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` and `df.groupby(\"badge\")[\"short\"].sum()`. A few cents either way are coins; look for the badges where it really adds up.",
+          "de": "Dann `df[\"short\"] = df[\"expected\"] - df[\"envelope_eur\"]` und `df.groupby(\"badge\")[\"short\"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht die Ausweise, bei denen wirklich etwas zusammenkommt."
         },
         {
-          "en": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, then `badge = by_badge.idxmax()` and `missing = by_badge.max()`.",
-          "de": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, dann `badge = by_badge.idxmax()` und `missing = by_badge.max()`."
+          "en": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, then `missing = df[\"short\"].sum()`.",
+          "de": "`by_badge = df.groupby(\"badge\")[\"short\"].sum()`, dann `missing = df[\"short\"].sum()`."
         }
       ],
       "reveal": {
-        "en": "Badge **7** carried four envelopes, and every one of them is short: **€145.00** in total. Badge 12 is 50 cents short and badge 3 a euro over: coins, not theft. Imkerei Sommer's envelope matches to the cent.",
-        "de": "Ausweis **7** hat vier Umschläge getragen, und in jedem fehlt Geld: **145,00 €** insgesamt. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 ist ein Euro zu viel: Münzen, kein Diebstahl. Der Umschlag der Imkerei Sommer stimmt auf den Cent."
+        "en": "**€160.00** is missing in all. Badges **7** and **9** are each **€80.00** short, each from a single envelope. Badge 12 is 50 cents short and badge 3 is 50 cents over: coins, not theft.",
+        "de": "Insgesamt fehlen **160,00 €**. Bei den Ausweisen **7** und **9** fehlen jeweils **80,00 €**, jeweils aus einem einzigen Umschlag. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 sind 50 Cent zu viel: Münzen, kein Diebstahl."
       },
       "uses": [
         "ledger"
@@ -293,29 +293,33 @@
         },
         "from": "envelopes",
         "mode": "caseless",
-        "hash": "430137be6587d862b41ec7981d4e29a8e166a1d14aadd3491b2ef891a5894cf9"
+        "hash": "32ee7828f4540245f818e8c70decd56cec5e467dd98fcfe6a9d84904ffff304a"
       },
       "final": true,
       "practises": {
-        "en": "Combining the results of several analyses, and checking a suspicion against the data",
-        "de": "Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen"
+        "en": "Combining the results of several analyses, and ruling out a shortfall with evidence from another table",
+        "de": "Ergebnisse aus mehreren Analysen kombinieren und einen Fehlbetrag mit Belegen aus einer anderen Tabelle ausschließen"
       },
       "clues": [
         "rota"
       ],
       "hints": [
         {
-          "en": "The complaint pointed at the honey stall. Do the envelopes agree?",
-          "de": "Die Beschwerde zeigte auf den Honigstand. Sagen die Umschläge dasselbe?"
+          "en": "Two badges are €80 short, each from one envelope. Which envelopes are they?",
+          "de": "Bei zwei Ausweisen fehlen 80 €, jeweils aus einem Umschlag. Um welche Umschläge geht es?"
         },
         {
-          "en": "Lena Sommer's envelope matches to the cent. The money went missing on the way from the stalls to the office, so look at who carried the short envelopes.",
-          "de": "Der Umschlag von Lena Sommer stimmt auf den Cent. Das Geld ist auf dem Weg von den Ständen ins Büro verschwunden, also schaut, wer die Umschläge getragen hat, in denen etwas fehlt."
+          "en": "One of them belongs to the honey stall next to the fountain, whose €80 the customer brought back (see the market register).",
+          "de": "Einer davon gehört zum Honigstand neben dem Brunnen, dessen 80 € die Kundin zurückgebracht hat (siehe Marktregister)."
         },
         {
-          "en": "Badge 7 carried all four short envelopes. The helper rota on the wall says who wears badge 7.",
-          "de": "Ausweis 7 hat alle vier Umschläge getragen, in denen etwas fehlt. Der Helferplan an der Wand sagt, wer Ausweis 7 trägt."
+          "en": "Badge 9 carried Imkerei Sommer's envelope: that shortfall is explained. Badge 7 carried Bienenhaus Okafor's envelope, €80 short with no explanation. The helper rota on the wall says who wears badge 7.",
+          "de": "Ausweis 9 hat den Umschlag der Imkerei Sommer getragen: Dieser Fehlbetrag ist erklärt. Ausweis 7 hat den Umschlag vom Bienenhaus Okafor getragen, 80 € zu wenig und ohne Erklärung. Der Helferplan an der Wand sagt, wer Ausweis 7 trägt."
         }
+      ],
+      "uses": [
+        "register",
+        "envelopes"
       ]
     }
   ],
@@ -334,12 +338,12 @@
     {
       "id": "complaint",
       "title": {
-        "en": "A complaint",
-        "de": "Eine Beschwerde"
+        "en": "A note at the market office",
+        "de": "Ein Zettel im Marktbüro"
       },
       "text": {
-        "en": "To the market office!\n\nThe woman at the **honey stall right next to the fountain** gave me change for a twenty, but I paid with a fifty! I want my thirty euros back.\n\nH. Albers",
-        "de": "An das Marktbüro!\n\nDie Frau am **Honigstand direkt neben dem Brunnen** hat mir auf einen Zwanziger herausgegeben, aber ich habe mit einem Fünfziger bezahlt! Ich will meine dreißig Euro zurück.\n\nH. Albers"
+        "en": "To the market office!\n\nThe woman at the **honey stall right next to the fountain** gave me change for a hundred, but I had only paid with a twenty! I have brought the 80 euros back to you.\n\nH. Albers",
+        "de": "An das Marktbüro!\n\nDie Frau am **Honigstand direkt neben dem Brunnen** hat mir Wechselgeld auf einen Hunderter herausgegeben, dabei hatte ich nur mit einem Zwanziger bezahlt! Die 80 Euro habe ich euch zurückgebracht.\n\nH. Albers"
       }
     },
     {

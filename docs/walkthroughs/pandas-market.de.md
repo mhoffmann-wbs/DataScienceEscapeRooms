@@ -12,12 +12,12 @@
 
 | # | Station | Übt | Braucht |
 |---|---|---|---|
-| 1 | Das Marktregister | Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen | 🔎 Eine Beschwerde, 🔎 Marktplan |
+| 1 | Das Marktregister | Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen | 🔎 Ein Zettel im Marktbüro, 🔎 Marktplan |
 | 2 | Preisschilder | Eine Textspalte mit `.str.replace` und `.str.strip` bereinigen, mit `astype(float)` umwandeln, eine neue Spalte berechnen, `sum` | 🔎 Preistafel |
 | 3 | Das Kartenterminal | Uneinheitliche Bezeichnungen mit `value_counts` und `nunique` finden, Text vereinheitlichen (`.str.strip`, `.str.lower`, `.str.upper`), Werte mit `replace` umbenennen, mit einer Bedingung zählen | 🔎 Marktordnung |
 | 4 | Das Kassenbuch | Vor dem Aggregieren filtern, `groupby` mit `sum`, `idxmax` | 2. Preisschilder (sein Ergebnis), 3. Das Kartenterminal (sein Ergebnis), 🔎 Marktordnung |
 | 5 | Der Umschlagtisch | Tabellen mit `merge` über einen gemeinsamen Schlüssel verbinden, eine Series mit `reset_index` zur Tabelle machen, Spalten vergleichen, mit `groupby` ein Muster finden | 4. Das Kassenbuch (sein Ergebnis) |
-| 6 | Gretas Bericht (Abschluss-Schloss) | Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen | 🔒 5. Der Umschlagtisch, 🔎 Helferplan |
+| 6 | Gretas Bericht (Abschluss-Schloss) | Ergebnisse aus mehreren Analysen kombinieren und einen Fehlbetrag mit Belegen aus einer anderen Tabelle ausschließen | 1. Das Marktregister (sein Ergebnis), 5. Der Umschlagtisch (sein Ergebnis), 🔒 5. Der Umschlagtisch, 🔎 Helferplan |
 
 **Abschluss-Code:** `Tobi`
 
@@ -26,7 +26,7 @@
 ### 1. Das Marktregister
 
 **Übt:** Eine CSV-Datei mit `read_csv` laden, einen DataFrame ansehen (`head`, `columns`), Zeilen mit einer Bedingung filtern, Spalten auswählen  
-**Braucht:** 🔎 Eine Beschwerde, 🔎 Marktplan  
+**Braucht:** 🔎 Ein Zettel im Marktbüro, 🔎 Marktplan  
 **Daten:** [market.py](../../content/rooms/pandas-market/data/market.py)
 
 **Aufgabe:**
@@ -35,7 +35,7 @@
 >
 > Wie viele Stände verkaufen Gemüse? Speichert die Zahl in `n_veg`.
 >
-> Ein Stand steht im Verdacht, eine Kundin um ihr Wechselgeld gebracht zu haben. Findet ihn und speichert seine `stall_id` in `suspect`.
+> Ein Stand hat einer Kundin viel zu viel Wechselgeld herausgegeben, und die Kundin hat das Geld zurückgebracht. Findet diesen Stand und speichert seine `stall_id` in `change_stall`.
 
 <details><summary>Startcode</summary>
 
@@ -46,7 +46,7 @@ stalls = pd.read_csv("stalls.csv")
 print(stalls.head())
 
 n_veg = None     # wie viele Stände verkaufen Gemüse?
-suspect = None   # stall_id des verdächtigen Stands, z. B. "S01"
+change_stall = None   # stall_id des Stands, der zu viel Wechselgeld gab, z. B. "S01"
 ```
 
 </details>
@@ -62,11 +62,11 @@ n_veg = len(stalls[stalls["product"] == "vegetables"])
 honey = stalls[stalls["product"] == "honey"]
 print(honey[["stall_id", "stall", "pitch"]])
 # The fountain stands between pitches 4 and 5 (market plan).
-suspect = honey[honey["pitch"].isin([4, 5])]["stall_id"].iloc[0]
-print(n_veg, suspect)
+change_stall = honey[honey["pitch"].isin([4, 5])]["stall_id"].iloc[0]
+print(n_veg, change_stall)
 ```
 
-**Geprüftes Ergebnis** (`[int(n_veg), str(suspect).strip().upper()]`):
+**Geprüftes Ergebnis** (`[int(n_veg), str(change_stall).strip().upper()]`):
 
 ```json
 [2, "S04"]
@@ -74,13 +74,13 @@ print(n_veg, suspect)
 
 **Zeigt nach dem Lösen:**
 
-> Verdächtig: **S04**, die Imkerei Sommer von Lena Sommer. Eine Beschwerde ist aber kein Beweis. Folgt dem Geld.
+> Der Stand ist **S04**, die Imkerei Sommer von Lena Sommer. In ihrem Umschlag werden 80 € fehlen, aber die Kundin hat das Geld ins Büro zurückgebracht: Dieser Fehlbetrag ist kein Diebstahl.
 
 **Hinweise:**
 
-1. Am Tischchen beim Brunnen liegt eine Beschwerde, und an der Wand hängt der Marktplan. Für das Gemüse: `stalls[stalls["product"] == "vegetables"]` behält nur die passenden Zeilen, und `len(...)` zählt sie.
+1. Am Tischchen beim Brunnen liegt ein Zettel, und an der Wand hängt der Marktplan. Für das Gemüse: `stalls[stalls["product"] == "vegetables"]` behält nur die passenden Zeilen, und `len(...)` zählt sie.
 2. Zwei Stände verkaufen Honig. Welcher von beiden hat einen Platz direkt neben dem Brunnen? Filtert nach `product` und schaut dann auf `pitch`.
-3. `stalls[stalls["product"] == "honey"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist `"S04"` verdächtig.
+3. `stalls[stalls["product"] == "honey"]` zeigt S04 auf Platz 4 und S07 auf Platz 9. Der Brunnen steht zwischen Platz 4 und 5, also ist es `"S04"`.
 
 ### 2. Preisschilder
 
@@ -253,7 +253,7 @@ print(top_stall)
 
 **Zeigt nach dem Lösen:**
 
-> In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €. Schon wieder der Honigstand …
+> In den Umschlägen müssten **1.110,00 €** Bargeld sein. Das meiste Bargeld hat **S04** eingenommen, die Imkerei Sommer: 161,20 €.
 
 **Hinweise:**
 
@@ -271,7 +271,7 @@ print(top_stall)
 
 > Das Büro hat jeden Umschlag gezählt. `handover.csv` nennt den Stand, die Euro im Umschlag (`envelope_eur`) und die Ausweisnummer (`badge`) der Hilfskraft, die ihn getragen hat. Dort stehen die Stände mit Namen, nicht mit ID; `stalls.csv` hat beides.
 >
-> Verbindet die Tabellen mit `merge`, berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt), und addiert die Fehlbeträge pro Ausweis. Speichert den Ausweis mit dem größten Fehlbetrag in `badge` und diesen Betrag in `missing`.
+> Verbindet die Tabellen mit `merge` und berechnet, wie viel in jedem Umschlag fehlt (Soll minus Inhalt). Addiert die Fehlbeträge pro Ausweis und speichert sie in `by_badge` (eine Series mit einer Summe pro `badge`). Speichert den fehlenden Gesamtbetrag über alle Umschläge in `missing`.
 
 <details><summary>Startcode</summary>
 
@@ -286,8 +286,8 @@ print(handover.head())
 
 # verbindet handover, stalls und das Soll jedes Umschlags und vergleicht dann
 
-badge = None     # Ausweisnummer mit dem größten Fehlbetrag
-missing = None   # dessen Fehlbetrag insgesamt, in Euro
+by_badge = None   # Fehlbetrag pro Ausweisnummer
+missing = None    # Fehlbetrag über alle Umschläge, in Euro
 ```
 
 </details>
@@ -313,33 +313,33 @@ df["short"] = df["expected"] - df["envelope_eur"]
 print(df[["stall_id", "badge", "expected", "envelope_eur", "short"]].round(2))
 
 by_badge = df.groupby("badge")["short"].sum()
-badge = by_badge.idxmax()
-missing = by_badge.max()
-print(badge, round(missing, 2))
+missing = df["short"].sum()
+print(by_badge.round(2))
+print(round(missing, 2))
 ```
 
-**Geprüftes Ergebnis** (`[int(badge), round(float(missing), 2)]`):
+**Geprüftes Ergebnis** (`[round(float(missing), 2)] + [round(float(by_badge[b]), 2) for b in sorted(by_badge.index)]`):
 
 ```json
-[7, 145.0]
+[160.0, -0.5, 0.0, 80.0, 80.0, 0.5]
 ```
 
 **Zeigt nach dem Lösen:**
 
-> Ausweis **7** hat vier Umschläge getragen, und in jedem fehlt Geld: **145,00 €** insgesamt. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 ist ein Euro zu viel: Münzen, kein Diebstahl. Der Umschlag der Imkerei Sommer stimmt auf den Cent.
+> Insgesamt fehlen **160,00 €**. Bei den Ausweisen **7** und **9** fehlen jeweils **80,00 €**, jeweils aus einem einzigen Umschlag. Bei Ausweis 12 fehlen 50 Cent, bei Ausweis 3 sind 50 Cent zu viel: Münzen, kein Diebstahl.
 
 **Hinweise:**
 
 1. Was in jedem Umschlag sein müsste, ist `expected` vom Kassenbuch: Fügt dessen ganzen Code (mit der Bereinigung) oben ein. `pd.merge(handover, stalls, on="stall")` ergänzt jeden Umschlag um die `stall_id`, und `expected.reset_index(name="expected")` macht aus `expected` eine Tabelle, die ihr `on="stall_id"` verbinden könnt.
-2. Dann `df["short"] = df["expected"] - df["envelope_eur"]` und `df.groupby("badge")["short"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht den Ausweis, bei dem wirklich etwas zusammenkommt.
-3. `by_badge = df.groupby("badge")["short"].sum()`, dann `badge = by_badge.idxmax()` und `missing = by_badge.max()`.
+2. Dann `df["short"] = df["expected"] - df["envelope_eur"]` und `df.groupby("badge")["short"].sum()`. Ein paar Cent hin oder her sind Münzen; sucht die Ausweise, bei denen wirklich etwas zusammenkommt.
+3. `by_badge = df.groupby("badge")["short"].sum()`, dann `missing = df["short"].sum()`.
 
 ### 6. Gretas Bericht (Abschluss-Schloss)
 
-**Übt:** Ergebnisse aus mehreren Analysen kombinieren und einen Verdacht an den Daten prüfen  
-**Braucht:** 🔒 5. Der Umschlagtisch, 🔎 Helferplan
+**Übt:** Ergebnisse aus mehreren Analysen kombinieren und einen Fehlbetrag mit Belegen aus einer anderen Tabelle ausschließen  
+**Braucht:** 1. Das Marktregister (sein Ergebnis), 5. Der Umschlagtisch (sein Ergebnis), 🔒 5. Der Umschlagtisch, 🔎 Helferplan
 
-**Zahlenschloss** (öffnet mit `145`):
+**Zahlenschloss** (öffnet mit `160`):
 
 > Gretas Berichtsmappe hat ein dreistelliges Zahlenschloss. Ihr Zettel darauf: „Code = die fehlenden Euro insgesamt.“
 
@@ -353,9 +353,9 @@ print(badge, round(missing, 2))
 
 **Hinweise:**
 
-1. Die Beschwerde zeigte auf den Honigstand. Sagen die Umschläge dasselbe?
-2. Der Umschlag von Lena Sommer stimmt auf den Cent. Das Geld ist auf dem Weg von den Ständen ins Büro verschwunden, also schaut, wer die Umschläge getragen hat, in denen etwas fehlt.
-3. Ausweis 7 hat alle vier Umschläge getragen, in denen etwas fehlt. Der Helferplan an der Wand sagt, wer Ausweis 7 trägt.
+1. Bei zwei Ausweisen fehlen 80 €, jeweils aus einem Umschlag. Um welche Umschläge geht es?
+2. Einer davon gehört zum Honigstand neben dem Brunnen, dessen 80 € die Kundin zurückgebracht hat (siehe Marktregister).
+3. Ausweis 9 hat den Umschlag der Imkerei Sommer getragen: Dieser Fehlbetrag ist erklärt. Ausweis 7 hat den Umschlag vom Bienenhaus Okafor getragen, 80 € zu wenig und ohne Erklärung. Der Helferplan an der Wand sagt, wer Ausweis 7 trägt.
 
 ## Hinweise im Raum
 
@@ -371,13 +371,13 @@ print(badge, round(missing, 2))
 >
 > Marktbüro: Südostecke.
 
-### 🔎 Eine Beschwerde
+### 🔎 Ein Zettel im Marktbüro
 
 *Gebraucht von: 1. Das Marktregister*
 
 > An das Marktbüro!
 >
-> Die Frau am **Honigstand direkt neben dem Brunnen** hat mir auf einen Zwanziger herausgegeben, aber ich habe mit einem Fünfziger bezahlt! Ich will meine dreißig Euro zurück.
+> Die Frau am **Honigstand direkt neben dem Brunnen** hat mir Wechselgeld auf einen Hunderter herausgegeben, dabei hatte ich nur mit einem Zwanziger bezahlt! Die 80 Euro habe ich euch zurückgebracht.
 >
 > H. Albers
 

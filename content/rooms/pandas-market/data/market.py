@@ -244,18 +244,18 @@ time,stall_id,item,qty,price,payment
 with open("handover.csv", "w", encoding="utf-8") as _f:
     _f.write("""\
 stall,envelope_eur,badge
-Räucherei Hansen,91.1,7
-Bäckerei Krume,41.9,3
+Räucherei Hansen,141.1,12
+Bäckerei Krume,41.4,3
 Biohof Mertens,105.7,12
 Kräuter & Co,30.2,9
 Mosterei Apfelgrün,24.9,5
-Imkerei Sommer,161.2,9
-Blumen Wild,110.0,7
+Imkerei Sommer,81.2,9
+Blumen Wild,150.0,7
 Hof Linde,74.0,9
-Eierhof Brandt,74.2,7
+Eierhof Brandt,94.2,7
 Obstgarten Petersen,46.4,9
-Bienenhaus Okafor,110.3,12
-Käserei Alpweide,95.6,7
+Bienenhaus Okafor,30.3,7
+Käserei Alpweide,130.6,7
 """)
 
 import pandas as pd
