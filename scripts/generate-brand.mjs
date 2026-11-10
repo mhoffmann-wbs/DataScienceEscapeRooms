@@ -1,6 +1,6 @@
 // Draws the logo and the banner for advertising the app, from the game's own tileset and
 // avatar parts, so they look like the lobby. Run generate-art.mjs first if the art changed.
-// Usage: node scripts/generate-brand.mjs   (writes docs/brand/logo.png and docs/brand/banner.png)
+// Usage: node scripts/generate-brand.mjs   (writes docs/brand/ and the site icons and preview in public/)
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { decode, encode } from './maps/pngio.mjs';
 
@@ -302,5 +302,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   writeFileSync(out + 'logo.png', encode(upscale(logo(), 8)));
   writeFileSync(out + 'logo-icon.png', encode(upscale(icon(), 8)));
   writeFileSync(out + 'banner.png', encode(upscale(banner(), 3)));
+  // The site's tab icon, home-screen icon and link preview image (index.html links them).
+  const pub = REPO + 'public/';
+  mkdirSync(pub, { recursive: true });
+  writeFileSync(pub + 'favicon.png', encode(icon()));
+  writeFileSync(pub + 'apple-touch-icon.png', encode(upscale(icon(), 3)));
+  writeFileSync(pub + 'social.png', encode(upscale(banner(), 3)));
   console.log('wrote docs/brand/logo.png and logo-icon.png (512x512) and docs/brand/banner.png (1632x864)');
+  console.log('wrote public/favicon.png (64x64), apple-touch-icon.png (192x192) and social.png (1632x864)');
 }
