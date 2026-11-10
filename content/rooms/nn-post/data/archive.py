@@ -2807,6 +2807,8 @@ def _apprentice_check(model):
 
 
 def _sort_check(model, letters, bins):
+    """The midnight sort: a well-trained Iris 2 (trained with validation cards), the urgent letters in the
+    format the model expects, and the bins that model reads from them."""
     import tensorflow as tf
     problems = _iris2_layout(model)
     rescales = False
